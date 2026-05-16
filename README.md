@@ -29,5 +29,7 @@ plugin source.
 
 ## Status
 
-Phase 1 (Foundation) complete. Phase 2 (Discipline — OWL 2 RL CONSTRUCT rule layer,
-SHACL validation, kg_explain) is the next plan in `docs/superpowers/plans/`.
+Phase 2 (Discipline) complete: 16 OWL 2 RL rules + fixpoint runner + SHACL
+validator + kg_explain + thin reaper + ontology CI. Phase 3 (Agent loop —
+goal store, gap detector, research orchestrator, schema proposer) is the
+next plan in `docs/superpowers/plans/`.

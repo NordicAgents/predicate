@@ -1,0 +1,48 @@
+@prefix pred: <https://predicate.dev/meta#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Event class hierarchy ---------------------------------------
+
+pred:Event a owl:Class ; rdfs:label "Predicate lifecycle event" .
+
+pred:SchemaProposed         a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaValidationPassed a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaValidationFailed a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaPromoted         a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaRejected         a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaRolledBack       a owl:Class ; rdfs:subClassOf pred:Event .
+pred:TBoxVersionAdvanced    a owl:Class ; rdfs:subClassOf pred:Event .
+
+pred:GoalCreated       a owl:Class ; rdfs:subClassOf pred:Event .
+pred:GoalStatusChanged a owl:Class ; rdfs:subClassOf pred:Event .
+
+pred:InconsistencyDetected a owl:Class ; rdfs:subClassOf pred:Event .
+pred:MaintenanceRun        a owl:Class ; rdfs:subClassOf pred:Event .
+
+# --- Common event properties -------------------------------------
+
+pred:at      a owl:DatatypeProperty , owl:FunctionalProperty ;
+             rdfs:domain pred:Event ; rdfs:range xsd:dateTime .
+pred:actor   a owl:DatatypeProperty ;
+             rdfs:domain pred:Event ; rdfs:range xsd:string .
+pred:goal    a owl:ObjectProperty ; rdfs:domain pred:Event .
+pred:payload a owl:DatatypeProperty ;
+             rdfs:domain pred:Event ; rdfs:range xsd:string .
+
+# --- Provenance properties (already used by kg_assert RDF-star) --
+
+pred:source     a owl:DatatypeProperty ; rdfs:range xsd:string .
+pred:confidence a owl:DatatypeProperty ; rdfs:range xsd:decimal .
+pred:method     a owl:DatatypeProperty ; rdfs:range xsd:string .
+pred:timestamp  a owl:DatatypeProperty ; rdfs:range xsd:dateTime .
+
+# --- Query/usage event class (already used by kg_ask) ------------
+
+pred:Query a owl:Class ; rdfs:label "Query execution record" .
+pred:question  a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:string .
+pred:sparql    a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:string .
+pred:rowCount  a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:integer .
+pred:elapsedMs a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:integer .

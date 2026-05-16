@@ -8,10 +8,12 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src tests --max-warnings 0",
-    "demo": "tsx src/load-corpus.ts && tsx src/ask.ts"
+    "demo": "tsx src/load-corpus.ts && tsx src/ask.ts",
+    "ontology-check": "tsx src/ontology-ci.ts"
   },
   "dependencies": {
     "predicate-mcp": "workspace:*",
+    "predicate-reasoner": "workspace:*",
     "tsx": "^4.16.0"
   },
   "devDependencies": {

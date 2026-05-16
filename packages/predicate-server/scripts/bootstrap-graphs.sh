@@ -13,12 +13,15 @@ for g in kg:tbox kg:tbox-staging kg:abox kg:inferred kg:provenance kg:goals kg:u
 done
 
 # Load seed TBox
-TBOX_PATH="${PREDICATE_TBOX_PATH:-../predicate-ontology/tbox/codebase.ttl}"
-if [ -f "$TBOX_PATH" ]; then
-  echo "loading TBox from $TBOX_PATH"
-  curl -fsS -u "admin:${ADMIN_PASSWORD}" -X POST \
-    --header "Content-Type: text/turtle" \
-    --data-binary "@$TBOX_PATH" \
-    "$HOST/$DATASET/data?graph=kg:tbox"
-fi
+for TBOX in "../predicate-ontology/tbox/codebase.ttl" \
+            "../predicate-ontology/meta/predicate-meta.ttl" \
+            "../predicate-ontology/shapes/codebase.shacl.ttl"; do
+  if [ -f "$TBOX" ]; then
+    echo "loading TBox from $TBOX"
+    curl -fsS -u "admin:${ADMIN_PASSWORD}" -X POST \
+      --header "Content-Type: text/turtle" \
+      --data-binary "@$TBOX" \
+      "$HOST/$DATASET/data?graph=kg:tbox"
+  fi
+done
 echo "bootstrap complete"

@@ -6,5 +6,8 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.test.ts'],
     testTimeout: 10_000,
+    // Test files share live Fuseki state (kg:abox, kg:provenance, etc.).
+    // Run them serially within this package to avoid cross-file races.
+    fileParallelism: false,
   },
 });
