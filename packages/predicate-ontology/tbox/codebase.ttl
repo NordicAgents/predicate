@@ -1,0 +1,68 @@
+@prefix :       <https://predicate.dev/codebase#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Classes -------------------------------------------------------
+
+:Artifact     a owl:Class ; rdfs:label "Artifact" .
+:File         a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "File" .
+:Symbol       a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "Symbol" .
+:Function     a owl:Class ; rdfs:subClassOf :Symbol   ; rdfs:label "Function" .
+:Class        a owl:Class ; rdfs:subClassOf :Symbol   ; rdfs:label "Class" .
+:Module       a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "Module" .
+:Package      a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "Package" .
+:EnvVar       a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "EnvVar" .
+:Commit       a owl:Class ; rdfs:label "Commit" .
+:Test         a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "Test" .
+
+:Function owl:disjointWith :Class .
+:File     owl:disjointWith :Symbol .
+
+# --- Properties ----------------------------------------------------
+
+:declaredIn   a owl:ObjectProperty ;
+              rdfs:domain :Symbol ; rdfs:range :File ;
+              rdfs:label "declared in" .
+
+:imports      a owl:ObjectProperty , owl:TransitiveProperty ;
+              rdfs:domain :Artifact ; rdfs:range :Artifact ;
+              rdfs:label "imports" .
+
+:calls        a owl:ObjectProperty , owl:TransitiveProperty ;
+              rdfs:domain :Function ; rdfs:range :Function ;
+              rdfs:label "calls" .
+
+:reads        a owl:ObjectProperty ;
+              rdfs:domain :Function ; rdfs:range :EnvVar ;
+              rdfs:label "reads env var" .
+
+:dependsOn    a owl:ObjectProperty , owl:TransitiveProperty ;
+              rdfs:label "depends on" .
+
+# Property chain: f calls g ∧ g declaredIn h → f dependsOn h
+:dependsOn owl:propertyChainAxiom ( :calls :declaredIn ) .
+
+# Imports implies dependsOn
+:imports rdfs:subPropertyOf :dependsOn .
+
+:testedBy     a owl:ObjectProperty ;
+              owl:inverseOf :tests ;
+              rdfs:label "tested by" .
+
+:tests        a owl:ObjectProperty ;
+              rdfs:domain :Test ; rdfs:range :Symbol ;
+              rdfs:label "tests" .
+
+:lastModifiedIn a owl:ObjectProperty , owl:FunctionalProperty ;
+              rdfs:domain :Artifact ; rdfs:range :Commit ;
+              rdfs:label "last modified in" .
+
+:path         a owl:DatatypeProperty , owl:FunctionalProperty ;
+              rdfs:domain :File ; rdfs:range xsd:string ;
+              rdfs:label "path" .
+
+:sha          a owl:DatatypeProperty , owl:FunctionalProperty ;
+              rdfs:domain :Commit ; rdfs:range xsd:string ;
+              rdfs:label "sha" .

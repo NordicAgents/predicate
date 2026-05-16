@@ -1,0 +1,6 @@
+{
+  "version": "0.1.0",
+  "tbox_files": ["tbox/codebase.ttl"],
+  "shape_files": ["shapes/codebase.shacl.ttl"],
+  "domain": "codebase"
+}
