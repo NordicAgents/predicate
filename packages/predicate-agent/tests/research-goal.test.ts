@@ -4,6 +4,12 @@ import { loadConfig } from 'predicate-mcp/src/config.js';
 import { researchGoal } from '../src/research-goal.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { DocsResearchSource } from '../src/research-source.js';
+import { ImportExtractor, FunctionDeclExtractor, EnvVarExtractor } from '../src/extractor.js';
+import type { GoalPlanWithStats } from '../src/types.js';
 
 const client = new SparqlClient(loadConfig());
 
@@ -78,5 +84,57 @@ describe('researchGoal', () => {
       ASK { GRAPH <kg:meta> { ?e a pred:GoalCreated ; pred:goal <${plan.goalId}> } }
     `);
     expect(evt).toBe(true);
+  });
+});
+
+describe('researchGoal with executeResearch=true', () => {
+  let root: string;
+
+  beforeAll(async () => {
+    root = mkdtempSync(join(tmpdir(), 'predicate-research-exec-'));
+    writeFileSync(join(root, 'auth.ts'),
+      "import { verifyJwt } from './jwt';\nexport function login() { return verifyJwt('') }");
+    writeFileSync(join(root, 'jwt.ts'),
+      "export function verifyJwt(t: string) { return process.env.JWT_SECRET !== undefined }");
+  });
+
+  beforeEach(async () => {
+    for (const g of ['kg:abox', 'kg:provenance', 'kg:goals', 'kg:meta']) await reset(g);
+  });
+
+  it('asserts triples to kg:abox and populates stats', async () => {
+    const plan = await researchGoal(client, {
+      goal: 'what depends on auth.ts transitively',
+      source: 'user',
+      executeResearch: true,
+      sources: [new DocsResearchSource({ root, extensions: ['.ts'] })],
+      extractors: [new ImportExtractor(), new FunctionDeclExtractor(), new EnvVarExtractor()],
+    }) as GoalPlanWithStats;
+    expect(plan.stats).toBeDefined();
+    const total = plan.stats!.reduce((n, s) => n + s.assertedCount, 0);
+    expect(total).toBeGreaterThanOrEqual(6);
+
+    const ok = await client.ask(`
+      PREFIX c: <https://predicate.dev/codebase#>
+      ASK { GRAPH <kg:abox> {
+        <https://predicate.dev/codebase/auth.ts> c:imports <https://predicate.dev/codebase/jwt.ts>
+      } }
+    `);
+    expect(ok).toBe(true);
+  });
+
+  it('writes nothing when executeResearch is omitted (backward compatibility)', async () => {
+    const plan = await researchGoal(client, {
+      goal: 'what depends on auth.ts transitively',
+      source: 'user',
+    });
+    expect((plan as { stats?: unknown }).stats).toBeUndefined();
+    const r = await client.select('SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }');
+    expect(parseInt(r.results.bindings[0]!.n!.value, 10)).toBe(0);
+  });
+
+  it('cleanup temp dir', () => {
+    rmSync(root, { recursive: true, force: true });
+    expect(true).toBe(true);
   });
 });
