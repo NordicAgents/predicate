@@ -15,6 +15,34 @@ importers:
         specifier: ^5.5.0
         version: 5.9.3
 
+  packages/predicate-agent:
+    dependencies:
+      predicate-mcp:
+        specifier: workspace:*
+        version: link:../predicate-mcp
+      predicate-reasoner:
+        specifier: workspace:*
+        version: link:../predicate-reasoner
+    devDependencies:
+      '@types/node':
+        specifier: ^20.14.0
+        version: 20.19.41
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.0.0
+        version: 8.59.3(@typescript-eslint/parser@8.59.3(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4)(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.0.0
+        version: 8.59.3(eslint@9.39.4)(typescript@5.9.3)
+      eslint:
+        specifier: ^9.0.0
+        version: 9.39.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@20.19.41)
+
   packages/predicate-eval:
     dependencies:
       predicate-mcp:
