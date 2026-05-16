@@ -1,0 +1,24 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      fuseki:
+        image: stain/jena-fuseki:5.0.0
+        ports: ["3030:3030"]
+        env:
+          ADMIN_PASSWORD: testpass
+        options: >-
+          --health-cmd "curl -fsS http://localhost:3030/$/ping"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: FUSEKI_URL=http://localhost:3030 pnpm test
