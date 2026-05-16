@@ -11,7 +11,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint src tests --max-warnings 0"
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src tests --max-warnings 0"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
