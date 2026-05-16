@@ -111,4 +111,15 @@ describe('rules 2–5', () => {
     `);
     expect(ok).toBe(false);
   });
+
+  it('r16: subPropertyOf propagates the relation to the superproperty', async () => {
+    // TBox already has: ex:owns rdfs:subPropertyOf ex:possesses (set in beforeAll)
+    await withProv('<https://ex/alice>', '<https://ex/owns>', '<https://ex/widget>', 1);
+    await M();
+    const ok = await client.ask(`
+      PREFIX ex: <https://ex/>
+      ASK { GRAPH <${I}> { ex:alice ex:possesses ex:widget } }
+    `);
+    expect(ok).toBe(true);
+  });
 });
