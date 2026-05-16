@@ -5,6 +5,7 @@ import { kgAsk } from './kg-ask.js';
 import { kgAssert, type Triple } from './kg-assert.js';
 import { kgExplain } from './kg-explain.js';
 import { kgMaintain } from './kg-maintain.js';
+import { kgResearchGoal } from './kg-research-goal.js';
 import { NotImplementedError } from './stubs.js';
 
 export interface ToolDef {
@@ -94,6 +95,23 @@ export function buildTools(client: SparqlClient): ToolDef[] {
         return kgMaintain(client, raw as Parameters<typeof kgMaintain>[1]);
       },
     },
+    {
+      name: 'kg_research_goal',
+      description: 'Decompose a goal and report which predicates the live TBox can/cannot answer; returns a GoalPlan.',
+      inputSchema: z.object({
+        goal: z.string().min(1),
+        source: z.enum(['user', 'inferred']).optional(),
+        parentGoal: z.string().optional(),
+      }),
+      handler: async (raw): Promise<unknown> => {
+        const args = z.object({
+          goal: z.string(),
+          source: z.enum(['user', 'inferred']).optional(),
+          parentGoal: z.string().optional(),
+        }).parse(raw);
+        return kgResearchGoal(client, args);
+      },
+    },
     ...stubs(),
   ];
 }
@@ -101,7 +119,6 @@ export function buildTools(client: SparqlClient): ToolDef[] {
 function stubs(): ToolDef[] {
   const names: [string, string][] = [
     ['kg_propose_schema', 'Stage a schema delta for review.'],
-    ['kg_research_goal', 'Run gap-detect → research → propose loop for a goal.'],
     ['kg_stats', 'Graph stats: triples, inferred ratio, materialization latency.'],
   ];
   return names.map(([name, description]) => ({
