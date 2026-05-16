@@ -8,7 +8,11 @@ services:
       ADMIN_PASSWORD: ${PREDICATE_ADMIN_PASSWORD:-changeme}
       FUSEKI_BASE: /fuseki
     volumes:
+      # Named volume for /fuseki: bind-mounting it makes virtiofs fight
+      # nested mounts on macOS Docker Desktop, and Fuseki rejects a
+      # read-only configuration dir even with no nested mount.
       - fuseki-data:/fuseki
+      # Config lives outside FUSEKI_BASE; we point Fuseki at it via --conf.
       - ./fuseki/config.ttl:/fuseki-config/predicate.ttl:ro
     command: ["/jena-fuseki/fuseki-server", "--conf", "/fuseki-config/predicate.ttl"]
     healthcheck:

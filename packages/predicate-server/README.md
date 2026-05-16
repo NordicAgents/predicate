@@ -16,3 +16,17 @@ Apache Jena Fuseki 5.x + TDB2, bound to localhost only.
 ## Endpoint
 
     http://localhost:3030/predicate/{query,update,data}
+
+## Auth
+
+`/predicate/update` requires HTTP Basic auth (`admin` / `$PREDICATE_ADMIN_PASSWORD`,
+default `changeme`). The bootstrap script reads `$PREDICATE_ADMIN_PASSWORD`
+automatically. SPARQL queries to `/predicate/query` are unauthenticated.
+
+## Note on empty graphs
+
+TDB2 does not persist a named graph until it holds at least one triple, so
+`CREATE SILENT GRAPH <kg:foo>` is effectively a no-op on its own. The bootstrap
+script runs the `CREATE` for documentation/auditability, but the graphs
+materialize on first write. SPARQL queries against an unwritten named graph
+return empty results without error — which is the contract this project relies on.
