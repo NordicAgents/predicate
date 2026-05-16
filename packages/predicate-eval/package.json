@@ -12,6 +12,7 @@
     "ontology-check": "tsx src/ontology-ci.ts"
   },
   "dependencies": {
+    "predicate-agent": "workspace:^",
     "predicate-mcp": "workspace:*",
     "predicate-reasoner": "workspace:*",
     "tsx": "^4.16.0"
