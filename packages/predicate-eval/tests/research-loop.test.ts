@@ -1,9 +1,15 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
-import { researchGoal } from 'predicate-agent/src/index.js';
+import {
+  researchGoal,
+  DocsResearchSource,
+  ImportExtractor,
+  FunctionDeclExtractor,
+  EnvVarExtractor,
+} from 'predicate-agent/src/index.js';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, resolve as resolvePath } from 'node:path';
 import { RESEARCH_QUESTIONS } from '../src/research-questions.js';
 
 const client = new SparqlClient(loadConfig());
@@ -46,4 +52,45 @@ describe('research loop over the 5 starter questions', () => {
       expect(allAnswerable).toBe(expectedAnswerable);
     });
   }
+});
+
+describe('research loop end-to-end against the demo corpus', () => {
+  beforeEach(async () => {
+    for (const g of ['kg:abox', 'kg:provenance']) {
+      await reset(g);
+    }
+  });
+
+  it('a find-dependencies goal adds :imports edges from the demo corpus', async () => {
+    const corpusRoot = resolvePath(
+      import.meta.dirname, '..', 'fixtures', 'demo-corpus',
+    );
+
+    const plan = await researchGoal(client, {
+      goal: 'what depends on auth.ts transitively',
+      source: 'user',
+      executeResearch: true,
+      sources: [new DocsResearchSource({ root: corpusRoot, extensions: ['.ts'] })],
+      extractors: [new ImportExtractor(), new FunctionDeclExtractor(), new EnvVarExtractor()],
+    }) as { stats: Array<{ assertedCount: number }> };
+
+    const total = plan.stats.reduce((n, s) => n + s.assertedCount, 0);
+    expect(total).toBeGreaterThanOrEqual(6);
+
+    const importOk = await client.ask(`
+      PREFIX c: <https://predicate.dev/codebase#>
+      ASK { GRAPH <kg:abox> {
+        <https://predicate.dev/codebase/auth.ts> c:imports <https://predicate.dev/codebase/jwt.ts>
+      } }
+    `);
+    expect(importOk).toBe(true);
+
+    const envReadOk = await client.ask(`
+      PREFIX c: <https://predicate.dev/codebase#>
+      ASK { GRAPH <kg:abox> {
+        <https://predicate.dev/codebase/jwt.ts#verifyJwt> c:reads <https://predicate.dev/codebase/env/JWT_SECRET>
+      } }
+    `);
+    expect(envReadOk).toBe(true);
+  });
 });

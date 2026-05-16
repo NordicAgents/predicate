@@ -97,17 +97,21 @@ export function buildTools(client: SparqlClient): ToolDef[] {
     },
     {
       name: 'kg_research_goal',
-      description: 'Decompose a goal and report which predicates the live TBox can/cannot answer; returns a GoalPlan.',
+      description: 'Decompose a goal and report which predicates the live TBox can/cannot answer. When executeResearch=true and corpusRoot is provided, also fetch artifacts from that directory, extract candidate triples, and assert them via kg_assert.',
       inputSchema: z.object({
         goal: z.string().min(1),
         source: z.enum(['user', 'inferred']).optional(),
         parentGoal: z.string().optional(),
+        executeResearch: z.boolean().optional(),
+        corpusRoot: z.string().optional(),
       }),
       handler: async (raw): Promise<unknown> => {
         const args = z.object({
           goal: z.string(),
           source: z.enum(['user', 'inferred']).optional(),
           parentGoal: z.string().optional(),
+          executeResearch: z.boolean().optional(),
+          corpusRoot: z.string().optional(),
         }).parse(raw);
         return kgResearchGoal(client, args);
       },

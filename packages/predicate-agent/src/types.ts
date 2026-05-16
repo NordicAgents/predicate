@@ -43,3 +43,44 @@ export interface GoalPlan {
   subQuestions: SubQuestion[];
   gaps: GapReport[];
 }
+
+// --- Phase 3b: research execution -------------------------------------
+
+export interface ResearchArtifact {
+  source: string;                           // source name (e.g. "docs")
+  uri: string;                              // file path or URL
+  content: string;
+  metadata: Record<string, string>;
+}
+
+export interface ResearchQuery {
+  intent: SubQuestionIntent;
+  symbols?: string[];                       // optional hint
+  paths?: string[];                         // optional hint
+}
+
+export interface CandidateTriple {
+  subject: string;
+  predicate: string;
+  object: { type: 'uri' | 'literal'; value: string };
+  source: string;                           // e.g. "file:///repo/auth.ts:3"
+  confidence: number;                       // [0, 1]
+  method: string;                           // e.g. "regex-import"
+}
+
+export interface ResearchStats {
+  subQuestionId: string;
+  artifactsFetched: number;
+  candidatesExtracted: number;
+  assertedCount: number;
+  rejectedCount: number;
+  errors: string[];
+}
+
+/**
+ * GoalPlan with an optional execution report. The `stats` field is populated
+ * when `researchGoal({ executeResearch: true })` is called.
+ */
+export interface GoalPlanWithStats extends GoalPlan {
+  stats?: ResearchStats[];
+}
