@@ -24,6 +24,7 @@ export function closureEligible(
       }
     }
   `).join('\n    UNION\n');
+  const aboxUnion = aboxBlocks.length > 0 ? `\n    UNION\n    ${aboxBlocks}` : '';
   return `
     {
       GRAPH <${cfg.tboxGraph}> { ${s} ${p} ${o} }
@@ -31,8 +32,6 @@ export function closureEligible(
     UNION
     {
       GRAPH <${cfg.inferredGraph}> { ${s} ${p} ${o} }
-    }
-    UNION
-    ${aboxBlocks}
+    }${aboxUnion}
   `;
 }
