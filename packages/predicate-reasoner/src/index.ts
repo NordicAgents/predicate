@@ -8,6 +8,7 @@ import type {
 import { RULES, r11 } from './rules/index.js';
 import type { Rule } from './rules/types.js';
 import { runFixpoint } from './fixpoint.js';
+import { runValidation } from './validate.js';
 
 export * from './types.js';
 
@@ -39,8 +40,8 @@ export class FusekiConstructAdapter implements ReasonerAdapter {
     };
   }
 
-  async validate(_input: ValidateInput): Promise<ValidationResult> {
-    throw new Error('validate: not implemented (Task 7)');
+  async validate(input: ValidateInput): Promise<ValidationResult> {
+    return runValidation(this.client, input);
   }
   async explain(_claim: Quad): Promise<InferenceTrace | null> {
     throw new Error('explain: not implemented (Task 8)');

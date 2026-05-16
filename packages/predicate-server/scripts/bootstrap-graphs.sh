@@ -14,7 +14,8 @@ done
 
 # Load seed TBox
 for TBOX in "../predicate-ontology/tbox/codebase.ttl" \
-            "../predicate-ontology/meta/predicate-meta.ttl"; do
+            "../predicate-ontology/meta/predicate-meta.ttl" \
+            "../predicate-ontology/shapes/codebase.shacl.ttl"; do
   if [ -f "$TBOX" ]; then
     echo "loading TBox from $TBOX"
     curl -fsS -u "admin:${ADMIN_PASSWORD}" -X POST \
