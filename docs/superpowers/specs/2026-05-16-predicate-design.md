@@ -113,9 +113,30 @@ Exactly the 8 graphs from PRD §7.2:
 | `kg:provenance` | RDF-star metadata per triple | append | every writer |
 | `kg:goals` | goals, decompositions, status | live | goal store |
 | `kg:usage` | query/access logs | append | SPARQL planner |
-| `kg:meta` | TBox version history + justifications | append | promotion sweeper |
+| `kg:meta` | Lifecycle event log: schema proposals, gate decisions, promotions, rejections, rollbacks, goal status changes, maintenance runs, reasoner inconsistencies, TBox version history | append | every mutating tool + every gate decision |
 
 Worktree isolation (from context-mode): the Fuseki dataset name is hashed from `git rev-parse --show-toplevel` plus an optional worktree suffix. If `PREDICATE_PER_WORKTREE=1`, each git worktree gets its own `kg:abox` while sharing `kg:tbox` and `kg:meta`.
+
+### 5.1 Lifecycle event log
+
+`kg:meta` is the append-only audit trail for every **product event** — distinct from `kg:provenance` (per-triple data lineage) and `kg:usage` (per-query telemetry). Every mutating operation and every gate decision writes one event record carrying timestamp, actor (agent or sweeper), motivating goal (if any), and a type-specific payload. Events are *metadata about the system's behavior*, never input to the reasoner.
+
+Event types (v1):
+
+| Event type | Emitted by | Payload |
+|---|---|---|
+| `schema-proposed` | `kg_propose_schema` | delta, justification, goal |
+| `schema-validation-passed` | promotion sweeper | proposal-id, impact stats |
+| `schema-validation-failed` | promotion sweeper | proposal-id, gate, reason |
+| `schema-promoted` | promotion sweeper | proposal-id, git SHA, final use-count |
+| `schema-rejected` | promotion sweeper | proposal-id, reason (`expired` \| `validation`) |
+| `schema-rolled-back` | maintenance / manual | from-version, to-version, reason |
+| `goal-created` / `goal-status-changed` | host agent, sweeper | goal-id, transition, source |
+| `inconsistency-detected` | reasoner adapter | conflicting triples, rule, severity |
+| `maintenance-run` | `kg_maintain` | archived-count, generalized-count, duration |
+| `tbox-version-advanced` | promotion sweeper | from-version, to-version, git SHA |
+
+The event log is the data foundation for the deferred web/visualizer surface (see §15), for the success-metric dashboards (§16), and for any future external audit story. Because `kg:meta` is RDF in the same dataset, every event is queryable with SPARQL — the visualizer is a read-only consumer, not a separate system.
 
 ## 6. The eight MCP tools
 
@@ -126,9 +147,11 @@ Worktree isolation (from context-mode): the Fuseki dataset name is hashed from `
 | `kg_explain(claim)` | inference trace | — | Must accompany any answer the user might act on |
 | `kg_assert(triple, source, confidence)` | `kg:tbox` (validation) | `kg:abox`, `kg:provenance` | Source URI/path + confidence ∈ [0,1] required |
 | `kg_propose_schema(delta, justification)` | `kg:tbox`, ABox sample | `kg:tbox-staging`, `kg:meta` | Never write directly to `kg:tbox` |
-| `kg_research_goal(goal)` | web + docs | `kg:goals`, then assertions/proposals | Goal must link to current session intent |
+| `kg_research_goal(goal)` | web + docs | `kg:goals`, `kg:meta` (goal events), then assertions/proposals | Goal must link to current session intent |
 | `kg_stats()` | all graphs | — | — |
-| `kg_maintain()` | usage, provenance | `kg:abox` (archive), staging (expire) | Idempotent; safe on a cron |
+| `kg_maintain()` | usage, provenance | `kg:abox` (archive), staging (expire), `kg:meta` (`maintenance-run` event) | Idempotent; safe on a cron |
+
+Every tool in this table that has `kg:meta` in its Writes column emits a typed event record per §5.1. The reasoner adapter and the promotion sweeper write `kg:meta` events too, even though they are not user-callable tools.
 
 ## 7. The SKILL.md — host-agent contract
 
@@ -246,6 +269,7 @@ The lessons from superpowers tell us discipline mechanisms must be **explicit, n
 | SHACL post-materialization | reasoner adapter | closed-world constraint violation |
 | Low-confidence exclusion | reasoner adapter | poisoned entailment |
 | RDF-star provenance on every triple | every writer | un-auditable claims |
+| Lifecycle event log in `kg:meta` (§5.1) | every mutating tool + every gate | untraceable schema or goal changes; no "what happened when" timeline |
 | Git-tracked TBox | promotion sweeper | un-reviewable schema change, no rollback |
 
 ## 14. Risks and countermeasures
@@ -264,6 +288,7 @@ The lessons from superpowers tell us discipline mechanisms must be **explicit, n
 - GraphDB / RDFox adapter implementations (interface ships, only Fuseki-CONSTRUCT impl).
 - Multi-domain TBoxes (seed = codebase domain; SRE/security/research deferred).
 - Cloud sync / multi-machine continuity.
+- Web view / lifecycle visualizer (the `kg:meta` event log defined in §5.1 ships in v1; the UI consuming it is post-v1, see brainstorming notes).
 
 ## 16. Success criteria (from PRD §12, made measurable)
 
