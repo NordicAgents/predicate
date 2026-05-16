@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { SparqlClient } from '../../src/sparql/client.js';
 import { loadConfig } from '../../src/config.js';
-import { GRAPH } from '../../src/graphs.js';
 
 const cfg = loadConfig();
 const client = new SparqlClient(cfg);
@@ -44,7 +43,12 @@ describe('SparqlClient', () => {
   });
 
   it('reads graph metadata even when empty', async () => {
+    // Insert a sentinel triple so TEST_GRAPH is non-empty, then verify
+    // knownGraphs() returns it.  This avoids depending on kg:tbox being
+    // populated at exactly this moment (another test file resets it in
+    // its own beforeAll and they run concurrently).
+    await client.update(`INSERT DATA { GRAPH <${TEST_GRAPH}> { <urn:sentinel> <urn:p> "1" . } }`);
     const known = await client.knownGraphs();
-    expect(known).toEqual(expect.arrayContaining([GRAPH.tbox]));
+    expect(known).toEqual(expect.arrayContaining([TEST_GRAPH]));
   });
 });
