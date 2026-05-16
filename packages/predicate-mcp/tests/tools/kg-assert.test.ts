@@ -93,3 +93,46 @@ describe('kg_assert', () => {
     expect(ok).toBe(true);
   });
 });
+
+describe('kg_assert TBox-membership check', () => {
+  it('rejects a triple whose predicate is not declared in kg:tbox', async () => {
+    await expect(
+      kgAssert(client, {
+        subject: 'urn:test:a',
+        predicate: 'https://predicate.dev/codebase#totallyMadeUp',
+        object: { type: 'uri', value: 'urn:test:b' },
+        source: 'test', confidence: 1, method: 'test',
+      }),
+    ).rejects.toThrow(/not declared/);
+  });
+
+  it('accepts rdf:type as a universally-legal predicate', async () => {
+    await kgAssert(client, {
+      subject: 'urn:test:c',
+      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: { type: 'uri', value: 'https://predicate.dev/codebase#File' },
+      source: 'test', confidence: 1, method: 'test',
+    });
+    const ok = await client.ask(`
+      ASK { GRAPH <kg:abox> { <urn:test:c>
+            <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+            <https://predicate.dev/codebase#File> } }
+    `);
+    expect(ok).toBe(true);
+  });
+
+  it('accepts a triple whose predicate is in kg:tbox-staging', async () => {
+    await client.update(`
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      INSERT DATA { GRAPH <kg:tbox-staging> {
+        <https://predicate.dev/codebase#stagedProp> a owl:ObjectProperty .
+      } }
+    `);
+    await kgAssert(client, {
+      subject: 'urn:test:d',
+      predicate: 'https://predicate.dev/codebase#stagedProp',
+      object: { type: 'uri', value: 'urn:test:e' },
+      source: 'test', confidence: 1, method: 'test',
+    });
+  });
+});
