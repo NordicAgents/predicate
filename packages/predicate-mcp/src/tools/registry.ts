@@ -7,7 +7,7 @@ import { kgExplain } from './kg-explain.js';
 import { kgMaintain } from './kg-maintain.js';
 import { kgResearchGoal } from './kg-research-goal.js';
 import { kgProposeSchema } from './kg-propose-schema.js';
-import { NotImplementedError } from './stubs.js';
+import { kgStats } from './kg-stats.js';
 
 const deltaQuadSchema = z.object({
   s: z.string(),
@@ -174,18 +174,16 @@ export function buildTools(client: SparqlClient): ToolDef[] {
         return kgProposeSchema(client, args);
       },
     },
+    {
+      name: 'kg_stats',
+      description: 'Return current graph counts (triples, abox, inferred, tbox), inferredRatio, unusedConceptRatio, and materializationLatencyMsP95.',
+      inputSchema: z.object({}),
+      handler: async (): Promise<unknown> => kgStats(client),
+    },
     ...stubs(),
   ];
 }
 
 function stubs(): ToolDef[] {
-  const names: [string, string][] = [
-    ['kg_stats', 'Graph stats: triples, inferred ratio, materialization latency.'],
-  ];
-  return names.map(([name, description]) => ({
-    name,
-    description,
-    inputSchema: z.unknown(),
-    handler: async (): Promise<never> => { throw new NotImplementedError(name); },
-  }));
+  return [];
 }

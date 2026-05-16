@@ -22,8 +22,10 @@ describe('tool registry', () => {
     );
   });
 
-  it('stub tools throw NotImplementedError', async () => {
-    const stub = tools.find((t) => t.name === 'kg_stats')!;
-    await expect(stub.handler({})).rejects.toThrow(/Phase 1 stub/);
+  it('no remaining stubs — all 8 tools are implemented', () => {
+    expect(names).toEqual(expect.arrayContaining([
+      'kg_explore_schema', 'kg_ask', 'kg_assert', 'kg_explain',
+      'kg_propose_schema', 'kg_research_goal', 'kg_stats', 'kg_maintain',
+    ]));
   });
 });
