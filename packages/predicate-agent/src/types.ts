@@ -152,3 +152,29 @@ export interface SweeperResult {
   decisions: PromotionDecision[];
   durationMs: number;
 }
+
+// --- Phase 4: stats + generalization ----------------------------------
+
+export interface KgStats {
+  triples: number;
+  abox: number;
+  inferred: number;
+  tbox: number;
+  classes: number;
+  inferredRatio: number;
+  unusedConceptRatio: number;
+  materializationLatencyMsP95: number;
+}
+
+export interface GeneralizerProposal {
+  fingerprint: string[];
+  members: string[];
+  proposalId: string;
+  className: string;
+}
+
+export interface GeneralizerResult {
+  proposals: GeneralizerProposal[];
+  scannedSubjects: number;
+  durationMs: number;
+}
