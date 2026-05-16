@@ -1,0 +1,36 @@
+name: ontology-ci
+on:
+  pull_request:
+    paths:
+      - 'packages/predicate-ontology/**'
+      - 'packages/predicate-reasoner/**'
+
+jobs:
+  validate-ontology:
+    runs-on: ubuntu-latest
+    services:
+      fuseki:
+        image: stain/jena-fuseki:5.0.0
+        ports: ["3030:3030"]
+        env:
+          ADMIN_PASSWORD: testpass
+        options: >-
+          --health-cmd "curl -fsS http://localhost:3030/$/ping"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    env:
+      PREDICATE_ADMIN_PASSWORD: testpass
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - name: bootstrap graphs
+        run: |
+          cd packages/predicate-server
+          FUSEKI_URL=http://localhost:3030 ./scripts/bootstrap-graphs.sh
+      - run: pnpm --filter predicate-mcp build
+      - run: pnpm --filter predicate-reasoner build
+      - name: ontology check
+        run: FUSEKI_URL=http://localhost:3030 pnpm --filter predicate-eval ontology-check

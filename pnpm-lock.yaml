@@ -20,6 +20,9 @@ importers:
       predicate-mcp:
         specifier: workspace:*
         version: link:../predicate-mcp
+      predicate-reasoner:
+        specifier: workspace:*
+        version: link:../predicate-reasoner
       tsx:
         specifier: ^4.16.0
         version: 4.22.0
