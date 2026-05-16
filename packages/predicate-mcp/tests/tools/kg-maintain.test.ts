@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { SparqlClient } from '../../src/sparql/client.js';
 import { loadConfig } from '../../src/config.js';
 import { kgMaintain } from '../../src/tools/kg-maintain.js';
+import { SchemaProposer } from 'predicate-agent/src/index.js';
 
 const client = new SparqlClient(loadConfig());
 
@@ -91,5 +92,27 @@ describe('kg_maintain (thin reaper)', () => {
     `);
     const r = await kgMaintain(client, { archiveCutoff: 0.6, ageDays: 30 });
     expect(r.archivedCount).toBe(0);
+  });
+});
+
+describe('kg_maintain runs the promotion sweeper', () => {
+  it('reports sweeper decisions alongside reaper output', async () => {
+    const proposer = new SchemaProposer(client);
+    const id = await proposer.propose({
+      kind: 'add-property',
+      add: [{
+        s: 'https://predicate.dev/codebase#tempProp',
+        p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+        o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#ObjectProperty' },
+      }],
+    }, { justification: 'maintain test' });
+
+    const result = await kgMaintain(client, { archiveCutoff: 0.6, ageDays: 30 });
+    expect(result.sweeper).toBeDefined();
+    expect(result.sweeper!.decisions.find((d) => d.proposalId === id)?.outcome).toBe('awaiting');
+
+    // Cleanup
+    await client.update(`DROP SILENT GRAPH <kg:tbox-staging>`);
+    await client.update(`CREATE SILENT GRAPH <kg:tbox-staging>`);
   });
 });
