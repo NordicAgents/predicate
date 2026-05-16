@@ -23,7 +23,7 @@ describe('tool registry', () => {
   });
 
   it('stub tools throw NotImplementedError', async () => {
-    const stub = tools.find((t) => t.name === 'kg_explain')!;
+    const stub = tools.find((t) => t.name === 'kg_propose_schema')!;
     await expect(stub.handler({})).rejects.toThrow(/Phase 1 stub/);
   });
 });

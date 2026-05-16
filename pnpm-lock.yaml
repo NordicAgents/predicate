@@ -48,6 +48,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.0
         version: 1.29.0(zod@3.25.76)
+      predicate-reasoner:
+        specifier: workspace:^
+        version: link:../predicate-reasoner
       zod:
         specifier: ^3.23.0
         version: 3.25.76

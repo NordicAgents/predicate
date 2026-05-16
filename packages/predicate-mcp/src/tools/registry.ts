@@ -3,6 +3,7 @@ import { SparqlClient } from '../sparql/client.js';
 import { kgExploreSchema } from './kg-explore-schema.js';
 import { kgAsk } from './kg-ask.js';
 import { kgAssert, type Triple } from './kg-assert.js';
+import { kgExplain } from './kg-explain.js';
 import { NotImplementedError } from './stubs.js';
 
 export interface ToolDef {
@@ -61,13 +62,32 @@ export function buildTools(client: SparqlClient): ToolDef[] {
         return { ok: true };
       },
     },
+    {
+      name: 'kg_explain',
+      description: 'Return one valid inference trace for a claim, with cited provenance for every asserted premise.',
+      inputSchema: z.object({
+        subject: z.string(),
+        predicate: z.string(),
+        object: z.object({
+          type: z.enum(['uri', 'literal']),
+          value: z.string(),
+        }),
+      }),
+      handler: async (raw): Promise<unknown> => {
+        const args = z.object({
+          subject: z.string(),
+          predicate: z.string(),
+          object: z.object({ type: z.enum(['uri', 'literal']), value: z.string() }),
+        }).parse(raw);
+        return kgExplain(client, args);
+      },
+    },
     ...stubs(),
   ];
 }
 
 function stubs(): ToolDef[] {
   const names: [string, string][] = [
-    ['kg_explain', 'Return the inference path for a claim.'],
     ['kg_propose_schema', 'Stage a schema delta for review.'],
     ['kg_research_goal', 'Run gap-detect → research → propose loop for a goal.'],
     ['kg_stats', 'Graph stats: triples, inferred ratio, materialization latency.'],

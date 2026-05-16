@@ -1,11 +1,14 @@
+import type { Quad } from '../types.js';
+
 export interface Rule {
   id: string;                       // e.g. 'r01-subclassof-transitivity'
   name: string;                     // human label
   insertWhere: (cfg: RuleConfig) => string;
-  /** For backward-chained kg_explain (filled in Task 8). */
+  /** For backward-chained kg_explain — define for rules producing common inferences. */
   backward?: {
-    headPattern: (vars: { s: string; p: string; o: string }) => string;
-    premisePatterns: (binding: Record<string, string>) => string[];
+    matches: (q: Quad) => boolean;
+    premiseQuery: (q: Quad) => string;          // SPARQL SELECT
+    buildPremises: (q: Quad, binding: Record<string, string>) => Quad[];
   };
 }
 
