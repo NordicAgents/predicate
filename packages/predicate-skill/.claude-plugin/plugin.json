@@ -1,0 +1,17 @@
+{
+  "name": "predicate",
+  "version": "0.1.0",
+  "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents.",
+  "mcpServers": {
+    "predicate": {
+      "command": "node",
+      "args": ["${PLUGIN_DIR}/../predicate-mcp/dist/src/index.js"],
+      "env": {
+        "FUSEKI_URL": "http://localhost:3030",
+        "PREDICATE_DATASET": "predicate"
+      }
+    }
+  },
+  "skills": ["skills/predicate"],
+  "hooks": "hooks/hooks.json"
+}
