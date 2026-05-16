@@ -116,3 +116,24 @@ describe('kg_maintain runs the promotion sweeper', () => {
     await client.update(`CREATE SILENT GRAPH <kg:tbox-staging>`);
   });
 });
+
+describe('kg_maintain runs the generalizer', () => {
+  it('reports generalizer proposals when ≥K untyped instances share a fingerprint', async () => {
+    for (let i = 0; i < 5; i++) {
+      await client.update(`
+        INSERT DATA { GRAPH <kg:abox> {
+          <urn:gen-item${i}> <urn:gen-p> "v" .
+          <urn:gen-item${i}> <urn:gen-q> "w" .
+        } }
+      `);
+    }
+    const result = await kgMaintain(client, { useThreshold: 3, generalizerK: 5 });
+    expect(result.generalizer).toBeDefined();
+    expect(result.generalizer!.proposals.length).toBeGreaterThanOrEqual(1);
+
+    for (const g of ['kg:abox', 'kg:tbox-staging', 'kg:meta']) {
+      await client.update(`DROP SILENT GRAPH <${g}>`);
+      await client.update(`CREATE SILENT GRAPH <${g}>`);
+    }
+  });
+});

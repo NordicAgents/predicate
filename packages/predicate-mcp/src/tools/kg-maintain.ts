@@ -1,6 +1,9 @@
 import { SparqlClient } from '../sparql/client.js';
 import { escapeLiteral } from '../sparql/escape.js';
-import { PromotionSweeper, type SweeperResult } from 'predicate-agent/src/index.js';
+import {
+  PromotionSweeper, type SweeperResult,
+  Generalizer, type GeneralizerResult,
+} from 'predicate-agent/src/index.js';
 
 const META = 'https://predicate.dev/meta#';
 
@@ -8,6 +11,7 @@ export interface MaintainInput {
   archiveCutoff?: number;
   ageDays?: number;
   useThreshold?: number;
+  generalizerK?: number;
 }
 
 export interface MaintainResult {
@@ -15,6 +19,7 @@ export interface MaintainResult {
   elapsedMs: number;
   eventId: string;
   sweeper?: SweeperResult;
+  generalizer?: GeneralizerResult;
 }
 
 export async function kgMaintain(
@@ -55,6 +60,10 @@ export async function kgMaintain(
   const afterCount = parseInt(after.results.bindings[0]!.n!.value, 10);
   const archivedCount = beforeCount - afterCount;
 
+  const generalizer = await new Generalizer(client, {
+    k: input.generalizerK ?? 5,
+  }).run();
+
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3,
   }).run();
@@ -71,9 +80,10 @@ export async function kgMaintain(
         pred:payload   ${escapeLiteral(JSON.stringify({
           archivedCount, elapsedMs, archiveCutoff, ageDays,
           sweeperDecisions: sweeper.decisions.length,
+          generalizerProposals: generalizer.proposals.length,
         }))} .
     } }
   `);
 
-  return { archivedCount, elapsedMs, eventId, sweeper };
+  return { archivedCount, elapsedMs, eventId, sweeper, generalizer };
 }
