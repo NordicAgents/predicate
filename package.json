@@ -1,0 +1,19 @@
+{
+  "name": "predicate",
+  "private": true,
+  "version": "0.0.1",
+  "packageManager": "pnpm@9.0.0",
+  "engines": { "node": ">=20", "pnpm": ">=9" },
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' build",
+    "test": "pnpm -r --workspace-concurrency=1 --filter './packages/*' test",
+    "typecheck": "pnpm -r --filter './packages/*' typecheck",
+    "lint": "pnpm -r --filter './packages/*' lint",
+    "fuseki:up": "pnpm --filter predicate-server docker:up",
+    "fuseki:down": "pnpm --filter predicate-server docker:down"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^20.14.0"
+  }
+}

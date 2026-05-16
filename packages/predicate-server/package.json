@@ -1,0 +1,10 @@
+{
+  "name": "predicate-server",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "docker:up": "docker compose up -d && ./scripts/wait-for-fuseki.sh && ./scripts/bootstrap-graphs.sh",
+    "docker:down": "docker compose down",
+    "docker:nuke": "docker compose down -v"
+  }
+}

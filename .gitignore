@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+.env
+.env.local
+packages/predicate-server/fuseki-data/
+*.log
+.DS_Store

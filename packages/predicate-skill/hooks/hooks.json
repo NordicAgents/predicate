@@ -1,0 +1,9 @@
+{
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "bash ${PLUGIN_DIR}/hooks/session-start.sh"
+    }
+  ]
+}
