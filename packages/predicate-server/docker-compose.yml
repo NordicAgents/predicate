@@ -1,0 +1,21 @@
+services:
+  fuseki:
+    image: stain/jena-fuseki:5.0.0
+    container_name: predicate-fuseki
+    ports:
+      - "127.0.0.1:3030:3030"
+    environment:
+      ADMIN_PASSWORD: ${PREDICATE_ADMIN_PASSWORD:-changeme}
+      FUSEKI_BASE: /fuseki
+    volumes:
+      - fuseki-data:/fuseki
+      - ./fuseki/config.ttl:/fuseki-config/predicate.ttl:ro
+    command: ["/jena-fuseki/fuseki-server", "--conf", "/fuseki-config/predicate.ttl"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3030/$$/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  fuseki-data:
