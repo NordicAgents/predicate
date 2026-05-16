@@ -6,7 +6,46 @@ import { kgAssert, type Triple } from './kg-assert.js';
 import { kgExplain } from './kg-explain.js';
 import { kgMaintain } from './kg-maintain.js';
 import { kgResearchGoal } from './kg-research-goal.js';
+import { kgProposeSchema } from './kg-propose-schema.js';
 import { NotImplementedError } from './stubs.js';
+
+const deltaQuadSchema = z.object({
+  s: z.string(),
+  p: z.string(),
+  o: z.union([
+    z.object({ type: z.literal('uri'), value: z.string() }),
+    z.object({
+      type: z.literal('literal'), value: z.string(),
+      datatype: z.string().optional(),
+    }),
+  ]),
+});
+
+const schemaDeltaSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('add-class'),
+    add: z.array(deltaQuadSchema),
+    shapes: z.array(deltaQuadSchema).optional(),
+  }),
+  z.object({
+    kind: z.literal('add-property'),
+    add: z.array(deltaQuadSchema),
+    shapes: z.array(deltaQuadSchema).optional(),
+  }),
+  z.object({
+    kind: z.literal('refine-class'),
+    parent: z.string(),
+    add: z.array(deltaQuadSchema),
+    shapes: z.array(deltaQuadSchema).optional(),
+  }),
+  z.object({
+    kind: z.literal('breaking'),
+    remove: z.array(deltaQuadSchema),
+    add: z.array(deltaQuadSchema),
+    migration: z.string(),
+    shapes: z.array(deltaQuadSchema).optional(),
+  }),
+]);
 
 export interface ToolDef {
   name: string;
@@ -116,13 +155,31 @@ export function buildTools(client: SparqlClient): ToolDef[] {
         return kgResearchGoal(client, args);
       },
     },
+    {
+      name: 'kg_propose_schema',
+      description: "Stage a SchemaDelta proposal (add-class, add-property, refine-class, or breaking). Writes to kg:tbox-staging with metadata; emits a SchemaProposed event. Promotion is the sweeper's job.",
+      inputSchema: z.object({
+        delta: schemaDeltaSchema,
+        justification: z.string().min(1),
+        motivatingGoal: z.string().optional(),
+        ttlDays: z.number().int().positive().optional(),
+      }),
+      handler: async (raw): Promise<unknown> => {
+        const args = z.object({
+          delta: schemaDeltaSchema,
+          justification: z.string().min(1),
+          motivatingGoal: z.string().optional(),
+          ttlDays: z.number().int().positive().optional(),
+        }).parse(raw);
+        return kgProposeSchema(client, args);
+      },
+    },
     ...stubs(),
   ];
 }
 
 function stubs(): ToolDef[] {
   const names: [string, string][] = [
-    ['kg_propose_schema', 'Stage a schema delta for review.'],
     ['kg_stats', 'Graph stats: triples, inferred ratio, materialization latency.'],
   ];
   return names.map(([name, description]) => ({

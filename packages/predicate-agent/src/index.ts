@@ -5,3 +5,5 @@ export * from './gap-detector.js';
 export * from './research-goal.js';
 export * from './research-source.js';
 export * from './extractor.js';
+export * from './schema-proposer.js';
+export * from './promotion-sweeper.js';

@@ -1,17 +1,20 @@
 import { SparqlClient } from '../sparql/client.js';
 import { escapeLiteral } from '../sparql/escape.js';
+import { PromotionSweeper, type SweeperResult } from 'predicate-agent/src/index.js';
 
 const META = 'https://predicate.dev/meta#';
 
 export interface MaintainInput {
-  archiveCutoff?: number;   // default 0.6
-  ageDays?: number;         // default 30
+  archiveCutoff?: number;
+  ageDays?: number;
+  useThreshold?: number;
 }
 
 export interface MaintainResult {
   archivedCount: number;
   elapsedMs: number;
   eventId: string;
+  sweeper?: SweeperResult;
 }
 
 export async function kgMaintain(
@@ -52,6 +55,10 @@ export async function kgMaintain(
   const afterCount = parseInt(after.results.bindings[0]!.n!.value, 10);
   const archivedCount = beforeCount - afterCount;
 
+  const sweeper = await new PromotionSweeper(client, {
+    useThreshold: input.useThreshold ?? 3,
+  }).run();
+
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
@@ -61,9 +68,12 @@ export async function kgMaintain(
       <${eventId}> a pred:MaintenanceRun ;
         pred:at        "${new Date().toISOString()}"^^xsd:dateTime ;
         pred:actor     "kg_maintain" ;
-        pred:payload   ${escapeLiteral(JSON.stringify({ archivedCount, elapsedMs, archiveCutoff, ageDays }))} .
+        pred:payload   ${escapeLiteral(JSON.stringify({
+          archivedCount, elapsedMs, archiveCutoff, ageDays,
+          sweeperDecisions: sweeper.decisions.length,
+        }))} .
     } }
   `);
 
-  return { archivedCount, elapsedMs, eventId };
+  return { archivedCount, elapsedMs, eventId, sweeper };
 }

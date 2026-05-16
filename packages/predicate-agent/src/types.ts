@@ -84,3 +84,71 @@ export interface ResearchStats {
 export interface GoalPlanWithStats extends GoalPlan {
   stats?: ResearchStats[];
 }
+
+// --- Phase 3c: schema evolution ---------------------------------------
+
+export type IRI = string;
+export type LiteralTerm = { type: 'literal'; value: string; datatype?: IRI };
+export type Term = { type: 'uri'; value: IRI } | LiteralTerm;
+
+export interface DeltaQuad {
+  s: IRI;
+  p: IRI;
+  o: Term;
+}
+
+export interface AddClassDelta {
+  kind: 'add-class';
+  add: DeltaQuad[];
+  shapes?: DeltaQuad[];
+}
+export interface AddPropertyDelta {
+  kind: 'add-property';
+  add: DeltaQuad[];
+  shapes?: DeltaQuad[];
+}
+export interface RefineClassDelta {
+  kind: 'refine-class';
+  parent: IRI;
+  add: DeltaQuad[];
+  shapes?: DeltaQuad[];
+}
+export interface BreakingDelta {
+  kind: 'breaking';
+  remove: DeltaQuad[];
+  add: DeltaQuad[];
+  migration: string;
+  shapes?: DeltaQuad[];
+}
+export type SchemaDelta =
+  | AddClassDelta
+  | AddPropertyDelta
+  | RefineClassDelta
+  | BreakingDelta;
+
+export interface ProposalMeta {
+  justification: string;
+  motivatingGoal?: IRI;
+  proposedAt: string;
+}
+
+export interface StagedProposal {
+  id: IRI;
+  delta: SchemaDelta;
+  meta: ProposalMeta;
+  useCount: number;
+  expiresAt: string;
+}
+
+export interface PromotionDecision {
+  proposalId: IRI;
+  outcome: 'promoted' | 'rejected-validation' | 'rejected-expired' | 'awaiting';
+  reason?: string;
+  turtleFile?: string;
+  tboxVersion?: IRI;
+}
+
+export interface SweeperResult {
+  decisions: PromotionDecision[];
+  durationMs: number;
+}
