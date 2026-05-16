@@ -4,6 +4,7 @@ import { kgExploreSchema } from './kg-explore-schema.js';
 import { kgAsk } from './kg-ask.js';
 import { kgAssert, type Triple } from './kg-assert.js';
 import { kgExplain } from './kg-explain.js';
+import { kgMaintain } from './kg-maintain.js';
 import { NotImplementedError } from './stubs.js';
 
 export interface ToolDef {
@@ -82,6 +83,17 @@ export function buildTools(client: SparqlClient): ToolDef[] {
         return kgExplain(client, args);
       },
     },
+    {
+      name: 'kg_maintain',
+      description: 'Archive stale low-confidence ABox triples; emit a MaintenanceRun event.',
+      inputSchema: z.object({
+        archiveCutoff: z.number().min(0).max(1).optional(),
+        ageDays: z.number().int().positive().optional(),
+      }),
+      handler: async (raw): Promise<unknown> => {
+        return kgMaintain(client, raw as Parameters<typeof kgMaintain>[1]);
+      },
+    },
     ...stubs(),
   ];
 }
@@ -91,7 +103,6 @@ function stubs(): ToolDef[] {
     ['kg_propose_schema', 'Stage a schema delta for review.'],
     ['kg_research_goal', 'Run gap-detect → research → propose loop for a goal.'],
     ['kg_stats', 'Graph stats: triples, inferred ratio, materialization latency.'],
-    ['kg_maintain', 'Trigger pruning, generalization, and refactor sweep.'],
   ];
   return names.map(([name, description]) => ({
     name,
