@@ -5,7 +5,7 @@ import type {
   ValidateInput, ValidationResult,
   InferenceTrace, Quad,
 } from './types.js';
-import { RULES } from './rules/index.js';
+import { RULES, r11 } from './rules/index.js';
 import type { Rule } from './rules/types.js';
 import { runFixpoint } from './fixpoint.js';
 
@@ -25,10 +25,16 @@ export class FusekiConstructAdapter implements ReasonerAdapter {
       inferredGraph: input.targetGraph,
       closureCutoff: input.closureCutoff,
     });
+    const inconsistencies = await r11.findInconsistencies(this.client, {
+      tboxGraph: input.tboxGraph,
+      aboxGraphs: input.aboxGraphs,
+      inferredGraph: input.targetGraph,
+      closureCutoff: input.closureCutoff,
+    });
     return {
       inferredCount,
       iterations,
-      inconsistencies: [],   // populated in Task 6 (rule 11)
+      inconsistencies,
       elapsedMs: Date.now() - t0,
     };
   }

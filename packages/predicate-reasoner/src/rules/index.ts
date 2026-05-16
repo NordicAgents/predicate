@@ -9,7 +9,13 @@ import { r07 } from './r07-range.js';
 import { r08 } from './r08-functional-sameas.js';
 import { r09 } from './r09-inverse-functional.js';
 import { r10 } from './r10-symmetric.js';
+import { r12 } from './r12-equivalent-class.js';
+import { r13 } from './r13-equivalent-property.js';
+import { r14 } from './r14-has-key.js';
+import { r15 } from './r15-type-propagation.js';
 
-export const RULES: Rule[] = [r01, r02, r03, r04, r05, r06, r07, r08, r09, r10];
-
+export const RULES: Rule[] = [
+  r01, r02, r03, r04, r05, r06, r07, r08, r09, r10, r12, r13, r14, r15,
+];
+export { r11 } from './r11-disjoint-with.js';
 export type { Rule, RuleConfig } from './types.js';
