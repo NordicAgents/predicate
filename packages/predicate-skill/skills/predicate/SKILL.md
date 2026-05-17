@@ -16,6 +16,11 @@ Use Predicate when the user asks:
 - **What breaks if** X changes ("blast radius of renaming `validateToken`?")
 - **What's connected to** X transitively ("everything downstream of `JWT_SECRET`?")
 - **Where the contradiction is** ("these two docs disagree — which holds?")
+- **What was done previously** ("which files did I modify last session?",
+  "did `pnpm test` pass last time?", "what commands have failed most often?") —
+  the Stop-hook extractor records every prior session's tool calls into
+  `kg:abox` as `pred:Session` + `codebase:modifiedIn` / `succeededIn` /
+  `failedIn` triples. See worked example 4.
 
 Do NOT use Predicate for:
 - Fuzzy semantic recall ("find docs about login" — use vector search)
@@ -101,7 +106,53 @@ kg_ask(
 )
 ```
 
-## 4. Schema gap → propose
+## 4. Session history — "which files did I touch last session?"
+
+When the user references prior work, query the session-history slice that
+the Stop-hook extractor maintains in `kg:abox`. The relevant predicates
+are `pred:Session` (the session entity), `codebase:modifiedIn`,
+`codebase:succeededIn`, `codebase:failedIn`, `codebase:commandText`.
+
+```
+kg_explore_schema("Session")         # confirm the predicates
+kg_ask(
+  question="Which files did I modify in the most recent session?",
+  sparql="""
+    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb:   <https://predicate.dev/codebase#>
+    SELECT ?file ?session ?at WHERE {
+      GRAPH <kg:abox> {
+        ?session a pred:Session ; pred:at ?at .
+        ?file cb:modifiedIn ?session .
+      }
+    } ORDER BY DESC(?at) LIMIT 20
+  """
+)
+```
+
+Other useful queries on this slice:
+
+```
+# Commands that have failed most often (debug-cycle hotspots)
+SELECT ?text (COUNT(?session) AS ?failures) WHERE {
+  GRAPH <kg:abox> {
+    ?cmd a cb:Command ; cb:commandText ?text ; cb:failedIn ?session .
+  }
+} GROUP BY ?text ORDER BY DESC(?failures)
+
+# Files modified in this session that also failed a command (suspect debug targets)
+SELECT DISTINCT ?file WHERE {
+  GRAPH <kg:abox> {
+    ?file cb:modifiedIn ?session .
+    ?cmd  cb:failedIn   ?session .
+  }
+}
+```
+
+Cite the session URI as provenance when the answer is "you last touched
+auth.ts in session ses-X".
+
+## 5. Schema gap → propose
 
 ```
 # User asks: "which services own these endpoints?"

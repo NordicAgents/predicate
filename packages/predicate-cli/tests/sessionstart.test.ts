@@ -12,6 +12,7 @@ describe('predicate sessionstart', () => {
     const client = new SparqlClient(loadConfig());
     await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
     await client.update(`CREATE SILENT GRAPH <kg:goals>`);
+    await client.update(`CREATE SILENT GRAPH <kg:abox>`);
   });
 
   afterEach(() => {
@@ -27,6 +28,28 @@ describe('predicate sessionstart', () => {
     const line = logSpy.mock.calls[0]![0] as string;
     expect(line).toMatch(/^Predicate ready: \d+ active goals, \d+ TBox classes\./);
     expect(line).toContain('kg_explore_schema');
+  });
+
+  it('mentions prior sessions when kg:abox has Session entities', async () => {
+    const client = new SparqlClient(loadConfig());
+    await client.update(`
+      INSERT DATA { GRAPH <kg:abox> {
+        <urn:predicate:session:test-prior> a <https://predicate.dev/meta#Session> .
+      } }
+    `);
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      const code = await sessionstart();
+      expect(code).toBe(0);
+      const line = logSpy.mock.calls[0]![0] as string;
+      expect(line).toContain('prior session');
+    } finally {
+      await client.update(`
+        DELETE DATA { GRAPH <kg:abox> {
+          <urn:predicate:session:test-prior> a <https://predicate.dev/meta#Session> .
+        } }
+      `);
+    }
   });
 
   it('returns 0 and prints a fallback message when fuseki is unreachable', async () => {
