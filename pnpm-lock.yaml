@@ -51,6 +51,9 @@ importers:
 
   packages/predicate-cli:
     dependencies:
+      predicate-agent:
+        specifier: workspace:*
+        version: link:../predicate-agent
       predicate-mcp:
         specifier: workspace:*
         version: link:../predicate-mcp

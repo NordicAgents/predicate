@@ -11,6 +11,7 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src tests --max-warnings 0"
   },
   "dependencies": {
+    "predicate-agent": "workspace:*",
     "predicate-mcp": "workspace:*"
   },
   "devDependencies": {
