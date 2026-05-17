@@ -5,6 +5,7 @@ import { doctor } from './commands/doctor.js';
 import { stats } from './commands/stats.js';
 import { sessionstart } from './commands/sessionstart.js';
 import { maintain } from './commands/maintain.js';
+import { capture } from './commands/capture.js';
 
 const VERSION = '1.0.0';
 
@@ -18,6 +19,7 @@ Commands:
   stats          Print kg_stats output for the live graph.
   sessionstart   Print a one-line KG status banner (used by hook scripts).
   maintain       Run kg_maintain (reaper + generalizer + sweeper).
+  capture        Record a tool invocation in kg:usage (used by PreTool/PostTool hooks).
   --version      Print the predicate version.
   --help         This message.
 
@@ -27,6 +29,8 @@ Env:
   PREDICATE_ADMIN_USER      admin (default)
   PREDICATE_ADMIN_PASSWORD  changeme (default)
   PREDICATE_COMPOSE_DIR     override docker-compose.yml location
+  PREDICATE_CAPTURE_SKIP    comma list of tool names to skip in kg_capture
+  PREDICATE_CAPTURE_TRUNCATE  max chars per captured input/output (default 500)
 `);
 }
 
@@ -39,6 +43,7 @@ async function main(): Promise<number> {
     case 'stats':        return stats();
     case 'sessionstart': return sessionstart();
     case 'maintain':     return maintain();
+    case 'capture':      return capture(process.argv.slice(3));
     case '--version':
     case 'version':      console.log(VERSION); return 0;
     case undefined:
