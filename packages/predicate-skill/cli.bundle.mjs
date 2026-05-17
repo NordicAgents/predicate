@@ -11250,12 +11250,12 @@ var require_supports_color = __commonJS({
     "use strict";
     var os = __require("os");
     var tty = __require("tty");
-    var hasFlag3 = require_has_flag();
+    var hasFlag4 = require_has_flag();
     var { env } = process;
     var forceColor;
-    if (hasFlag3("no-color") || hasFlag3("no-colors") || hasFlag3("color=false") || hasFlag3("color=never")) {
+    if (hasFlag4("no-color") || hasFlag4("no-colors") || hasFlag4("color=false") || hasFlag4("color=never")) {
       forceColor = 0;
-    } else if (hasFlag3("color") || hasFlag3("colors") || hasFlag3("color=true") || hasFlag3("color=always")) {
+    } else if (hasFlag4("color") || hasFlag4("colors") || hasFlag4("color=true") || hasFlag4("color=always")) {
       forceColor = 1;
     }
     if ("FORCE_COLOR" in env) {
@@ -11282,10 +11282,10 @@ var require_supports_color = __commonJS({
       if (forceColor === 0) {
         return 0;
       }
-      if (hasFlag3("color=16m") || hasFlag3("color=full") || hasFlag3("color=truecolor")) {
+      if (hasFlag4("color=16m") || hasFlag4("color=full") || hasFlag4("color=truecolor")) {
         return 3;
       }
-      if (hasFlag3("color=256")) {
+      if (hasFlag4("color=256")) {
         return 2;
       }
       if (haveStream && !streamIsTTY && forceColor === void 0) {
@@ -27797,9 +27797,101 @@ async function extract(args, stdin = process.stdin) {
   return 0;
 }
 
+// ../predicate-cli/src/commands/sessions.ts
+function parseFlag2(args, name) {
+  const i2 = args.indexOf(name);
+  if (i2 < 0 || i2 + 1 >= args.length) return void 0;
+  return args[i2 + 1];
+}
+function hasFlag3(args, name) {
+  return args.includes(name);
+}
+function help3() {
+  console.log(`predicate sessions [--limit N] [--json]
+
+List recent development sessions captured in kg:abox by the
+Stop-hook extractor (see \`predicate extract\`). Per-session aggregates:
+modifiedFiles (codebase:modifiedIn), succeeded (codebase:succeededIn),
+failed (codebase:failedIn).
+
+Options:
+  --limit N    Show the N most recent sessions (default 10).
+  --json       Output as JSON instead of a table.
+  --help       Print this message.
+`);
+}
+async function fetchSessions(client, limit) {
+  const META8 = "https://predicate.dev/meta#";
+  const CB2 = "https://predicate.dev/codebase#";
+  const rows = await client.select(
+    `PREFIX pred: <${META8}>
+     PREFIX cb:   <${CB2}>
+     SELECT ?s ?sid ?at
+            (COUNT(DISTINCT ?f) AS ?files)
+            (COUNT(DISTINCT ?ok) AS ?okN)
+            (COUNT(DISTINCT ?bad) AS ?badN)
+     WHERE {
+       GRAPH <kg:abox> {
+         ?s a pred:Session ;
+            pred:sessionId ?sid ;
+            pred:at        ?at .
+         OPTIONAL { ?f   cb:modifiedIn  ?s }
+         OPTIONAL { ?ok  cb:succeededIn ?s }
+         OPTIONAL { ?bad cb:failedIn    ?s }
+       }
+     }
+     GROUP BY ?s ?sid ?at
+     ORDER BY DESC(?at)
+     LIMIT ${limit}`
+  );
+  return rows.results.bindings.map((b2) => ({
+    sessionUri: b2["s"].value,
+    sessionId: b2["sid"].value,
+    startedAt: b2["at"].value,
+    modifiedFiles: parseInt(b2["files"].value, 10),
+    succeeded: parseInt(b2["okN"].value, 10),
+    failed: parseInt(b2["badN"].value, 10)
+  }));
+}
+function renderTable(rows) {
+  if (rows.length === 0) return "(no sessions in kg:abox \u2014 run `predicate extract` from a Stop hook first)";
+  const header = ["sessionId", "startedAt", "modifiedFiles", "succeeded", "failed"];
+  const cells = [header, ...rows.map((r2) => [
+    r2.sessionId,
+    r2.startedAt,
+    String(r2.modifiedFiles),
+    String(r2.succeeded),
+    String(r2.failed)
+  ])];
+  const widths = header.map((_2, i2) => Math.max(...cells.map((row) => row[i2].length)));
+  return cells.map((row) => row.map((c2, i2) => c2.padEnd(widths[i2])).join("  ")).join("\n");
+}
+async function sessions(args) {
+  if (hasFlag3(args, "--help")) {
+    help3();
+    return 0;
+  }
+  const limitStr = parseFlag2(args, "--limit");
+  const limit = limitStr ? parseInt(limitStr, 10) : 10;
+  if (!Number.isFinite(limit) || limit <= 0) {
+    console.error("predicate sessions: --limit must be a positive integer");
+    return 2;
+  }
+  try {
+    const client = new SparqlClient(loadConfig());
+    const rows = await fetchSessions(client, limit);
+    if (hasFlag3(args, "--json")) console.log(JSON.stringify(rows, null, 2));
+    else console.log(renderTable(rows));
+    return 0;
+  } catch (err2) {
+    console.error(`predicate sessions failed: ${err2.message}`);
+    return 1;
+  }
+}
+
 // ../predicate-cli/src/index.ts
 var VERSION2 = "1.0.0";
-function help3() {
+function help4() {
   console.log(`predicate <command>
 
 Commands:
@@ -27811,6 +27903,7 @@ Commands:
   maintain       Run kg_maintain (reaper + generalizer + sweeper).
   capture        Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
   extract        Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
+  sessions       List recent extracted sessions (modifiedFiles / succeeded / failed counts).
   --version      Print the predicate version.
   --help         This message.
 
@@ -27844,6 +27937,8 @@ async function main() {
       return capture(process.argv.slice(3));
     case "extract":
       return extract(process.argv.slice(3));
+    case "sessions":
+      return sessions(process.argv.slice(3));
     case "--version":
     case "version":
       console.log(VERSION2);
@@ -27851,11 +27946,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help3();
+      help4();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help3();
+      help4();
       return 2;
   }
 }

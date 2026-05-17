@@ -7,6 +7,7 @@ import { sessionstart } from './commands/sessionstart.js';
 import { maintain } from './commands/maintain.js';
 import { capture } from './commands/capture.js';
 import { extract } from './commands/extract.js';
+import { sessions } from './commands/sessions.js';
 
 const VERSION = '1.0.0';
 
@@ -22,6 +23,7 @@ Commands:
   maintain       Run kg_maintain (reaper + generalizer + sweeper).
   capture        Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
   extract        Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
+  sessions       List recent extracted sessions (modifiedFiles / succeeded / failed counts).
   --version      Print the predicate version.
   --help         This message.
 
@@ -48,6 +50,7 @@ async function main(): Promise<number> {
     case 'maintain':     return maintain();
     case 'capture':      return capture(process.argv.slice(3));
     case 'extract':      return extract(process.argv.slice(3));
+    case 'sessions':     return sessions(process.argv.slice(3));
     case '--version':
     case 'version':      console.log(VERSION); return 0;
     case undefined:
