@@ -4,6 +4,16 @@
       "event": "SessionStart",
       "matcher": "startup|clear|compact",
       "command": "bash ${PLUGIN_DIR}/hooks/session-start.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "*",
+      "command": "bash ${PLUGIN_DIR}/hooks/pre-tool-use.sh"
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "*",
+      "command": "bash ${PLUGIN_DIR}/hooks/post-tool-use.sh"
     }
   ]
 }
