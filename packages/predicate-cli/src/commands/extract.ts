@@ -5,6 +5,8 @@ import { loadConfig } from 'predicate-mcp/src/config.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 import {
   extractDeterministic,
+  lastAssistantText,
+  summarizeToolCalls,
   type ExtractedTriple,
   type Transcript,
 } from 'predicate-agent/src/turn-extractor.js';
@@ -63,43 +65,6 @@ async function buildTBoxSlice(client: SparqlClient): Promise<string> {
   return r.results.bindings.map((b) => `${b['p']!.value} a ${b['kind']!.value} .`).join('\n');
 }
 
-function summarizeTools(events: Array<Record<string, unknown>>): string {
-  const lines: string[] = [];
-  for (const ev of events) {
-    if (ev['type'] !== 'tool_use') continue;
-    const name = ev['name'];
-    const input = (ev['input'] ?? {}) as Record<string, unknown>;
-    const exit = ev['exit_code'];
-    if (name === 'Edit' || name === 'Write') {
-      lines.push(`${name} ${String(input['file_path'] ?? '?')}`);
-    } else if (name === 'Bash') {
-      const cmd = String(input['command'] ?? '?');
-      const short = cmd.length > 80 ? `${cmd.slice(0, 80)}…` : cmd;
-      lines.push(`Bash "${short}" (exit ${exit ?? 0})`);
-    } else if (typeof name === 'string') {
-      lines.push(name);
-    }
-  }
-  return lines.join('\n');
-}
-
-function lastAssistantMessage(events: Array<Record<string, unknown>>): string {
-  for (let i = events.length - 1; i >= 0; i--) {
-    const ev = events[i]!;
-    if (ev['role'] === 'assistant') {
-      const c = ev['content'];
-      if (typeof c === 'string') return c;
-      if (Array.isArray(c)) {
-        return c
-          .filter((b): b is { type: 'text'; text: string } => typeof b === 'object' && b !== null && (b as Record<string, unknown>)['type'] === 'text')
-          .map((b) => b.text)
-          .join('\n');
-      }
-    }
-  }
-  return '';
-}
-
 export async function extract(args: string[], stdin: Readable = process.stdin): Promise<number> {
   if (hasFlag(args, '--help')) { help(); return 0; }
   if (!hasFlag(args, '--from-stdin')) {
@@ -141,8 +106,8 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
     const tboxSlice = await buildTBoxSlice(client);
     semantic = await extractSemantic({
       sessionId,
-      finalMessage: lastAssistantMessage(events),
-      toolSummary: summarizeTools(events),
+      finalMessage: lastAssistantText(events),
+      toolSummary: summarizeToolCalls(events),
       tboxSlice,
     });
   }

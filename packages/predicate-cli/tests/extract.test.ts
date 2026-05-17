@@ -35,8 +35,24 @@ describe('predicate extract', () => {
 
   it('reads the Stop-hook payload, runs deterministic extractor, and asserts triples', async () => {
     const transcript = writeTranscript([
-      { type: 'tool_use', name: 'Edit', input: { file_path: '/work/auth.ts' } },
-      { type: 'tool_use', name: 'Bash', input: { command: 'pnpm test' }, exit_code: 0 },
+      {
+        type: 'assistant',
+        message: { role: 'assistant', content: [
+          { type: 'tool_use', id: 't1', name: 'Edit', input: { file_path: '/work/auth.ts' } },
+        ]},
+      },
+      { type: 'user', message: { role: 'user', content: [
+        { type: 'tool_result', tool_use_id: 't1', content: 'ok' },
+      ]}},
+      {
+        type: 'assistant',
+        message: { role: 'assistant', content: [
+          { type: 'tool_use', id: 't2', name: 'Bash', input: { command: 'pnpm test' } },
+        ]},
+      },
+      { type: 'user', message: { role: 'user', content: [
+        { type: 'tool_result', tool_use_id: 't2', content: 'PASS' },
+      ]}},
     ]);
     const payload = JSON.stringify({
       session_id: 'ses-extract',
