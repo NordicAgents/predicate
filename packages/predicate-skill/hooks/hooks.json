@@ -3,22 +3,22 @@
     {
       "event": "SessionStart",
       "matcher": "startup|clear|compact",
-      "command": "bash ${PLUGIN_DIR}/hooks/session-start.sh"
+      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh"
     },
     {
       "event": "PreToolUse",
       "matcher": "*",
-      "command": "bash ${PLUGIN_DIR}/hooks/pre-tool-use.sh"
+      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/pre-tool-use.sh"
     },
     {
       "event": "PostToolUse",
       "matcher": "*",
-      "command": "bash ${PLUGIN_DIR}/hooks/post-tool-use.sh"
+      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/post-tool-use.sh"
     },
     {
       "event": "Stop",
       "matcher": "*",
-      "command": "bash ${PLUGIN_DIR}/hooks/stop.sh"
+      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/stop.sh"
     }
   ]
 }
