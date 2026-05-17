@@ -3,6 +3,8 @@ import { up } from './commands/up.js';
 import { down } from './commands/down.js';
 import { doctor } from './commands/doctor.js';
 import { stats } from './commands/stats.js';
+import { sessionstart } from './commands/sessionstart.js';
+import { maintain } from './commands/maintain.js';
 
 const VERSION = '1.0.0';
 
@@ -10,12 +12,14 @@ function help(): void {
   console.log(`predicate <command>
 
 Commands:
-  up           Bring Fuseki up (docker compose up -d) and load the seed TBox.
-  down         Stop Fuseki, preserve the data volume.
-  doctor       Health checks: docker, fuseki, tbox.
-  stats        Print kg_stats output for the live graph.
-  --version    Print the predicate version.
-  --help       This message.
+  up             Bring Fuseki up (docker compose up -d) and load the seed TBox.
+  down           Stop Fuseki, preserve the data volume.
+  doctor         Health checks: docker, fuseki, tbox.
+  stats          Print kg_stats output for the live graph.
+  sessionstart   Print a one-line KG status banner (used by hook scripts).
+  maintain       Run kg_maintain (reaper + generalizer + sweeper).
+  --version      Print the predicate version.
+  --help         This message.
 
 Env:
   FUSEKI_URL                http://localhost:3030 (default)
@@ -29,15 +33,17 @@ Env:
 async function main(): Promise<number> {
   const cmd = process.argv[2];
   switch (cmd) {
-    case 'up':        return up();
-    case 'down':      return down();
-    case 'doctor':    return doctor();
-    case 'stats':     return stats();
+    case 'up':           return up();
+    case 'down':         return down();
+    case 'doctor':       return doctor();
+    case 'stats':        return stats();
+    case 'sessionstart': return sessionstart();
+    case 'maintain':     return maintain();
     case '--version':
-    case 'version':   console.log(VERSION); return 0;
+    case 'version':      console.log(VERSION); return 0;
     case undefined:
     case '--help':
-    case 'help':      help(); return 0;
+    case 'help':         help(); return 0;
     default:
       console.error(`unknown command: ${cmd}`);
       help();

@@ -32,29 +32,26 @@ Slash commands available: `/predicate:up`, `/predicate:down`, `/predicate:doctor
 </details>
 
 <details>
-<summary><strong>Cursor</strong> — MCP-only via settings.json</summary>
+<summary><strong>Cursor</strong> — MCP + 3 maintenance scripts</summary>
 
-Cursor reads MCP servers from `~/.cursor/mcp.json` (or the project-local
-`.cursor/mcp.json`). Add this entry:
+```bash
+# 1. Clone + bundle
+git clone https://github.com/NordicAgents/predicate
+cd predicate && pnpm install && pnpm build
 
-```json
-{
-  "mcpServers": {
-    "predicate": {
-      "command": "node",
-      "args": ["/absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs"],
-      "env": {
-        "FUSEKI_URL": "http://localhost:3030",
-        "PREDICATE_DATASET": "predicate"
-      }
-    }
-  }
-}
+# 2. Copy the MCP config
+cp packages/predicate-skill/hooks/cursor/mcp.json.template ~/.cursor/mcp.json
+# Edit ~/.cursor/mcp.json: replace __PLUGIN_DIR__ with the absolute path to
+# this checkout's packages/predicate-skill directory.
+
+# 3. Start fuseki
+predicate up
 ```
 
-Substitute the absolute path to your local clone of this repo. Then in Cursor,
-invoke the 8 `kg_*` tools directly — Cursor doesn't read `SKILL.md`, so you'll
-need to guide it. (Bring Fuseki up first: `predicate up`.)
+Restart Cursor's MCP servers (Cmd-Shift-P → "Reload MCP servers"). The 8
+`kg_*` tools are now available. See
+`packages/predicate-skill/hooks/cursor/README.md` for optional cron wiring
+of the SessionStart, PreCompact, and Stop scripts.
 
 </details>
 
@@ -77,52 +74,78 @@ mcpServers:
 </details>
 
 <details>
-<summary><strong>OpenCode</strong> — MCP-only via plugin manifest</summary>
+<summary><strong>Gemini CLI</strong> — MCP + SessionStart + PreCompress + Stop hooks</summary>
 
-OpenCode reads plugins via `openclaw.plugin.json`. Add an MCP server entry
-pointing at the bundle, or wrap as a plugin if your version supports it. For a
-minimal MCP server registration consult the OpenCode docs; the bundle path is:
+```bash
+git clone https://github.com/NordicAgents/predicate
+cd predicate && pnpm install && pnpm build
+predicate up
 
+# Merge packages/predicate-skill/hooks/gemini-cli/settings.json.template
+# into ~/.gemini/settings.json. Replace __PLUGIN_DIR__ with the absolute
+# path to this checkout's packages/predicate-skill directory.
 ```
-/absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs
-```
 
-Env vars: `FUSEKI_URL`, `PREDICATE_DATASET`.
+See `packages/predicate-skill/hooks/gemini-cli/README.md` for details
+on the three hook events.
 
 </details>
 
 <details>
-<summary><strong>Any-MCP / Gemini CLI / Codex CLI / generic</strong></summary>
+<summary><strong>VS Code Copilot</strong> — MCP via settings.json</summary>
+
+Merge `packages/predicate-skill/hooks/vscode-copilot/settings.json.template`
+into your VS Code `settings.json`, replacing `__PLUGIN_DIR__`. Restart
+VS Code. The 8 `kg_*` tools are available to Copilot Chat. VS Code does
+not currently expose SessionStart/PreCompact/Stop events; see the
+adapter README for manual + VS Code task wiring of the maintenance
+scripts.
+
+</details>
+
+<details>
+<summary><strong>OpenCode</strong> — MCP + session.started + session.compacted + session.stopped hooks</summary>
+
+```bash
+git clone https://github.com/NordicAgents/predicate
+cd predicate && pnpm install && pnpm build
+predicate up
+
+# Merge packages/predicate-skill/hooks/opencode/opencode.json.template
+# into ~/.config/opencode/opencode.json. Replace __PLUGIN_DIR__ with the
+# absolute path to this checkout's packages/predicate-skill directory.
+```
+
+See `packages/predicate-skill/hooks/opencode/README.md` for details
+on the three plugin events.
+
+</details>
+
+<details>
+<summary><strong>Codex CLI</strong> — MCP via ~/.codex/config.toml</summary>
+
+Merge `packages/predicate-skill/hooks/codex-cli/config.toml.template`
+into `~/.codex/config.toml`, replacing `__PLUGIN_DIR__`. The 8 `kg_*`
+tools are available the next time you launch `codex`. Codex CLI has no
+lifecycle events yet; see the adapter README for manual + shell-alias
+wiring of the maintenance scripts.
+
+</details>
+
+<details>
+<summary><strong>Any-MCP / generic</strong></summary>
 
 Any client that speaks MCP over stdio can use the bundled server directly:
 
 ```bash
 git clone https://github.com/NordicAgents/predicate
-cd predicate
-pnpm install && pnpm build
+cd predicate && pnpm install && pnpm build
 predicate up
 
 # Then point your MCP-capable tool at:
 #   node /absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs
 # with env FUSEKI_URL=http://localhost:3030 PREDICATE_DATASET=predicate
 ```
-
-For Gemini CLI specifically, the MCP block in `~/.gemini/settings.json`:
-
-```json
-{
-  "mcpServers": {
-    "predicate": {
-      "command": "node",
-      "args": ["/absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs"]
-    }
-  }
-}
-```
-
-Hook adapters (`BeforeTool`/`AfterTool` integration like context-mode has)
-are Claude-Code-only in v1.2. Other platforms get the 8 `kg_*` tools, which
-work without hooks.
 
 </details>
 
@@ -161,10 +184,12 @@ itself is gated by maintainer credentials.
 ## CLI
 
 ```
-predicate up           # docker compose up + bootstrap graphs + load TBox
-predicate down         # stop fuseki, keep the volume
-predicate doctor       # health checks (docker, fuseki, tbox, tools)
-predicate stats        # current kg_stats output
+predicate up             # docker compose up + bootstrap graphs + load TBox
+predicate down           # stop fuseki, keep the volume
+predicate doctor         # health checks (docker, fuseki, tbox, tools)
+predicate stats          # current kg_stats output
+predicate sessionstart   # one-line KG status banner (used by hook scripts)
+predicate maintain       # reaper + generalizer + promotion sweeper
 predicate --version
 predicate --help
 ```
@@ -200,16 +225,17 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
-**v1.2 — multi-platform.** Distributable via Claude Code marketplace, Cursor,
-Continue.dev, OpenCode, and any generic MCP client. npm publish prep complete
-(maintainer-gated). Slash commands shipped for the five common ops.
+**v1.3 — multi-platform hooks.** Distributable via Claude Code marketplace,
+Cursor, Continue.dev, OpenCode, Gemini CLI, VS Code Copilot, Codex CLI,
+and any generic MCP client. Per-platform SessionStart + PreCompact + Stop
+hook adapters shipped. npm publish flow verified.
 
 Earlier milestones (in order): `v0.1.0-foundation` → `v0.2.0-discipline` →
 `v0.3a.0-goals-and-gaps` → `v0.3b.0-research-execution` →
 `v0.3c.0-schema-evolution` → `v1.0.0` → `v1.1.0-distribution` →
-`v1.2.0-multiplatform`.
+`v1.2.0-multiplatform` → `v1.3.0-platform-hooks`.
 
-Deferred to v1.3 (see spec §17): materialization caching, tag-while-deriving
-for `kg_explain`, intent-aware `ResearchSource` filtering, journal-based
-cross-system promotion atomicity, LLM-augmented decomposer + extractor,
-non-Claude-Code hook adapters.
+Deferred to v1.4 (see spec §17): PreToolUse / PostToolUse hooks (Phase 8,
+adds `kg_capture` tool); materialization caching; tag-while-deriving for
+`kg_explain`; intent-aware `ResearchSource` filtering; journal-based
+cross-system promotion atomicity; LLM-augmented decomposer + extractor.
