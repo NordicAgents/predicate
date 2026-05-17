@@ -7,51 +7,143 @@ See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the product brief,
 [`docs/superpowers/specs/2026-05-16-predicate-design.md`](docs/superpowers/specs/2026-05-16-predicate-design.md)
 for the v1 architecture.
 
-## Quick install (Claude Code)
+## Install
 
-Prerequisites: **Docker** (for Fuseki) and **Node 20+**.
+Prerequisites everywhere: **Docker** (for Fuseki) and **Node 20+**.
+
+<details open>
+<summary><strong>Claude Code</strong> — marketplace, full plugin (SKILL.md + hooks + slash commands)</summary>
 
 ```
-/plugin marketplace add mxresearch/predicate
+/plugin marketplace add midhunxavier/predicate
 /plugin install predicate@predicate
 ```
 
-Restart Claude Code (or `/reload-plugins`). Then bring Fuseki up — the plugin
-ships a CLI for this:
+Restart Claude Code (or `/reload-plugins`). Then:
 
 ```bash
-predicate up           # starts Fuseki, loads the seed TBox + meta + shapes
+predicate up           # starts Fuseki, loads seed TBox + meta + shapes
 predicate doctor       # confirms everything is green
 ```
 
-Try it in Claude:
+Slash commands available: `/predicate:up`, `/predicate:down`, `/predicate:doctor`,
+`/predicate:stats`, `/predicate:ask <question>`.
 
-> "Why did login break?"
+</details>
 
-Claude will call `kg_explore_schema → kg_ask → kg_explain` against your graph.
-To load a codebase as an ABox in one shot, ask:
+<details>
+<summary><strong>Cursor</strong> — MCP-only via settings.json</summary>
 
-> "Research goal: what depends on auth.ts transitively. Use my code at
-> /path/to/repo as the corpus."
+Cursor reads MCP servers from `~/.cursor/mcp.json` (or the project-local
+`.cursor/mcp.json`). Add this entry:
 
-That routes through `kg_research_goal(executeResearch=true, corpusRoot=...)`,
-which fetches the files, extracts triples, and asserts them through
-`kg_assert` (TBox-membership-gated, RDF-star-provenance-tagged).
+```json
+{
+  "mcpServers": {
+    "predicate": {
+      "command": "node",
+      "args": ["/absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs"],
+      "env": {
+        "FUSEKI_URL": "http://localhost:3030",
+        "PREDICATE_DATASET": "predicate"
+      }
+    }
+  }
+}
+```
 
-## MCP-only install (any tool that speaks MCP)
+Substitute the absolute path to your local clone of this repo. Then in Cursor,
+invoke the 8 `kg_*` tools directly — Cursor doesn't read `SKILL.md`, so you'll
+need to guide it. (Bring Fuseki up first: `predicate up`.)
 
-If you only want the 8 `kg_*` tools and don't want the SKILL.md / hooks:
+</details>
+
+<details>
+<summary><strong>Continue.dev</strong> — MCP-only via config.yaml</summary>
+
+In `~/.continue/config.yaml`:
+
+```yaml
+mcpServers:
+  - name: predicate
+    command: node
+    args:
+      - /absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs
+    env:
+      FUSEKI_URL: http://localhost:3030
+      PREDICATE_DATASET: predicate
+```
+
+</details>
+
+<details>
+<summary><strong>OpenCode</strong> — MCP-only via plugin manifest</summary>
+
+OpenCode reads plugins via `openclaw.plugin.json`. Add an MCP server entry
+pointing at the bundle, or wrap as a plugin if your version supports it. For a
+minimal MCP server registration consult the OpenCode docs; the bundle path is:
+
+```
+/absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs
+```
+
+Env vars: `FUSEKI_URL`, `PREDICATE_DATASET`.
+
+</details>
+
+<details>
+<summary><strong>Any-MCP / Gemini CLI / Codex CLI / generic</strong></summary>
+
+Any client that speaks MCP over stdio can use the bundled server directly:
 
 ```bash
-git clone https://github.com/mxresearch/predicate
+git clone https://github.com/midhunxavier/predicate
 cd predicate
 pnpm install && pnpm build
 predicate up
 
-claude mcp add predicate -- node "$(pwd)/packages/predicate-skill/server.bundle.mjs" \
-  --env FUSEKI_URL=http://localhost:3030 \
-  --env PREDICATE_DATASET=predicate
+# Then point your MCP-capable tool at:
+#   node /absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs
+# with env FUSEKI_URL=http://localhost:3030 PREDICATE_DATASET=predicate
 ```
+
+For Gemini CLI specifically, the MCP block in `~/.gemini/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "predicate": {
+      "command": "node",
+      "args": ["/absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs"]
+    }
+  }
+}
+```
+
+Hook adapters (`BeforeTool`/`AfterTool` integration like context-mode has)
+are Claude-Code-only in v1.2. Other platforms get the 8 `kg_*` tools, which
+work without hooks.
+
+</details>
+
+<details>
+<summary><strong>From npm (after publish)</strong></summary>
+
+Once `predicate-skill` is published to npm (see `docs/superpowers/plans/2026-05-17-predicate-phase-6-publish-and-multiplatform.md` for the publish flow), users can:
+
+```bash
+npm install -g predicate-skill
+predicate up
+predicate doctor
+
+# Or one-shot MCP without global install:
+claude mcp add predicate -- npx -y predicate-skill
+```
+
+Status: package metadata is publish-ready (Phase 6); the `npm publish`
+itself is gated by maintainer credentials.
+
+</details>
 
 ## Tools
 
@@ -108,13 +200,16 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
-**v1.1 — distributable.** All 8 MCP tools implemented; the agent loop is
-closed end-to-end (goal → decompose → gap-detect → research → extract →
-assert → query → explain) with schema-evolution gates (propose → stage →
-validate → usage gate → promote). One-command Claude Code install via the
-marketplace path. Operator CLI for Fuseki ops.
+**v1.2 — multi-platform.** Distributable via Claude Code marketplace, Cursor,
+Continue.dev, OpenCode, and any generic MCP client. npm publish prep complete
+(maintainer-gated). Slash commands shipped for the five common ops.
 
-Deferred to v1.2 (see spec §17): materialization caching, tag-while-deriving
+Earlier milestones (in order): `v0.1.0-foundation` → `v0.2.0-discipline` →
+`v0.3a.0-goals-and-gaps` → `v0.3b.0-research-execution` →
+`v0.3c.0-schema-evolution` → `v1.0.0` → `v1.1.0-distribution` →
+`v1.2.0-multiplatform`.
+
+Deferred to v1.3 (see spec §17): materialization caching, tag-while-deriving
 for `kg_explain`, intent-aware `ResearchSource` filtering, journal-based
 cross-system promotion atomicity, LLM-augmented decomposer + extractor,
-web/code research sources beyond `DocsResearchSource`, npm publish.
+non-Claude-Code hook adapters.
