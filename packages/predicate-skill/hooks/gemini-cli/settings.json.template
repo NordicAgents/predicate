@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "predicate": {
+      "command": "node",
+      "args": ["__PLUGIN_DIR__/server.bundle.mjs"],
+      "env": {
+        "FUSEKI_URL": "http://localhost:3030",
+        "PREDICATE_DATASET": "predicate"
+      }
+    }
+  },
+  "hooks": [
+    { "event": "sessionStart", "command": "bash __PLUGIN_DIR__/hooks/gemini-cli/session-start.sh" },
+    { "event": "preCompress",  "command": "bash __PLUGIN_DIR__/hooks/gemini-cli/pre-compact.sh" },
+    { "event": "stop",         "command": "bash __PLUGIN_DIR__/hooks/gemini-cli/stop.sh" }
+  ]
+}
