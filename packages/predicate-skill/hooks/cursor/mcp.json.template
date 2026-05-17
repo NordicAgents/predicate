@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "predicate": {
+      "command": "node",
+      "args": ["__PLUGIN_DIR__/server.bundle.mjs"],
+      "env": {
+        "FUSEKI_URL": "http://localhost:3030",
+        "PREDICATE_DATASET": "predicate"
+      }
+    }
+  }
+}
