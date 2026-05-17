@@ -1,17 +1,24 @@
 {
   "name": "predicate",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents.",
+  "author": {
+    "name": "MX Research"
+  },
+  "homepage": "https://github.com/mxresearch/predicate#readme",
+  "repository": "https://github.com/mxresearch/predicate",
+  "license": "Apache-2.0",
+  "keywords": ["mcp", "knowledge-graph", "rdf", "owl", "sparql", "reasoning"],
   "mcpServers": {
     "predicate": {
       "command": "node",
-      "args": ["${PLUGIN_DIR}/../predicate-mcp/dist/src/index.js"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server.bundle.mjs"],
       "env": {
         "FUSEKI_URL": "http://localhost:3030",
         "PREDICATE_DATASET": "predicate"
       }
     }
   },
-  "skills": ["skills/predicate"],
-  "hooks": "hooks/hooks.json"
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
 }

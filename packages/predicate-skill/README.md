@@ -1,17 +1,47 @@
 # predicate-skill
 
-Claude Code plugin packaging the Predicate MCP server + SKILL.md + SessionStart hook.
+Claude Code plugin packaging the Predicate MCP server + SKILL.md + SessionStart
+hook + operator skills. This is the install target for the marketplace path.
 
-## Install
+## Install (via marketplace)
 
-    # From the repo root
-    pnpm fuseki:up
-    pnpm --filter predicate-mcp build
+```
+/plugin marketplace add mxresearch/predicate
+/plugin install predicate@predicate
+```
 
-    # In Claude Code, add the plugin pointing at this directory.
+After install, bring Fuseki up:
 
-## Files
+```bash
+predicate up
+predicate doctor
+```
 
-- `.claude-plugin/plugin.json` — registers the predicate MCP server + skill + hooks.
-- `skills/predicate/SKILL.md` — host-agent contract: triggers, workflow, anti-patterns.
-- `hooks/hooks.json` + `hooks/session-start.sh` — surface KG status at session boot.
+## What's in this directory
+
+- `.claude-plugin/plugin.json` — MCP server + skills + hooks registration.
+- `server.bundle.mjs` — bundled MCP server (no `node_modules` required).
+- `cli.bundle.mjs` — bundled `predicate` CLI, surfaced via the package's `bin`.
+- `skills/predicate/SKILL.md` — host-agent contract: triggers, workflow,
+  HARD-GATE anti-patterns, four worked examples.
+- `skills/predicate-doctor/SKILL.md`, `skills/predicate-stats/SKILL.md` —
+  operator skills.
+- `hooks/hooks.json` + `hooks/session-start.sh` — SessionStart hook that
+  surfaces current goal/class counts.
+- `compose/docker-compose.yml`, `compose/fuseki/config.ttl` — Fuseki config
+  the CLI launches.
+
+## Rebuilding the bundles
+
+Bundles are committed so the marketplace install path works without
+`pnpm install`. To rebuild after a source change:
+
+```bash
+pnpm --filter predicate-skill bundle
+```
+
+Or rebuild everything:
+
+```bash
+pnpm build
+```

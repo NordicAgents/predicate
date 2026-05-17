@@ -1,0 +1,12 @@
+{
+  "name": "predicate-skill",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "predicate": "./cli.bundle.mjs"
+  },
+  "scripts": {
+    "bundle": "node scripts/bundle.mjs"
+  }
+}
