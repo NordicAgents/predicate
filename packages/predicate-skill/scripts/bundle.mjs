@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { build } from 'esbuild';
+import { chmodSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,6 +42,7 @@ await build({
   ],
 });
 
+chmodSync(resolve(root, 'server.bundle.mjs'), 0o755);
 console.log('built server.bundle.mjs');
 
 await build({
@@ -77,4 +79,5 @@ await build({
   ],
 });
 
+chmodSync(resolve(root, 'cli.bundle.mjs'), 0o755);
 console.log('built cli.bundle.mjs');
