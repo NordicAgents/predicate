@@ -9,6 +9,7 @@ import { kgResearchGoal } from './kg-research-goal.js';
 import { kgProposeSchema } from './kg-propose-schema.js';
 import { kgStats } from './kg-stats.js';
 import { kgCapture } from './kg-capture.js';
+import { kgConfigGet, kgConfigSet } from './kg-config.js';
 
 const deltaQuadSchema = z.object({
   s: z.string(),
@@ -204,6 +205,34 @@ export function buildTools(client: SparqlClient): ToolDef[] {
           phase: z.enum(['pre', 'post']),
         }).parse(raw);
         return kgCapture(client, args);
+      },
+    },
+    {
+      name: 'kg_config_get',
+      description: "Read v2.0 runtime config from kg:meta. Pass {key} to get one value or {} to get the full config object.",
+      inputSchema: z.object({
+        key: z.enum(['schema-learning', 'init-mode', 'init-ontology']).optional(),
+      }),
+      handler: async (raw): Promise<unknown> => {
+        const args = z.object({
+          key: z.enum(['schema-learning', 'init-mode', 'init-ontology']).optional(),
+        }).parse(raw);
+        return kgConfigGet(client, args);
+      },
+    },
+    {
+      name: 'kg_config_set',
+      description: "Write a v2.0 runtime config value into kg:meta. schema-learning is a boolean toggle for the auto-proposer; init-mode and init-ontology are usually written by `predicate init` but exposed for advanced use.",
+      inputSchema: z.object({
+        key: z.enum(['schema-learning', 'init-mode', 'init-ontology']),
+        value: z.union([z.string(), z.boolean()]),
+      }),
+      handler: async (raw): Promise<unknown> => {
+        const args = z.object({
+          key: z.enum(['schema-learning', 'init-mode', 'init-ontology']),
+          value: z.union([z.string(), z.boolean()]),
+        }).parse(raw);
+        return kgConfigSet(client, args);
       },
     },
     ...stubs(),

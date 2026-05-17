@@ -34,7 +34,7 @@ async function loadTbox(file: string): Promise<void> {
 
 beforeAll(async () => {
   await reset('kg:tbox');
-  await loadTbox('predicate-ontology/tbox/codebase.ttl');
+  await loadTbox('predicate-ontology/catalog/codebase.ttl');
   await loadTbox('predicate-ontology/meta/predicate-meta.ttl');
 });
 

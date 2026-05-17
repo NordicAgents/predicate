@@ -243,6 +243,22 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
+**v2.0 — domain-agnostic bootstrap.** Predicate is no longer hard-coded
+to the codebase domain. On first `predicate up`, choose one of three
+init modes: install a bundled community ontology (top, codebase, foaf,
+schema-org-lite, fhir-core), upload your own .ttl, or start empty and
+let the agent grow vocabulary via the propose-validate-3-use gate.
+Schema-learning is toggleable at runtime via the new
+`kg_config_set` / `kg_config_get` MCP tools (10th + 11th tools).
+v1.13.0 installs auto-migrate silently — the legacy codebase.ttl state
+is detected and the config is written for you. The bootstrap script
+no longer pre-loads any TBox; `bootstrap-graphs.sh` only creates the 9
+named graphs. The ontology catalog lives at
+`packages/predicate-ontology/catalog/` (catalog.json + per-ontology
+.ttl). Deferred to v2.x: network-fetched community ontologies,
+multi-ontology composition, per-project workspaces, schema versioning
+for uploads.
+
 **v1.13 — LLM-augmented decomposer.** The pattern-based goal decomposer
 stays as the deterministic baseline (fast, predictable, free). A new
 `SemanticDecomposer` wraps it: if every deterministic sub-question

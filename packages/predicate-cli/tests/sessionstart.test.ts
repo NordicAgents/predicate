@@ -52,6 +52,27 @@ describe('predicate sessionstart', () => {
     }
   });
 
+  it('includes ontology name in banner when init config exists', async () => {
+    const client = new SparqlClient(loadConfig());
+    await client.update(`
+      PREFIX pred: <https://predicate.dev/meta#>
+      INSERT DATA { GRAPH <kg:meta> {
+        <urn:predicate:config> a pred:Config ; pred:initOntology "codebase" .
+      } }
+    `);
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      await sessionstart();
+      const line = logSpy.mock.calls[0]![0] as string;
+      expect(line).toContain('(codebase ontology)');
+    } finally {
+      await client.update(`
+        PREFIX pred: <https://predicate.dev/meta#>
+        DELETE WHERE { GRAPH <kg:meta> { <urn:predicate:config> ?p ?o } }
+      `);
+    }
+  });
+
   it('returns 0 and prints a fallback message when fuseki is unreachable', async () => {
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

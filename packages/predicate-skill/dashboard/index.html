@@ -91,6 +91,23 @@ async function loadStats() {
     ['inferred triples', ii[0].n.value],
   ];
   document.getElementById('stats').innerHTML = stats.map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+
+  // v2.0 ontology + schema-learning badges
+  const cfg = await ask(`
+    PREFIX pred: <https://predicate.dev/meta#>
+    SELECT ?ontology ?learning WHERE {
+      GRAPH <kg:meta> {
+        OPTIONAL { <urn:predicate:config> pred:initOntology ?ontology }
+        OPTIONAL { <urn:predicate:config> pred:schemaLearningEnabled ?learning }
+      }
+    }
+  `);
+  const c = cfg[0] ?? {};
+  const ontology = c.ontology?.value ?? '(uninitialized)';
+  const learning = c.learning?.value === 'true' ? 'on' : (c.learning?.value === 'false' ? 'off' : 'on');
+  document.title = `Predicate Dashboard — ${ontology}`;
+  const subEl = document.querySelector('.sub');
+  if (subEl) subEl.innerHTML = `Session-history + reasoning over Fuseki @ <span id="ep">${location.host}</span> · ontology: <b>${ontology}</b> · learning: <b>${learning}</b>`;
 }
 
 async function loadSessions() {

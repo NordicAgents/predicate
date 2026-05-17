@@ -276,3 +276,36 @@ deterministic decomposer's 'unknown' result. The response includes a
 `decomposerKind` field (`"deterministic"` or `"semantic"`) so you know
 which path produced the sub-questions. Pattern-matched questions like
 "what calls X" skip the LLM entirely.
+
+## Schema-learning toggle (v2.0)
+
+The autonomous proposer (Generalizer) runs by default — when the agent
+asserts a triple using a not-yet-declared pattern that appears in >= K
+instances, it auto-stages a `kg_propose_schema` candidate. The sweeper
+promotes after 3 successful uses.
+
+To pause that loop (e.g., the user says "stop adding new predicates"):
+
+```
+kg_config_set({ key: "schema-learning", value: false })
+```
+
+When off:
+- The Generalizer skips proposal generation.
+- `kg_propose_schema` (explicit MCP calls) STILL works.
+- The PromotionSweeper STILL promotes existing staged proposals.
+
+Re-enable with `kg_config_set({ key: "schema-learning", value: true })`.
+Read current state with `kg_config_get({ key: "schema-learning" })`.
+
+## Init / bootstrap (v2.0)
+
+Predicate v2.0 boots empty. On first `predicate up`, the user picks one
+of three modes via `predicate init` (interactive prompt or flags):
+
+- **community**: bundled ontology (codebase, foaf, schema-org-lite, fhir-core)
+- **upload**: user-supplied .ttl
+- **empty**: meta + minimal top vocab; agent grows it via propose -> 3-use -> promote
+
+The chosen mode is stored at `<urn:predicate:config>` in kg:meta and the
+SessionStart banner reflects it.

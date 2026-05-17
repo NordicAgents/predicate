@@ -23,6 +23,7 @@ export interface MaintainResult {
   sweeper?: SweeperResult;
   generalizer?: GeneralizerResult;
   fixpoint?: { iterations: number; inferredCount: number };
+  autoProposalsSkipped?: boolean;
 }
 
 export async function kgMaintain(
@@ -97,5 +98,13 @@ export async function kgMaintain(
     } }
   `);
 
-  return { archivedCount, elapsedMs, eventId, sweeper, generalizer, fixpoint };
+  return {
+    archivedCount,
+    elapsedMs,
+    eventId,
+    sweeper,
+    generalizer,
+    fixpoint,
+    autoProposalsSkipped: generalizer.autoProposalsSkipped,
+  };
 }

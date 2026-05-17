@@ -12,7 +12,7 @@ beforeAll(async () => {
   await client.update('DROP SILENT GRAPH <kg:tbox>');
   await client.update('CREATE SILENT GRAPH <kg:tbox>');
   const tbox = readFileSync(
-    resolve(import.meta.dirname, '../../../predicate-ontology/tbox/codebase.ttl'),
+    resolve(import.meta.dirname, '../../../predicate-ontology/catalog/codebase.ttl'),
     'utf8',
   );
   const auth =

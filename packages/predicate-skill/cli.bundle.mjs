@@ -2100,7 +2100,7 @@ var require_lib2 = __commonJS({
       let accum = [];
       let accumBytes = 0;
       let abort = false;
-      return new Body.Promise(function(resolve3, reject) {
+      return new Body.Promise(function(resolve4, reject) {
         let resTimeout;
         if (_this4.timeout) {
           resTimeout = setTimeout(function() {
@@ -2134,7 +2134,7 @@ var require_lib2 = __commonJS({
           }
           clearTimeout(resTimeout);
           try {
-            resolve3(Buffer.concat(accum, accumBytes));
+            resolve4(Buffer.concat(accum, accumBytes));
           } catch (err2) {
             reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err2.message}`, "system", err2));
           }
@@ -2290,10 +2290,10 @@ var require_lib2 = __commonJS({
        * @return  Void
        */
       constructor() {
-        let init2 = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : void 0;
+        let init3 = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : void 0;
         this[MAP] = /* @__PURE__ */ Object.create(null);
-        if (init2 instanceof _Headers) {
-          const rawHeaders = init2.raw();
+        if (init3 instanceof _Headers) {
+          const rawHeaders = init3.raw();
           const headerNames = Object.keys(rawHeaders);
           for (const headerName of headerNames) {
             for (const value of rawHeaders[headerName]) {
@@ -2302,15 +2302,15 @@ var require_lib2 = __commonJS({
           }
           return;
         }
-        if (init2 == null) ;
-        else if (typeof init2 === "object") {
-          const method = init2[Symbol.iterator];
+        if (init3 == null) ;
+        else if (typeof init3 === "object") {
+          const method = init3[Symbol.iterator];
           if (method != null) {
             if (typeof method !== "function") {
               throw new TypeError("Header pairs must be iterable");
             }
             const pairs = [];
-            for (const pair of init2) {
+            for (const pair of init3) {
               if (typeof pair !== "object" || typeof pair[Symbol.iterator] !== "function") {
                 throw new TypeError("Each header pair must be iterable");
               }
@@ -2323,8 +2323,8 @@ var require_lib2 = __commonJS({
               this.append(pair[0], pair[1]);
             }
           } else {
-            for (const key of Object.keys(init2)) {
-              const value = init2[key];
+            for (const key of Object.keys(init3)) {
+              const value = init3[key];
               this.append(key, value);
             }
           }
@@ -2654,7 +2654,7 @@ var require_lib2 = __commonJS({
     }
     var Request3 = class _Request {
       constructor(input) {
-        let init2 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+        let init3 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
         let parsedURL;
         if (!isRequest(input)) {
           if (input && input.href) {
@@ -2666,17 +2666,17 @@ var require_lib2 = __commonJS({
         } else {
           parsedURL = parseURL(input.url);
         }
-        let method = init2.method || input.method || "GET";
+        let method = init3.method || input.method || "GET";
         method = method.toUpperCase();
-        if ((init2.body != null || isRequest(input) && input.body !== null) && (method === "GET" || method === "HEAD")) {
+        if ((init3.body != null || isRequest(input) && input.body !== null) && (method === "GET" || method === "HEAD")) {
           throw new TypeError("Request with GET/HEAD method cannot have body");
         }
-        let inputBody = init2.body != null ? init2.body : isRequest(input) && input.body !== null ? clone(input) : null;
+        let inputBody = init3.body != null ? init3.body : isRequest(input) && input.body !== null ? clone(input) : null;
         Body.call(this, inputBody, {
-          timeout: init2.timeout || input.timeout || 0,
-          size: init2.size || input.size || 0
+          timeout: init3.timeout || input.timeout || 0,
+          size: init3.size || input.size || 0
         });
-        const headers = new Headers3(init2.headers || input.headers || {});
+        const headers = new Headers3(init3.headers || input.headers || {});
         if (inputBody != null && !headers.has("Content-Type")) {
           const contentType = extractContentType(inputBody);
           if (contentType) {
@@ -2684,21 +2684,21 @@ var require_lib2 = __commonJS({
           }
         }
         let signal = isRequest(input) ? input.signal : null;
-        if ("signal" in init2) signal = init2.signal;
+        if ("signal" in init3) signal = init3.signal;
         if (signal != null && !isAbortSignal(signal)) {
           throw new TypeError("Expected signal to be an instanceof AbortSignal");
         }
         this[INTERNALS$2] = {
           method,
-          redirect: init2.redirect || input.redirect || "follow",
+          redirect: init3.redirect || input.redirect || "follow",
           headers,
           parsedURL,
           signal
         };
-        this.follow = init2.follow !== void 0 ? init2.follow : input.follow !== void 0 ? input.follow : 20;
-        this.compress = init2.compress !== void 0 ? init2.compress : input.compress !== void 0 ? input.compress : true;
-        this.counter = init2.counter || input.counter || 0;
-        this.agent = init2.agent || input.agent;
+        this.follow = init3.follow !== void 0 ? init3.follow : input.follow !== void 0 ? input.follow : 20;
+        this.compress = init3.compress !== void 0 ? init3.compress : input.compress !== void 0 ? input.compress : true;
+        this.counter = init3.counter || input.counter || 0;
+        this.agent = init3.agent || input.agent;
       }
       get method() {
         return this[INTERNALS$2].method;
@@ -2809,7 +2809,7 @@ var require_lib2 = __commonJS({
         throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
       }
       Body.Promise = fetch3.Promise;
-      return new fetch3.Promise(function(resolve3, reject) {
+      return new fetch3.Promise(function(resolve4, reject) {
         const request = new Request3(url, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
@@ -2942,7 +2942,7 @@ var require_lib2 = __commonJS({
                   requestOpts.body = void 0;
                   requestOpts.headers.delete("content-length");
                 }
-                resolve3(fetch3(new Request3(locationURL, requestOpts)));
+                resolve4(fetch3(new Request3(locationURL, requestOpts)));
                 finalize();
                 return;
             }
@@ -2963,7 +2963,7 @@ var require_lib2 = __commonJS({
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
             response = new Response3(body, response_options);
-            resolve3(response);
+            resolve4(response);
             return;
           }
           const zlibOptions = {
@@ -2973,7 +2973,7 @@ var require_lib2 = __commonJS({
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
             response = new Response3(body, response_options);
-            resolve3(response);
+            resolve4(response);
             return;
           }
           if (codings == "deflate" || codings == "x-deflate") {
@@ -2985,12 +2985,12 @@ var require_lib2 = __commonJS({
                 body = body.pipe(zlib.createInflateRaw());
               }
               response = new Response3(body, response_options);
-              resolve3(response);
+              resolve4(response);
             });
             raw.on("end", function() {
               if (!response) {
                 response = new Response3(body, response_options);
-                resolve3(response);
+                resolve4(response);
               }
             });
             return;
@@ -2998,11 +2998,11 @@ var require_lib2 = __commonJS({
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
             response = new Response3(body, response_options);
-            resolve3(response);
+            resolve4(response);
             return;
           }
           response = new Response3(body, response_options);
-          resolve3(response);
+          resolve4(response);
         });
         writeToStream(req, request);
       });
@@ -6359,7 +6359,7 @@ __export(fileFromPath_exports, {
   fileFromPathSync: () => fileFromPathSync,
   isFile: () => isFile
 });
-import { statSync, createReadStream, promises as fs } from "fs";
+import { statSync as statSync2, createReadStream, promises as fs } from "fs";
 import { basename } from "path";
 function createFileFromPath(path, { mtimeMs, size }, filenameOrOptions, options = {}) {
   let filename;
@@ -6378,7 +6378,7 @@ function createFileFromPath(path, { mtimeMs, size }, filenameOrOptions, options 
   });
 }
 function fileFromPathSync(path, filenameOrOptions, options = {}) {
-  const stats2 = statSync(path);
+  const stats2 = statSync2(path);
   return createFileFromPath(path, stats2, filenameOrOptions, options);
 }
 async function fileFromPath2(path, filenameOrOptions, options) {
@@ -9028,25 +9028,25 @@ var require_util = __commonJS({
         };
       },
       createDeferredPromise: function() {
-        let resolve3;
+        let resolve4;
         let reject;
         const promise = new Promise((res, rej) => {
-          resolve3 = res;
+          resolve4 = res;
           reject = rej;
         });
         return {
           promise,
-          resolve: resolve3,
+          resolve: resolve4,
           reject
         };
       },
       promisify(fn) {
-        return new Promise((resolve3, reject) => {
+        return new Promise((resolve4, reject) => {
           fn((err2, ...args) => {
             if (err2) {
               return reject(err2);
             }
-            return resolve3(...args);
+            return resolve4(...args);
           });
         });
       },
@@ -9837,7 +9837,7 @@ var require_end_of_stream = __commonJS({
         validateBoolean(opts.cleanup, "cleanup");
         autoCleanup = opts.cleanup;
       }
-      return new Promise2((resolve3, reject) => {
+      return new Promise2((resolve4, reject) => {
         const cleanup = eos(stream, opts, (err2) => {
           if (autoCleanup) {
             cleanup();
@@ -9845,7 +9845,7 @@ var require_end_of_stream = __commonJS({
           if (err2) {
             reject(err2);
           } else {
-            resolve3();
+            resolve4();
           }
         });
       });
@@ -11011,7 +11011,7 @@ var require_readable = __commonJS({
         error2 = this.readableEnded ? null : new AbortError();
         this.destroy(error2);
       }
-      return new Promise2((resolve3, reject) => eos(this, (err2) => err2 && err2 !== error2 ? reject(err2) : resolve3(null)));
+      return new Promise2((resolve4, reject) => eos(this, (err2) => err2 && err2 !== error2 ? reject(err2) : resolve4(null)));
     };
     Readable2.prototype.push = function(chunk, encoding) {
       return readableAddChunk(this, chunk, encoding, false);
@@ -11555,12 +11555,12 @@ var require_readable = __commonJS({
     }
     async function* createAsyncIterator(stream, options) {
       let callback = nop;
-      function next(resolve3) {
+      function next(resolve4) {
         if (this === stream) {
           callback();
           callback = nop;
         } else {
-          callback = resolve3;
+          callback = resolve4;
         }
       }
       stream.on("readable", next);
@@ -12612,7 +12612,7 @@ var require_duplexify = __commonJS({
       );
     };
     function fromAsyncGen(fn) {
-      let { promise, resolve: resolve3 } = createDeferredPromise();
+      let { promise, resolve: resolve4 } = createDeferredPromise();
       const ac = new AbortController2();
       const signal = ac.signal;
       const value = fn(
@@ -12627,7 +12627,7 @@ var require_duplexify = __commonJS({
               throw new AbortError(void 0, {
                 cause: signal.reason
               });
-            ({ promise, resolve: resolve3 } = createDeferredPromise());
+            ({ promise, resolve: resolve4 } = createDeferredPromise());
             yield chunk;
           }
         })(),
@@ -12638,8 +12638,8 @@ var require_duplexify = __commonJS({
       return {
         value,
         write(chunk, encoding, cb) {
-          const _resolve = resolve3;
-          resolve3 = null;
+          const _resolve = resolve4;
+          resolve4 = null;
           _resolve({
             chunk,
             done: false,
@@ -12647,8 +12647,8 @@ var require_duplexify = __commonJS({
           });
         },
         final(cb) {
-          const _resolve = resolve3;
-          resolve3 = null;
+          const _resolve = resolve4;
+          resolve4 = null;
           _resolve({
             done: true,
             cb
@@ -13099,7 +13099,7 @@ var require_pipeline = __commonJS({
           callback();
         }
       };
-      const wait = () => new Promise2((resolve3, reject) => {
+      const wait = () => new Promise2((resolve4, reject) => {
         if (error2) {
           reject(error2);
         } else {
@@ -13107,7 +13107,7 @@ var require_pipeline = __commonJS({
             if (error2) {
               reject(error2);
             } else {
-              resolve3();
+              resolve4();
             }
           };
         }
@@ -13751,8 +13751,8 @@ var require_operators = __commonJS({
                 next = null;
               }
               if (!done && (queue.length >= highWaterMark || cnt >= concurrency)) {
-                await new Promise2((resolve3) => {
-                  resume = resolve3;
+                await new Promise2((resolve4) => {
+                  resume = resolve4;
                 });
               }
             }
@@ -13786,8 +13786,8 @@ var require_operators = __commonJS({
               queue.shift();
               maybeResume();
             }
-            await new Promise2((resolve3) => {
-              next = resolve3;
+            await new Promise2((resolve4) => {
+              next = resolve4;
             });
           }
         } finally {
@@ -14045,7 +14045,7 @@ var require_promises = __commonJS({
     var { finished } = require_end_of_stream();
     require_stream();
     function pipeline(...streams) {
-      return new Promise2((resolve3, reject) => {
+      return new Promise2((resolve4, reject) => {
         let signal;
         let end;
         const lastArg = streams[streams.length - 1];
@@ -14060,7 +14060,7 @@ var require_promises = __commonJS({
             if (err2) {
               reject(err2);
             } else {
-              resolve3(value);
+              resolve4(value);
             }
           },
           {
@@ -16866,12 +16866,12 @@ var require_supports_color = __commonJS({
     "use strict";
     var os = __require("os");
     var tty = __require("tty");
-    var hasFlag8 = require_has_flag();
+    var hasFlag9 = require_has_flag();
     var { env } = process;
     var forceColor;
-    if (hasFlag8("no-color") || hasFlag8("no-colors") || hasFlag8("color=false") || hasFlag8("color=never")) {
+    if (hasFlag9("no-color") || hasFlag9("no-colors") || hasFlag9("color=false") || hasFlag9("color=never")) {
       forceColor = 0;
-    } else if (hasFlag8("color") || hasFlag8("colors") || hasFlag8("color=true") || hasFlag8("color=always")) {
+    } else if (hasFlag9("color") || hasFlag9("colors") || hasFlag9("color=true") || hasFlag9("color=always")) {
       forceColor = 1;
     }
     if ("FORCE_COLOR" in env) {
@@ -16898,10 +16898,10 @@ var require_supports_color = __commonJS({
       if (forceColor === 0) {
         return 0;
       }
-      if (hasFlag8("color=16m") || hasFlag8("color=full") || hasFlag8("color=truecolor")) {
+      if (hasFlag9("color=16m") || hasFlag9("color=full") || hasFlag9("color=truecolor")) {
         return 3;
       }
-      if (hasFlag8("color=256")) {
+      if (hasFlag9("color=256")) {
         return 2;
       }
       if (haveStream && !streamIsTTY && forceColor === void 0) {
@@ -16967,7 +16967,7 @@ var require_node = __commonJS({
   "../../node_modules/.pnpm/debug@4.4.3/node_modules/debug/src/node.js"(exports, module) {
     var tty = __require("tty");
     var util = __require("util");
-    exports.init = init2;
+    exports.init = init3;
     exports.log = log;
     exports.formatArgs = formatArgs;
     exports.save = save;
@@ -17116,7 +17116,7 @@ var require_node = __commonJS({
     function load() {
       return process.env.DEBUG;
     }
-    function init2(debug3) {
+    function init3(debug3) {
       debug3.inspectOpts = {};
       const keys = Object.keys(exports.inspectOpts);
       for (let i2 = 0; i2 < keys.length; i2++) {
@@ -17180,27 +17180,6 @@ function dockerAvailable() {
 function compose(args, cwd) {
   const r2 = spawnSync("docker", ["compose", ...args], { cwd, stdio: "inherit" });
   return r2.status ?? 1;
-}
-
-// ../predicate-cli/src/commands/up.ts
-async function up() {
-  if (!dockerAvailable()) {
-    console.error("Docker not found. Install Docker Desktop or Docker Engine first.");
-    return 2;
-  }
-  const dir = findComposeDir();
-  console.log(`bringing Fuseki up from ${dir}`);
-  return compose(["up", "-d"], dir);
-}
-
-// ../predicate-cli/src/commands/down.ts
-async function down() {
-  if (!dockerAvailable()) {
-    console.error("Docker not found.");
-    return 2;
-  }
-  const dir = findComposeDir();
-  return compose(["down"], dir);
 }
 
 // ../predicate-mcp/src/sparql/client.ts
@@ -17278,6 +17257,320 @@ function loadConfig() {
     updateEndpoint: `${fusekiUrl}/${dataset2}/update`,
     dataEndpoint: `${fusekiUrl}/${dataset2}/data`
   };
+}
+
+// ../predicate-mcp/src/sparql/escape.ts
+var ILLEGAL_IRI = /[\s<>"{}|^`\\]/;
+function escapeIRI(iri) {
+  if (ILLEGAL_IRI.test(iri)) {
+    throw new Error(`Illegal characters in IRI: ${JSON.stringify(iri)}`);
+  }
+  return `<${iri}>`;
+}
+function escapeLiteral(value) {
+  const escaped = value.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t");
+  return `"${escaped}"`;
+}
+
+// ../predicate-cli/src/commands/init.ts
+import { readFileSync, existsSync as existsSync2, statSync } from "node:fs";
+import { join, dirname as dirname2, resolve as resolve2 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+import { createInterface } from "node:readline/promises";
+var META = "https://predicate.dev/meta#";
+var CONFIG_URI = "urn:predicate:config";
+var MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+function parseFlag(args, name) {
+  const i2 = args.indexOf(name);
+  return i2 < 0 || i2 + 1 >= args.length ? void 0 : args[i2 + 1];
+}
+function hasFlag(args, name) {
+  return args.includes(name);
+}
+function findCatalogDir() {
+  const here = dirname2(fileURLToPath2(import.meta.url));
+  const candidates = [
+    // Monorepo source layout (packages/predicate-cli/src/commands/ -> packages/predicate-ontology/catalog)
+    join(here, "..", "..", "..", "predicate-ontology", "catalog"),
+    // Bundled-skill layout (packages/predicate-skill/cli.bundle.mjs -> packages/predicate-ontology/catalog)
+    join(here, "..", "predicate-ontology", "catalog"),
+    // Other fallbacks
+    join(here, "..", "..", "predicate-ontology", "catalog"),
+    join(here, "predicate-ontology", "catalog")
+  ];
+  for (const c2 of candidates) if (existsSync2(join(c2, "catalog.json"))) return c2;
+  throw new Error(`catalog directory not found \u2014 checked ${candidates.join(", ")}`);
+}
+function findMetaTtl(catalogDir) {
+  return join(catalogDir, "..", "meta", "predicate-meta.ttl");
+}
+function help() {
+  console.log(`predicate init [--mode community|upload|empty] [--ontology NAME] [--file PATH] [--force]
+
+Initialize the Predicate knowledge graph with a chosen TBox.
+
+Modes:
+  community  Install one of the bundled ontologies (see catalog).
+             Sub-option: --ontology NAME (top, codebase, foaf, schema-org-lite, fhir-core).
+  upload     Load a user-supplied .ttl file.
+             Sub-option: --file PATH (max 10 MB; cannot use the pred: namespace).
+  empty      Load meta vocab + minimal top ontology (Thing, dependsOn, relatedTo).
+
+Other options:
+  --force    Wipe existing config + kg:tbox + abox/inferred/provenance/goals/usage
+             and re-init. Required if already initialized.
+  --help     Print this message.
+
+Without flags + with TTY: runs an interactive prompt.
+
+Examples:
+  predicate init --mode community --ontology codebase
+  predicate init --mode upload --file ./my-domain.ttl
+  predicate init --mode empty
+`);
+}
+async function checkConfigExists(client) {
+  return client.ask(`
+    PREFIX pred: <${META}>
+    ASK { GRAPH <kg:meta> { <${CONFIG_URI}> a pred:Config } }
+  `);
+}
+async function loadTtlFile(client, path) {
+  const cfg = loadConfig();
+  const turtle = readFileSync(path, "utf8");
+  const auth = "Basic " + Buffer.from(`admin:${process.env["PREDICATE_ADMIN_PASSWORD"] ?? "changeme"}`).toString("base64");
+  const r2 = await fetch(`${cfg.fusekiUrl}/${cfg.dataset}/data?graph=kg:tbox`, {
+    method: "POST",
+    headers: { "Content-Type": "text/turtle", "Authorization": auth },
+    body: turtle
+  });
+  if (!r2.ok) throw new Error(`Fuseki load failed for ${path}: ${r2.status} ${await r2.text()}`);
+  void client;
+}
+async function destructiveReset(client) {
+  for (const g2 of ["kg:tbox", "kg:tbox-staging", "kg:abox", "kg:inferred", "kg:provenance", "kg:goals", "kg:usage", "kg:meta"]) {
+    await client.update(`DROP SILENT GRAPH <${g2}>`);
+    await client.update(`CREATE SILENT GRAPH <${g2}>`);
+  }
+}
+async function writeConfig(client, mode, ontology) {
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  await client.update(`
+    PREFIX pred: <${META}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA { GRAPH <kg:meta> {
+      <${CONFIG_URI}> a pred:Config ;
+        pred:initMode             ${escapeLiteral(mode)} ;
+        pred:initOntology         ${escapeLiteral(ontology)} ;
+        pred:schemaLearningEnabled "true"^^xsd:boolean ;
+        pred:initializedAt        "${now}"^^xsd:dateTime .
+    } }
+  `);
+}
+function validateUserUpload(turtle) {
+  if (/https?:\/\/predicate\.dev\/meta#/.test(turtle)) {
+    return { ok: false, error: `Uploaded ontology uses the reserved 'pred:' namespace (https://predicate.dev/meta#). Rename or remove those triples.` };
+  }
+  return { ok: true };
+}
+async function doCommunity(client, ontologyName) {
+  const catalogDir = findCatalogDir();
+  const catalog = JSON.parse(readFileSync(join(catalogDir, "catalog.json"), "utf8"));
+  const entry = catalog.ontologies.find((o2) => o2.name === ontologyName);
+  if (!entry) {
+    console.error(`predicate init: unknown ontology '${ontologyName}'. Available: ${catalog.ontologies.map((o2) => o2.name).join(", ")}`);
+    return 2;
+  }
+  await loadTtlFile(client, findMetaTtl(catalogDir));
+  for (const f2 of entry.files) await loadTtlFile(client, join(catalogDir, f2));
+  if (entry.shapes) await loadTtlFile(client, join(catalogDir, entry.shapes));
+  await writeConfig(client, "community", ontologyName);
+  console.log(`predicate init: ${ontologyName} ontology loaded (${entry.description}, license: ${entry.license}).`);
+  return 0;
+}
+async function doUpload(client, filePath) {
+  const abs = resolve2(filePath);
+  if (!existsSync2(abs)) {
+    console.error(`predicate init: file not found: ${abs}`);
+    return 1;
+  }
+  const sz = statSync(abs).size;
+  if (sz > MAX_UPLOAD_BYTES) {
+    console.error(`predicate init: file too large (${sz} bytes; max ${MAX_UPLOAD_BYTES})`);
+    return 1;
+  }
+  const turtle = readFileSync(abs, "utf8");
+  const v2 = validateUserUpload(turtle);
+  if (!v2.ok) {
+    console.error(`predicate init: ${v2.error}`);
+    return 1;
+  }
+  const catalogDir = findCatalogDir();
+  await loadTtlFile(client, findMetaTtl(catalogDir));
+  try {
+    await loadTtlFile(client, abs);
+  } catch (err2) {
+    await client.update(`DROP SILENT GRAPH <kg:tbox>`);
+    await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
+    await loadTtlFile(client, findMetaTtl(catalogDir));
+    console.error(`predicate init: upload failed during load: ${err2.message}. kg:tbox rolled back to meta-only.`);
+    return 1;
+  }
+  await writeConfig(client, "upload", "user");
+  console.log(`predicate init: uploaded ${abs} (${sz} bytes). Schema-learning enabled.`);
+  return 0;
+}
+async function doEmpty(client) {
+  const catalogDir = findCatalogDir();
+  await loadTtlFile(client, findMetaTtl(catalogDir));
+  await loadTtlFile(client, join(catalogDir, "top.ttl"));
+  await writeConfig(client, "empty", "top");
+  console.log(`predicate init: empty mode (meta + top vocabulary loaded). The agent will propose new predicates as needed; sweeper promotes after 3 uses.`);
+  return 0;
+}
+async function interactive(client) {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    console.log(`Welcome to Predicate. Choose how to initialize the knowledge graph:
+
+  (1) Install a community ontology  \u2014 pick one of our bundled vocabularies
+  (2) Upload your own ontology      \u2014 load a custom .ttl file
+  (3) Start empty                   \u2014 meta vocab only, agent grows the rest
+`);
+    const choice = (await rl.question("Your choice [1/2/3]: ")).trim();
+    if (choice === "1") {
+      const catalogDir = findCatalogDir();
+      const catalog = JSON.parse(readFileSync(join(catalogDir, "catalog.json"), "utf8"));
+      console.log("\nAvailable ontologies:");
+      for (const o2 of catalog.ontologies) console.log(`  - ${o2.name.padEnd(18)} ${o2.description}`);
+      const name = (await rl.question("\nWhich ontology? ")).trim();
+      return doCommunity(client, name);
+    }
+    if (choice === "2") {
+      const path = (await rl.question("Path to .ttl file: ")).trim();
+      return doUpload(client, path);
+    }
+    if (choice === "3") {
+      return doEmpty(client);
+    }
+    console.error(`predicate init: invalid choice '${choice}'. Run with --help for non-interactive flags.`);
+    return 2;
+  } finally {
+    rl.close();
+  }
+}
+async function init(args) {
+  if (hasFlag(args, "--help")) {
+    help();
+    return 0;
+  }
+  const client = new SparqlClient(loadConfig());
+  if (hasFlag(args, "--force")) {
+    await destructiveReset(client);
+  } else if (await checkConfigExists(client)) {
+    const cfg = await client.select(`
+      PREFIX pred: <${META}>
+      SELECT ?m ?o WHERE { GRAPH <kg:meta> {
+        <${CONFIG_URI}> pred:initMode ?m ; pred:initOntology ?o .
+      } }
+    `);
+    const b2 = cfg.results.bindings[0];
+    const mode2 = b2?.m?.value ?? "?";
+    const ont = b2?.o?.value ?? "?";
+    console.error(`predicate init: already initialized as '${mode2}/${ont}'. Use --force to reset (destructive). Or kg_config_set to toggle individual fields.`);
+    return 2;
+  }
+  const mode = parseFlag(args, "--mode");
+  if (!mode) {
+    if (process.stdin.isTTY) return interactive(client);
+    console.error(`predicate init: --mode is required when stdin is not a TTY. Run with --help.`);
+    return 2;
+  }
+  if (mode === "community") {
+    const ontology = parseFlag(args, "--ontology") ?? "codebase";
+    return doCommunity(client, ontology);
+  }
+  if (mode === "upload") {
+    const file = parseFlag(args, "--file");
+    if (!file) {
+      console.error(`predicate init: --mode upload requires --file PATH`);
+      return 2;
+    }
+    return doUpload(client, file);
+  }
+  if (mode === "empty") {
+    return doEmpty(client);
+  }
+  console.error(`predicate init: invalid --mode '${mode}'. Must be one of: community, upload, empty.`);
+  return 2;
+}
+
+// ../predicate-cli/src/commands/up.ts
+var META2 = "https://predicate.dev/meta#";
+var CONFIG_URI2 = "urn:predicate:config";
+async function checkConfigExists2(client) {
+  return client.ask(`
+    PREFIX pred: <${META2}>
+    ASK { GRAPH <kg:meta> { <${CONFIG_URI2}> a pred:Config } }
+  `);
+}
+async function detectLegacyCodebase(client) {
+  return client.ask(`
+    PREFIX cb:  <https://predicate.dev/codebase#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }
+  `);
+}
+async function writeLegacyConfig(client) {
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  await client.update(`
+    PREFIX pred: <${META2}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA { GRAPH <kg:meta> {
+      <${CONFIG_URI2}> a pred:Config ;
+        pred:initMode              ${escapeLiteral("community")} ;
+        pred:initOntology          ${escapeLiteral("codebase")} ;
+        pred:schemaLearningEnabled "true"^^xsd:boolean ;
+        pred:initializedAt         "${now}"^^xsd:dateTime .
+    } }
+  `);
+}
+async function up() {
+  if (!dockerAvailable()) {
+    console.error("Docker not found. Install Docker Desktop or Docker Engine first.");
+    return 2;
+  }
+  const dir = findComposeDir();
+  console.log(`bringing Fuseki up from ${dir}`);
+  const rc = await compose(["up", "-d"], dir);
+  if (rc !== 0) return rc;
+  try {
+    const client = new SparqlClient(loadConfig());
+    if (await checkConfigExists2(client)) return 0;
+    if (await detectLegacyCodebase(client)) {
+      await writeLegacyConfig(client);
+      console.log(`predicate up: legacy codebase ontology detected \u2014 wrote 'community/codebase' config.`);
+      return 0;
+    }
+    if (process.stdin.isTTY) {
+      return init([]);
+    }
+    console.error("predicate up: no init config and non-TTY stdin; defaulting to empty mode.");
+    return init(["--mode", "empty"]);
+  } catch (err2) {
+    console.error(`predicate up: post-bootstrap init check failed: ${err2.message}`);
+    return 0;
+  }
+}
+
+// ../predicate-cli/src/commands/down.ts
+async function down() {
+  if (!dockerAvailable()) {
+    console.error("Docker not found.");
+    return 2;
+  }
+  const dir = findComposeDir();
+  return compose(["down"], dir);
 }
 
 // ../predicate-cli/src/commands/doctor.ts
@@ -17416,14 +17709,14 @@ async function stats() {
 }
 
 // ../predicate-cli/src/commands/sessionstart.ts
-var META = "https://predicate.dev/meta#";
+var META3 = "https://predicate.dev/meta#";
 var OWL = "http://www.w3.org/2002/07/owl#";
 async function sessionstart() {
   const cfg = loadConfig();
   const client = new SparqlClient(cfg);
   try {
     const goalsRes = await client.select(
-      `PREFIX pred: <${META}>
+      `PREFIX pred: <${META3}>
        SELECT (COUNT(*) AS ?n) WHERE {
          GRAPH <kg:goals> { ?g pred:status "active" }
        }`
@@ -17435,17 +17728,23 @@ async function sessionstart() {
        }`
     );
     const priorSessionsRes = await client.select(
-      `PREFIX pred: <${META}>
+      `PREFIX pred: <${META3}>
        SELECT (COUNT(DISTINCT ?s) AS ?n) WHERE {
          GRAPH <kg:abox> { ?s a pred:Session }
        }`
     );
+    const ontologyRes = await client.select(
+      `PREFIX pred: <${META3}>
+       SELECT ?o WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology ?o } }`
+    ).catch(() => ({ results: { bindings: [] } }));
     const goals = goalsRes.results.bindings[0]?.n?.value ?? "0";
     const classes = classesRes.results.bindings[0]?.n?.value ?? "0";
     const priorSessions = priorSessionsRes.results.bindings[0]?.n?.value ?? "0";
+    const ontology = ontologyRes.results.bindings[0]?.o?.value ?? "";
     const sessionHint = priorSessions !== "0" ? ` ${priorSessions} prior session(s) in kg:abox \u2014 query for past file changes / command outcomes if relevant.` : "";
+    const ontologyHint = ontology ? ` (${ontology} ontology)` : "";
     console.log(
-      `Predicate ready: ${goals} active goals, ${classes} TBox classes.${sessionHint} Use kg_explore_schema before drafting SPARQL.`
+      `Predicate ready: ${goals} active goals, ${classes} TBox classes${ontologyHint}.${sessionHint} Use kg_explore_schema before drafting SPARQL.`
     );
     return 0;
   } catch {
@@ -17454,19 +17753,6 @@ async function sessionstart() {
     );
     return 0;
   }
-}
-
-// ../predicate-mcp/src/sparql/escape.ts
-var ILLEGAL_IRI = /[\s<>"{}|^`\\]/;
-function escapeIRI(iri) {
-  if (ILLEGAL_IRI.test(iri)) {
-    throw new Error(`Illegal characters in IRI: ${JSON.stringify(iri)}`);
-  }
-  return `<${iri}>`;
-}
-function escapeLiteral(value) {
-  const escaped = value.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t");
-  return `"${escaped}"`;
 }
 
 // ../../node_modules/.pnpm/@anthropic-ai+sdk@0.40.1/node_modules/@anthropic-ai/sdk/version.mjs
@@ -17891,10 +18177,10 @@ function getRuntime() {
 }
 
 // ../../node_modules/.pnpm/@anthropic-ai+sdk@0.40.1/node_modules/@anthropic-ai/sdk/_shims/index.mjs
-var init = () => {
+var init2 = () => {
   if (!kind) setShims(getRuntime(), { auto: true });
 };
-init();
+init2();
 
 // ../../node_modules/.pnpm/@anthropic-ai+sdk@0.40.1/node_modules/@anthropic-ai/sdk/error.mjs
 var AnthropicError = class extends Error {
@@ -18442,7 +18728,7 @@ var __classPrivateFieldGet7 = function(receiver, state, kind2, f2) {
   return kind2 === "m" ? f2 : kind2 === "a" ? f2.call(receiver) : f2 ? f2.value : state.get(receiver);
 };
 var _AbstractPage_client;
-init();
+init2();
 async function defaultParseResponse(props) {
   const { response } = props;
   if (props.options.stream) {
@@ -18481,8 +18767,8 @@ function _addRequestID(value, response) {
 }
 var APIPromise = class _APIPromise extends Promise {
   constructor(responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve3) => {
-      resolve3(null);
+    super((resolve4) => {
+      resolve4(null);
     });
     this.responsePromise = responsePromise;
     this.parseResponse = parseResponse;
@@ -18773,8 +19059,8 @@ var APIClient = class {
       throw new AnthropicError(`Cannot stringify type ${typeof value}; Expected string, number, boolean, or null. If you need to pass nested query parameters, you can manually encode them, e.g. { query: { 'foo[key1]': value1, 'foo[key2]': value2 } }, and please open a GitHub issue requesting better support for your use case.`);
     }).join("&");
   }
-  async fetchWithTimeout(url, init2, ms, controller) {
-    const { signal, ...options } = init2 || {};
+  async fetchWithTimeout(url, init3, ms, controller) {
+    const { signal, ...options } = init3 || {};
     if (signal)
       signal.addEventListener("abort", () => controller.abort());
     const timeout = setTimeout(() => controller.abort(), ms);
@@ -19074,7 +19360,7 @@ var startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
 var isAbsoluteURL = (url) => {
   return startsWithSchemeRegexp.test(url);
 };
-var sleep = (ms) => new Promise((resolve3) => setTimeout(resolve3, ms));
+var sleep = (ms) => new Promise((resolve4) => setTimeout(resolve4, ms));
 var validatePositiveInteger = (name, n2) => {
   if (typeof n2 !== "number" || !Number.isInteger(n2)) {
     throw new AnthropicError(`${name} must be an integer`);
@@ -19688,12 +19974,12 @@ var BetaMessageStream = class _BetaMessageStream {
       }
       return this._emit("error", new AnthropicError(String(error2)));
     });
-    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve3, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve3, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve4, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve4, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve3, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve3, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve4, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve4, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet8(this, _BetaMessageStream_connectedPromise, "f").catch(() => {
@@ -19851,11 +20137,11 @@ var BetaMessageStream = class _BetaMessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       __classPrivateFieldSet7(this, _BetaMessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve3);
+      this.once(event, resolve4);
     });
   }
   async done() {
@@ -20139,7 +20425,7 @@ var BetaMessageStream = class _BetaMessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve3, reject) => readQueue.push({ resolve: resolve3, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve4, reject) => readQueue.push({ resolve: resolve4, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -20413,12 +20699,12 @@ var MessageStream = class _MessageStream {
       }
       return this._emit("error", new AnthropicError(String(error2)));
     });
-    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve3, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve3, "f");
+    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve4, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve4, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve3, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve3, "f");
+    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve4, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve4, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet9(this, _MessageStream_connectedPromise, "f").catch(() => {
@@ -20576,11 +20862,11 @@ var MessageStream = class _MessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       __classPrivateFieldSet8(this, _MessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve3);
+      this.once(event, resolve4);
     });
   }
   async done() {
@@ -20864,7 +21150,7 @@ var MessageStream = class _MessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve3, reject) => readQueue.push({ resolve: resolve3, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve4, reject) => readQueue.push({ resolve: resolve4, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -21160,7 +21446,7 @@ async function kgAssert(client, t2) {
 }
 
 // ../predicate-agent/src/schema-proposer.ts
-var META2 = "https://predicate.dev/meta#";
+var META4 = "https://predicate.dev/meta#";
 var DEFAULT_TTL_DAYS = 7;
 function newProposalId() {
   const ts = Date.now().toString(36);
@@ -21200,7 +21486,7 @@ var SchemaProposer = class {
     const parentLine = delta.kind === "refine-class" ? `${escapeIRI(id)} pred:parent ${escapeIRI(delta.parent)} .` : "";
     const migrationLine = delta.kind === "breaking" ? `${escapeIRI(id)} pred:migration ${escapeLiteral(delta.migration)} .` : "";
     await this.client.update(`
-      PREFIX pred: <${META2}>
+      PREFIX pred: <${META4}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:tbox-staging> {
@@ -21234,7 +21520,7 @@ var SchemaProposer = class {
 
 // ../predicate-agent/src/promotion-sweeper.ts
 import { writeFileSync } from "node:fs";
-import { resolve as resolve2 } from "node:path";
+import { resolve as resolve3 } from "node:path";
 
 // ../predicate-reasoner/src/rules/r01-subclassof-transitivity.ts
 var SUBCLASS_OF = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
@@ -26855,7 +27141,7 @@ async function unsatisfiableClasses(client, tboxView, inferred) {
 }
 
 // ../predicate-reasoner/src/explain.ts
-var META3 = "https://predicate.dev/meta#";
+var META5 = "https://predicate.dev/meta#";
 var MAX_DEPTH = 8;
 function quadKey(q2) {
   const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
@@ -26876,7 +27162,7 @@ async function isAsserted(client, q2) {
 async function getProvenance(client, q2) {
   const o2 = typeof q2.o === "string" ? `<${q2.o}>` : `"${q2.o.value}"`;
   const r2 = await client.select(`
-    PREFIX pred: <${META3}>
+    PREFIX pred: <${META5}>
     SELECT ?src ?conf ?method ?ts WHERE {
       GRAPH <kg:provenance> {
         << <${q2.s}> <${q2.p}> ${o2} >> pred:source ?src ;
@@ -26970,7 +27256,7 @@ var FusekiConstructAdapter = class {
 };
 
 // ../predicate-agent/src/promotion-sweeper.ts
-var META4 = "https://predicate.dev/meta#";
+var META6 = "https://predicate.dev/meta#";
 function newEventId2(kind2) {
   return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -26989,7 +27275,7 @@ var PromotionSweeper = class {
   constructor(client, opts = {}) {
     this.client = client;
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? resolve2(
+    this.promotedDir = opts.promotedDir ?? resolve3(
       import.meta.dirname ?? process.cwd(),
       "..",
       "..",
@@ -27014,7 +27300,7 @@ var PromotionSweeper = class {
   }
   async listProposals() {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       SELECT ?id ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ?id a pred:Proposal ;
@@ -27043,7 +27329,7 @@ var PromotionSweeper = class {
   }
   async countUses(proposalId) {
     const subjects = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       SELECT DISTINCT ?s WHERE {
         GRAPH <kg:tbox-staging> {
           << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
@@ -27054,7 +27340,7 @@ var PromotionSweeper = class {
     if (iris.length === 0) return 0;
     const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
     const r2 = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       SELECT (COUNT(*) AS ?n) WHERE {
         GRAPH <kg:usage> {
           ?q a pred:Query ; pred:sparql ?sparql .
@@ -27096,7 +27382,7 @@ var PromotionSweeper = class {
     await this.client.update(`CREATE SILENT GRAPH <${scratch}>`);
     try {
       await this.client.update(`
-        PREFIX pred: <${META4}>
+        PREFIX pred: <${META6}>
         INSERT { GRAPH <${scratch}> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -27125,7 +27411,7 @@ var PromotionSweeper = class {
   }
   async rejectExpired(p2) {
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       DELETE {
         GRAPH <kg:tbox-staging> {
@@ -27143,7 +27429,7 @@ var PromotionSweeper = class {
       }
     `);
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -27158,7 +27444,7 @@ var PromotionSweeper = class {
   }
   async recordValidationFailed(p2, reason) {
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -27173,7 +27459,7 @@ var PromotionSweeper = class {
   }
   async promote(p2) {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       SELECT ?s ?p ?o WHERE {
         GRAPH <kg:tbox-staging> {
           << ?s ?p ?o >> pred:proposalId ${escapeIRI(p2.id)} .
@@ -27189,7 +27475,7 @@ var PromotionSweeper = class {
         o: o2.type === "uri" ? { type: "uri", value: o2.value } : { type: "literal", value: o2.value, datatype: o2.datatype }
       };
     });
-    const turtleFile = resolve2(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
+    const turtleFile = resolve3(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
     const turtle = quads.map(tripleTurtle).join("\n") + "\n";
     writeFileSync(turtleFile, turtle, "utf8");
     const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
@@ -27206,7 +27492,7 @@ var PromotionSweeper = class {
     const payloadAdvanced = escapeLiteral(JSON.stringify({ proposalId: p2.id, turtleFile }));
     await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:tbox> {
@@ -27227,7 +27513,7 @@ var PromotionSweeper = class {
       }
     `);
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META6}>
       DELETE {
         GRAPH <kg:tbox-staging> {
           ?s ?p ?o .
@@ -27260,8 +27546,25 @@ var Generalizer = class {
   }
   client;
   k;
+  async isSchemaLearningEnabled() {
+    const r2 = await this.client.select(
+      `PREFIX pred: <https://predicate.dev/meta#>
+       SELECT ?v WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?v } }`
+    );
+    const b2 = r2.results.bindings[0];
+    if (!b2) return true;
+    return b2["v"].value === "true";
+  }
   async run() {
     const t0 = Date.now();
+    if (!await this.isSchemaLearningEnabled()) {
+      return {
+        proposals: [],
+        scannedSubjects: 0,
+        durationMs: Date.now() - t0,
+        autoProposalsSkipped: true
+      };
+    }
     const subjects = await this.listUntypedSubjects();
     const groups = this.groupByFingerprint(subjects);
     const proposals = [];
@@ -27414,7 +27717,7 @@ function pickStr(o2, keys) {
 }
 
 // ../predicate-mcp/src/tools/kg-maintain.ts
-var META5 = "https://predicate.dev/meta#";
+var META7 = "https://predicate.dev/meta#";
 async function kgMaintain(client, input = {}) {
   const archiveCutoff = input.archiveCutoff ?? 0.6;
   const ageDays = input.ageDays ?? 30;
@@ -27426,7 +27729,7 @@ async function kgMaintain(client, input = {}) {
   );
   const beforeCount = parseInt(before.results.bindings[0].n.value, 10);
   await client.update(`
-    PREFIX pred: <${META5}>
+    PREFIX pred: <${META7}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
     INSERT { GRAPH <kg:abox-archive> { ?s ?p ?o } }
@@ -27460,7 +27763,7 @@ async function kgMaintain(client, input = {}) {
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
-    PREFIX pred: <${META5}>
+    PREFIX pred: <${META7}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${eventId}> a pred:MaintenanceRun ;
@@ -27478,7 +27781,15 @@ async function kgMaintain(client, input = {}) {
   }))} .
     } }
   `);
-  return { archivedCount, elapsedMs, eventId, sweeper, generalizer, fixpoint };
+  return {
+    archivedCount,
+    elapsedMs,
+    eventId,
+    sweeper,
+    generalizer,
+    fixpoint,
+    autoProposalsSkipped: generalizer.autoProposalsSkipped
+  };
 }
 
 // ../predicate-cli/src/commands/maintain.ts
@@ -27500,7 +27811,7 @@ async function maintain() {
 }
 
 // ../predicate-mcp/src/tools/kg-capture.ts
-var META6 = "https://predicate.dev/meta#";
+var META8 = "https://predicate.dev/meta#";
 function truncate(s2, max) {
   if (s2.length <= max) return s2;
   const extra = s2.length - max;
@@ -27527,14 +27838,14 @@ async function kgCapture(client, input) {
   const hasOutput = input.output !== void 0 && input.output !== null;
   const outputStr = hasOutput ? serialize(input.output, maxChars) : "";
   const lines = [
-    `${escapeIRI(captureId)} a <${META6}ToolCall> ;`,
-    `  <${META6}toolName>  ${escapeLiteral(input.toolName)} ;`,
-    `  <${META6}phase>     ${escapeLiteral(input.phase)} ;`,
-    `  <${META6}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
+    `${escapeIRI(captureId)} a <${META8}ToolCall> ;`,
+    `  <${META8}toolName>  ${escapeLiteral(input.toolName)} ;`,
+    `  <${META8}phase>     ${escapeLiteral(input.phase)} ;`,
+    `  <${META8}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
   ];
-  if (inputStr.length > 0) lines.push(`  ; <${META6}toolInput>  ${escapeLiteral(inputStr)}`);
-  if (hasOutput) lines.push(`  ; <${META6}toolOutput> ${escapeLiteral(outputStr)}`);
-  if (input.sessionId) lines.push(`  ; <${META6}sessionId>  ${escapeLiteral(input.sessionId)}`);
+  if (inputStr.length > 0) lines.push(`  ; <${META8}toolInput>  ${escapeLiteral(inputStr)}`);
+  if (hasOutput) lines.push(`  ; <${META8}toolOutput> ${escapeLiteral(outputStr)}`);
+  if (input.sessionId) lines.push(`  ; <${META8}sessionId>  ${escapeLiteral(input.sessionId)}`);
   lines.push("  .");
   await client.update(`
     INSERT DATA { GRAPH ${escapeIRI(GRAPH.usage)} {
@@ -27545,15 +27856,15 @@ async function kgCapture(client, input) {
 }
 
 // ../predicate-cli/src/commands/capture.ts
-function parseFlag(args, name) {
+function parseFlag2(args, name) {
   const i2 = args.indexOf(name);
   if (i2 < 0 || i2 + 1 >= args.length) return void 0;
   return args[i2 + 1];
 }
-function hasFlag(args, name) {
+function hasFlag2(args, name) {
   return args.includes(name);
 }
-function help() {
+function help2() {
   console.log(`predicate capture [options]
 
 Record a tool invocation into kg:usage. Suitable for use from
@@ -27603,11 +27914,11 @@ function parseMaybeJson(s2) {
   }
 }
 async function capture(args, stdin = process.stdin) {
-  if (hasFlag(args, "--help")) {
-    help();
+  if (hasFlag2(args, "--help")) {
+    help2();
     return 0;
   }
-  const phase = parseFlag(args, "--phase");
+  const phase = parseFlag2(args, "--phase");
   if (phase !== "pre" && phase !== "post") {
     console.error('predicate capture: --phase must be "pre" or "post"');
     return 2;
@@ -27616,7 +27927,7 @@ async function capture(args, stdin = process.stdin) {
   let toolInput;
   let toolOutput;
   let sessionId;
-  if (hasFlag(args, "--from-stdin")) {
+  if (hasFlag2(args, "--from-stdin")) {
     const raw = await readStdin(stdin);
     let payload;
     try {
@@ -27630,10 +27941,10 @@ async function capture(args, stdin = process.stdin) {
     toolOutput = payload["tool_response"];
     sessionId = typeof payload["session_id"] === "string" ? payload["session_id"] : void 0;
   } else {
-    toolName = parseFlag(args, "--tool");
-    toolInput = parseMaybeJson(parseFlag(args, "--input"));
-    toolOutput = parseMaybeJson(parseFlag(args, "--output"));
-    sessionId = parseFlag(args, "--session");
+    toolName = parseFlag2(args, "--tool");
+    toolInput = parseMaybeJson(parseFlag2(args, "--input"));
+    toolOutput = parseMaybeJson(parseFlag2(args, "--output"));
+    sessionId = parseFlag2(args, "--session");
   }
   if (!toolName) {
     console.error("predicate capture: --tool is required (or --from-stdin with payload.tool_name)");
@@ -27651,11 +27962,11 @@ async function capture(args, stdin = process.stdin) {
 }
 
 // ../predicate-cli/src/commands/extract.ts
-import { readFileSync } from "node:fs";
+import { readFileSync as readFileSync2 } from "node:fs";
 
 // ../predicate-agent/src/turn-extractor.ts
 import { createHash as createHash2 } from "node:crypto";
-var META7 = "https://predicate.dev/meta#";
+var META9 = "https://predicate.dev/meta#";
 var CB = "https://predicate.dev/codebase#";
 var RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 var XSD = "http://www.w3.org/2001/XMLSchema#";
@@ -27719,9 +28030,9 @@ function extractDeterministic(transcript) {
     triples.push(t2);
   }
   const base = { source: sessionUri, confidence: 0.95, method: "tool-parse" };
-  push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META7}Session`), ...base });
-  push({ subject: sessionUri, predicate: `${META7}sessionId`, object: literal3(transcript.sessionId), ...base });
-  push({ subject: sessionUri, predicate: `${META7}at`, object: literal3(now, `${XSD}dateTime`), ...base });
+  push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META9}Session`), ...base });
+  push({ subject: sessionUri, predicate: `${META9}sessionId`, object: literal3(transcript.sessionId), ...base });
+  push({ subject: sessionUri, predicate: `${META9}at`, object: literal3(now, `${XSD}dateTime`), ...base });
   const results = collectToolResults(transcript.events);
   const uses = collectToolUses(transcript.events);
   for (const use of uses) {
@@ -27880,12 +28191,12 @@ ${input.toolSummary}
 
 // ../predicate-cli/src/commands/extract.ts
 var SUPPORTED_PLATFORMS = ["claude-code", "gemini", "opencode"];
-function parseFlag2(args, name) {
+function parseFlag3(args, name) {
   const i2 = args.indexOf(name);
   if (i2 < 0 || i2 + 1 >= args.length) return void 0;
   return args[i2 + 1];
 }
-function hasFlag2(args, name) {
+function hasFlag3(args, name) {
   return args.includes(name);
 }
 function adapterFor(platform) {
@@ -27904,7 +28215,7 @@ async function readStdin2(stream) {
   for await (const chunk of stream) buf += String(chunk);
   return buf;
 }
-function help2() {
+function help3() {
   console.log(`predicate extract --from-stdin [--platform <p>]
 
 Read a Stop-hook payload from stdin and extract typed triples for
@@ -27948,15 +28259,15 @@ async function buildTBoxSlice(client) {
   return r2.results.bindings.map((b2) => `${b2["p"].value} a ${b2["kind"].value} .`).join("\n");
 }
 async function extract(args, stdin = process.stdin) {
-  if (hasFlag2(args, "--help")) {
-    help2();
+  if (hasFlag3(args, "--help")) {
+    help3();
     return 0;
   }
-  if (!hasFlag2(args, "--from-stdin")) {
+  if (!hasFlag3(args, "--from-stdin")) {
     console.error("predicate extract: --from-stdin is required.");
     return 2;
   }
-  const platformRaw = parseFlag2(args, "--platform") ?? "claude-code";
+  const platformRaw = parseFlag3(args, "--platform") ?? "claude-code";
   if (!SUPPORTED_PLATFORMS.includes(platformRaw)) {
     console.error(
       `predicate extract: unsupported --platform "${platformRaw}". Supported: ${SUPPORTED_PLATFORMS.join(", ")}.`
@@ -27980,7 +28291,7 @@ async function extract(args, stdin = process.stdin) {
   }
   let events;
   try {
-    const lines = readFileSync(transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
+    const lines = readFileSync2(transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
     events = lines.map((l2) => JSON.parse(l2));
   } catch (err2) {
     console.error(`predicate extract: failed to read transcript: ${err2.message}`);
@@ -28017,15 +28328,15 @@ async function extract(args, stdin = process.stdin) {
 }
 
 // ../predicate-cli/src/commands/sessions.ts
-function parseFlag3(args, name) {
+function parseFlag4(args, name) {
   const i2 = args.indexOf(name);
   if (i2 < 0 || i2 + 1 >= args.length) return void 0;
   return args[i2 + 1];
 }
-function hasFlag3(args, name) {
+function hasFlag4(args, name) {
   return args.includes(name);
 }
-function help3() {
+function help4() {
   console.log(`predicate sessions [--limit N] [--json]
 
 List recent development sessions captured in kg:abox by the
@@ -28040,10 +28351,10 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META10 = "https://predicate.dev/meta#";
+  const META12 = "https://predicate.dev/meta#";
   const CB2 = "https://predicate.dev/codebase#";
   const rows = await client.select(
-    `PREFIX pred: <${META10}>
+    `PREFIX pred: <${META12}>
      PREFIX cb:   <${CB2}>
      SELECT ?s ?sid ?at
             (COUNT(DISTINCT ?f) AS ?files)
@@ -28086,11 +28397,11 @@ function renderTable(rows) {
   return cells.map((row) => row.map((c2, i2) => c2.padEnd(widths[i2])).join("  ")).join("\n");
 }
 async function sessions(args) {
-  if (hasFlag3(args, "--help")) {
-    help3();
+  if (hasFlag4(args, "--help")) {
+    help4();
     return 0;
   }
-  const limitStr = parseFlag3(args, "--limit");
+  const limitStr = parseFlag4(args, "--limit");
   const limit = limitStr ? parseInt(limitStr, 10) : 10;
   if (!Number.isFinite(limit) || limit <= 0) {
     console.error("predicate sessions: --limit must be a positive integer");
@@ -28099,7 +28410,7 @@ async function sessions(args) {
   try {
     const client = new SparqlClient(loadConfig());
     const rows = await fetchSessions(client, limit);
-    if (hasFlag3(args, "--json")) console.log(JSON.stringify(rows, null, 2));
+    if (hasFlag4(args, "--json")) console.log(JSON.stringify(rows, null, 2));
     else console.log(renderTable(rows));
     return 0;
   } catch (err2) {
@@ -28109,15 +28420,15 @@ async function sessions(args) {
 }
 
 // ../predicate-cli/src/commands/captures.ts
-function parseFlag4(args, name) {
+function parseFlag5(args, name) {
   const i2 = args.indexOf(name);
   if (i2 < 0 || i2 + 1 >= args.length) return void 0;
   return args[i2 + 1];
 }
-function hasFlag4(args, name) {
+function hasFlag5(args, name) {
   return args.includes(name);
 }
-function help4() {
+function help5() {
   console.log(`predicate captures [--limit N] [--tool NAME] [--json]
 
 List raw tool-call captures from kg:usage (only present when
@@ -28133,10 +28444,10 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META10 = "https://predicate.dev/meta#";
+  const META12 = "https://predicate.dev/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
-    `PREFIX pred: <${META10}>
+    `PREFIX pred: <${META12}>
      SELECT ?c ?at ?tool ?phase ?session WHERE {
        GRAPH <kg:usage> {
          ?c a pred:ToolCall ;
@@ -28174,21 +28485,21 @@ function renderTable2(rows) {
   return cells.map((row) => row.map((c2, i2) => c2.padEnd(widths[i2])).join("  ")).join("\n");
 }
 async function captures(args) {
-  if (hasFlag4(args, "--help")) {
-    help4();
+  if (hasFlag5(args, "--help")) {
+    help5();
     return 0;
   }
-  const limitStr = parseFlag4(args, "--limit");
+  const limitStr = parseFlag5(args, "--limit");
   const limit = limitStr ? parseInt(limitStr, 10) : 20;
   if (!Number.isFinite(limit) || limit <= 0) {
     console.error("predicate captures: --limit must be a positive integer");
     return 2;
   }
-  const tool = parseFlag4(args, "--tool");
+  const tool = parseFlag5(args, "--tool");
   try {
     const client = new SparqlClient(loadConfig());
     const rows = await fetchCaptures(client, { limit, ...tool ? { tool } : {} });
-    if (hasFlag4(args, "--json")) console.log(JSON.stringify(rows, null, 2));
+    if (hasFlag5(args, "--json")) console.log(JSON.stringify(rows, null, 2));
     else console.log(renderTable2(rows));
     return 0;
   } catch (err2) {
@@ -28198,7 +28509,7 @@ async function captures(args) {
 }
 
 // ../predicate-cli/src/commands/recall.ts
-function help5() {
+function help6() {
   console.log(`predicate recall <query> [--json] [--limit N]
 
 Search session-history (kg:abox) for files and commands matching the
@@ -28221,12 +28532,12 @@ Example:
   predicate recall "pnpm test"
 `);
 }
-function parseFlag5(args, name) {
+function parseFlag6(args, name) {
   const i2 = args.indexOf(name);
   if (i2 < 0 || i2 + 1 >= args.length) return void 0;
   return args[i2 + 1];
 }
-function hasFlag5(args, name) {
+function hasFlag6(args, name) {
   return args.includes(name);
 }
 function escapeSparqlLiteral(s2) {
@@ -28234,10 +28545,10 @@ function escapeSparqlLiteral(s2) {
 }
 async function searchFiles(client, query, limit) {
   const CB2 = "https://predicate.dev/codebase#";
-  const META10 = "https://predicate.dev/meta#";
+  const META12 = "https://predicate.dev/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
-     PREFIX pred: <${META10}>
+     PREFIX pred: <${META12}>
      SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
      WHERE {
        GRAPH <kg:abox> {
@@ -28306,8 +28617,8 @@ function render(result) {
   return lines.join("\n");
 }
 async function recall(args) {
-  if (hasFlag5(args, "--help") || args.length === 0) {
-    help5();
+  if (hasFlag6(args, "--help") || args.length === 0) {
+    help6();
     return args.length === 0 ? 2 : 0;
   }
   const flagIdxs = /* @__PURE__ */ new Set();
@@ -28323,7 +28634,7 @@ async function recall(args) {
     console.error("predicate recall: query argument is required");
     return 2;
   }
-  const limitStr = parseFlag5(args, "--limit");
+  const limitStr = parseFlag6(args, "--limit");
   const limit = limitStr ? parseInt(limitStr, 10) : 10;
   if (!Number.isFinite(limit) || limit <= 0) {
     console.error("predicate recall: --limit must be a positive integer");
@@ -28336,7 +28647,7 @@ async function recall(args) {
       searchCommands(client, query, limit)
     ]);
     const result = { query, files, commands };
-    if (hasFlag5(args, "--json")) console.log(JSON.stringify(result, null, 2));
+    if (hasFlag6(args, "--json")) console.log(JSON.stringify(result, null, 2));
     else console.log(render(result));
     return 0;
   } catch (err2) {
@@ -28347,18 +28658,18 @@ async function recall(args) {
 
 // ../predicate-cli/src/commands/dashboard.ts
 import { createServer } from "node:http";
-import { readFileSync as readFileSync2 } from "node:fs";
-import { join, dirname as dirname2 } from "node:path";
-import { fileURLToPath as fileURLToPath2 } from "node:url";
+import { readFileSync as readFileSync3 } from "node:fs";
+import { join as join2, dirname as dirname3 } from "node:path";
+import { fileURLToPath as fileURLToPath3 } from "node:url";
 import { spawn } from "node:child_process";
-function parseFlag6(args, name) {
+function parseFlag7(args, name) {
   const i2 = args.indexOf(name);
   return i2 < 0 || i2 + 1 >= args.length ? void 0 : args[i2 + 1];
 }
-function hasFlag6(args, name) {
+function hasFlag7(args, name) {
   return args.includes(name);
 }
-function help6() {
+function help7() {
   console.log(`predicate dashboard [--port N] [--no-open]
 
 Serve a localhost dashboard for browsing session-history + reasoning
@@ -28379,11 +28690,11 @@ function openBrowser(url) {
 }
 async function proxyQuery(req, res, fusekiUrl, dataset2) {
   let body = "";
-  await new Promise((resolve3, reject) => {
+  await new Promise((resolve4, reject) => {
     req.on("data", (c2) => {
       body += String(c2);
     });
-    req.on("end", () => resolve3());
+    req.on("end", () => resolve4());
     req.on("error", reject);
   });
   try {
@@ -28401,17 +28712,17 @@ async function proxyQuery(req, res, fusekiUrl, dataset2) {
   }
 }
 function findDashboardHtml() {
-  const here = dirname2(fileURLToPath2(import.meta.url));
+  const here = dirname3(fileURLToPath3(import.meta.url));
   const candidates = [
-    join(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
-    join(here, "dashboard", "index.html"),
+    join2(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
+    join2(here, "dashboard", "index.html"),
     // bundled cli.bundle.mjs sits next to dashboard/
-    join(here, "..", "dashboard", "index.html"),
-    join(here, "..", "..", "dashboard", "index.html")
+    join2(here, "..", "dashboard", "index.html"),
+    join2(here, "..", "..", "dashboard", "index.html")
   ];
   for (const p2 of candidates) {
     try {
-      readFileSync2(p2, "utf8");
+      readFileSync3(p2, "utf8");
       return p2;
     } catch {
     }
@@ -28421,7 +28732,7 @@ function findDashboardHtml() {
 async function startDashboardServer(port) {
   const cfg = loadConfig();
   const htmlPath = findDashboardHtml();
-  const html = readFileSync2(htmlPath, "utf8");
+  const html = readFileSync3(htmlPath, "utf8");
   const server = createServer((req, res) => {
     if (req.url === "/api/query" && req.method === "POST") {
       void proxyQuery(req, res, cfg.fusekiUrl, cfg.dataset);
@@ -28435,24 +28746,24 @@ async function startDashboardServer(port) {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("not found");
   });
-  await new Promise((resolve3, reject) => {
+  await new Promise((resolve4, reject) => {
     server.once("error", reject);
-    server.listen(port, "127.0.0.1", () => resolve3());
+    server.listen(port, "127.0.0.1", () => resolve4());
   });
   const address = server.address();
   const boundPort = typeof address === "object" && address ? address.port : port;
   return {
     port: boundPort,
     url: `http://127.0.0.1:${boundPort}`,
-    close: () => new Promise((resolve3) => server.close(() => resolve3()))
+    close: () => new Promise((resolve4) => server.close(() => resolve4()))
   };
 }
 async function dashboard(args) {
-  if (hasFlag6(args, "--help")) {
-    help6();
+  if (hasFlag7(args, "--help")) {
+    help7();
     return 0;
   }
-  const portStr = parseFlag6(args, "--port");
+  const portStr = parseFlag7(args, "--port");
   const port = portStr ? parseInt(portStr, 10) : 4040;
   if (!Number.isFinite(port) || port <= 0 || port > 65535) {
     console.error("predicate dashboard: --port must be 1\u201365535");
@@ -28460,7 +28771,7 @@ async function dashboard(args) {
   }
   const handle = await startDashboardServer(port);
   console.log(`predicate dashboard: serving ${handle.url}`);
-  if (!hasFlag6(args, "--no-open")) openBrowser(handle.url);
+  if (!hasFlag7(args, "--no-open")) openBrowser(handle.url);
   console.log("press Ctrl-C to stop");
   await new Promise(() => {
   });
@@ -28468,9 +28779,9 @@ async function dashboard(args) {
 }
 
 // ../predicate-cli/src/commands/peer.ts
-var META8 = "https://predicate.dev/meta#";
+var META10 = "https://predicate.dev/meta#";
 var PEERS_GRAPH = "kg:peers";
-function help7() {
+function help8() {
   console.log(`predicate peer <subcommand> [args]
 
 Manage the federation peer registry stored in kg:peers.
@@ -28491,13 +28802,13 @@ async function addPeer(client, name, endpoint) {
   const uri2 = `urn:predicate:peer:${encodeURIComponent(name)}`;
   const now = (/* @__PURE__ */ new Date()).toISOString();
   await client.update(`
-    PREFIX pred: <${META8}>
+    PREFIX pred: <${META10}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     DELETE { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
     WHERE  { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
   `);
   await client.update(`
-    PREFIX pred: <${META8}>
+    PREFIX pred: <${META10}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <${PEERS_GRAPH}> {
       ${escapeIRI(uri2)} a pred:Peer ;
@@ -28520,7 +28831,7 @@ async function removePeer(client, name) {
 }
 async function listPeers(client) {
   const r2 = await client.select(
-    `PREFIX pred: <${META8}>
+    `PREFIX pred: <${META10}>
      SELECT ?uri ?name ?endpoint ?addedAt ?kind
      WHERE {
        GRAPH <${PEERS_GRAPH}> {
@@ -28543,7 +28854,7 @@ async function listPeers(client) {
 }
 async function peer(args) {
   if (args.length === 0 || args[0] === "--help") {
-    help7();
+    help8();
     return args.length === 0 ? 2 : 0;
   }
   const sub = args[0];
@@ -28583,7 +28894,7 @@ async function peer(args) {
       return 0;
     }
     console.error(`predicate peer: unknown subcommand "${sub}"`);
-    help7();
+    help8();
     return 2;
   } catch (err2) {
     console.error(`predicate peer failed: ${err2.message}`);
@@ -28592,14 +28903,14 @@ async function peer(args) {
 }
 
 // ../predicate-cli/src/commands/export-sessions.ts
-function parseFlag7(args, name) {
+function parseFlag8(args, name) {
   const i2 = args.indexOf(name);
   return i2 < 0 || i2 + 1 >= args.length ? void 0 : args[i2 + 1];
 }
-function hasFlag7(args, name) {
+function hasFlag8(args, name) {
   return args.includes(name);
 }
-function help8() {
+function help9() {
   console.log(`predicate export-sessions [--since DATE] [--user NAME] > out.trig
 
 Export local kg:abox session-history triples as TriG (one named graph
@@ -28623,13 +28934,13 @@ function authHeader2() {
   return "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
 }
 async function exportSessions(args) {
-  if (hasFlag7(args, "--help")) {
-    help8();
+  if (hasFlag8(args, "--help")) {
+    help9();
     return 0;
   }
   const cfg = loadConfig();
-  const since = parseFlag7(args, "--since") ?? new Date(Date.now() - 7 * 864e5).toISOString();
-  const user = parseFlag7(args, "--user") ?? process.env["USER"] ?? "anonymous";
+  const since = parseFlag8(args, "--since") ?? new Date(Date.now() - 7 * 864e5).toISOString();
+  const user = parseFlag8(args, "--user") ?? process.env["USER"] ?? "anonymous";
   const exportGraph = `urn:predicate:export:${encodeURIComponent(user)}:${(/* @__PURE__ */ new Date()).toISOString()}`;
   const query = `
     PREFIX pred: <https://predicate.dev/meta#>
@@ -28672,8 +28983,8 @@ async function exportSessions(args) {
 }
 
 // ../predicate-cli/src/commands/import-sessions.ts
-import { readFileSync as readFileSync3 } from "node:fs";
-function help9() {
+import { readFileSync as readFileSync4 } from "node:fs";
+function help10() {
   console.log(`predicate import-sessions <file.trig>
 
 Load a TriG-formatted peer export into local Fuseki. Each named graph
@@ -28692,13 +29003,13 @@ function authHeader3() {
 }
 async function importSessions(args) {
   if (args.length === 0 || args[0] === "--help") {
-    help9();
+    help10();
     return args.length === 0 ? 2 : 0;
   }
   const file = args[0];
   let trig;
   try {
-    trig = readFileSync3(file, "utf8");
+    trig = readFileSync4(file, "utf8");
   } catch (err2) {
     console.error(`predicate import-sessions: failed to read ${file}: ${err2.message}`);
     return 1;
@@ -28726,13 +29037,13 @@ async function importSessions(args) {
 }
 
 // ../predicate-cli/src/commands/ld.ts
-var META9 = "https://predicate.dev/meta#";
+var META11 = "https://predicate.dev/meta#";
 var PEERS_GRAPH2 = "kg:peers";
 var WELL_KNOWN = [
   { name: "dbpedia", endpoint: "https://dbpedia.org/sparql", description: "DBpedia \u2014 structured Wikipedia data" },
   { name: "wikidata", endpoint: "https://query.wikidata.org/sparql", description: "Wikidata \u2014 collaborative knowledge base" }
 ];
-function help10() {
+function help11() {
   console.log(`predicate ld <subcommand> [args]
 
 Linked-Data federation: query well-known public SPARQL endpoints
@@ -28757,7 +29068,7 @@ async function initLd(client) {
   for (const ep of WELL_KNOWN) {
     const uri2 = `urn:predicate:peer:${ep.name}`;
     const existing = await client.ask(
-      `PREFIX pred: <${META9}>
+      `PREFIX pred: <${META11}>
          ASK { GRAPH <${PEERS_GRAPH2}> {
            ?p a pred:Peer ; pred:peerName ${escapeLiteral(ep.name)} .
          } }`
@@ -28768,7 +29079,7 @@ async function initLd(client) {
     }
     const now = (/* @__PURE__ */ new Date()).toISOString();
     await client.update(`
-      PREFIX pred: <${META9}>
+      PREFIX pred: <${META11}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA { GRAPH <${PEERS_GRAPH2}> {
         ${escapeIRI(uri2)} a pred:Peer ;
@@ -28785,7 +29096,7 @@ async function initLd(client) {
 }
 async function listLd(client, json) {
   const r2 = await client.select(
-    `PREFIX pred: <${META9}>
+    `PREFIX pred: <${META11}>
      SELECT ?name ?endpoint WHERE {
        GRAPH <${PEERS_GRAPH2}> {
          ?p a pred:Peer ;
@@ -28810,7 +29121,7 @@ async function listLd(client, json) {
 }
 async function askLd(client, query, json) {
   const peers = await client.select(
-    `PREFIX pred: <${META9}>
+    `PREFIX pred: <${META11}>
      SELECT ?name ?endpoint WHERE {
        GRAPH <${PEERS_GRAPH2}> {
          ?p a pred:Peer ;
@@ -28868,7 +29179,7 @@ async function askLd(client, query, json) {
 }
 async function ld(args) {
   if (args.length === 0 || args[0] === "--help") {
-    help10();
+    help11();
     return args.length === 0 ? 2 : 0;
   }
   const sub = args[0];
@@ -28886,7 +29197,7 @@ async function ld(args) {
       return await askLd(client, query, args.includes("--json"));
     }
     console.error(`predicate ld: unknown subcommand "${sub}"`);
-    help10();
+    help11();
     return 2;
   } catch (err2) {
     console.error(`predicate ld failed: ${err2.message}`);
@@ -28896,11 +29207,12 @@ async function ld(args) {
 
 // ../predicate-cli/src/index.ts
 var VERSION2 = "1.0.0";
-function help11() {
+function help12() {
   console.log(`predicate <command>
 
 Commands:
   up                Bring Fuseki up (docker compose up -d) and load the seed TBox.
+  init              Initialize kg:tbox with a community ontology, an uploaded file, or empty.
   down              Stop Fuseki, preserve the data volume.
   doctor            Health checks: docker, fuseki, tbox.
   stats             Print kg_stats output for the live graph.
@@ -28965,6 +29277,8 @@ async function main() {
       return importSessions(process.argv.slice(3));
     case "ld":
       return ld(process.argv.slice(3));
+    case "init":
+      return init(process.argv.slice(3));
     case "--version":
     case "version":
       console.log(VERSION2);
@@ -28972,11 +29286,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help11();
+      help12();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help11();
+      help12();
       return 2;
   }
 }

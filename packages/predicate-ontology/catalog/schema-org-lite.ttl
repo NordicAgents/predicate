@@ -1,0 +1,39 @@
+@prefix schema: <https://schema.org/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+
+# Schema.org-lite — trimmed core subset
+# Upstream: https://schema.org/  License: CC-BY-4.0
+
+schema:Thing               a owl:Class ; rdfs:label "Thing" .
+schema:Person              a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Person" .
+schema:Organization        a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Organization" .
+schema:Place               a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Place" .
+schema:Event               a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Event" .
+schema:Product             a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Product" .
+
+schema:CreativeWork        a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Creative Work" .
+schema:Article             a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Article" .
+schema:Book                a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Book" .
+schema:Movie               a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Movie" .
+schema:Recipe              a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Recipe" .
+schema:Review              a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Review" .
+schema:WebPage             a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Web Page" .
+schema:SoftwareApplication a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Software Application" .
+schema:Dataset             a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Dataset" .
+schema:ImageObject         a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Image Object" .
+
+schema:name           a owl:DatatypeProperty ; rdfs:label "name" .
+schema:description    a owl:DatatypeProperty ; rdfs:label "description" .
+schema:url            a owl:DatatypeProperty ; rdfs:label "url" .
+schema:identifier     a owl:DatatypeProperty ; rdfs:label "identifier" .
+schema:datePublished  a owl:DatatypeProperty ; rdfs:label "date published" .
+schema:dateCreated    a owl:DatatypeProperty ; rdfs:label "date created" .
+schema:dateModified   a owl:DatatypeProperty ; rdfs:label "date modified" .
+
+schema:author         a owl:ObjectProperty ; rdfs:range schema:Person ; rdfs:label "author" .
+schema:publisher      a owl:ObjectProperty ; rdfs:range schema:Organization ; rdfs:label "publisher" .
+schema:image          a owl:ObjectProperty ; rdfs:range schema:ImageObject ; rdfs:label "image" .
+schema:about          a owl:ObjectProperty ; rdfs:range schema:Thing ; rdfs:label "about" .
+schema:location       a owl:ObjectProperty ; rdfs:range schema:Place ; rdfs:label "location" .

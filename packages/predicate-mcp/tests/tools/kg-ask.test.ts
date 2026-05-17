@@ -18,7 +18,7 @@ async function reset(g: string): Promise<void> {
 beforeAll(async () => {
   await reset('kg:tbox');
   const tbox = readFileSync(
-    resolve(import.meta.dirname, '../../../predicate-ontology/tbox/codebase.ttl'),
+    resolve(import.meta.dirname, '../../../predicate-ontology/catalog/codebase.ttl'),
     'utf8',
   );
   const auth =

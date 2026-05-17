@@ -15,6 +15,7 @@ import { peer } from './commands/peer.js';
 import { exportSessions } from './commands/export-sessions.js';
 import { importSessions } from './commands/import-sessions.js';
 import { ld } from './commands/ld.js';
+import { init } from './commands/init.js';
 
 const VERSION = '1.0.0';
 
@@ -23,6 +24,7 @@ function help(): void {
 
 Commands:
   up                Bring Fuseki up (docker compose up -d) and load the seed TBox.
+  init              Initialize kg:tbox with a community ontology, an uploaded file, or empty.
   down              Stop Fuseki, preserve the data volume.
   doctor            Health checks: docker, fuseki, tbox.
   stats             Print kg_stats output for the live graph.
@@ -72,6 +74,7 @@ async function main(): Promise<number> {
     case 'export-sessions': return exportSessions(process.argv.slice(3));
     case 'import-sessions': return importSessions(process.argv.slice(3));
     case 'ld':              return ld(process.argv.slice(3));
+    case 'init':            return init(process.argv.slice(3));
     case '--version':
     case 'version':      console.log(VERSION); return 0;
     case undefined:

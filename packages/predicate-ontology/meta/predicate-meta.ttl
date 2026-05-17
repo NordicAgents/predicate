@@ -82,3 +82,18 @@ pred:peerAddedAt a owl:DatatypeProperty ;
 pred:peerKind   a owl:DatatypeProperty ;
                 rdfs:domain pred:Peer ; rdfs:range xsd:string ;
                 rdfs:label "Peer kind tag: 'team' (default) or 'external-ld'" .
+
+# --- Bootstrap/init config (v2.0) --------------------------------
+
+pred:Config           a owl:Class ; rdfs:label "Predicate runtime config singleton" .
+pred:initMode         a owl:DatatypeProperty , owl:FunctionalProperty ;
+                      rdfs:domain pred:Config ; rdfs:range xsd:string ;
+                      rdfs:comment "One of: community | upload | empty" .
+pred:initOntology     a owl:DatatypeProperty , owl:FunctionalProperty ;
+                      rdfs:domain pred:Config ; rdfs:range xsd:string ;
+                      rdfs:comment "Catalog name (e.g. codebase, foaf), or 'user' for upload, or 'top' for empty" .
+pred:schemaLearningEnabled a owl:DatatypeProperty , owl:FunctionalProperty ;
+                      rdfs:domain pred:Config ; rdfs:range xsd:boolean ;
+                      rdfs:comment "When false, Generalizer skips auto-proposal generation (Sweeper still promotes existing staging)" .
+pred:initializedAt    a owl:DatatypeProperty , owl:FunctionalProperty ;
+                      rdfs:domain pred:Config ; rdfs:range xsd:dateTime .

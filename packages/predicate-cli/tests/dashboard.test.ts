@@ -1,7 +1,10 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll } from 'vitest';
 import { startDashboardServer, type DashboardServerHandle } from '../src/commands/dashboard.js';
+import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 
 let handle: DashboardServerHandle | undefined;
+
+beforeAll(async () => { await withCodebaseTBox(); });
 
 afterEach(async () => {
   if (handle) { await handle.close(); handle = undefined; }

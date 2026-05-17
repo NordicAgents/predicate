@@ -177,4 +177,5 @@ export interface GeneralizerResult {
   proposals: GeneralizerProposal[];
   scannedSubjects: number;
   durationMs: number;
+  autoProposalsSkipped?: boolean;
 }

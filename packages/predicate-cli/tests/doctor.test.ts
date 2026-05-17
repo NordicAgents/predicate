@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { doctor } from '../src/commands/doctor.js';
+import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 
 describe('doctor', () => {
+  beforeAll(async () => { await withCodebaseTBox(); });
   it('returns 0 when fuseki is up and tbox is loaded', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
     const code = await doctor();

@@ -29,9 +29,9 @@ async function loadTbox(file: string): Promise<void> {
 
 beforeAll(async () => {
   await reset('kg:tbox');
-  await loadTbox('predicate-ontology/tbox/codebase.ttl');
+  await loadTbox('predicate-ontology/catalog/codebase.ttl');
   await loadTbox('predicate-ontology/meta/predicate-meta.ttl');
-  await loadTbox('predicate-ontology/shapes/codebase.shacl.ttl');
+  await loadTbox('predicate-ontology/catalog/codebase.shacl.ttl');
 });
 
 afterAll(async () => {
@@ -86,9 +86,9 @@ describe('GapDetector', () => {
     // Restore :calls so subsequent tests see it. Re-load the TBox.
     await client.update(`DROP SILENT GRAPH <kg:tbox>`);
     await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
-    await loadTbox('predicate-ontology/tbox/codebase.ttl');
+    await loadTbox('predicate-ontology/catalog/codebase.ttl');
     await loadTbox('predicate-ontology/meta/predicate-meta.ttl');
-    await loadTbox('predicate-ontology/shapes/codebase.shacl.ttl');
+    await loadTbox('predicate-ontology/catalog/codebase.shacl.ttl');
   });
 
   it('reports answerable=false for "unknown" sub-questions with a generic gap', async () => {
