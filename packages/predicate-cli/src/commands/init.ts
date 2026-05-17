@@ -22,11 +22,8 @@ function hasFlag(args: string[], name: string): boolean { return args.includes(n
 function findCatalogDir(): string {
   const here = dirname(fileURLToPath(import.meta.url));
   const candidates = [
-    // Monorepo source layout (packages/predicate-cli/src/commands/ -> packages/predicate-ontology/catalog)
     join(here, '..', '..', '..', 'predicate-ontology', 'catalog'),
-    // Bundled-skill layout (packages/predicate-skill/cli.bundle.mjs -> packages/predicate-ontology/catalog)
     join(here, '..', 'predicate-ontology', 'catalog'),
-    // Other fallbacks
     join(here, '..', '..', 'predicate-ontology', 'catalog'),
     join(here, 'predicate-ontology', 'catalog'),
   ];
@@ -35,7 +32,6 @@ function findCatalogDir(): string {
 }
 
 function findMetaTtl(catalogDir: string): string {
-  // predicate-meta.ttl lives at predicate-ontology/meta/, sibling to catalog/
   return join(catalogDir, '..', 'meta', 'predicate-meta.ttl');
 }
 
@@ -72,7 +68,7 @@ async function checkConfigExists(client: SparqlClient): Promise<boolean> {
   `);
 }
 
-async function loadTtlFile(client: SparqlClient, path: string): Promise<void> {
+async function loadTtlFile(_client: SparqlClient, path: string): Promise<void> {
   const cfg = loadConfig();
   const turtle = readFileSync(path, 'utf8');
   const auth = 'Basic ' + Buffer.from(`admin:${process.env['PREDICATE_ADMIN_PASSWORD'] ?? 'changeme'}`).toString('base64');
@@ -82,11 +78,16 @@ async function loadTtlFile(client: SparqlClient, path: string): Promise<void> {
     body: turtle,
   });
   if (!r.ok) throw new Error(`Fuseki load failed for ${path}: ${r.status} ${await r.text()}`);
-  void client;
 }
 
-async function destructiveReset(client: SparqlClient): Promise<void> {
-  for (const g of ['kg:tbox', 'kg:tbox-staging', 'kg:abox', 'kg:inferred', 'kg:provenance', 'kg:goals', 'kg:usage', 'kg:meta']) {
+// v2.0.1: always wipes kg:tbox + kg:tbox-staging + kg:meta so init is idempotent
+// against TBox residue from a half-migrated v1.13 install or earlier test pollution.
+// When `force=true` also wipes the ABox-side graphs (caller has accepted destruction).
+async function wipeForInit(client: SparqlClient, force: boolean): Promise<void> {
+  const tboxGraphs = ['kg:tbox', 'kg:tbox-staging', 'kg:meta'];
+  const aboxGraphs = ['kg:abox', 'kg:inferred', 'kg:provenance', 'kg:goals', 'kg:usage'];
+  const toWipe = force ? [...tboxGraphs, ...aboxGraphs] : tboxGraphs;
+  for (const g of toWipe) {
     await client.update(`DROP SILENT GRAPH <${g}>`);
     await client.update(`CREATE SILENT GRAPH <${g}>`);
   }
@@ -112,73 +113,99 @@ async function writeConfig(
 }
 
 function validateUserUpload(turtle: string): { ok: boolean; error?: string } {
-  // Reject any usage of the pred: namespace
   if (/https?:\/\/predicate\.dev\/meta#/.test(turtle)) {
     return { ok: false, error: `Uploaded ontology uses the reserved 'pred:' namespace (https://predicate.dev/meta#). Rename or remove those triples.` };
   }
   return { ok: true };
 }
 
-async function doCommunity(client: SparqlClient, ontologyName: string): Promise<number> {
+// --- Pre-flight: prepare a plan, do all I/O-cheap validation up front.
+// Returns either a `Plan` describing what to load, or an exit code if invalid.
+
+type Plan =
+  | { kind: 'community'; entry: CatalogEntry; catalogDir: string }
+  | { kind: 'upload'; abs: string; turtle: string; size: number; catalogDir: string }
+  | { kind: 'empty'; catalogDir: string };
+
+interface PlanError { exitCode: number }
+
+async function buildPlanCommunity(ontology: string): Promise<Plan | PlanError> {
   const catalogDir = findCatalogDir();
   const catalog: Catalog = JSON.parse(readFileSync(join(catalogDir, 'catalog.json'), 'utf8'));
-  const entry = catalog.ontologies.find((o) => o.name === ontologyName);
+  const entry = catalog.ontologies.find((o) => o.name === ontology);
   if (!entry) {
-    console.error(`predicate init: unknown ontology '${ontologyName}'. Available: ${catalog.ontologies.map((o) => o.name).join(', ')}`);
-    return 2;
+    console.error(`predicate init: unknown ontology '${ontology}'. Available: ${catalog.ontologies.map((o) => o.name).join(', ')}`);
+    return { exitCode: 2 };
   }
-  await loadTtlFile(client, findMetaTtl(catalogDir));
-  for (const f of entry.files) await loadTtlFile(client, join(catalogDir, f));
-  if (entry.shapes) await loadTtlFile(client, join(catalogDir, entry.shapes));
-  await writeConfig(client, 'community', ontologyName);
-  console.log(`predicate init: ${ontologyName} ontology loaded (${entry.description}, license: ${entry.license}).`);
-  return 0;
+  return { kind: 'community', entry, catalogDir };
 }
 
-async function doUpload(client: SparqlClient, filePath: string): Promise<number> {
+async function buildPlanUpload(filePath: string): Promise<Plan | PlanError> {
   const abs = resolve(filePath);
   if (!existsSync(abs)) {
     console.error(`predicate init: file not found: ${abs}`);
-    return 1;
+    return { exitCode: 1 };
   }
   const sz = statSync(abs).size;
   if (sz > MAX_UPLOAD_BYTES) {
     console.error(`predicate init: file too large (${sz} bytes; max ${MAX_UPLOAD_BYTES})`);
-    return 1;
+    return { exitCode: 1 };
   }
   const turtle = readFileSync(abs, 'utf8');
   const v = validateUserUpload(turtle);
   if (!v.ok) {
     console.error(`predicate init: ${v.error}`);
-    return 1;
+    return { exitCode: 1 };
   }
   const catalogDir = findCatalogDir();
-  await loadTtlFile(client, findMetaTtl(catalogDir));
-  try {
-    await loadTtlFile(client, abs);
-  } catch (err) {
-    // Roll back to meta-only state
-    await client.update(`DROP SILENT GRAPH <kg:tbox>`);
-    await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
-    await loadTtlFile(client, findMetaTtl(catalogDir));
-    console.error(`predicate init: upload failed during load: ${(err as Error).message}. kg:tbox rolled back to meta-only.`);
-    return 1;
-  }
-  await writeConfig(client, 'upload', 'user');
-  console.log(`predicate init: uploaded ${abs} (${sz} bytes). Schema-learning enabled.`);
-  return 0;
+  return { kind: 'upload', abs, turtle, size: sz, catalogDir };
 }
 
-async function doEmpty(client: SparqlClient): Promise<number> {
-  const catalogDir = findCatalogDir();
-  await loadTtlFile(client, findMetaTtl(catalogDir));
-  await loadTtlFile(client, join(catalogDir, 'top.ttl'));
+function buildPlanEmpty(): Plan {
+  return { kind: 'empty', catalogDir: findCatalogDir() };
+}
+
+// --- Apply: do the destructive write. Only called after a Plan is valid.
+
+async function applyPlan(client: SparqlClient, plan: Plan, force: boolean): Promise<number> {
+  await wipeForInit(client, force);
+  await loadTtlFile(client, findMetaTtl(plan.catalogDir));
+
+  if (plan.kind === 'community') {
+    for (const f of plan.entry.files) await loadTtlFile(client, join(plan.catalogDir, f));
+    if (plan.entry.shapes) await loadTtlFile(client, join(plan.catalogDir, plan.entry.shapes));
+    await writeConfig(client, 'community', plan.entry.name);
+    console.log(`predicate init: ${plan.entry.name} ontology loaded (${plan.entry.description}, license: ${plan.entry.license}).`);
+    return 0;
+  }
+  if (plan.kind === 'upload') {
+    try {
+      await loadTtlFile(client, plan.abs);
+    } catch (err) {
+      // Fuseki rejected the file at load time (malformed turtle, etc.). Roll
+      // back to meta-only so the user isn't left in a broken state.
+      await client.update(`DROP SILENT GRAPH <kg:tbox>`);
+      await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
+      await loadTtlFile(client, findMetaTtl(plan.catalogDir));
+      console.error(`predicate init: upload failed during load: ${(err as Error).message}. kg:tbox rolled back to meta-only.`);
+      return 1;
+    }
+    await writeConfig(client, 'upload', 'user');
+    console.log(`predicate init: uploaded ${plan.abs} (${plan.size} bytes). Schema-learning enabled.`);
+    return 0;
+  }
+  // empty
+  await loadTtlFile(client, join(plan.catalogDir, 'top.ttl'));
   await writeConfig(client, 'empty', 'top');
   console.log(`predicate init: empty mode (meta + top vocabulary loaded). The agent will propose new predicates as needed; sweeper promotes after 3 uses.`);
   return 0;
 }
 
-async function interactive(client: SparqlClient): Promise<number> {
+function isPlanError(p: Plan | PlanError): p is PlanError {
+  return 'exitCode' in p;
+}
+
+async function interactive(client: SparqlClient, force: boolean): Promise<number> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
     console.log(`Welcome to Predicate. Choose how to initialize the knowledge graph:
@@ -188,23 +215,25 @@ async function interactive(client: SparqlClient): Promise<number> {
   (3) Start empty                   — meta vocab only, agent grows the rest
 `);
     const choice = (await rl.question('Your choice [1/2/3]: ')).trim();
+    let plan: Plan | PlanError;
     if (choice === '1') {
       const catalogDir = findCatalogDir();
       const catalog: Catalog = JSON.parse(readFileSync(join(catalogDir, 'catalog.json'), 'utf8'));
       console.log('\nAvailable ontologies:');
       for (const o of catalog.ontologies) console.log(`  - ${o.name.padEnd(18)} ${o.description}`);
       const name = (await rl.question('\nWhich ontology? ')).trim();
-      return doCommunity(client, name);
-    }
-    if (choice === '2') {
+      plan = await buildPlanCommunity(name);
+    } else if (choice === '2') {
       const path = (await rl.question('Path to .ttl file: ')).trim();
-      return doUpload(client, path);
+      plan = await buildPlanUpload(path);
+    } else if (choice === '3') {
+      plan = buildPlanEmpty();
+    } else {
+      console.error(`predicate init: invalid choice '${choice}'. Run with --help for non-interactive flags.`);
+      return 2;
     }
-    if (choice === '3') {
-      return doEmpty(client);
-    }
-    console.error(`predicate init: invalid choice '${choice}'. Run with --help for non-interactive flags.`);
-    return 2;
+    if (isPlanError(plan)) return plan.exitCode;
+    return applyPlan(client, plan, force);
   } finally {
     rl.close();
   }
@@ -213,11 +242,10 @@ async function interactive(client: SparqlClient): Promise<number> {
 export async function init(args: string[]): Promise<number> {
   if (hasFlag(args, '--help')) { help(); return 0; }
   const client = new SparqlClient(loadConfig());
+  const force = hasFlag(args, '--force');
 
-  // Force-reset path
-  if (hasFlag(args, '--force')) {
-    await destructiveReset(client);
-  } else if (await checkConfigExists(client)) {
+  // Refusal check FIRST: refuse if config exists and no --force.
+  if (!force && await checkConfigExists(client)) {
     const cfg = await client.select(`
       PREFIX pred: <${META}>
       SELECT ?m ?o WHERE { GRAPH <kg:meta> {
@@ -233,22 +261,27 @@ export async function init(args: string[]): Promise<number> {
 
   const mode = parseFlag(args, '--mode');
   if (!mode) {
-    if (process.stdin.isTTY) return interactive(client);
+    if (process.stdin.isTTY) return interactive(client, force);
     console.error(`predicate init: --mode is required when stdin is not a TTY. Run with --help.`);
     return 2;
   }
+
+  // v2.0.1: VALIDATE the plan BEFORE any destructive write.
+  let plan: Plan | PlanError;
   if (mode === 'community') {
     const ontology = parseFlag(args, '--ontology') ?? 'codebase';
-    return doCommunity(client, ontology);
-  }
-  if (mode === 'upload') {
+    plan = await buildPlanCommunity(ontology);
+  } else if (mode === 'upload') {
     const file = parseFlag(args, '--file');
     if (!file) { console.error(`predicate init: --mode upload requires --file PATH`); return 2; }
-    return doUpload(client, file);
+    plan = await buildPlanUpload(file);
+  } else if (mode === 'empty') {
+    plan = buildPlanEmpty();
+  } else {
+    console.error(`predicate init: invalid --mode '${mode}'. Must be one of: community, upload, empty.`);
+    return 2;
   }
-  if (mode === 'empty') {
-    return doEmpty(client);
-  }
-  console.error(`predicate init: invalid --mode '${mode}'. Must be one of: community, upload, empty.`);
-  return 2;
+
+  if (isPlanError(plan)) return plan.exitCode;
+  return applyPlan(client, plan, force);
 }

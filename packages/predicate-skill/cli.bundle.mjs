@@ -6227,7 +6227,7 @@ var require_abort_controller = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var eventTargetShim = require_event_target_shim();
-    var AbortSignal = class extends eventTargetShim.EventTarget {
+    var AbortSignal2 = class extends eventTargetShim.EventTarget {
       /**
        * AbortSignal cannot be constructed directly.
        */
@@ -6246,9 +6246,9 @@ var require_abort_controller = __commonJS({
         return aborted;
       }
     };
-    eventTargetShim.defineEventAttribute(AbortSignal.prototype, "abort");
+    eventTargetShim.defineEventAttribute(AbortSignal2.prototype, "abort");
     function createAbortSignal() {
-      const signal = Object.create(AbortSignal.prototype);
+      const signal = Object.create(AbortSignal2.prototype);
       eventTargetShim.EventTarget.call(signal);
       abortedFlags.set(signal, false);
       return signal;
@@ -6261,11 +6261,11 @@ var require_abort_controller = __commonJS({
       signal.dispatchEvent({ type: "abort" });
     }
     var abortedFlags = /* @__PURE__ */ new WeakMap();
-    Object.defineProperties(AbortSignal.prototype, {
+    Object.defineProperties(AbortSignal2.prototype, {
       aborted: { enumerable: true }
     });
     if (typeof Symbol === "function" && typeof Symbol.toStringTag === "symbol") {
-      Object.defineProperty(AbortSignal.prototype, Symbol.toStringTag, {
+      Object.defineProperty(AbortSignal2.prototype, Symbol.toStringTag, {
         configurable: true,
         value: "AbortSignal"
       });
@@ -6309,11 +6309,11 @@ var require_abort_controller = __commonJS({
       });
     }
     exports.AbortController = AbortController2;
-    exports.AbortSignal = AbortSignal;
+    exports.AbortSignal = AbortSignal2;
     exports.default = AbortController2;
     module.exports = AbortController2;
     module.exports.AbortController = module.exports["default"] = AbortController2;
-    module.exports.AbortSignal = AbortSignal;
+    module.exports.AbortSignal = AbortSignal2;
   }
 });
 
@@ -8994,7 +8994,7 @@ var require_util = __commonJS({
       codes: { ERR_INVALID_ARG_TYPE }
     } = require_errors();
     var { kResistStopPropagation, AggregateError, SymbolDispose } = require_primordials();
-    var AbortSignal = globalThis.AbortSignal || require_abort_controller().AbortSignal;
+    var AbortSignal2 = globalThis.AbortSignal || require_abort_controller().AbortSignal;
     var AbortController2 = globalThis.AbortController || require_abort_controller().AbortController;
     var AsyncFunction = Object.getPrototypeOf(async function() {
     }).constructor;
@@ -9095,7 +9095,7 @@ var require_util = __commonJS({
           }
         };
       },
-      AbortSignalAny: AbortSignal.any || function AbortSignalAny(signals) {
+      AbortSignalAny: AbortSignal2.any || function AbortSignalAny(signals) {
         if (signals.length === 1) {
           return signals[0];
         }
@@ -17290,11 +17290,8 @@ function hasFlag(args, name) {
 function findCatalogDir() {
   const here = dirname2(fileURLToPath2(import.meta.url));
   const candidates = [
-    // Monorepo source layout (packages/predicate-cli/src/commands/ -> packages/predicate-ontology/catalog)
     join(here, "..", "..", "..", "predicate-ontology", "catalog"),
-    // Bundled-skill layout (packages/predicate-skill/cli.bundle.mjs -> packages/predicate-ontology/catalog)
     join(here, "..", "predicate-ontology", "catalog"),
-    // Other fallbacks
     join(here, "..", "..", "predicate-ontology", "catalog"),
     join(here, "predicate-ontology", "catalog")
   ];
@@ -17335,7 +17332,7 @@ async function checkConfigExists(client) {
     ASK { GRAPH <kg:meta> { <${CONFIG_URI}> a pred:Config } }
   `);
 }
-async function loadTtlFile(client, path) {
+async function loadTtlFile(_client, path) {
   const cfg = loadConfig();
   const turtle = readFileSync(path, "utf8");
   const auth = "Basic " + Buffer.from(`admin:${process.env["PREDICATE_ADMIN_PASSWORD"] ?? "changeme"}`).toString("base64");
@@ -17345,10 +17342,12 @@ async function loadTtlFile(client, path) {
     body: turtle
   });
   if (!r2.ok) throw new Error(`Fuseki load failed for ${path}: ${r2.status} ${await r2.text()}`);
-  void client;
 }
-async function destructiveReset(client) {
-  for (const g2 of ["kg:tbox", "kg:tbox-staging", "kg:abox", "kg:inferred", "kg:provenance", "kg:goals", "kg:usage", "kg:meta"]) {
+async function wipeForInit(client, force) {
+  const tboxGraphs = ["kg:tbox", "kg:tbox-staging", "kg:meta"];
+  const aboxGraphs = ["kg:abox", "kg:inferred", "kg:provenance", "kg:goals", "kg:usage"];
+  const toWipe = force ? [...tboxGraphs, ...aboxGraphs] : tboxGraphs;
+  for (const g2 of toWipe) {
     await client.update(`DROP SILENT GRAPH <${g2}>`);
     await client.update(`CREATE SILENT GRAPH <${g2}>`);
   }
@@ -17373,62 +17372,72 @@ function validateUserUpload(turtle) {
   }
   return { ok: true };
 }
-async function doCommunity(client, ontologyName) {
+async function buildPlanCommunity(ontology) {
   const catalogDir = findCatalogDir();
   const catalog = JSON.parse(readFileSync(join(catalogDir, "catalog.json"), "utf8"));
-  const entry = catalog.ontologies.find((o2) => o2.name === ontologyName);
+  const entry = catalog.ontologies.find((o2) => o2.name === ontology);
   if (!entry) {
-    console.error(`predicate init: unknown ontology '${ontologyName}'. Available: ${catalog.ontologies.map((o2) => o2.name).join(", ")}`);
-    return 2;
+    console.error(`predicate init: unknown ontology '${ontology}'. Available: ${catalog.ontologies.map((o2) => o2.name).join(", ")}`);
+    return { exitCode: 2 };
   }
-  await loadTtlFile(client, findMetaTtl(catalogDir));
-  for (const f2 of entry.files) await loadTtlFile(client, join(catalogDir, f2));
-  if (entry.shapes) await loadTtlFile(client, join(catalogDir, entry.shapes));
-  await writeConfig(client, "community", ontologyName);
-  console.log(`predicate init: ${ontologyName} ontology loaded (${entry.description}, license: ${entry.license}).`);
-  return 0;
+  return { kind: "community", entry, catalogDir };
 }
-async function doUpload(client, filePath) {
+async function buildPlanUpload(filePath) {
   const abs = resolve2(filePath);
   if (!existsSync2(abs)) {
     console.error(`predicate init: file not found: ${abs}`);
-    return 1;
+    return { exitCode: 1 };
   }
   const sz = statSync(abs).size;
   if (sz > MAX_UPLOAD_BYTES) {
     console.error(`predicate init: file too large (${sz} bytes; max ${MAX_UPLOAD_BYTES})`);
-    return 1;
+    return { exitCode: 1 };
   }
   const turtle = readFileSync(abs, "utf8");
   const v2 = validateUserUpload(turtle);
   if (!v2.ok) {
     console.error(`predicate init: ${v2.error}`);
-    return 1;
+    return { exitCode: 1 };
   }
   const catalogDir = findCatalogDir();
-  await loadTtlFile(client, findMetaTtl(catalogDir));
-  try {
-    await loadTtlFile(client, abs);
-  } catch (err2) {
-    await client.update(`DROP SILENT GRAPH <kg:tbox>`);
-    await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
-    await loadTtlFile(client, findMetaTtl(catalogDir));
-    console.error(`predicate init: upload failed during load: ${err2.message}. kg:tbox rolled back to meta-only.`);
-    return 1;
-  }
-  await writeConfig(client, "upload", "user");
-  console.log(`predicate init: uploaded ${abs} (${sz} bytes). Schema-learning enabled.`);
-  return 0;
+  return { kind: "upload", abs, turtle, size: sz, catalogDir };
 }
-async function doEmpty(client) {
-  const catalogDir = findCatalogDir();
-  await loadTtlFile(client, findMetaTtl(catalogDir));
-  await loadTtlFile(client, join(catalogDir, "top.ttl"));
+function buildPlanEmpty() {
+  return { kind: "empty", catalogDir: findCatalogDir() };
+}
+async function applyPlan(client, plan, force) {
+  await wipeForInit(client, force);
+  await loadTtlFile(client, findMetaTtl(plan.catalogDir));
+  if (plan.kind === "community") {
+    for (const f2 of plan.entry.files) await loadTtlFile(client, join(plan.catalogDir, f2));
+    if (plan.entry.shapes) await loadTtlFile(client, join(plan.catalogDir, plan.entry.shapes));
+    await writeConfig(client, "community", plan.entry.name);
+    console.log(`predicate init: ${plan.entry.name} ontology loaded (${plan.entry.description}, license: ${plan.entry.license}).`);
+    return 0;
+  }
+  if (plan.kind === "upload") {
+    try {
+      await loadTtlFile(client, plan.abs);
+    } catch (err2) {
+      await client.update(`DROP SILENT GRAPH <kg:tbox>`);
+      await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
+      await loadTtlFile(client, findMetaTtl(plan.catalogDir));
+      console.error(`predicate init: upload failed during load: ${err2.message}. kg:tbox rolled back to meta-only.`);
+      return 1;
+    }
+    await writeConfig(client, "upload", "user");
+    console.log(`predicate init: uploaded ${plan.abs} (${plan.size} bytes). Schema-learning enabled.`);
+    return 0;
+  }
+  await loadTtlFile(client, join(plan.catalogDir, "top.ttl"));
   await writeConfig(client, "empty", "top");
   console.log(`predicate init: empty mode (meta + top vocabulary loaded). The agent will propose new predicates as needed; sweeper promotes after 3 uses.`);
   return 0;
 }
-async function interactive(client) {
+function isPlanError(p2) {
+  return "exitCode" in p2;
+}
+async function interactive(client, force) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
     console.log(`Welcome to Predicate. Choose how to initialize the knowledge graph:
@@ -17438,23 +17447,25 @@ async function interactive(client) {
   (3) Start empty                   \u2014 meta vocab only, agent grows the rest
 `);
     const choice = (await rl.question("Your choice [1/2/3]: ")).trim();
+    let plan;
     if (choice === "1") {
       const catalogDir = findCatalogDir();
       const catalog = JSON.parse(readFileSync(join(catalogDir, "catalog.json"), "utf8"));
       console.log("\nAvailable ontologies:");
       for (const o2 of catalog.ontologies) console.log(`  - ${o2.name.padEnd(18)} ${o2.description}`);
       const name = (await rl.question("\nWhich ontology? ")).trim();
-      return doCommunity(client, name);
-    }
-    if (choice === "2") {
+      plan = await buildPlanCommunity(name);
+    } else if (choice === "2") {
       const path = (await rl.question("Path to .ttl file: ")).trim();
-      return doUpload(client, path);
+      plan = await buildPlanUpload(path);
+    } else if (choice === "3") {
+      plan = buildPlanEmpty();
+    } else {
+      console.error(`predicate init: invalid choice '${choice}'. Run with --help for non-interactive flags.`);
+      return 2;
     }
-    if (choice === "3") {
-      return doEmpty(client);
-    }
-    console.error(`predicate init: invalid choice '${choice}'. Run with --help for non-interactive flags.`);
-    return 2;
+    if (isPlanError(plan)) return plan.exitCode;
+    return applyPlan(client, plan, force);
   } finally {
     rl.close();
   }
@@ -17465,9 +17476,8 @@ async function init(args) {
     return 0;
   }
   const client = new SparqlClient(loadConfig());
-  if (hasFlag(args, "--force")) {
-    await destructiveReset(client);
-  } else if (await checkConfigExists(client)) {
+  const force = hasFlag(args, "--force");
+  if (!force && await checkConfigExists(client)) {
     const cfg = await client.select(`
       PREFIX pred: <${META}>
       SELECT ?m ?o WHERE { GRAPH <kg:meta> {
@@ -17482,27 +17492,29 @@ async function init(args) {
   }
   const mode = parseFlag(args, "--mode");
   if (!mode) {
-    if (process.stdin.isTTY) return interactive(client);
+    if (process.stdin.isTTY) return interactive(client, force);
     console.error(`predicate init: --mode is required when stdin is not a TTY. Run with --help.`);
     return 2;
   }
+  let plan;
   if (mode === "community") {
     const ontology = parseFlag(args, "--ontology") ?? "codebase";
-    return doCommunity(client, ontology);
-  }
-  if (mode === "upload") {
+    plan = await buildPlanCommunity(ontology);
+  } else if (mode === "upload") {
     const file = parseFlag(args, "--file");
     if (!file) {
       console.error(`predicate init: --mode upload requires --file PATH`);
       return 2;
     }
-    return doUpload(client, file);
+    plan = await buildPlanUpload(file);
+  } else if (mode === "empty") {
+    plan = buildPlanEmpty();
+  } else {
+    console.error(`predicate init: invalid --mode '${mode}'. Must be one of: community, upload, empty.`);
+    return 2;
   }
-  if (mode === "empty") {
-    return doEmpty(client);
-  }
-  console.error(`predicate init: invalid --mode '${mode}'. Must be one of: community, upload, empty.`);
-  return 2;
+  if (isPlanError(plan)) return plan.exitCode;
+  return applyPlan(client, plan, force);
 }
 
 // ../predicate-cli/src/commands/up.ts
@@ -17535,6 +17547,19 @@ async function writeLegacyConfig(client) {
     } }
   `);
 }
+async function waitForFuseki(timeoutSec = 20) {
+  const cfg = loadConfig();
+  const url = `${cfg.fusekiUrl}/$/ping`;
+  for (let i2 = 0; i2 < timeoutSec; i2++) {
+    try {
+      const r2 = await fetch(url, { signal: AbortSignal.timeout(1e3) });
+      if (r2.ok) return true;
+    } catch {
+    }
+    await new Promise((res) => setTimeout(res, 1e3));
+  }
+  return false;
+}
 async function up() {
   if (!dockerAvailable()) {
     console.error("Docker not found. Install Docker Desktop or Docker Engine first.");
@@ -17544,6 +17569,11 @@ async function up() {
   console.log(`bringing Fuseki up from ${dir}`);
   const rc = await compose(["up", "-d"], dir);
   if (rc !== 0) return rc;
+  const ready = await waitForFuseki(20);
+  if (!ready) {
+    console.error("predicate up: Fuseki did not become ready in 20s. Container is running; you may need to retry `predicate up` or check `docker logs predicate-fuseki`.");
+    return 1;
+  }
   try {
     const client = new SparqlClient(loadConfig());
     if (await checkConfigExists2(client)) return 0;
@@ -27800,8 +27830,9 @@ async function maintain() {
     const proposals = result.generalizer?.proposals.length ?? 0;
     const promotions = result.sweeper?.decisions.filter((d2) => d2.outcome === "promoted").length ?? 0;
     const inferred = result.fixpoint?.inferredCount ?? 0;
+    const skipped = result.autoProposalsSkipped ? " (skipped: schema-learning off)" : "";
     console.log(
-      `predicate maintain: archived=${result.archivedCount} proposals=${proposals} promotions=${promotions} inferred=${inferred} elapsed=${result.elapsedMs}ms event=${result.eventId}`
+      `predicate maintain: archived=${result.archivedCount} proposals=${proposals}${skipped} promotions=${promotions} inferred=${inferred} elapsed=${result.elapsedMs}ms event=${result.eventId}`
     );
     return 0;
   } catch (err2) {
