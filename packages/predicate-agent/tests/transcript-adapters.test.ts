@@ -1,0 +1,171 @@
+import { describe, it, expect } from 'vitest';
+import {
+  adaptClaudeCodeTranscript,
+  adaptGeminiTranscript,
+  adaptOpenCodeTranscript,
+} from '../src/transcript-adapters.js';
+import { extractDeterministic, type Transcript } from '../src/turn-extractor.js';
+
+describe('adaptClaudeCodeTranscript', () => {
+  it('is the identity (canonical shape passes through unchanged)', () => {
+    const canonical: Array<Record<string, unknown>> = [
+      {
+        type: 'assistant',
+        message: {
+          role: 'assistant',
+          content: [{ type: 'tool_use', id: 't1', name: 'Edit', input: { file_path: '/a.ts' } }],
+        },
+      },
+      {
+        type: 'user',
+        message: {
+          role: 'user',
+          content: [{ type: 'tool_result', tool_use_id: 't1', content: 'ok' }],
+        },
+      },
+    ];
+    expect(adaptClaudeCodeTranscript(canonical)).toEqual(canonical);
+  });
+});
+
+describe('adaptGeminiTranscript', () => {
+  it('transforms tool_call with toolUse{toolName,toolInput,toolCallId} into canonical assistant/tool_use', () => {
+    const adapted = adaptGeminiTranscript([
+      {
+        type: 'tool_call',
+        toolUse: {
+          toolCallId: 'g1',
+          toolName: 'Edit',
+          toolInput: { file_path: '/work/auth.ts' },
+        },
+      },
+    ]);
+    expect(adapted[0]).toEqual({
+      type: 'assistant',
+      message: {
+        role: 'assistant',
+        content: [
+          {
+            type: 'tool_use',
+            id: 'g1',
+            name: 'Edit',
+            input: { file_path: '/work/auth.ts' },
+          },
+        ],
+      },
+    });
+  });
+
+  it('transforms tool_result with toolResult{isError:true} into canonical user/tool_result with is_error:true', () => {
+    const adapted = adaptGeminiTranscript([
+      {
+        type: 'tool_result',
+        toolResult: {
+          toolCallId: 'g1',
+          isError: true,
+          output: 'boom',
+        },
+      },
+    ]);
+    expect(adapted[0]).toEqual({
+      type: 'user',
+      message: {
+        role: 'user',
+        content: [
+          {
+            type: 'tool_result',
+            tool_use_id: 'g1',
+            is_error: true,
+            content: 'boom',
+          },
+        ],
+      },
+    });
+  });
+
+  it('produces events that extractDeterministic understands end-to-end', () => {
+    const adapted = adaptGeminiTranscript([
+      {
+        type: 'tool_call',
+        toolUse: { toolCallId: 'g1', toolName: 'Edit', toolInput: { file_path: '/work/gem.ts' } },
+      },
+      {
+        type: 'tool_result',
+        toolResult: { toolCallId: 'g1', content: 'ok' },
+      },
+    ]);
+    const transcript: Transcript = { sessionId: 'ses-gem', events: adapted };
+    const r = extractDeterministic(transcript);
+    const fileTriples = r.triples.filter(
+      (t) => t.subject === 'file:///work/gem.ts' && t.predicate.endsWith('#modifiedIn'),
+    );
+    expect(fileTriples).toHaveLength(1);
+  });
+});
+
+describe('adaptOpenCodeTranscript', () => {
+  it('transforms tool.before{tool:{name,input}} into canonical assistant/tool_use', () => {
+    const adapted = adaptOpenCodeTranscript([
+      {
+        event: 'tool.before',
+        id: 'o1',
+        tool: { name: 'Write', input: { file_path: '/work/oc.ts' } },
+      },
+    ]);
+    expect(adapted[0]).toEqual({
+      type: 'assistant',
+      message: {
+        role: 'assistant',
+        content: [
+          {
+            type: 'tool_use',
+            id: 'o1',
+            name: 'Write',
+            input: { file_path: '/work/oc.ts' },
+          },
+        ],
+      },
+    });
+  });
+
+  it('transforms tool.after with error:"..." into canonical user/tool_result with is_error:true', () => {
+    const adapted = adaptOpenCodeTranscript([
+      {
+        event: 'tool.after',
+        id: 'o1',
+        error: 'permission denied',
+      },
+    ]);
+    expect(adapted[0]).toEqual({
+      type: 'user',
+      message: {
+        role: 'user',
+        content: [
+          {
+            type: 'tool_result',
+            tool_use_id: 'o1',
+            is_error: true,
+            content: 'permission denied',
+          },
+        ],
+      },
+    });
+  });
+
+  it('produces events that extractDeterministic understands end-to-end', () => {
+    const adapted = adaptOpenCodeTranscript([
+      {
+        event: 'tool.before',
+        id: 'o1',
+        tool: { name: 'Edit', input: { file_path: '/work/oc.ts' } },
+      },
+      { event: 'tool.after', id: 'o1', result: 'ok' },
+    ]);
+    const transcript: Transcript = { sessionId: 'ses-oc', events: adapted };
+    const r = extractDeterministic(transcript);
+    const fileTriples = r.triples.filter(
+      (t) => t.subject === 'file:///work/oc.ts' && t.predicate.endsWith('#modifiedIn'),
+    );
+    expect(fileTriples).toHaveLength(1);
+  });
+});

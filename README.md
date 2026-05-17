@@ -228,6 +228,28 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
+**v1.8 — Cross-platform Stop extraction.** Stop-hook turn extraction
+now works on Gemini CLI and OpenCode alongside Claude Code. `predicate
+extract --from-stdin` accepts a new `--platform claude-code|gemini|opencode`
+flag (default `claude-code`) that selects a per-platform transcript
+adapter. Each adapter is a pure function that maps the platform's
+JSONL events into the canonical assistant/user tool_use/tool_result
+shape the deterministic extractor already understands, so the
+downstream pipeline (deterministic + semantic extractors → kg_assert
+→ SHACL → reasoner) is unchanged. The Gemini and OpenCode `stop.sh`
+hooks now pipe stdin into `predicate extract --from-stdin --platform <p>`
+before invoking `predicate maintain`, mirroring Claude Code's flow.
+
+Notes on the new adapters:
+
+- Gemini CLI and OpenCode transcript schemas are not formally
+  documented and may vary by version. The adapters use permissive
+  field-candidate matching (e.g. `id | toolCallId | tool_use_id`) and
+  fall through silently on unrecognized shapes — empty triples are
+  acceptable, crashes are not.
+- All three `stop.sh` scripts are fail-open (exit 0 on any error) so a
+  capture failure never blocks the user's next prompt.
+
 **v1.7 — Reasoning bridge for action data.** The 16-rule OWL 2 RL
 reasoner is now joined by three derive-only rules (R17 Hotspot, R18
 FlakyCommand, R19 ActiveFile) that turn Phase 9's extracted
@@ -248,7 +270,8 @@ Earlier milestones (in order): `v0.1.0-foundation` → `v0.2.0-discipline` →
 `v0.3a.0-goals-and-gaps` → `v0.3b.0-research-execution` →
 `v0.3c.0-schema-evolution` → `v1.0.0` → `v1.1.0-distribution` →
 `v1.2.0-multiplatform` → `v1.3.0-platform-hooks` → `v1.4.0-tool-capture` →
-`v1.5.0-stop-extract` → `v1.6.x-hooks-fixes` → `v1.7.0-reasoning-bridge`.
+`v1.5.0-stop-extract` → `v1.6.x-hooks-fixes` → `v1.7.0-reasoning-bridge` →
+`v1.8.0-cross-platform-stop`.
 
 Deferred to v1.6 (see spec §17): cross-validation between deterministic
 and semantic extractors; cross-platform Stop-hook extraction

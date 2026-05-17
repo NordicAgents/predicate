@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Predicate — local reasoning knowledge graph for AI agents",
-    "version": "1.7.0"
+    "version": "1.8.0"
   },
   "plugins": [
     {
       "name": "predicate",
       "source": "./packages/predicate-skill",
-      "description": "Local RDF/OWL knowledge graph with 19-rule reasoner, agent loop, schema-evolution gates, and the 9 kg_* MCP tools.",
-      "version": "1.7.0",
+      "description": "Local RDF/OWL knowledge graph with 19-rule reasoner, agent loop, schema-evolution gates, the 9 kg_* MCP tools, and cross-platform Stop-hook turn extraction for Claude Code, Gemini CLI, and OpenCode.",
+      "version": "1.8.0",
       "author": { "name": "Nordic Agents Research" },
       "category": "knowledge-graph",
       "keywords": ["mcp", "rdf", "owl", "sparql", "reasoning", "agent"]
