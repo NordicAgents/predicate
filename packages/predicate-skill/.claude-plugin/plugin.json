@@ -1,6 +1,6 @@
 {
   "name": "predicate",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — 9 kg_* MCP tools + Stop-hook turn extraction.",
   "author": {
     "name": "Nordic Agents Research",

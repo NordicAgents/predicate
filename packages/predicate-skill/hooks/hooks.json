@@ -1,24 +1,27 @@
 {
-  "hooks": [
-    {
-      "event": "SessionStart",
-      "matcher": "startup|clear|compact",
-      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh"
-    },
-    {
-      "event": "PreToolUse",
-      "matcher": "*",
-      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/pre-tool-use.sh"
-    },
-    {
-      "event": "PostToolUse",
-      "matcher": "*",
-      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/post-tool-use.sh"
-    },
-    {
-      "event": "Stop",
-      "matcher": "*",
-      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/stop.sh"
-    }
-  ]
+  "description": "Predicate hooks: SessionStart context banner, Stop-hook turn extraction → kg:abox via kg_assert. PreToolUse/PostToolUse raw-capture scripts are shipped but not wired by default; enable them manually if you set PREDICATE_RAW_CAPTURE=1.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/stop.sh\""
+          }
+        ]
+      }
+    ]
+  }
 }
