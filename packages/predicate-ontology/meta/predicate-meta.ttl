@@ -69,3 +69,13 @@ pred:startedAt a owl:DatatypeProperty ;
                rdfs:domain pred:Session ; rdfs:range xsd:dateTime .
 pred:endedAt   a owl:DatatypeProperty ;
                rdfs:domain pred:Session ; rdfs:range xsd:dateTime .
+
+# --- Peer registry (federation) ----------------------------------
+
+pred:Peer       a owl:Class ; rdfs:label "Registered federation peer" .
+pred:peerName   a owl:DatatypeProperty ;
+                rdfs:domain pred:Peer ; rdfs:range xsd:string .
+pred:peerEndpoint a owl:DatatypeProperty ;
+                rdfs:domain pred:Peer ; rdfs:range xsd:anyURI .
+pred:peerAddedAt a owl:DatatypeProperty ;
+                rdfs:domain pred:Peer ; rdfs:range xsd:dateTime .

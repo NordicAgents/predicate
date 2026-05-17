@@ -11250,12 +11250,12 @@ var require_supports_color = __commonJS({
     "use strict";
     var os = __require("os");
     var tty = __require("tty");
-    var hasFlag7 = require_has_flag();
+    var hasFlag8 = require_has_flag();
     var { env } = process;
     var forceColor;
-    if (hasFlag7("no-color") || hasFlag7("no-colors") || hasFlag7("color=false") || hasFlag7("color=never")) {
+    if (hasFlag8("no-color") || hasFlag8("no-colors") || hasFlag8("color=false") || hasFlag8("color=never")) {
       forceColor = 0;
-    } else if (hasFlag7("color") || hasFlag7("colors") || hasFlag7("color=true") || hasFlag7("color=always")) {
+    } else if (hasFlag8("color") || hasFlag8("colors") || hasFlag8("color=true") || hasFlag8("color=always")) {
       forceColor = 1;
     }
     if ("FORCE_COLOR" in env) {
@@ -11282,10 +11282,10 @@ var require_supports_color = __commonJS({
       if (forceColor === 0) {
         return 0;
       }
-      if (hasFlag7("color=16m") || hasFlag7("color=full") || hasFlag7("color=truecolor")) {
+      if (hasFlag8("color=16m") || hasFlag8("color=full") || hasFlag8("color=truecolor")) {
         return 3;
       }
-      if (hasFlag7("color=256")) {
+      if (hasFlag8("color=256")) {
         return 2;
       }
       if (haveStream && !streamIsTTY && forceColor === void 0) {
@@ -17489,7 +17489,8 @@ var GRAPH = {
   provenance: "kg:provenance",
   goals: "kg:goals",
   usage: "kg:usage",
-  meta: "kg:meta"
+  meta: "kg:meta",
+  peers: "kg:peers"
 };
 
 // ../predicate-mcp/src/provenance.ts
@@ -28039,10 +28040,10 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META8 = "https://predicate.dev/meta#";
+  const META9 = "https://predicate.dev/meta#";
   const CB2 = "https://predicate.dev/codebase#";
   const rows = await client.select(
-    `PREFIX pred: <${META8}>
+    `PREFIX pred: <${META9}>
      PREFIX cb:   <${CB2}>
      SELECT ?s ?sid ?at
             (COUNT(DISTINCT ?f) AS ?files)
@@ -28132,10 +28133,10 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META8 = "https://predicate.dev/meta#";
+  const META9 = "https://predicate.dev/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
-    `PREFIX pred: <${META8}>
+    `PREFIX pred: <${META9}>
      SELECT ?c ?at ?tool ?phase ?session WHERE {
        GRAPH <kg:usage> {
          ?c a pred:ToolCall ;
@@ -28233,10 +28234,10 @@ function escapeSparqlLiteral(s2) {
 }
 async function searchFiles(client, query, limit) {
   const CB2 = "https://predicate.dev/codebase#";
-  const META8 = "https://predicate.dev/meta#";
+  const META9 = "https://predicate.dev/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
-     PREFIX pred: <${META8}>
+     PREFIX pred: <${META9}>
      SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
      WHERE {
        GRAPH <kg:abox> {
@@ -28466,26 +28467,284 @@ async function dashboard(args) {
   return 0;
 }
 
+// ../predicate-cli/src/commands/peer.ts
+var META8 = "https://predicate.dev/meta#";
+var PEERS_GRAPH = "kg:peers";
+function help7() {
+  console.log(`predicate peer <subcommand> [args]
+
+Manage the federation peer registry stored in kg:peers.
+
+Subcommands:
+  add <name> <sparql-endpoint>    Register a peer.
+  remove <name>                   Unregister a peer.
+  list [--json]                   List registered peers.
+  --help                          Print this message.
+
+Example:
+  predicate peer add alice http://alice.local:3030/predicate/query
+  predicate peer list
+  kg_ask --include-remote ...     (see kg_ask docs)
+`);
+}
+async function addPeer(client, name, endpoint) {
+  const uri2 = `urn:predicate:peer:${encodeURIComponent(name)}`;
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  await client.update(`
+    PREFIX pred: <${META8}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    DELETE { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
+    WHERE  { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
+  `);
+  await client.update(`
+    PREFIX pred: <${META8}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA { GRAPH <${PEERS_GRAPH}> {
+      ${escapeIRI(uri2)} a pred:Peer ;
+        pred:peerName ${escapeLiteral(name)} ;
+        pred:peerEndpoint "${endpoint}"^^xsd:anyURI ;
+        pred:peerAddedAt  "${now}"^^xsd:dateTime .
+    } }
+  `);
+  console.log(`peer "${name}" registered \u2192 ${endpoint}`);
+  return 0;
+}
+async function removePeer(client, name) {
+  const uri2 = `urn:predicate:peer:${encodeURIComponent(name)}`;
+  await client.update(`
+    DELETE { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
+    WHERE  { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
+  `);
+  console.log(`peer "${name}" removed`);
+  return 0;
+}
+async function listPeers(client) {
+  const r2 = await client.select(
+    `PREFIX pred: <${META8}>
+     SELECT ?uri ?name ?endpoint ?addedAt
+     WHERE {
+       GRAPH <${PEERS_GRAPH}> {
+         ?uri a pred:Peer ;
+              pred:peerName ?name ;
+              pred:peerEndpoint ?endpoint ;
+              pred:peerAddedAt ?addedAt .
+       }
+     }
+     ORDER BY ?name`
+  );
+  return r2.results.bindings.map((b2) => ({
+    uri: b2["uri"].value,
+    name: b2["name"].value,
+    endpoint: b2["endpoint"].value,
+    addedAt: b2["addedAt"].value
+  }));
+}
+async function peer(args) {
+  if (args.length === 0 || args[0] === "--help") {
+    help7();
+    return args.length === 0 ? 2 : 0;
+  }
+  const sub = args[0];
+  const client = new SparqlClient(loadConfig());
+  await client.update(`CREATE SILENT GRAPH <${PEERS_GRAPH}>`);
+  try {
+    if (sub === "add") {
+      const name = args[1];
+      const endpoint = args[2];
+      if (!name || !endpoint) {
+        console.error("predicate peer add: usage: predicate peer add <name> <endpoint>");
+        return 2;
+      }
+      return await addPeer(client, name, endpoint);
+    }
+    if (sub === "remove") {
+      const name = args[1];
+      if (!name) {
+        console.error("predicate peer remove: usage: predicate peer remove <name>");
+        return 2;
+      }
+      return await removePeer(client, name);
+    }
+    if (sub === "list") {
+      const peers = await listPeers(client);
+      if (args.includes("--json")) console.log(JSON.stringify(peers, null, 2));
+      else if (peers.length === 0) console.log("(no peers registered \u2014 `predicate peer add <name> <endpoint>`)");
+      else {
+        const widths = [
+          Math.max(4, ...peers.map((p2) => p2.name.length)),
+          Math.max(8, ...peers.map((p2) => p2.endpoint.length))
+        ];
+        console.log(["name".padEnd(widths[0]), "endpoint".padEnd(widths[1]), "addedAt"].join("  "));
+        for (const p2 of peers) console.log([p2.name.padEnd(widths[0]), p2.endpoint.padEnd(widths[1]), p2.addedAt].join("  "));
+      }
+      return 0;
+    }
+    console.error(`predicate peer: unknown subcommand "${sub}"`);
+    help7();
+    return 2;
+  } catch (err2) {
+    console.error(`predicate peer failed: ${err2.message}`);
+    return 1;
+  }
+}
+
+// ../predicate-cli/src/commands/export-sessions.ts
+function parseFlag7(args, name) {
+  const i2 = args.indexOf(name);
+  return i2 < 0 || i2 + 1 >= args.length ? void 0 : args[i2 + 1];
+}
+function hasFlag7(args, name) {
+  return args.includes(name);
+}
+function help8() {
+  console.log(`predicate export-sessions [--since DATE] [--user NAME] > out.trig
+
+Export local kg:abox session-history triples as TriG (one named graph
+containing all triples for sessions started after --since).
+
+Options:
+  --since DATE   ISO 8601 datetime cutoff (default: 7 days ago).
+  --user NAME    Tag the export graph name with this user identifier
+                 (default: $USER env var).
+  --help         Print this message.
+
+Example:
+  predicate export-sessions --since 2026-05-10 --user alice > alice.trig
+  # send alice.trig to teammate; they run:
+  predicate import-sessions alice.trig
+`);
+}
+function authHeader2() {
+  const user = process.env["PREDICATE_ADMIN_USER"] ?? "admin";
+  const pass = process.env["PREDICATE_ADMIN_PASSWORD"] ?? "changeme";
+  return "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
+}
+async function exportSessions(args) {
+  if (hasFlag7(args, "--help")) {
+    help8();
+    return 0;
+  }
+  const cfg = loadConfig();
+  const since = parseFlag7(args, "--since") ?? new Date(Date.now() - 7 * 864e5).toISOString();
+  const user = parseFlag7(args, "--user") ?? process.env["USER"] ?? "anonymous";
+  const exportGraph = `urn:predicate:export:${encodeURIComponent(user)}:${(/* @__PURE__ */ new Date()).toISOString()}`;
+  const query = `
+    PREFIX pred: <https://predicate.dev/meta#>
+    CONSTRUCT { ?s ?p ?o }
+    WHERE {
+      GRAPH <kg:abox> {
+        ?session a pred:Session ; pred:at ?at .
+        FILTER (?at >= "${since}"^^<http://www.w3.org/2001/XMLSchema#dateTime>)
+        ?s ?p ?o .
+        FILTER (?s = ?session ||
+                EXISTS { ?s ?_p1 ?session } ||
+                EXISTS { ?session ?_p2 ?s })
+      }
+    }
+  `;
+  try {
+    const r2 = await fetch(`${cfg.fusekiUrl}/${cfg.dataset}/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/n-triples",
+        "Authorization": authHeader2()
+      },
+      body: "query=" + encodeURIComponent(query)
+    });
+    if (!r2.ok) {
+      console.error(`predicate export-sessions: SPARQL error ${r2.status}`);
+      return 1;
+    }
+    const ntriples = await r2.text();
+    console.log(`<${exportGraph}> {`);
+    const body = ntriples.split("\n").filter((l2) => l2.trim()).map((l2) => "  " + l2).join("\n");
+    if (body) console.log(body);
+    console.log("}");
+    return 0;
+  } catch (err2) {
+    console.error(`predicate export-sessions failed: ${err2.message}`);
+    return 1;
+  }
+}
+
+// ../predicate-cli/src/commands/import-sessions.ts
+import { readFileSync as readFileSync3 } from "node:fs";
+function help9() {
+  console.log(`predicate import-sessions <file.trig>
+
+Load a TriG-formatted peer export into local Fuseki. Each named graph
+in the TriG is created in the local store as-is (it does NOT overwrite
+kg:abox). Use \`kg_ask --include-remote\` to query unioned data
+across local + imported peer graphs.
+
+Options:
+  --help    Print this message.
+`);
+}
+function authHeader3() {
+  const user = process.env["PREDICATE_ADMIN_USER"] ?? "admin";
+  const pass = process.env["PREDICATE_ADMIN_PASSWORD"] ?? "changeme";
+  return "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
+}
+async function importSessions(args) {
+  if (args.length === 0 || args[0] === "--help") {
+    help9();
+    return args.length === 0 ? 2 : 0;
+  }
+  const file = args[0];
+  let trig;
+  try {
+    trig = readFileSync3(file, "utf8");
+  } catch (err2) {
+    console.error(`predicate import-sessions: failed to read ${file}: ${err2.message}`);
+    return 1;
+  }
+  const cfg = loadConfig();
+  try {
+    const r2 = await fetch(`${cfg.fusekiUrl}/${cfg.dataset}/data`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/trig",
+        "Authorization": authHeader3()
+      },
+      body: trig
+    });
+    if (!r2.ok) {
+      console.error(`predicate import-sessions: Fuseki rejected (${r2.status}): ${await r2.text()}`);
+      return 1;
+    }
+    console.log(`predicate import-sessions: loaded ${trig.length} bytes from ${file}`);
+    return 0;
+  } catch (err2) {
+    console.error(`predicate import-sessions failed: ${err2.message}`);
+    return 1;
+  }
+}
+
 // ../predicate-cli/src/index.ts
 var VERSION2 = "1.0.0";
-function help7() {
+function help10() {
   console.log(`predicate <command>
 
 Commands:
-  up             Bring Fuseki up (docker compose up -d) and load the seed TBox.
-  down           Stop Fuseki, preserve the data volume.
-  doctor         Health checks: docker, fuseki, tbox.
-  stats          Print kg_stats output for the live graph.
-  sessionstart   Print a one-line KG status banner (used by hook scripts).
-  maintain       Run kg_maintain (reaper + generalizer + sweeper).
-  capture        Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
-  extract        Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
-  sessions       List recent extracted sessions (modifiedFiles / succeeded / failed counts).
-  captures       List raw kg:usage ToolCall captures (opt-in raw-capture path).
-  recall         Substring search over session history (files + commands).
-  dashboard      Serve a localhost web view of session-history + reasoning output.
-  --version      Print the predicate version.
-  --help         This message.
+  up                Bring Fuseki up (docker compose up -d) and load the seed TBox.
+  down              Stop Fuseki, preserve the data volume.
+  doctor            Health checks: docker, fuseki, tbox.
+  stats             Print kg_stats output for the live graph.
+  sessionstart      Print a one-line KG status banner (used by hook scripts).
+  maintain          Run kg_maintain (reaper + generalizer + sweeper).
+  capture           Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
+  extract           Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
+  sessions          List recent extracted sessions (modifiedFiles / succeeded / failed counts).
+  captures          List raw kg:usage ToolCall captures (opt-in raw-capture path).
+  recall            Substring search over session history (files + commands).
+  dashboard         Serve a localhost web view of session-history + reasoning output.
+  peer              Manage federation peers (add / list / remove).
+  export-sessions   Export local session-history triples as TriG to stdout.
+  import-sessions   Import a teammate's TriG export into local Fuseki.
+  --version         Print the predicate version.
+  --help            This message.
 
 Env:
   FUSEKI_URL                http://localhost:3030 (default)
@@ -28525,6 +28784,12 @@ async function main() {
       return recall(process.argv.slice(3));
     case "dashboard":
       return dashboard(process.argv.slice(3));
+    case "peer":
+      return peer(process.argv.slice(3));
+    case "export-sessions":
+      return exportSessions(process.argv.slice(3));
+    case "import-sessions":
+      return importSessions(process.argv.slice(3));
     case "--version":
     case "version":
       console.log(VERSION2);
@@ -28532,11 +28797,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help7();
+      help10();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help7();
+      help10();
       return 2;
   }
 }

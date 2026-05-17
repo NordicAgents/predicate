@@ -37,6 +37,7 @@ beforeEach(async () => {
   await reset('kg:abox');
   await reset('kg:provenance');
   await reset('kg:usage');
+  await reset('kg:peers');
   await kgAssert(client, {
     subject: 'https://predicate.dev/codebase/auth.ts',
     predicate: `${C}imports`,
@@ -97,5 +98,22 @@ describe('kg_ask', () => {
     await expect(
       kgAsk(client, { question: 'x', sparql: 'INSERT DATA { <a:a> <a:b> <a:c> }' }),
     ).rejects.toThrow(/read-only/);
+  });
+
+  it('includeRemote with no peers behaves like local-only and tags rows with peer=local', async () => {
+    const r = await kgAsk(client, {
+      question: 'what does auth.ts import? (remote)',
+      sparql: `
+        PREFIX c: <${C}>
+        SELECT ?o WHERE { GRAPH <kg:abox> {
+          <https://predicate.dev/codebase/auth.ts> c:imports ?o } }
+      `,
+      includeRemote: true,
+    });
+    expect(r.bindings).toHaveLength(1);
+    expect(r.bindings[0]!['o']!.value).toBe('https://predicate.dev/codebase/jwt.ts');
+    expect(r.bindings[0]!['peer']).toBeDefined();
+    expect(r.bindings[0]!['peer']!.value).toBe('local');
+    expect(r.vars).toContain('peer');
   });
 });

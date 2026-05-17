@@ -7,6 +7,7 @@ export const GRAPH = {
   goals: 'kg:goals',
   usage: 'kg:usage',
   meta: 'kg:meta',
+  peers: 'kg:peers',
 } as const;
 
 export type GraphName = (typeof GRAPH)[keyof typeof GRAPH];
