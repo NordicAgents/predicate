@@ -243,6 +243,28 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
+**v1.11 — federation MVP.** Three new CLI commands and one new `kg_ask`
+flag turn Predicate from a single-user store into a team-share-ready
+substrate. `predicate peer add <name> <sparql-endpoint>` registers a
+teammate's Fuseki endpoint in `kg:peers` (a new named graph carrying
+`pred:Peer` triples — meta vocab v0.6.0); `predicate peer list` /
+`predicate peer remove` round out the registry. `predicate
+export-sessions [--since DATE] [--user NAME]` dumps the local
+session-history slice from `kg:abox` as a TriG file wrapped in a
+per-export named graph `urn:predicate:export:<user>:<timestamp>`, so a
+receiving instance can hold multiple peers' data side-by-side without
+collision. `predicate import-sessions <file.trig>` loads such a file
+into the local store via Fuseki's `application/trig` data endpoint —
+each named graph is preserved as-is and never mixed into local
+`kg:abox`. Finally, `kg_ask` gains an `includeRemote: true` flag (also
+exposed on the MCP tool registration): the CLI runs the caller's SPARQL
+locally AND against every registered peer endpoint, then merges
+results with a per-row `?peer` column tagging origin
+(`'local'` or the peer name). Per-peer errors are caught and
+logged — a dead or unreachable peer never crashes the whole query.
+Out of scope for the MVP (deferred to v2): auth/TLS, realtime
+push/pull, conflict resolution, cross-user identity reconciliation.
+
 **v1.10 — web dashboard.** `predicate dashboard` ships a minimal,
 zero-build localhost web view of the session-history slice. A single
 self-contained HTML file (inline CSS + vanilla JS, no framework, no

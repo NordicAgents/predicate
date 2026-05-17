@@ -11,6 +11,9 @@ import { sessions } from './commands/sessions.js';
 import { captures } from './commands/captures.js';
 import { recall } from './commands/recall.js';
 import { dashboard } from './commands/dashboard.js';
+import { peer } from './commands/peer.js';
+import { exportSessions } from './commands/export-sessions.js';
+import { importSessions } from './commands/import-sessions.js';
 
 const VERSION = '1.0.0';
 
@@ -18,20 +21,23 @@ function help(): void {
   console.log(`predicate <command>
 
 Commands:
-  up             Bring Fuseki up (docker compose up -d) and load the seed TBox.
-  down           Stop Fuseki, preserve the data volume.
-  doctor         Health checks: docker, fuseki, tbox.
-  stats          Print kg_stats output for the live graph.
-  sessionstart   Print a one-line KG status banner (used by hook scripts).
-  maintain       Run kg_maintain (reaper + generalizer + sweeper).
-  capture        Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
-  extract        Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
-  sessions       List recent extracted sessions (modifiedFiles / succeeded / failed counts).
-  captures       List raw kg:usage ToolCall captures (opt-in raw-capture path).
-  recall         Substring search over session history (files + commands).
-  dashboard      Serve a localhost web view of session-history + reasoning output.
-  --version      Print the predicate version.
-  --help         This message.
+  up                Bring Fuseki up (docker compose up -d) and load the seed TBox.
+  down              Stop Fuseki, preserve the data volume.
+  doctor            Health checks: docker, fuseki, tbox.
+  stats             Print kg_stats output for the live graph.
+  sessionstart      Print a one-line KG status banner (used by hook scripts).
+  maintain          Run kg_maintain (reaper + generalizer + sweeper).
+  capture           Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
+  extract           Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
+  sessions          List recent extracted sessions (modifiedFiles / succeeded / failed counts).
+  captures          List raw kg:usage ToolCall captures (opt-in raw-capture path).
+  recall            Substring search over session history (files + commands).
+  dashboard         Serve a localhost web view of session-history + reasoning output.
+  peer              Manage federation peers (add / list / remove).
+  export-sessions   Export local session-history triples as TriG to stdout.
+  import-sessions   Import a teammate's TriG export into local Fuseki.
+  --version         Print the predicate version.
+  --help            This message.
 
 Env:
   FUSEKI_URL                http://localhost:3030 (default)
@@ -48,18 +54,21 @@ Env:
 async function main(): Promise<number> {
   const cmd = process.argv[2];
   switch (cmd) {
-    case 'up':           return up();
-    case 'down':         return down();
-    case 'doctor':       return doctor();
-    case 'stats':        return stats();
-    case 'sessionstart': return sessionstart();
-    case 'maintain':     return maintain();
-    case 'capture':      return capture(process.argv.slice(3));
-    case 'extract':      return extract(process.argv.slice(3));
-    case 'sessions':     return sessions(process.argv.slice(3));
-    case 'captures':     return captures(process.argv.slice(3));
-    case 'recall':       return recall(process.argv.slice(3));
-    case 'dashboard':    return dashboard(process.argv.slice(3));
+    case 'up':              return up();
+    case 'down':            return down();
+    case 'doctor':          return doctor();
+    case 'stats':           return stats();
+    case 'sessionstart':    return sessionstart();
+    case 'maintain':        return maintain();
+    case 'capture':         return capture(process.argv.slice(3));
+    case 'extract':         return extract(process.argv.slice(3));
+    case 'sessions':        return sessions(process.argv.slice(3));
+    case 'captures':        return captures(process.argv.slice(3));
+    case 'recall':          return recall(process.argv.slice(3));
+    case 'dashboard':       return dashboard(process.argv.slice(3));
+    case 'peer':            return peer(process.argv.slice(3));
+    case 'export-sessions': return exportSessions(process.argv.slice(3));
+    case 'import-sessions': return importSessions(process.argv.slice(3));
     case '--version':
     case 'version':      console.log(VERSION); return 0;
     case undefined:

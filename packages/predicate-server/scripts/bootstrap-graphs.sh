@@ -4,7 +4,7 @@ HOST="${FUSEKI_URL:-http://localhost:3030}"
 DATASET="predicate"
 ADMIN_PASSWORD="${PREDICATE_ADMIN_PASSWORD:-changeme}"
 
-for g in kg:tbox kg:tbox-staging kg:abox kg:inferred kg:provenance kg:goals kg:usage kg:meta; do
+for g in kg:tbox kg:tbox-staging kg:abox kg:inferred kg:provenance kg:goals kg:usage kg:meta kg:peers; do
   echo "creating graph $g"
   curl -fsS -u "admin:${ADMIN_PASSWORD}" -X POST \
     --header "Content-Type: application/sparql-update" \

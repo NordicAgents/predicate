@@ -214,3 +214,26 @@ kg_propose_schema(
 )
 # This goes to kg:tbox-staging. The promotion gate requires 3 successful uses in 7 days.
 ```
+
+## Federation
+
+If teammates also use Predicate, they can share session-history:
+
+```bash
+# On Alice's machine:
+predicate export-sessions --user alice > alice.trig
+# Send to Bob (Slack, scp, etc.)
+
+# On Bob's machine:
+predicate import-sessions alice.trig
+predicate peer add alice http://alice.local:3030/predicate/query  # optional, for live queries
+
+# Then kg_ask can union local + remote:
+kg_ask --include-remote ...
+```
+
+This MVP is offline-friendly: no realtime sync, no auth. Each user's data
+lives in a separate named graph so there are no merge conflicts. Same-IRI
+collisions (e.g. `file:///work/auth.ts` from two users) are treated as
+the same resource by RDF — use `owl:sameAs` if you want them merged, or
+namespace your files per-user if you want them separate.
