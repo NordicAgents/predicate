@@ -3022,8 +3022,8 @@ var require_event_target_shim = __commonJS({
         }
         const listeners = getListeners(this);
         const optionsIsObj = isObject(options);
-        const capture = optionsIsObj ? Boolean(options.capture) : Boolean(options);
-        const listenerType = capture ? CAPTURE : BUBBLE;
+        const capture2 = optionsIsObj ? Boolean(options.capture) : Boolean(options);
+        const listenerType = capture2 ? CAPTURE : BUBBLE;
         const newNode = {
           listener,
           listenerType,
@@ -3058,8 +3058,8 @@ var require_event_target_shim = __commonJS({
           return;
         }
         const listeners = getListeners(this);
-        const capture = isObject(options) ? Boolean(options.capture) : Boolean(options);
-        const listenerType = capture ? CAPTURE : BUBBLE;
+        const capture2 = isObject(options) ? Boolean(options.capture) : Boolean(options);
+        const listenerType = capture2 ? CAPTURE : BUBBLE;
         let prev = null;
         let node = listeners.get(eventName);
         while (node != null) {
@@ -11243,12 +11243,12 @@ var require_supports_color = __commonJS({
     "use strict";
     var os = __require("os");
     var tty = __require("tty");
-    var hasFlag = require_has_flag();
+    var hasFlag2 = require_has_flag();
     var { env } = process;
     var forceColor;
-    if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false") || hasFlag("color=never")) {
+    if (hasFlag2("no-color") || hasFlag2("no-colors") || hasFlag2("color=false") || hasFlag2("color=never")) {
       forceColor = 0;
-    } else if (hasFlag("color") || hasFlag("colors") || hasFlag("color=true") || hasFlag("color=always")) {
+    } else if (hasFlag2("color") || hasFlag2("colors") || hasFlag2("color=true") || hasFlag2("color=always")) {
       forceColor = 1;
     }
     if ("FORCE_COLOR" in env) {
@@ -11275,10 +11275,10 @@ var require_supports_color = __commonJS({
       if (forceColor === 0) {
         return 0;
       }
-      if (hasFlag("color=16m") || hasFlag("color=full") || hasFlag("color=truecolor")) {
+      if (hasFlag2("color=16m") || hasFlag2("color=full") || hasFlag2("color=truecolor")) {
         return 3;
       }
-      if (hasFlag("color=256")) {
+      if (hasFlag2("color=256")) {
         return 2;
       }
       if (haveStream && !streamIsTTY && forceColor === void 0) {
@@ -11847,6 +11847,18 @@ var REQUIRED_PREDICATES = {
   "find-dependencies-trans": [`${C}dependsOn`],
   "find-readers-of": [`${C}reads`],
   "find-symbol-in-file": [`${C}declaredIn`]
+};
+
+// ../predicate-mcp/src/graphs.ts
+var GRAPH = {
+  tbox: "kg:tbox",
+  tboxStaging: "kg:tbox-staging",
+  abox: "kg:abox",
+  inferred: "kg:inferred",
+  provenance: "kg:provenance",
+  goals: "kg:goals",
+  usage: "kg:usage",
+  meta: "kg:meta"
 };
 
 // ../predicate-agent/src/schema-proposer.ts
@@ -18009,9 +18021,152 @@ async function maintain() {
   }
 }
 
+// ../predicate-mcp/src/tools/kg-capture.ts
+var META6 = "https://predicate.dev/meta#";
+function truncate(s, max) {
+  if (s.length <= max) return s;
+  const extra = s.length - max;
+  return `${s.slice(0, max)} \u2026 [truncated, ${extra} more chars]`;
+}
+function serialize(value, max) {
+  let s;
+  if (value === void 0 || value === null) s = "";
+  else if (typeof value === "string") s = value;
+  else {
+    try {
+      s = JSON.stringify(value);
+    } catch {
+      s = String(value);
+    }
+  }
+  return truncate(s, max);
+}
+async function kgCapture(client, input) {
+  const t0 = Date.now();
+  const maxChars = parseInt(process.env["PREDICATE_CAPTURE_TRUNCATE"] ?? "500", 10);
+  const captureId = `urn:predicate:capture:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const inputStr = serialize(input.input, maxChars);
+  const hasOutput = input.output !== void 0 && input.output !== null;
+  const outputStr = hasOutput ? serialize(input.output, maxChars) : "";
+  const lines = [
+    `${escapeIRI(captureId)} a <${META6}ToolCall> ;`,
+    `  <${META6}toolName>  ${escapeLiteral(input.toolName)} ;`,
+    `  <${META6}phase>     ${escapeLiteral(input.phase)} ;`,
+    `  <${META6}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
+  ];
+  if (inputStr.length > 0) lines.push(`  ; <${META6}toolInput>  ${escapeLiteral(inputStr)}`);
+  if (hasOutput) lines.push(`  ; <${META6}toolOutput> ${escapeLiteral(outputStr)}`);
+  if (input.sessionId) lines.push(`  ; <${META6}sessionId>  ${escapeLiteral(input.sessionId)}`);
+  lines.push("  .");
+  await client.update(`
+    INSERT DATA { GRAPH ${escapeIRI(GRAPH.usage)} {
+      ${lines.join("\n      ")}
+    } }
+  `);
+  return { captureId, elapsedMs: Date.now() - t0 };
+}
+
+// ../predicate-cli/src/commands/capture.ts
+function parseFlag(args, name) {
+  const i = args.indexOf(name);
+  if (i < 0 || i + 1 >= args.length) return void 0;
+  return args[i + 1];
+}
+function hasFlag(args, name) {
+  return args.includes(name);
+}
+function help() {
+  console.log(`predicate capture [options]
+
+Record a tool invocation into kg:usage. Suitable for use from
+platform-specific PreToolUse / PostToolUse hook scripts.
+
+Options:
+  --tool NAME           Tool name (required unless --from-stdin)
+  --phase pre|post      Hook phase (required)
+  --input  JSON_OR_STR  Serialized tool input (optional)
+  --output JSON_OR_STR  Serialized tool output (optional)
+  --session ID          Session identifier (optional)
+  --from-stdin          Parse a Claude-Code-shaped JSON object from stdin
+                        (keys: session_id, tool_name, tool_input, tool_response).
+                        --phase is still required.
+  --help                Print this message.
+
+Env:
+  PREDICATE_CAPTURE_SKIP       Comma list of tool names to suppress (default "").
+  PREDICATE_CAPTURE_TRUNCATE   Max chars per field (default 500).
+  FUSEKI_URL, PREDICATE_DATASET   Server location.
+`);
+}
+async function readStdin(stream) {
+  let buf = "";
+  for await (const chunk of stream) buf += String(chunk);
+  return buf;
+}
+function shouldSkip(toolName) {
+  const raw = process.env["PREDICATE_CAPTURE_SKIP"] ?? "";
+  if (raw.length === 0) return false;
+  return raw.split(",").map((s) => s.trim()).includes(toolName);
+}
+function parseMaybeJson(s) {
+  if (s === void 0) return void 0;
+  try {
+    return JSON.parse(s);
+  } catch {
+    return s;
+  }
+}
+async function capture(args, stdin = process.stdin) {
+  if (hasFlag(args, "--help")) {
+    help();
+    return 0;
+  }
+  const phase = parseFlag(args, "--phase");
+  if (phase !== "pre" && phase !== "post") {
+    console.error('predicate capture: --phase must be "pre" or "post"');
+    return 2;
+  }
+  let toolName;
+  let toolInput;
+  let toolOutput;
+  let sessionId;
+  if (hasFlag(args, "--from-stdin")) {
+    const raw = await readStdin(stdin);
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch (err2) {
+      console.error(`predicate capture: invalid JSON on stdin: ${err2.message}`);
+      return 2;
+    }
+    toolName = typeof payload["tool_name"] === "string" ? payload["tool_name"] : void 0;
+    toolInput = payload["tool_input"];
+    toolOutput = payload["tool_response"];
+    sessionId = typeof payload["session_id"] === "string" ? payload["session_id"] : void 0;
+  } else {
+    toolName = parseFlag(args, "--tool");
+    toolInput = parseMaybeJson(parseFlag(args, "--input"));
+    toolOutput = parseMaybeJson(parseFlag(args, "--output"));
+    sessionId = parseFlag(args, "--session");
+  }
+  if (!toolName) {
+    console.error("predicate capture: --tool is required (or --from-stdin with payload.tool_name)");
+    return 2;
+  }
+  if (shouldSkip(toolName)) return 0;
+  try {
+    const client = new SparqlClient(loadConfig());
+    await kgCapture(client, { toolName, input: toolInput, output: toolOutput, sessionId, phase });
+    return 0;
+  } catch (err2) {
+    console.error(`predicate capture failed: ${err2.message}`);
+    return 1;
+  }
+}
+
 // ../predicate-cli/src/index.ts
 var VERSION = "1.0.0";
-function help() {
+function help2() {
   console.log(`predicate <command>
 
 Commands:
@@ -18021,6 +18176,7 @@ Commands:
   stats          Print kg_stats output for the live graph.
   sessionstart   Print a one-line KG status banner (used by hook scripts).
   maintain       Run kg_maintain (reaper + generalizer + sweeper).
+  capture        Record a tool invocation in kg:usage (used by PreTool/PostTool hooks).
   --version      Print the predicate version.
   --help         This message.
 
@@ -18030,6 +18186,8 @@ Env:
   PREDICATE_ADMIN_USER      admin (default)
   PREDICATE_ADMIN_PASSWORD  changeme (default)
   PREDICATE_COMPOSE_DIR     override docker-compose.yml location
+  PREDICATE_CAPTURE_SKIP    comma list of tool names to skip in kg_capture
+  PREDICATE_CAPTURE_TRUNCATE  max chars per captured input/output (default 500)
 `);
 }
 async function main() {
@@ -18047,6 +18205,8 @@ async function main() {
       return sessionstart();
     case "maintain":
       return maintain();
+    case "capture":
+      return capture(process.argv.slice(3));
     case "--version":
     case "version":
       console.log(VERSION);
@@ -18054,11 +18214,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help();
+      help2();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help();
+      help2();
       return 2;
   }
 }

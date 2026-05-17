@@ -180,6 +180,7 @@ itself is gated by maintainer credentials.
 | `kg_research_goal` | Decompose a goal → gap-detect → (optional) execute research → return a plan. |
 | `kg_stats` | Triples / abox / inferred / tbox counts, inferred ratio, unused-concept ratio. |
 | `kg_maintain` | Runs reaper + generalizer + promotion sweeper. |
+| `kg_capture` | Record a tool invocation (toolName, input, output, sessionId, phase) into `kg:usage`. Used by PreToolUse/PostToolUse hook scripts. |
 
 ## CLI
 
@@ -190,6 +191,7 @@ predicate doctor         # health checks (docker, fuseki, tbox, tools)
 predicate stats          # current kg_stats output
 predicate sessionstart   # one-line KG status banner (used by hook scripts)
 predicate maintain       # reaper + generalizer + promotion sweeper
+predicate capture        # record a tool call in kg:usage (used by hooks)
 predicate --version
 predicate --help
 ```
@@ -225,17 +227,22 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
-**v1.3 — multi-platform hooks.** Distributable via Claude Code marketplace,
-Cursor, Continue.dev, OpenCode, Gemini CLI, VS Code Copilot, Codex CLI,
-and any generic MCP client. Per-platform SessionStart + PreCompact + Stop
-hook adapters shipped. npm publish flow verified.
+**v1.4 — tool-call capture.** Claude Code PreToolUse and PostToolUse
+hooks now record every tool invocation in `kg:usage` (with input/output
+truncation and per-tool denylist via `PREDICATE_CAPTURE_SKIP`). 9 MCP
+tools total (`kg_capture` added). Per-platform hook adapters from v1.3
+remain shipped; cross-platform PreTool/PostTool extractors are deferred
+to v1.5 once the v1.4 reference impl on Claude Code is proven.
 
 Earlier milestones (in order): `v0.1.0-foundation` → `v0.2.0-discipline` →
 `v0.3a.0-goals-and-gaps` → `v0.3b.0-research-execution` →
 `v0.3c.0-schema-evolution` → `v1.0.0` → `v1.1.0-distribution` →
-`v1.2.0-multiplatform` → `v1.3.0-platform-hooks`.
+`v1.2.0-multiplatform` → `v1.3.0-platform-hooks` → `v1.4.0-tool-capture`.
 
-Deferred to v1.4 (see spec §17): PreToolUse / PostToolUse hooks (Phase 8,
-adds `kg_capture` tool); materialization caching; tag-while-deriving for
-`kg_explain`; intent-aware `ResearchSource` filtering; journal-based
-cross-system promotion atomicity; LLM-augmented decomposer + extractor.
+Deferred to v1.5 (see spec §17): cross-platform PreTool/PostTool
+adapters (Cursor, Gemini CLI, VS Code Copilot, OpenCode, Codex CLI);
+LLM-augmented entity extraction from captured tool calls; reconciliation
+of orphan Pre events to their Post events; a `predicate captures` query
+CLI; materialization caching; tag-while-deriving for `kg_explain`;
+intent-aware `ResearchSource` filtering; journal-based cross-system
+promotion atomicity.
