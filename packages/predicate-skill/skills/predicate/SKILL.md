@@ -263,3 +263,16 @@ distinct from team peers — `predicate peer list` shows everything
 side-by-side with a `kind` column; `predicate ld list` filters to just
 the LD endpoints. Results from `ld ask` are NOT written back to local
 `kg:abox` — each call re-fetches, so don't run this in tight loops.
+
+## Goal decomposition
+
+The default `kg_research_goal` uses a pattern-based decomposer
+(deterministic, fast, predictable). For questions that don't match any
+pattern, you can opt-in to LLM-augmented decomposition by passing
+`useLlmDecomposer: true`. The LLM (Claude Haiku) is constrained to
+emit only the known intent kinds — invented kinds are filtered out.
+If no `ANTHROPIC_API_KEY` is set, it transparently falls back to the
+deterministic decomposer's 'unknown' result. The response includes a
+`decomposerKind` field (`"deterministic"` or `"semantic"`) so you know
+which path produced the sub-questions. Pattern-matched questions like
+"what calls X" skip the LLM entirely.

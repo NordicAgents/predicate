@@ -234,7 +234,7 @@ git clone https://github.com/mxresearch/predicate
 cd predicate
 pnpm install
 pnpm build            # builds all packages + the plugin bundle
-pnpm test             # 219 tests against a live Fuseki
+pnpm test             # 246 tests against a live Fuseki
 pnpm fuseki:up        # for development; `predicate up` is the user-facing alias
 ```
 
@@ -242,6 +242,25 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 (Foundation through Distribution).
 
 ## Status
+
+**v1.13 — LLM-augmented decomposer.** The pattern-based goal decomposer
+stays as the deterministic baseline (fast, predictable, free). A new
+`SemanticDecomposer` wraps it: if every deterministic sub-question
+returns `intent.kind: "unknown"` AND `ANTHROPIC_API_KEY` is set, it
+falls through to a Claude-Haiku call constrained to emit only the
+known intent kinds (`why-broken`, `find-callers`, `find-dependencies`,
+`find-readers-of`, `find-symbol-in-file`, `unknown`). Invented kinds
+are filtered out — predicate-discipline applies to decomposition the
+same way it applies to fact extraction. Every LLM error path (no key,
+JSON parse fail, API error, empty result) transparently falls back to
+the deterministic `unknown` result, so the agent loop never crashes on
+a flaky network. `kg_research_goal` gains an opt-in `useLlmDecomposer`
+flag and reports `decomposerKind: "deterministic" | "semantic"` on
+every response. Pattern-matched questions ("what calls X transitively")
+skip the LLM entirely. Out of scope: caching LLM decompositions,
+streaming sub-questions, multi-turn decomposition, swapping the LLM
+into `executeResearch` (deterministic still drives candidate
+extraction).
 
 **v1.12 — external LD federation.** A thin Linked-Data layer reuses the
 Phase 14 peer registry to query public SPARQL endpoints (DBpedia,

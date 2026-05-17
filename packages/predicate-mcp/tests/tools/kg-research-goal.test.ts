@@ -26,10 +26,39 @@ describe('kg_research_goal wired in MCP registry', () => {
     const result = (await tool.handler({
       goal: 'why did login break',
       source: 'user',
-    })) as { goalId: string; subQuestions: unknown[]; gaps: unknown[] };
+    })) as { goalId: string; subQuestions: unknown[]; gaps: unknown[]; decomposerKind: string };
     expect(typeof result.goalId).toBe('string');
     expect(Array.isArray(result.subQuestions)).toBe(true);
     expect(Array.isArray(result.gaps)).toBe(true);
+    expect(result.decomposerKind).toBe('deterministic');
+  });
+
+  it('reports decomposerKind=deterministic when useLlmDecomposer is omitted or false', async () => {
+    const tool = tools.find((t) => t.name === 'kg_research_goal')!;
+    const result = (await tool.handler({
+      goal: 'what calls validateToken',
+      source: 'user',
+      useLlmDecomposer: false,
+    })) as { decomposerKind: string };
+    expect(result.decomposerKind).toBe('deterministic');
+  });
+
+  it('falls back to deterministic when useLlmDecomposer=true but no ANTHROPIC_API_KEY', async () => {
+    const tool = tools.find((t) => t.name === 'kg_research_goal')!;
+    const orig = process.env['ANTHROPIC_API_KEY'];
+    delete process.env['ANTHROPIC_API_KEY'];
+    try {
+      const result = (await tool.handler({
+        goal: 'what calls validateToken',
+        source: 'user',
+        useLlmDecomposer: true,
+      })) as { decomposerKind: string; subQuestions: Array<{ intent: { kind: string } }> };
+      // Without API key, useSemantic is false → uses deterministic path
+      expect(result.decomposerKind).toBe('deterministic');
+      expect(result.subQuestions[0]!.intent.kind).toBe('find-callers');
+    } finally {
+      if (orig !== undefined) process.env['ANTHROPIC_API_KEY'] = orig;
+    }
   });
 });
 
