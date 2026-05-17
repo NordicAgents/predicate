@@ -18,6 +18,10 @@
 :Test         a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "Test" .
 :Command      a owl:Class ; rdfs:label "Shell command invocation" .
 
+:Hotspot      a owl:Class ; rdfs:subClassOf :File    ; rdfs:label "File modified in many sessions" .
+:FlakyCommand a owl:Class ; rdfs:subClassOf :Command ; rdfs:label "Command that has failed in multiple sessions" .
+:ActiveFile   a owl:Class ; rdfs:subClassOf :File    ; rdfs:label "File modified in the most recent session" .
+
 :Function owl:disjointWith :Class .
 :File     owl:disjointWith :Symbol .
 

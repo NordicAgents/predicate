@@ -25,7 +25,7 @@ describe('predicate maintain', () => {
     expect(code).toBe(0);
     expect(logSpy).toHaveBeenCalledTimes(1);
     const line = logSpy.mock.calls[0]![0] as string;
-    expect(line).toMatch(/^predicate maintain: archived=\d+ proposals=\d+ promotions=\d+ elapsed=\d+ms event=urn:predicate:event:/);
+    expect(line).toMatch(/^predicate maintain: archived=\d+ proposals=\d+ promotions=\d+ inferred=\d+ elapsed=\d+ms event=urn:predicate:event:/);
   });
 
   it('returns 1 and prints to stderr when fuseki is unreachable', async () => {

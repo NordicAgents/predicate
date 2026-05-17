@@ -4,6 +4,8 @@ import {
   PromotionSweeper, type SweeperResult,
   Generalizer, type GeneralizerResult,
 } from 'predicate-agent/src/index.js';
+import { runFixpoint } from 'predicate-reasoner/src/fixpoint.js';
+import { RULES } from 'predicate-reasoner/src/rules/index.js';
 
 const META = 'https://predicate.dev/meta#';
 
@@ -20,6 +22,7 @@ export interface MaintainResult {
   eventId: string;
   sweeper?: SweeperResult;
   generalizer?: GeneralizerResult;
+  fixpoint?: { iterations: number; inferredCount: number };
 }
 
 export async function kgMaintain(
@@ -68,6 +71,13 @@ export async function kgMaintain(
     useThreshold: input.useThreshold ?? 3,
   }).run();
 
+  const fixpoint = await runFixpoint(client, RULES, {
+    tboxGraph: 'kg:tbox',
+    aboxGraphs: ['kg:abox'],
+    inferredGraph: 'kg:inferred',
+    closureCutoff: 0.5,
+  });
+
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
@@ -81,9 +91,11 @@ export async function kgMaintain(
           archivedCount, elapsedMs, archiveCutoff, ageDays,
           sweeperDecisions: sweeper.decisions.length,
           generalizerProposals: generalizer.proposals.length,
+          fixpointIterations: fixpoint.iterations,
+          fixpointInferred: fixpoint.inferredCount,
         }))} .
     } }
   `);
 
-  return { archivedCount, elapsedMs, eventId, sweeper, generalizer };
+  return { archivedCount, elapsedMs, eventId, sweeper, generalizer, fixpoint };
 }

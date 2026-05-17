@@ -203,7 +203,7 @@ predicate --help
 |---|---|
 | `predicate-server` | Fuseki/TDB2 in Docker; 8 named graphs (dev workflow) |
 | `predicate-mcp` | MCP server; 8 tools, all implemented |
-| `predicate-reasoner` | OWL 2 RL reasoner (16 rules) + SHACL + kg_explain |
+| `predicate-reasoner` | OWL 2 RL reasoner (19 rules) + SHACL + kg_explain |
 | `predicate-agent` | Goal store, decomposer, gap detector, research, schema proposer, sweeper, generalizer |
 | `predicate-cli` | `predicate up/down/doctor/stats` CLI |
 | `predicate-ontology` | Versioned TBox + SHACL shapes + meta vocabulary |
@@ -228,19 +228,27 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
-**v1.5 — Stop-hook turn extraction.** Claude Code's Stop event now
-triggers structured knowledge extraction: a deterministic TypeScript
-pass plus an optional Claude Haiku 4.5 semantic pass emit typed
-triples through `kg_assert` (SHACL + predicate-discipline gated) at
-end of every turn. Phase 8's per-tool-call `kg_capture` raw-log path
-is preserved but flipped OFF by default — enable with
-`PREDICATE_RAW_CAPTURE=1` if you need forensic capture.
+**v1.7 — Reasoning bridge for action data.** The 16-rule OWL 2 RL
+reasoner is now joined by three derive-only rules (R17 Hotspot, R18
+FlakyCommand, R19 ActiveFile) that turn Phase 9's extracted
+`modifiedIn`/`failedIn`/`at` action triples into queryable derived
+classes in `kg:inferred`. `kg_maintain` now runs the fixpoint after
+the sweep, so `kg:inferred` reflects the current action graph after
+every Stop-hook extraction + maintenance pass.
+
+The derived classes (see SKILL.md §4):
+
+| Derived class | Means |
+|---|---|
+| `codebase:Hotspot` | File modified in >= 3 sessions |
+| `codebase:FlakyCommand` | Command that has failed in >= 2 sessions |
+| `codebase:ActiveFile` | File modified in the single most-recent session |
 
 Earlier milestones (in order): `v0.1.0-foundation` → `v0.2.0-discipline` →
 `v0.3a.0-goals-and-gaps` → `v0.3b.0-research-execution` →
 `v0.3c.0-schema-evolution` → `v1.0.0` → `v1.1.0-distribution` →
 `v1.2.0-multiplatform` → `v1.3.0-platform-hooks` → `v1.4.0-tool-capture` →
-`v1.5.0-stop-extract`.
+`v1.5.0-stop-extract` → `v1.6.x-hooks-fixes` → `v1.7.0-reasoning-bridge`.
 
 Deferred to v1.6 (see spec §17): cross-validation between deterministic
 and semantic extractors; cross-platform Stop-hook extraction
