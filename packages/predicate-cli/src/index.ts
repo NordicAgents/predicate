@@ -4,6 +4,7 @@ import { down } from './commands/down.js';
 import { doctor } from './commands/doctor.js';
 import { stats } from './commands/stats.js';
 import { sessionstart } from './commands/sessionstart.js';
+import { maintain } from './commands/maintain.js';
 
 const VERSION = '1.0.0';
 
@@ -16,6 +17,7 @@ Commands:
   doctor         Health checks: docker, fuseki, tbox.
   stats          Print kg_stats output for the live graph.
   sessionstart   Print a one-line KG status banner (used by hook scripts).
+  maintain       Run kg_maintain (reaper + generalizer + sweeper).
   --version      Print the predicate version.
   --help         This message.
 
@@ -36,6 +38,7 @@ async function main(): Promise<number> {
     case 'doctor':       return doctor();
     case 'stats':        return stats();
     case 'sessionstart': return sessionstart();
+    case 'maintain':     return maintain();
     case '--version':
     case 'version':      console.log(VERSION); return 0;
     case undefined:
