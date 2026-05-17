@@ -61,3 +61,11 @@ pred:sessionId  a owl:DatatypeProperty ;
                 rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
 pred:phase      a owl:DatatypeProperty ;
                 rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+
+# --- Session class (used by the Stop-hook extractor) -------------
+
+pred:Session a owl:Class ; rdfs:label "Development session" .
+pred:startedAt a owl:DatatypeProperty ;
+               rdfs:domain pred:Session ; rdfs:range xsd:dateTime .
+pred:endedAt   a owl:DatatypeProperty ;
+               rdfs:domain pred:Session ; rdfs:range xsd:dateTime .
