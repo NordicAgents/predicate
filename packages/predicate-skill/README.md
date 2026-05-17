@@ -6,7 +6,7 @@ hook adapters for Cursor, Gemini CLI, VS Code Copilot, OpenCode, and
 Codex CLI. This is the install target for both the Claude Code
 marketplace and the npm path.
 
-Current version: **1.4.0** (`v1.4.0-tool-capture`).
+Current version: **1.5.0** (`v1.5.0-stop-extract`).
 
 ## Install
 
@@ -39,7 +39,7 @@ See the platform-specific config templates and READMEs under `hooks/`:
 
 | Platform | Subdirectory | Hook events wired |
 |---|---|---|
-| Claude Code | `hooks/` (root) | SessionStart, PreToolUse, PostToolUse |
+| Claude Code | `hooks/` (root) | SessionStart, PreToolUse, PostToolUse, Stop |
 | Gemini CLI | `hooks/gemini-cli/` | sessionStart, preCompress, stop |
 | Cursor | `hooks/cursor/` | manual / cron only (no native events) |
 | VS Code Copilot | `hooks/vscode-copilot/` | manual / VS Code tasks |
@@ -55,7 +55,8 @@ predicate doctor         # health checks (docker, fuseki, tbox)
 predicate stats          # current kg_stats output
 predicate sessionstart   # one-line KG status banner (used by hook scripts)
 predicate maintain       # reaper + generalizer + promotion sweeper
-predicate capture        # record a tool invocation in kg:usage (used by PreTool/PostTool hooks)
+predicate capture        # record a tool invocation in kg:usage (opt-in: PREDICATE_RAW_CAPTURE=1)
+predicate extract        # read a Stop-hook payload and assert typed triples to kg:abox
 predicate --version
 predicate --help
 ```
