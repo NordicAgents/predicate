@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "tbox_files": ["tbox/codebase.ttl", "meta/predicate-meta.ttl"],
   "shape_files": ["shapes/codebase.shacl.ttl"],
   "domain": "codebase"

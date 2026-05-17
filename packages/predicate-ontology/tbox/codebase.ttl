@@ -16,6 +16,7 @@
 :EnvVar       a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "EnvVar" .
 :Commit       a owl:Class ; rdfs:label "Commit" .
 :Test         a owl:Class ; rdfs:subClassOf :Artifact ; rdfs:label "Test" .
+:Command      a owl:Class ; rdfs:label "Shell command invocation" .
 
 :Function owl:disjointWith :Class .
 :File     owl:disjointWith :Symbol .
@@ -66,3 +67,22 @@
 :sha          a owl:DatatypeProperty , owl:FunctionalProperty ;
               rdfs:domain :Commit ; rdfs:range xsd:string ;
               rdfs:label "sha" .
+
+# --- Action predicates (used by the Stop-hook deterministic extractor) ---
+
+:commandText  a owl:DatatypeProperty ;
+              rdfs:domain :Command ; rdfs:range xsd:string ;
+              rdfs:label "The literal command string." .
+
+:modifiedIn   a owl:ObjectProperty ;
+              rdfs:domain :File ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:label "File was modified during this session." .
+:createdIn    a owl:ObjectProperty ;
+              rdfs:domain :File ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:label "File was newly created in this session." .
+:succeededIn  a owl:ObjectProperty ;
+              rdfs:domain :Command ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:label "Command exited 0 in this session." .
+:failedIn     a owl:ObjectProperty ;
+              rdfs:domain :Command ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:label "Command exited non-zero in this session." .

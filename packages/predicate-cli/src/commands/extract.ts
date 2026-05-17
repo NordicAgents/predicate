@@ -1,0 +1,165 @@
+import type { Readable } from 'node:stream';
+import { readFileSync } from 'node:fs';
+import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import { loadConfig } from 'predicate-mcp/src/config.js';
+import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
+import {
+  extractDeterministic,
+  type ExtractedTriple,
+  type Transcript,
+} from 'predicate-agent/src/turn-extractor.js';
+import { extractSemantic, type SemanticTriple } from 'predicate-agent/src/semantic-extractor.js';
+
+function hasFlag(args: string[], name: string): boolean {
+  return args.includes(name);
+}
+
+async function readStdin(stream: Readable): Promise<string> {
+  let buf = '';
+  for await (const chunk of stream) buf += String(chunk);
+  return buf;
+}
+
+function help(): void {
+  console.log(`predicate extract --from-stdin
+
+Read a Claude Code Stop-hook payload from stdin and extract typed
+triples for what the turn LEARNED. Triples go through kg_assert so
+SHACL validation and TBox predicate-discipline apply.
+
+Expected stdin payload (Claude Code Stop hook):
+  { "session_id": "...", "transcript_path": "/abs/path.jsonl",
+    "stop_hook_active": true }
+
+The CLI:
+  1. Reads the transcript JSONL.
+  2. Runs the deterministic extractor (TS, no LLM, fast).
+  3. Runs the semantic extractor (Claude Haiku, only if
+     ANTHROPIC_API_KEY is set).
+  4. Asserts all triples via kg_assert.
+
+Options:
+  --from-stdin   Required.
+  --help         Print this message.
+
+Env:
+  ANTHROPIC_API_KEY    Enables the semantic extractor (default: off).
+  FUSEKI_URL, PREDICATE_DATASET    Graph server.
+`);
+}
+
+async function buildTBoxSlice(client: SparqlClient): Promise<string> {
+  // Naive slice: list every declared predicate. Good enough for v1.5;
+  // future versions can scope by concept.
+  const r = await client.select(
+    `PREFIX owl: <http://www.w3.org/2002/07/owl#>
+     SELECT DISTINCT ?p ?kind WHERE {
+       GRAPH <kg:tbox> {
+         ?p a ?kind .
+         FILTER (?kind IN (owl:ObjectProperty, owl:DatatypeProperty))
+       }
+     } ORDER BY ?p`,
+  );
+  return r.results.bindings.map((b) => `${b['p']!.value} a ${b['kind']!.value} .`).join('\n');
+}
+
+function summarizeTools(events: Array<Record<string, unknown>>): string {
+  const lines: string[] = [];
+  for (const ev of events) {
+    if (ev['type'] !== 'tool_use') continue;
+    const name = ev['name'];
+    const input = (ev['input'] ?? {}) as Record<string, unknown>;
+    const exit = ev['exit_code'];
+    if (name === 'Edit' || name === 'Write') {
+      lines.push(`${name} ${String(input['file_path'] ?? '?')}`);
+    } else if (name === 'Bash') {
+      const cmd = String(input['command'] ?? '?');
+      const short = cmd.length > 80 ? `${cmd.slice(0, 80)}…` : cmd;
+      lines.push(`Bash "${short}" (exit ${exit ?? 0})`);
+    } else if (typeof name === 'string') {
+      lines.push(name);
+    }
+  }
+  return lines.join('\n');
+}
+
+function lastAssistantMessage(events: Array<Record<string, unknown>>): string {
+  for (let i = events.length - 1; i >= 0; i--) {
+    const ev = events[i]!;
+    if (ev['role'] === 'assistant') {
+      const c = ev['content'];
+      if (typeof c === 'string') return c;
+      if (Array.isArray(c)) {
+        return c
+          .filter((b): b is { type: 'text'; text: string } => typeof b === 'object' && b !== null && (b as Record<string, unknown>)['type'] === 'text')
+          .map((b) => b.text)
+          .join('\n');
+      }
+    }
+  }
+  return '';
+}
+
+export async function extract(args: string[], stdin: Readable = process.stdin): Promise<number> {
+  if (hasFlag(args, '--help')) { help(); return 0; }
+  if (!hasFlag(args, '--from-stdin')) {
+    console.error('predicate extract: --from-stdin is required.');
+    return 2;
+  }
+
+  const raw = await readStdin(stdin);
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(raw) as Record<string, unknown>;
+  } catch (err) {
+    console.error(`predicate extract: invalid JSON on stdin: ${(err as Error).message}`);
+    return 2;
+  }
+
+  const sessionId = typeof payload['session_id'] === 'string' ? payload['session_id'] : undefined;
+  const transcriptPath = typeof payload['transcript_path'] === 'string' ? payload['transcript_path'] : undefined;
+  if (!sessionId || !transcriptPath) {
+    console.error('predicate extract: payload must include session_id and transcript_path.');
+    return 2;
+  }
+
+  let events: Array<Record<string, unknown>>;
+  try {
+    const lines = readFileSync(transcriptPath, 'utf8').split('\n').filter((l) => l.trim().length > 0);
+    events = lines.map((l) => JSON.parse(l) as Record<string, unknown>);
+  } catch (err) {
+    console.error(`predicate extract: failed to read transcript: ${(err as Error).message}`);
+    return 1;
+  }
+
+  const transcript: Transcript = { sessionId, events };
+  const deterministic = extractDeterministic(transcript);
+
+  let semantic: { triples: SemanticTriple[]; skipped: string[] } = { triples: [], skipped: [] };
+  const client = new SparqlClient(loadConfig());
+  if (process.env['ANTHROPIC_API_KEY']) {
+    const tboxSlice = await buildTBoxSlice(client);
+    semantic = await extractSemantic({
+      sessionId,
+      finalMessage: lastAssistantMessage(events),
+      toolSummary: summarizeTools(events),
+      tboxSlice,
+    });
+  }
+
+  let asserted = 0;
+  let rejected = 0;
+  for (const t of [...deterministic.triples, ...semantic.triples] as Array<ExtractedTriple | SemanticTriple>) {
+    try {
+      await kgAssert(client, t);
+      asserted++;
+    } catch {
+      rejected++;
+    }
+  }
+
+  console.log(
+    `predicate extract: session=${sessionId} deterministic=${deterministic.triples.length} semantic=${semantic.triples.length} asserted=${asserted} rejected=${rejected}`,
+  );
+  return 0;
+}

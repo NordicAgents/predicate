@@ -191,7 +191,8 @@ predicate doctor         # health checks (docker, fuseki, tbox, tools)
 predicate stats          # current kg_stats output
 predicate sessionstart   # one-line KG status banner (used by hook scripts)
 predicate maintain       # reaper + generalizer + promotion sweeper
-predicate capture        # record a tool call in kg:usage (used by hooks)
+predicate capture        # record a tool call in kg:usage (opt-in: PREDICATE_RAW_CAPTURE=1)
+predicate extract        # read a Stop-hook payload and assert typed triples to kg:abox
 predicate --version
 predicate --help
 ```
@@ -227,22 +228,23 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
-**v1.4 — tool-call capture.** Claude Code PreToolUse and PostToolUse
-hooks now record every tool invocation in `kg:usage` (with input/output
-truncation and per-tool denylist via `PREDICATE_CAPTURE_SKIP`). 9 MCP
-tools total (`kg_capture` added). Per-platform hook adapters from v1.3
-remain shipped; cross-platform PreTool/PostTool extractors are deferred
-to v1.5 once the v1.4 reference impl on Claude Code is proven.
+**v1.5 — Stop-hook turn extraction.** Claude Code's Stop event now
+triggers structured knowledge extraction: a deterministic TypeScript
+pass plus an optional Claude Haiku 4.5 semantic pass emit typed
+triples through `kg_assert` (SHACL + predicate-discipline gated) at
+end of every turn. Phase 8's per-tool-call `kg_capture` raw-log path
+is preserved but flipped OFF by default — enable with
+`PREDICATE_RAW_CAPTURE=1` if you need forensic capture.
 
 Earlier milestones (in order): `v0.1.0-foundation` → `v0.2.0-discipline` →
 `v0.3a.0-goals-and-gaps` → `v0.3b.0-research-execution` →
 `v0.3c.0-schema-evolution` → `v1.0.0` → `v1.1.0-distribution` →
-`v1.2.0-multiplatform` → `v1.3.0-platform-hooks` → `v1.4.0-tool-capture`.
+`v1.2.0-multiplatform` → `v1.3.0-platform-hooks` → `v1.4.0-tool-capture` →
+`v1.5.0-stop-extract`.
 
-Deferred to v1.5 (see spec §17): cross-platform PreTool/PostTool
-adapters (Cursor, Gemini CLI, VS Code Copilot, OpenCode, Codex CLI);
-LLM-augmented entity extraction from captured tool calls; reconciliation
-of orphan Pre events to their Post events; a `predicate captures` query
-CLI; materialization caching; tag-while-deriving for `kg_explain`;
-intent-aware `ResearchSource` filtering; journal-based cross-system
-promotion atomicity.
+Deferred to v1.6 (see spec §17): cross-validation between deterministic
+and semantic extractors; cross-platform Stop-hook extraction
+(Gemini / OpenCode have different transcript shapes); `predicate
+captures` query CLI; materialization caching; tag-while-deriving for
+`kg_explain`; intent-aware `ResearchSource` filtering; journal-based
+cross-system promotion atomicity.

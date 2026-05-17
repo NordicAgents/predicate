@@ -14,6 +14,11 @@
       "event": "PostToolUse",
       "matcher": "*",
       "command": "bash ${PLUGIN_DIR}/hooks/post-tool-use.sh"
+    },
+    {
+      "event": "Stop",
+      "matcher": "*",
+      "command": "bash ${PLUGIN_DIR}/hooks/stop.sh"
     }
   ]
 }
