@@ -1,5 +1,11 @@
 # Predicate Phase 9 — Cross-Platform PreTool/PostTool Adapters Implementation Plan
 
+> **⚠️ SUPERSEDED.** This plan extended Phase 8's per-tool-call capture model to 5 more platforms. It was abandoned before
+> implementation in favor of a fundamentally different architecture: instead of writing one opaque triple per tool call,
+> Phase 9 now extracts **typed, learned knowledge** at the **end of each turn** via a Stop hook. See
+> [`2026-05-17-predicate-phase-9-stop-hook-extract.md`](2026-05-17-predicate-phase-9-stop-hook-extract.md). This file is
+> kept for history.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Extend Phase 8's tool-call capture to the other 5 platforms (Gemini CLI, Cursor, VS Code Copilot, OpenCode, Codex CLI). Add 10 new bash scripts (5 platforms × 2 events: pre-tool-use, post-tool-use) plus a `--platform` flag on `predicate capture --from-stdin` that selects the right per-platform JSON parser. Wire Gemini and OpenCode to native events where possible; ship the other three as manual / cron / shell-alias-only with documentation. Tag v1.5.0-cross-platform-capture.
