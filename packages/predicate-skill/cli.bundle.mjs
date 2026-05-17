@@ -17434,10 +17434,18 @@ async function sessionstart() {
          GRAPH <kg:tbox> { ?c a owl:Class }
        }`
     );
+    const priorSessionsRes = await client.select(
+      `PREFIX pred: <${META}>
+       SELECT (COUNT(DISTINCT ?s) AS ?n) WHERE {
+         GRAPH <kg:abox> { ?s a pred:Session }
+       }`
+    );
     const goals = goalsRes.results.bindings[0]?.n?.value ?? "0";
     const classes = classesRes.results.bindings[0]?.n?.value ?? "0";
+    const priorSessions = priorSessionsRes.results.bindings[0]?.n?.value ?? "0";
+    const sessionHint = priorSessions !== "0" ? ` ${priorSessions} prior session(s) in kg:abox \u2014 query for past file changes / command outcomes if relevant.` : "";
     console.log(
-      `Predicate ready: ${goals} active goals, ${classes} TBox classes. Use kg_explore_schema before drafting SPARQL.`
+      `Predicate ready: ${goals} active goals, ${classes} TBox classes.${sessionHint} Use kg_explore_schema before drafting SPARQL.`
     );
     return 0;
   } catch {
