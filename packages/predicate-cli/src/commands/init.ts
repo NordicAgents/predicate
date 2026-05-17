@@ -22,7 +22,11 @@ function hasFlag(args: string[], name: string): boolean { return args.includes(n
 function findCatalogDir(): string {
   const here = dirname(fileURLToPath(import.meta.url));
   const candidates = [
+    // Monorepo source layout (packages/predicate-cli/src/commands/ -> packages/predicate-ontology/catalog)
     join(here, '..', '..', '..', 'predicate-ontology', 'catalog'),
+    // Bundled-skill layout (packages/predicate-skill/cli.bundle.mjs -> packages/predicate-ontology/catalog)
+    join(here, '..', 'predicate-ontology', 'catalog'),
+    // Other fallbacks
     join(here, '..', '..', 'predicate-ontology', 'catalog'),
     join(here, 'predicate-ontology', 'catalog'),
   ];

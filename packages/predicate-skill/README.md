@@ -6,7 +6,7 @@ hook adapters for Cursor, Gemini CLI, VS Code Copilot, OpenCode, and
 Codex CLI. This is the install target for both the Claude Code
 marketplace and the npm path.
 
-Current version: **1.5.0** (`v1.5.0-stop-extract`).
+Current version: **2.0.0** (`v2.0.0-domain-agnostic-bootstrap`).
 
 ## Install
 
@@ -49,7 +49,8 @@ See the platform-specific config templates and READMEs under `hooks/`:
 ## CLI
 
 ```
-predicate up             # docker compose up + bootstrap graphs + load TBox
+predicate up             # docker compose up + bootstrap graphs (then init on first run)
+predicate init           # initialize kg:tbox (community ontology / upload / empty)
 predicate down           # stop fuseki, keep the volume
 predicate doctor         # health checks (docker, fuseki, tbox)
 predicate stats          # current kg_stats output
@@ -63,9 +64,10 @@ predicate --help
 
 ## MCP tools
 
-The bundled server exposes 9 tools over stdio: `kg_explore_schema`,
+The bundled server exposes 11 tools over stdio: `kg_explore_schema`,
 `kg_ask`, `kg_assert`, `kg_explain`, `kg_propose_schema`,
-`kg_research_goal`, `kg_stats`, `kg_maintain`, `kg_capture`.
+`kg_research_goal`, `kg_stats`, `kg_maintain`, `kg_capture`,
+`kg_config_get`, `kg_config_set`.
 
 Env vars consumed at runtime:
 

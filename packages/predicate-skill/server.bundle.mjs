@@ -36621,9 +36621,9 @@ async function kgAsk(client, input) {
   };
 }
 async function listPeers(client) {
-  const META7 = "https://predicate.dev/meta#";
+  const META8 = "https://predicate.dev/meta#";
   const r2 = await client.select(
-    `PREFIX pred: <${META7}>
+    `PREFIX pred: <${META8}>
      SELECT ?name ?endpoint WHERE {
        GRAPH <${GRAPH.peers}> {
          ?p a pred:Peer ;
@@ -36679,9 +36679,9 @@ async function askWithRemote(client, sparql) {
 async function logUsage(client, question, sparql, rowCount, elapsedMs) {
   const usage = escapeIRI(GRAPH.usage);
   const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META7 = "https://predicate.dev/meta#";
+  const META8 = "https://predicate.dev/meta#";
   await client.update(`
-    PREFIX pred: <${META7}>
+    PREFIX pred: <${META8}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH ${usage} {
       <${id}> a pred:Query ;
@@ -47048,8 +47048,25 @@ var Generalizer = class {
   }
   client;
   k;
+  async isSchemaLearningEnabled() {
+    const r2 = await this.client.select(
+      `PREFIX pred: <https://predicate.dev/meta#>
+       SELECT ?v WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?v } }`
+    );
+    const b2 = r2.results.bindings[0];
+    if (!b2) return true;
+    return b2["v"].value === "true";
+  }
   async run() {
     const t0 = Date.now();
+    if (!await this.isSchemaLearningEnabled()) {
+      return {
+        proposals: [],
+        scannedSubjects: 0,
+        durationMs: Date.now() - t0,
+        autoProposalsSkipped: true
+      };
+    }
     const subjects = await this.listUntypedSubjects();
     const groups = this.groupByFingerprint(subjects);
     const proposals = [];
@@ -47173,7 +47190,15 @@ async function kgMaintain(client, input = {}) {
   }))} .
     } }
   `);
-  return { archivedCount, elapsedMs, eventId, sweeper, generalizer, fixpoint };
+  return {
+    archivedCount,
+    elapsedMs,
+    eventId,
+    sweeper,
+    generalizer,
+    fixpoint,
+    autoProposalsSkipped: generalizer.autoProposalsSkipped
+  };
 }
 
 // ../predicate-mcp/src/tools/kg-research-goal.ts
@@ -47391,6 +47416,74 @@ async function kgCapture(client, input) {
   return { captureId, elapsedMs: Date.now() - t0 };
 }
 
+// ../predicate-mcp/src/tools/kg-config.ts
+var META7 = "https://predicate.dev/meta#";
+var CONFIG_URI = "urn:predicate:config";
+var KEY_TO_PROP = {
+  "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
+  "init-mode": { prop: "initMode", type: "string" },
+  "init-ontology": { prop: "initOntology", type: "string" }
+};
+function literalFor(value, type) {
+  if (type === "boolean") {
+    return `"${value}"^^<http://www.w3.org/2001/XMLSchema#boolean>`;
+  }
+  return escapeLiteral(String(value));
+}
+async function kgConfigSet(client, input) {
+  const meta = KEY_TO_PROP[input.key];
+  if (!meta) {
+    return { ok: false, error: `unknown key '${input.key}'. Valid keys: ${Object.keys(KEY_TO_PROP).join(", ")}` };
+  }
+  if (meta.type === "boolean" && typeof input.value !== "boolean") {
+    return { ok: false, error: `${input.key} expects boolean, got ${typeof input.value}` };
+  }
+  if (meta.type === "string" && typeof input.value !== "string") {
+    return { ok: false, error: `${input.key} expects string, got ${typeof input.value}` };
+  }
+  const propIri = `<${META7}${meta.prop}>`;
+  const lit = literalFor(input.value, meta.type);
+  await client.update(`
+    PREFIX pred: <${META7}>
+    DELETE { GRAPH <kg:meta> { <${CONFIG_URI}> ${propIri} ?o } }
+    WHERE  { GRAPH <kg:meta> { <${CONFIG_URI}> ${propIri} ?o } }
+  `);
+  await client.update(`
+    PREFIX pred: <${META7}>
+    INSERT DATA { GRAPH <kg:meta> { <${CONFIG_URI}> ${propIri} ${lit} } }
+  `);
+  return { ok: true, key: input.key, value: input.value };
+}
+async function kgConfigGet(client, input) {
+  if (input.key) {
+    const meta = KEY_TO_PROP[input.key];
+    if (!meta) return { key: input.key, value: null };
+    const r3 = await client.select(`
+      PREFIX pred: <${META7}>
+      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> <${META7}${meta.prop}> ?o } }
+    `);
+    const b2 = r3.results.bindings[0];
+    if (!b2) return { key: input.key, value: null };
+    const raw = b2["o"].value;
+    const value = meta.type === "boolean" ? raw === "true" : raw;
+    return { key: input.key, value };
+  }
+  const r2 = await client.select(`
+    PREFIX pred: <${META7}>
+    SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> ?p ?o } }
+  `);
+  const config2 = {};
+  for (const b2 of r2.results.bindings) {
+    const propIri = b2["p"].value;
+    const propLocal = propIri.slice(META7.length);
+    const externalKey = Object.entries(KEY_TO_PROP).find(([, v2]) => v2.prop === propLocal);
+    if (!externalKey) continue;
+    const [, kmeta] = externalKey;
+    config2[kmeta.prop] = kmeta.type === "boolean" ? b2["o"].value === "true" : b2["o"].value;
+  }
+  return { config: config2 };
+}
+
 // ../predicate-mcp/src/tools/registry.ts
 var deltaQuadSchema = external_exports.object({
   s: external_exports.string(),
@@ -47578,6 +47671,34 @@ function buildTools(client) {
           phase: external_exports.enum(["pre", "post"])
         }).parse(raw);
         return kgCapture(client, args);
+      }
+    },
+    {
+      name: "kg_config_get",
+      description: "Read v2.0 runtime config from kg:meta. Pass {key} to get one value or {} to get the full config object.",
+      inputSchema: external_exports.object({
+        key: external_exports.enum(["schema-learning", "init-mode", "init-ontology"]).optional()
+      }),
+      handler: async (raw) => {
+        const args = external_exports.object({
+          key: external_exports.enum(["schema-learning", "init-mode", "init-ontology"]).optional()
+        }).parse(raw);
+        return kgConfigGet(client, args);
+      }
+    },
+    {
+      name: "kg_config_set",
+      description: "Write a v2.0 runtime config value into kg:meta. schema-learning is a boolean toggle for the auto-proposer; init-mode and init-ontology are usually written by `predicate init` but exposed for advanced use.",
+      inputSchema: external_exports.object({
+        key: external_exports.enum(["schema-learning", "init-mode", "init-ontology"]),
+        value: external_exports.union([external_exports.string(), external_exports.boolean()])
+      }),
+      handler: async (raw) => {
+        const args = external_exports.object({
+          key: external_exports.enum(["schema-learning", "init-mode", "init-ontology"]),
+          value: external_exports.union([external_exports.string(), external_exports.boolean()])
+        }).parse(raw);
+        return kgConfigSet(client, args);
       }
     },
     ...stubs()
