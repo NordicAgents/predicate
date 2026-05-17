@@ -11,6 +11,7 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src tests --max-warnings 0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.40.0",
     "predicate-mcp": "workspace:*",
     "predicate-reasoner": "workspace:*"
   },
