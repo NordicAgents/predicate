@@ -1,0 +1,3 @@
+@prefix pred: <https://predicate.dev/meta#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+pred:HijackedClass a owl:Class .
