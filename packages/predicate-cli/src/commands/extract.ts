@@ -11,9 +11,35 @@ import {
   type Transcript,
 } from 'predicate-agent/src/turn-extractor.js';
 import { extractSemantic, type SemanticTriple } from 'predicate-agent/src/semantic-extractor.js';
+import {
+  adaptClaudeCodeTranscript,
+  adaptGeminiTranscript,
+  adaptOpenCodeTranscript,
+} from 'predicate-agent/src/transcript-adapters.js';
+
+const SUPPORTED_PLATFORMS = ['claude-code', 'gemini', 'opencode'] as const;
+type Platform = (typeof SUPPORTED_PLATFORMS)[number];
+
+function parseFlag(args: string[], name: string): string | undefined {
+  const i = args.indexOf(name);
+  if (i < 0 || i + 1 >= args.length) return undefined;
+  return args[i + 1];
+}
 
 function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
+}
+
+function adapterFor(platform: Platform): (events: Array<Record<string, unknown>>) => Array<Record<string, unknown>> {
+  switch (platform) {
+    case 'gemini':
+      return adaptGeminiTranscript;
+    case 'opencode':
+      return adaptOpenCodeTranscript;
+    case 'claude-code':
+    default:
+      return adaptClaudeCodeTranscript;
+  }
 }
 
 async function readStdin(stream: Readable): Promise<string> {
@@ -23,26 +49,30 @@ async function readStdin(stream: Readable): Promise<string> {
 }
 
 function help(): void {
-  console.log(`predicate extract --from-stdin
+  console.log(`predicate extract --from-stdin [--platform <p>]
 
-Read a Claude Code Stop-hook payload from stdin and extract typed
-triples for what the turn LEARNED. Triples go through kg_assert so
-SHACL validation and TBox predicate-discipline apply.
+Read a Stop-hook payload from stdin and extract typed triples for
+what the turn LEARNED. Triples go through kg_assert so SHACL
+validation and TBox predicate-discipline apply.
 
-Expected stdin payload (Claude Code Stop hook):
+Expected stdin payload (Stop hook):
   { "session_id": "...", "transcript_path": "/abs/path.jsonl",
     "stop_hook_active": true }
 
 The CLI:
   1. Reads the transcript JSONL.
-  2. Runs the deterministic extractor (TS, no LLM, fast).
-  3. Runs the semantic extractor (Claude Haiku, only if
+  2. Runs the platform-specific adapter to map events into the
+     canonical assistant/user tool_use/tool_result shape.
+  3. Runs the deterministic extractor (TS, no LLM, fast).
+  4. Runs the semantic extractor (Claude Haiku, only if
      ANTHROPIC_API_KEY is set).
-  4. Asserts all triples via kg_assert.
+  5. Asserts all triples via kg_assert.
 
 Options:
-  --from-stdin   Required.
-  --help         Print this message.
+  --from-stdin         Required.
+  --platform <name>    One of: claude-code (default), gemini, opencode.
+                       Selects the transcript adapter for the platform.
+  --help               Print this message.
 
 Env:
   ANTHROPIC_API_KEY    Enables the semantic extractor (default: off).
@@ -72,6 +102,15 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
     return 2;
   }
 
+  const platformRaw = parseFlag(args, '--platform') ?? 'claude-code';
+  if (!(SUPPORTED_PLATFORMS as readonly string[]).includes(platformRaw)) {
+    console.error(
+      `predicate extract: unsupported --platform "${platformRaw}". Supported: ${SUPPORTED_PLATFORMS.join(', ')}.`,
+    );
+    return 2;
+  }
+  const platform = platformRaw as Platform;
+
   const raw = await readStdin(stdin);
   let payload: Record<string, unknown>;
   try {
@@ -97,7 +136,8 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
     return 1;
   }
 
-  const transcript: Transcript = { sessionId, events };
+  const adapted = adapterFor(platform)(events);
+  const transcript: Transcript = { sessionId, events: adapted };
   const deterministic = extractDeterministic(transcript);
 
   let semantic: { triples: SemanticTriple[]; skipped: string[] } = { triples: [], skipped: [] };
@@ -106,8 +146,8 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
     const tboxSlice = await buildTBoxSlice(client);
     semantic = await extractSemantic({
       sessionId,
-      finalMessage: lastAssistantText(events),
-      toolSummary: summarizeToolCalls(events),
+      finalMessage: lastAssistantText(adapted),
+      toolSummary: summarizeToolCalls(adapted),
       tboxSlice,
     });
   }

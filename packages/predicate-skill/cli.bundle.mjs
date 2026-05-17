@@ -23718,6 +23718,99 @@ var Generalizer = class {
   }
 };
 
+// ../predicate-agent/src/transcript-adapters.ts
+function adaptClaudeCodeTranscript(events) {
+  return events;
+}
+function adaptGeminiTranscript(events) {
+  return events.map((ev) => {
+    if (ev["type"] === "tool_call" || ev["toolUse"] || ev["tool_use"]) {
+      const tu = ev["toolUse"] ?? ev["tool_use"] ?? ev;
+      return {
+        type: "assistant",
+        message: {
+          role: "assistant",
+          content: [
+            {
+              type: "tool_use",
+              id: pickStr(tu, ["id", "toolCallId", "tool_use_id"]) ?? "",
+              name: pickStr(tu, ["name", "toolName", "tool_name"]) ?? "",
+              input: pick(tu, ["input", "toolInput", "args"]) ?? {}
+            }
+          ]
+        }
+      };
+    }
+    if (ev["type"] === "tool_result" || ev["toolResult"] || ev["tool_result"]) {
+      const tr2 = ev["toolResult"] ?? ev["tool_result"] ?? ev;
+      return {
+        type: "user",
+        message: {
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: pickStr(tr2, ["tool_use_id", "toolCallId", "id"]) ?? "",
+              is_error: tr2["is_error"] === true || tr2["isError"] === true || tr2["error"] === true,
+              content: typeof tr2["content"] === "string" ? tr2["content"] : typeof tr2["output"] === "string" ? tr2["output"] : typeof tr2["result"] === "string" ? tr2["result"] : ""
+            }
+          ]
+        }
+      };
+    }
+    return ev;
+  });
+}
+function adaptOpenCodeTranscript(events) {
+  return events.map((ev) => {
+    const evType = String(ev["event"] ?? ev["type"] ?? "");
+    if (evType === "tool.before" || evType.endsWith(".before")) {
+      const tool = ev["tool"] ?? {};
+      return {
+        type: "assistant",
+        message: {
+          role: "assistant",
+          content: [
+            {
+              type: "tool_use",
+              id: pickStr(ev, ["id", "callId"]) ?? "",
+              name: pickStr(tool, ["name"]) ?? "",
+              input: pick(tool, ["input", "args"]) ?? {}
+            }
+          ]
+        }
+      };
+    }
+    if (evType === "tool.after" || evType.endsWith(".after")) {
+      return {
+        type: "user",
+        message: {
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: pickStr(ev, ["id", "callId"]) ?? "",
+              is_error: ev["error"] !== void 0 && ev["error"] !== null,
+              content: typeof ev["result"] === "string" ? ev["result"] : typeof ev["error"] === "string" ? ev["error"] : ""
+            }
+          ]
+        }
+      };
+    }
+    return ev;
+  });
+}
+function pick(o2, keys) {
+  for (const k2 of keys) {
+    if (o2[k2] !== void 0 && o2[k2] !== null) return o2[k2];
+  }
+  return void 0;
+}
+function pickStr(o2, keys) {
+  const v2 = pick(o2, keys);
+  return typeof v2 === "string" ? v2 : void 0;
+}
+
 // ../predicate-mcp/src/tools/kg-maintain.ts
 var META5 = "https://predicate.dev/meta#";
 async function kgMaintain(client, input = {}) {
@@ -27785,8 +27878,25 @@ ${input.toolSummary}
 }
 
 // ../predicate-cli/src/commands/extract.ts
+var SUPPORTED_PLATFORMS = ["claude-code", "gemini", "opencode"];
+function parseFlag2(args, name) {
+  const i2 = args.indexOf(name);
+  if (i2 < 0 || i2 + 1 >= args.length) return void 0;
+  return args[i2 + 1];
+}
 function hasFlag2(args, name) {
   return args.includes(name);
+}
+function adapterFor(platform) {
+  switch (platform) {
+    case "gemini":
+      return adaptGeminiTranscript;
+    case "opencode":
+      return adaptOpenCodeTranscript;
+    case "claude-code":
+    default:
+      return adaptClaudeCodeTranscript;
+  }
 }
 async function readStdin2(stream) {
   let buf = "";
@@ -27794,26 +27904,30 @@ async function readStdin2(stream) {
   return buf;
 }
 function help2() {
-  console.log(`predicate extract --from-stdin
+  console.log(`predicate extract --from-stdin [--platform <p>]
 
-Read a Claude Code Stop-hook payload from stdin and extract typed
-triples for what the turn LEARNED. Triples go through kg_assert so
-SHACL validation and TBox predicate-discipline apply.
+Read a Stop-hook payload from stdin and extract typed triples for
+what the turn LEARNED. Triples go through kg_assert so SHACL
+validation and TBox predicate-discipline apply.
 
-Expected stdin payload (Claude Code Stop hook):
+Expected stdin payload (Stop hook):
   { "session_id": "...", "transcript_path": "/abs/path.jsonl",
     "stop_hook_active": true }
 
 The CLI:
   1. Reads the transcript JSONL.
-  2. Runs the deterministic extractor (TS, no LLM, fast).
-  3. Runs the semantic extractor (Claude Haiku, only if
+  2. Runs the platform-specific adapter to map events into the
+     canonical assistant/user tool_use/tool_result shape.
+  3. Runs the deterministic extractor (TS, no LLM, fast).
+  4. Runs the semantic extractor (Claude Haiku, only if
      ANTHROPIC_API_KEY is set).
-  4. Asserts all triples via kg_assert.
+  5. Asserts all triples via kg_assert.
 
 Options:
-  --from-stdin   Required.
-  --help         Print this message.
+  --from-stdin         Required.
+  --platform <name>    One of: claude-code (default), gemini, opencode.
+                       Selects the transcript adapter for the platform.
+  --help               Print this message.
 
 Env:
   ANTHROPIC_API_KEY    Enables the semantic extractor (default: off).
@@ -27841,6 +27955,14 @@ async function extract(args, stdin = process.stdin) {
     console.error("predicate extract: --from-stdin is required.");
     return 2;
   }
+  const platformRaw = parseFlag2(args, "--platform") ?? "claude-code";
+  if (!SUPPORTED_PLATFORMS.includes(platformRaw)) {
+    console.error(
+      `predicate extract: unsupported --platform "${platformRaw}". Supported: ${SUPPORTED_PLATFORMS.join(", ")}.`
+    );
+    return 2;
+  }
+  const platform = platformRaw;
   const raw = await readStdin2(stdin);
   let payload;
   try {
@@ -27863,7 +27985,8 @@ async function extract(args, stdin = process.stdin) {
     console.error(`predicate extract: failed to read transcript: ${err2.message}`);
     return 1;
   }
-  const transcript = { sessionId, events };
+  const adapted = adapterFor(platform)(events);
+  const transcript = { sessionId, events: adapted };
   const deterministic = extractDeterministic(transcript);
   let semantic = { triples: [], skipped: [] };
   const client = new SparqlClient(loadConfig());
@@ -27871,8 +27994,8 @@ async function extract(args, stdin = process.stdin) {
     const tboxSlice = await buildTBoxSlice(client);
     semantic = await extractSemantic({
       sessionId,
-      finalMessage: lastAssistantText(events),
-      toolSummary: summarizeToolCalls(events),
+      finalMessage: lastAssistantText(adapted),
+      toolSummary: summarizeToolCalls(adapted),
       tboxSlice
     });
   }
@@ -27893,7 +28016,7 @@ async function extract(args, stdin = process.stdin) {
 }
 
 // ../predicate-cli/src/commands/sessions.ts
-function parseFlag2(args, name) {
+function parseFlag3(args, name) {
   const i2 = args.indexOf(name);
   if (i2 < 0 || i2 + 1 >= args.length) return void 0;
   return args[i2 + 1];
@@ -27966,7 +28089,7 @@ async function sessions(args) {
     help3();
     return 0;
   }
-  const limitStr = parseFlag2(args, "--limit");
+  const limitStr = parseFlag3(args, "--limit");
   const limit = limitStr ? parseInt(limitStr, 10) : 10;
   if (!Number.isFinite(limit) || limit <= 0) {
     console.error("predicate sessions: --limit must be a positive integer");

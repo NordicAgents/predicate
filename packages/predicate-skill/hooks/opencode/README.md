@@ -16,7 +16,16 @@ hook scripts will fire on `session.started`, `session.compacted`, and
 |---|---|---|
 | `session.started` | `session-start.sh` | Prints KG status line; OpenCode reads stdout as context. |
 | `session.compacted` | `pre-compact.sh` | Runs `predicate maintain` before context compression. |
-| `session.stopped` | `stop.sh` | Runs `predicate maintain` on session close. |
+| `session.stopped` | `stop.sh` | Reads the Stop-hook JSON payload from stdin, pipes it to `predicate extract --from-stdin --platform opencode` to assert typed triples for the turn, then runs `predicate maintain`. Fail-open: any error exits 0. |
+
+> **Stop-hook extraction (v1.8.0+):** `stop.sh` now invokes
+> `predicate extract --from-stdin --platform opencode` before
+> maintenance. The `--platform opencode` flag selects the OpenCode
+> transcript adapter that maps `{event:"tool.before", tool:{...}}` /
+> `{event:"tool.after", result|error}` events into the canonical shape
+> the deterministic extractor understands. The adapter is permissive
+> and falls through silently on unrecognized shapes, so it never blocks
+> your next prompt.
 
 ## Verify wiring
 
