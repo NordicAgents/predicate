@@ -31,7 +31,13 @@ Options:
   --help                Print this message.
 
 Env:
-  PREDICATE_CAPTURE_SKIP       Comma list of tool names to suppress (default "").
+  PREDICATE_RAW_CAPTURE        Set to "1" to enable raw kg_capture writes
+                               (default: OFF — captures are skipped silently).
+                               When enabled, every tool call lands in kg:usage.
+                               Phase 9 prefers structured Stop-hook extraction
+                               via \`predicate extract --from-stdin\` instead.
+  PREDICATE_CAPTURE_SKIP       Comma list of tool names to suppress when raw
+                               capture is enabled (default "").
   PREDICATE_CAPTURE_TRUNCATE   Max chars per field (default 500).
   FUSEKI_URL, PREDICATE_DATASET   Server location.
 `);
@@ -44,9 +50,13 @@ async function readStdin(stream: Readable): Promise<string> {
 }
 
 function shouldSkip(toolName: string): boolean {
-  const raw = process.env['PREDICATE_CAPTURE_SKIP'] ?? '';
-  if (raw.length === 0) return false;
-  return raw.split(',').map((s) => s.trim()).includes(toolName);
+  // Phase 9: default is to skip ALL tools (raw capture is opt-in via PREDICATE_RAW_CAPTURE=1).
+  // The denylist (PREDICATE_CAPTURE_SKIP="A,B") still works when raw capture is enabled.
+  const rawCapture = process.env['PREDICATE_RAW_CAPTURE'];
+  if (rawCapture !== '1' && rawCapture !== 'true') return true;
+  const skip = process.env['PREDICATE_CAPTURE_SKIP'] ?? '';
+  if (skip.length === 0) return false;
+  return skip.split(',').map((s) => s.trim()).includes(toolName);
 }
 
 function parseMaybeJson(s: string | undefined): unknown {

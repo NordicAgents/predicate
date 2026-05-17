@@ -28,23 +28,66 @@ describe('predicate capture', () => {
   });
   afterEach(() => { logSpy.mockRestore(); });
 
-  it('writes a capture when given --tool and --phase via argv', async () => {
-    const code = await capture(['--tool', 'Read', '--phase', 'post', '--input', '{"x":1}']);
-    expect(code).toBe(0);
-    expect(await captureCount()).toBe(1);
+  it('writes a capture when given --tool and --phase via argv (with raw capture enabled)', async () => {
+    const orig = process.env['PREDICATE_RAW_CAPTURE'];
+    process.env['PREDICATE_RAW_CAPTURE'] = '1';
+    try {
+      const code = await capture(['--tool', 'Read', '--phase', 'post', '--input', '{"x":1}']);
+      expect(code).toBe(0);
+      expect(await captureCount()).toBe(1);
+    } finally {
+      if (orig !== undefined) process.env['PREDICATE_RAW_CAPTURE'] = orig;
+      else delete process.env['PREDICATE_RAW_CAPTURE'];
+    }
   });
 
   it('parses Claude Code stdin payload with --from-stdin', async () => {
-    const payload = JSON.stringify({
-      session_id: 'ses-abc',
-      tool_name: 'Edit',
-      tool_input: { file_path: '/x.ts' },
-      tool_response: { ok: true },
-    });
-    const stdin = Readable.from([payload]);
-    const code = await capture(['--from-stdin', '--phase', 'post'], stdin);
-    expect(code).toBe(0);
-    expect(await captureCount()).toBe(1);
+    const orig = process.env['PREDICATE_RAW_CAPTURE'];
+    process.env['PREDICATE_RAW_CAPTURE'] = '1';
+    try {
+      const payload = JSON.stringify({
+        session_id: 'ses-abc',
+        tool_name: 'Edit',
+        tool_input: { file_path: '/x.ts' },
+        tool_response: { ok: true },
+      });
+      const stdin = Readable.from([payload]);
+      const code = await capture(['--from-stdin', '--phase', 'post'], stdin);
+      expect(code).toBe(0);
+      expect(await captureCount()).toBe(1);
+    } finally {
+      if (orig !== undefined) process.env['PREDICATE_RAW_CAPTURE'] = orig;
+      else delete process.env['PREDICATE_RAW_CAPTURE'];
+    }
+  });
+
+  it('skips ALL captures by default (Phase 9 flip)', async () => {
+    // No env vars set — default behavior must be no-op
+    const orig = process.env['PREDICATE_RAW_CAPTURE'];
+    const origSkip = process.env['PREDICATE_CAPTURE_SKIP'];
+    delete process.env['PREDICATE_RAW_CAPTURE'];
+    delete process.env['PREDICATE_CAPTURE_SKIP'];
+    try {
+      const code = await capture(['--tool', 'Read', '--phase', 'post', '--input', '{"x":1}']);
+      expect(code).toBe(0);
+      expect(await captureCount()).toBe(0);
+    } finally {
+      if (orig !== undefined) process.env['PREDICATE_RAW_CAPTURE'] = orig;
+      if (origSkip !== undefined) process.env['PREDICATE_CAPTURE_SKIP'] = origSkip;
+    }
+  });
+
+  it('captures when PREDICATE_RAW_CAPTURE=1 is set', async () => {
+    const orig = process.env['PREDICATE_RAW_CAPTURE'];
+    process.env['PREDICATE_RAW_CAPTURE'] = '1';
+    try {
+      const code = await capture(['--tool', 'Read', '--phase', 'post', '--input', '{"x":1}']);
+      expect(code).toBe(0);
+      expect(await captureCount()).toBe(1);
+    } finally {
+      if (orig !== undefined) process.env['PREDICATE_RAW_CAPTURE'] = orig;
+      else delete process.env['PREDICATE_RAW_CAPTURE'];
+    }
   });
 
   it('skips silently when tool_name is in PREDICATE_CAPTURE_SKIP', async () => {

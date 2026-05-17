@@ -29,7 +29,8 @@ Env:
   PREDICATE_ADMIN_USER      admin (default)
   PREDICATE_ADMIN_PASSWORD  changeme (default)
   PREDICATE_COMPOSE_DIR     override docker-compose.yml location
-  PREDICATE_CAPTURE_SKIP    comma list of tool names to skip in kg_capture
+  PREDICATE_RAW_CAPTURE     "1" enables raw kg_capture writes (default off)
+  PREDICATE_CAPTURE_SKIP    when raw capture is on, comma list of tools to skip
   PREDICATE_CAPTURE_TRUNCATE  max chars per captured input/output (default 500)
 `);
 }
