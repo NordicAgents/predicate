@@ -23878,6 +23878,45 @@ function literal3(value, datatype) {
 function hash12(s2) {
   return createHash2("sha1").update(s2).digest("hex").slice(0, 12);
 }
+function extractMessageContent(ev) {
+  const msg = ev["message"];
+  if (typeof msg !== "object" || msg === null) return [];
+  const content = msg["content"];
+  if (Array.isArray(content)) return content;
+  return [];
+}
+function collectToolResults(events) {
+  const out = /* @__PURE__ */ new Map();
+  for (const ev of events) {
+    if (ev["type"] !== "user") continue;
+    for (const block of extractMessageContent(ev)) {
+      if (typeof block !== "object" || block === null) continue;
+      const b2 = block;
+      if (b2["type"] !== "tool_result") continue;
+      const id = typeof b2["tool_use_id"] === "string" ? b2["tool_use_id"] : void 0;
+      if (!id) continue;
+      out.set(id, { isError: b2["is_error"] === true });
+    }
+  }
+  return out;
+}
+function collectToolUses(events) {
+  const out = [];
+  for (const ev of events) {
+    if (ev["type"] !== "assistant") continue;
+    for (const block of extractMessageContent(ev)) {
+      if (typeof block !== "object" || block === null) continue;
+      const b2 = block;
+      if (b2["type"] !== "tool_use") continue;
+      const id = typeof b2["id"] === "string" ? b2["id"] : "";
+      const name = typeof b2["name"] === "string" ? b2["name"] : "";
+      if (!id || !name) continue;
+      const input = b2["input"] ?? {};
+      out.push({ id, name, input });
+    }
+  }
+  return out;
+}
 function extractDeterministic(transcript) {
   const sessionUri = `urn:predicate:session:${transcript.sessionId}`;
   const triples = [];
@@ -23893,31 +23932,56 @@ function extractDeterministic(transcript) {
   push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META7}Session`), ...base });
   push({ subject: sessionUri, predicate: `${META7}sessionId`, object: literal3(transcript.sessionId), ...base });
   push({ subject: sessionUri, predicate: `${META7}at`, object: literal3(now, `${XSD}dateTime`), ...base });
-  for (const ev of transcript.events) {
-    if (ev["type"] !== "tool_use") continue;
-    const name = ev["name"];
-    const input = ev["input"] ?? {};
-    if (typeof name !== "string") continue;
-    if (name === "Edit" || name === "Write") {
-      const filePath = typeof input["file_path"] === "string" ? input["file_path"] : void 0;
+  const results = collectToolResults(transcript.events);
+  const uses = collectToolUses(transcript.events);
+  for (const use of uses) {
+    const result = results.get(use.id);
+    const failed = result?.isError === true;
+    if (use.name === "Edit" || use.name === "Write") {
+      if (failed) continue;
+      const filePath = typeof use.input["file_path"] === "string" ? use.input["file_path"] : void 0;
       if (!filePath) continue;
       const fileUri = `file://${filePath}`;
-      const wasNew = name === "Write" && ev["was_new"] === true;
-      const rel = wasNew ? `${CB}createdIn` : `${CB}modifiedIn`;
       push({ subject: fileUri, predicate: `${RDF}type`, object: uri(`${CB}File`), ...base });
-      push({ subject: fileUri, predicate: rel, object: uri(sessionUri), ...base });
-    } else if (name === "Bash") {
-      const cmd = typeof input["command"] === "string" ? input["command"] : void 0;
+      push({ subject: fileUri, predicate: `${CB}modifiedIn`, object: uri(sessionUri), ...base });
+    } else if (use.name === "Bash") {
+      const cmd = typeof use.input["command"] === "string" ? use.input["command"] : void 0;
       if (!cmd) continue;
       const cmdUri = `urn:bash:${hash12(cmd)}`;
-      const exit = typeof ev["exit_code"] === "number" ? ev["exit_code"] : 0;
-      const rel = exit === 0 ? `${CB}succeededIn` : `${CB}failedIn`;
+      const rel = failed ? `${CB}failedIn` : `${CB}succeededIn`;
       push({ subject: cmdUri, predicate: `${RDF}type`, object: uri(`${CB}Command`), ...base });
       push({ subject: cmdUri, predicate: `${CB}commandText`, object: literal3(cmd), ...base });
       push({ subject: cmdUri, predicate: rel, object: uri(sessionUri), ...base });
     }
   }
   return { triples };
+}
+function lastAssistantText(events) {
+  for (let i2 = events.length - 1; i2 >= 0; i2--) {
+    const ev = events[i2];
+    if (!ev || ev["type"] !== "assistant") continue;
+    const text = extractMessageContent(ev).filter((b2) => typeof b2 === "object" && b2 !== null && b2["type"] === "text" && typeof b2["text"] === "string").map((b2) => b2.text).join("\n");
+    if (text.length > 0) return text;
+  }
+  return "";
+}
+function summarizeToolCalls(events) {
+  const results = collectToolResults(events);
+  const uses = collectToolUses(events);
+  const lines = [];
+  for (const u2 of uses) {
+    const failed = results.get(u2.id)?.isError === true;
+    if (u2.name === "Edit" || u2.name === "Write") {
+      lines.push(`${u2.name} ${String(u2.input["file_path"] ?? "?")}${failed ? " (failed)" : ""}`);
+    } else if (u2.name === "Bash") {
+      const cmd = String(u2.input["command"] ?? "?");
+      const short = cmd.length > 80 ? `${cmd.slice(0, 80)}\u2026` : cmd;
+      lines.push(`Bash "${short}"${failed ? " (failed)" : " (ok)"}`);
+    } else {
+      lines.push(u2.name);
+    }
+  }
+  return lines.join("\n");
 }
 
 // ../../node_modules/.pnpm/@anthropic-ai+sdk@0.40.1/node_modules/@anthropic-ai/sdk/version.mjs
@@ -27673,38 +27737,6 @@ async function buildTBoxSlice(client) {
   );
   return r2.results.bindings.map((b2) => `${b2["p"].value} a ${b2["kind"].value} .`).join("\n");
 }
-function summarizeTools(events) {
-  const lines = [];
-  for (const ev of events) {
-    if (ev["type"] !== "tool_use") continue;
-    const name = ev["name"];
-    const input = ev["input"] ?? {};
-    const exit = ev["exit_code"];
-    if (name === "Edit" || name === "Write") {
-      lines.push(`${name} ${String(input["file_path"] ?? "?")}`);
-    } else if (name === "Bash") {
-      const cmd = String(input["command"] ?? "?");
-      const short = cmd.length > 80 ? `${cmd.slice(0, 80)}\u2026` : cmd;
-      lines.push(`Bash "${short}" (exit ${exit ?? 0})`);
-    } else if (typeof name === "string") {
-      lines.push(name);
-    }
-  }
-  return lines.join("\n");
-}
-function lastAssistantMessage(events) {
-  for (let i2 = events.length - 1; i2 >= 0; i2--) {
-    const ev = events[i2];
-    if (ev["role"] === "assistant") {
-      const c2 = ev["content"];
-      if (typeof c2 === "string") return c2;
-      if (Array.isArray(c2)) {
-        return c2.filter((b2) => typeof b2 === "object" && b2 !== null && b2["type"] === "text").map((b2) => b2.text).join("\n");
-      }
-    }
-  }
-  return "";
-}
 async function extract(args, stdin = process.stdin) {
   if (hasFlag2(args, "--help")) {
     help2();
@@ -27744,8 +27776,8 @@ async function extract(args, stdin = process.stdin) {
     const tboxSlice = await buildTBoxSlice(client);
     semantic = await extractSemantic({
       sessionId,
-      finalMessage: lastAssistantMessage(events),
-      toolSummary: summarizeTools(events),
+      finalMessage: lastAssistantText(events),
+      toolSummary: summarizeToolCalls(events),
       tboxSlice
     });
   }
