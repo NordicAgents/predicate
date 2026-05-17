@@ -193,6 +193,9 @@ predicate sessionstart   # one-line KG status banner (used by hook scripts)
 predicate maintain       # reaper + generalizer + promotion sweeper
 predicate capture        # record a tool call in kg:usage (opt-in: PREDICATE_RAW_CAPTURE=1)
 predicate extract        # read a Stop-hook payload and assert typed triples to kg:abox
+predicate sessions       # list recent extracted sessions (modifiedFiles / ok / fail)
+predicate captures       # list raw kg:usage ToolCall captures (opt-in raw-capture path)
+predicate recall <query> # substring search over session history (files + commands)
 predicate --version
 predicate --help
 ```
@@ -219,7 +222,7 @@ git clone https://github.com/mxresearch/predicate
 cd predicate
 pnpm install
 pnpm build            # builds all packages + the plugin bundle
-pnpm test             # 148 tests against a live Fuseki
+pnpm test             # 219 tests against a live Fuseki
 pnpm fuseki:up        # for development; `predicate up` is the user-facing alias
 ```
 
@@ -227,6 +230,24 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 (Foundation through Distribution).
 
 ## Status
+
+**v1.9 — `predicate captures` + `predicate recall` query CLIs.** Two new
+thin SPARQL wrappers expose the session-history slice as one-shot shell
+commands:
+
+- `predicate captures [--limit N] [--tool NAME] [--json]` lists raw
+  `kg:usage` `pred:ToolCall` rows (companion to `predicate sessions`;
+  only meaningful when `PREDICATE_RAW_CAPTURE=1` was set during the
+  session — the structured Stop-hook extraction path remains the
+  default for storing per-session aggregates in `kg:abox`).
+- `predicate recall <query> [--limit N] [--json]` does a substring
+  search against `kg:abox` for files (via `cb:modifiedIn`) and bash
+  commands (via `cb:commandText` + `cb:succeededIn` / `cb:failedIn`)
+  whose path or text contains `<query>`. Returns matched files with
+  their last-modified session and matched commands with success/failure
+  counts. This is a pure SPARQL `FILTER CONTAINS` memory primitive —
+  no fuzzy or embedding search. SKILL.md §5 shows the equivalent
+  `kg_ask` form for agents that need to assemble richer answers.
 
 **v1.8 — Cross-platform Stop extraction.** Stop-hook turn extraction
 now works on Gemini CLI and OpenCode alongside Claude Code. `predicate
@@ -271,11 +292,10 @@ Earlier milestones (in order): `v0.1.0-foundation` → `v0.2.0-discipline` →
 `v0.3c.0-schema-evolution` → `v1.0.0` → `v1.1.0-distribution` →
 `v1.2.0-multiplatform` → `v1.3.0-platform-hooks` → `v1.4.0-tool-capture` →
 `v1.5.0-stop-extract` → `v1.6.x-hooks-fixes` → `v1.7.0-reasoning-bridge` →
-`v1.8.0-cross-platform-stop`.
+`v1.8.0-cross-platform-stop` → `v1.9.0-captures-recall`.
 
-Deferred to v1.6 (see spec §17): cross-validation between deterministic
-and semantic extractors; cross-platform Stop-hook extraction
-(Gemini / OpenCode have different transcript shapes); `predicate
-captures` query CLI; materialization caching; tag-while-deriving for
+Deferred (see spec §17): cross-validation between deterministic and
+semantic extractors; materialization caching; tag-while-deriving for
 `kg_explain`; intent-aware `ResearchSource` filtering; journal-based
-cross-system promotion atomicity.
+cross-system promotion atomicity; semantic / embedding-backed recall
+beyond substring matching.
