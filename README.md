@@ -196,9 +196,21 @@ predicate extract        # read a Stop-hook payload and assert typed triples to 
 predicate sessions       # list recent extracted sessions (modifiedFiles / ok / fail)
 predicate captures       # list raw kg:usage ToolCall captures (opt-in raw-capture path)
 predicate recall <query> # substring search over session history (files + commands)
+predicate dashboard      # serve a localhost web view of session-history + reasoning output
 predicate --version
 predicate --help
 ```
+
+## Dashboard
+
+```bash
+predicate dashboard
+```
+
+Serves a localhost web view at http://127.0.0.1:4040 showing recent
+sessions, hotspots, flaky commands, active files, and graph stats.
+Auto-refreshes every 30s. `--port N` to override; `--no-open` to skip
+the browser launch.
 
 ## Packages
 
@@ -230,6 +242,17 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 (Foundation through Distribution).
 
 ## Status
+
+**v1.10 — web dashboard.** `predicate dashboard` ships a minimal,
+zero-build localhost web view of the session-history slice. A single
+self-contained HTML file (inline CSS + vanilla JS, no framework, no
+npm deps) talks to a tiny Node `http` server that proxies SPARQL
+through `/api/query` to Fuseki. Cards: recent sessions, hotspots
+(files modified in ≥3 sessions, derived in `kg:inferred`), flaky
+commands (failed in ≥2 sessions), active files (touched in the latest
+session), and a stats snapshot mirroring `predicate stats`. Read-only
+— no writes — and auto-refreshes every 30s. `--port N` to override the
+default 4040; `--no-open` to skip the browser launch.
 
 **v1.9 — `predicate captures` + `predicate recall` query CLIs.** Two new
 thin SPARQL wrappers expose the session-history slice as one-shot shell
