@@ -1,0 +1,40 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+# FOAF (Friend Of A Friend) — minimal subset
+# Upstream: http://xmlns.com/foaf/spec/  License: CC0
+
+foaf:Person        a owl:Class ; rdfs:label "Person" .
+foaf:Organization  a owl:Class ; rdfs:label "Organization" .
+foaf:Group         a owl:Class ; rdfs:label "Group" .
+foaf:Document      a owl:Class ; rdfs:label "Document" .
+foaf:Image         a owl:Class ; rdfs:subClassOf foaf:Document ; rdfs:label "Image" .
+foaf:OnlineAccount a owl:Class ; rdfs:label "Online Account" .
+
+foaf:knows  a owl:ObjectProperty ;
+            rdfs:domain foaf:Person ; rdfs:range foaf:Person ;
+            rdfs:label "knows" .
+foaf:member a owl:ObjectProperty ;
+            rdfs:domain foaf:Group ; rdfs:range foaf:Person ;
+            rdfs:label "member" .
+foaf:made   a owl:ObjectProperty ;
+            rdfs:domain foaf:Person ;
+            rdfs:label "made" .
+foaf:maker  a owl:ObjectProperty ;
+            owl:inverseOf foaf:made ;
+            rdfs:label "maker" .
+
+foaf:name      a owl:DatatypeProperty ;
+               rdfs:domain foaf:Person ; rdfs:label "name" .
+foaf:firstName a owl:DatatypeProperty ;
+               rdfs:domain foaf:Person ; rdfs:label "first name" .
+foaf:lastName  a owl:DatatypeProperty ;
+               rdfs:domain foaf:Person ; rdfs:label "last name" .
+foaf:mbox      a owl:DatatypeProperty ;
+               rdfs:domain foaf:Person ; rdfs:label "email" .
+foaf:age       a owl:DatatypeProperty ;
+               rdfs:domain foaf:Person ; rdfs:label "age" .
+foaf:homepage  a owl:DatatypeProperty ;
+               rdfs:label "homepage" .
