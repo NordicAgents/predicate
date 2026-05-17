@@ -168,7 +168,37 @@ PREFIX cb: <https://predicate.dev/codebase#>
 SELECT ?file WHERE { GRAPH <kg:inferred> { ?file a cb:Hotspot } }
 ```
 
-## 5. Schema gap → propose
+## 5. Memory recall — "what did I do with X recently?"
+
+For substring-match recall over session history, call `predicate recall`
+(or `kg_ask` with the equivalent SPARQL). Useful when the user asks
+"what did I work on related to X?" or "did I ever run command Y?"
+
+```sparql
+PREFIX cb:   <https://predicate.dev/codebase#>
+PREFIX pred: <https://predicate.dev/meta#>
+SELECT ?file (COUNT(DISTINCT ?session) AS ?n) (MAX(?at) AS ?lastAt)
+WHERE {
+  GRAPH <kg:abox> {
+    ?file cb:modifiedIn ?session .
+    ?session pred:at ?at .
+    FILTER (CONTAINS(LCASE(STR(?file)), LCASE("auth")))
+  }
+} GROUP BY ?file ORDER BY DESC(?lastAt)
+```
+
+Combine with the `cb:Hotspot` / `cb:FlakyCommand` / `cb:ActiveFile` derived
+classes from `kg:inferred` for richer answers ("is auth.ts a hotspot?").
+
+Shell shortcut:
+
+```bash
+predicate recall auth          # files + commands matching "auth"
+predicate recall "pnpm test"   # commands matching exact substring
+predicate recall auth --json   # machine-readable output
+```
+
+## 6. Schema gap → propose
 
 ```
 # User asks: "which services own these endpoints?"

@@ -11250,12 +11250,12 @@ var require_supports_color = __commonJS({
     "use strict";
     var os = __require("os");
     var tty = __require("tty");
-    var hasFlag4 = require_has_flag();
+    var hasFlag6 = require_has_flag();
     var { env } = process;
     var forceColor;
-    if (hasFlag4("no-color") || hasFlag4("no-colors") || hasFlag4("color=false") || hasFlag4("color=never")) {
+    if (hasFlag6("no-color") || hasFlag6("no-colors") || hasFlag6("color=false") || hasFlag6("color=never")) {
       forceColor = 0;
-    } else if (hasFlag4("color") || hasFlag4("colors") || hasFlag4("color=true") || hasFlag4("color=always")) {
+    } else if (hasFlag6("color") || hasFlag6("colors") || hasFlag6("color=true") || hasFlag6("color=always")) {
       forceColor = 1;
     }
     if ("FORCE_COLOR" in env) {
@@ -11282,10 +11282,10 @@ var require_supports_color = __commonJS({
       if (forceColor === 0) {
         return 0;
       }
-      if (hasFlag4("color=16m") || hasFlag4("color=full") || hasFlag4("color=truecolor")) {
+      if (hasFlag6("color=16m") || hasFlag6("color=full") || hasFlag6("color=truecolor")) {
         return 3;
       }
-      if (hasFlag4("color=256")) {
+      if (hasFlag6("color=256")) {
         return 2;
       }
       if (haveStream && !streamIsTTY && forceColor === void 0) {
@@ -28107,9 +28107,246 @@ async function sessions(args) {
   }
 }
 
+// ../predicate-cli/src/commands/captures.ts
+function parseFlag4(args, name) {
+  const i2 = args.indexOf(name);
+  if (i2 < 0 || i2 + 1 >= args.length) return void 0;
+  return args[i2 + 1];
+}
+function hasFlag4(args, name) {
+  return args.includes(name);
+}
+function help4() {
+  console.log(`predicate captures [--limit N] [--tool NAME] [--json]
+
+List raw tool-call captures from kg:usage (only present when
+PREDICATE_RAW_CAPTURE=1 was set during the session \u2014 see
+\`predicate capture --help\` for details). The structured Stop-hook
+extraction path uses kg:abox + \`predicate sessions\` instead.
+
+Options:
+  --limit N    Show the N most recent captures (default 20).
+  --tool NAME  Filter to a specific tool (e.g. --tool Bash).
+  --json       Output as JSON.
+  --help       Print this message.
+`);
+}
+async function fetchCaptures(client, opts) {
+  const META8 = "https://predicate.dev/meta#";
+  const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
+  const r2 = await client.select(
+    `PREFIX pred: <${META8}>
+     SELECT ?c ?at ?tool ?phase ?session WHERE {
+       GRAPH <kg:usage> {
+         ?c a pred:ToolCall ;
+            pred:at        ?at ;
+            pred:toolName  ?tool ;
+            pred:phase     ?phase .
+         OPTIONAL { ?c pred:sessionId ?session }
+         ${toolFilter}
+       }
+     }
+     ORDER BY DESC(?at)
+     LIMIT ${opts.limit}`
+  );
+  return r2.results.bindings.map((b2) => ({
+    captureId: b2["c"].value,
+    at: b2["at"].value,
+    toolName: b2["tool"].value,
+    phase: b2["phase"].value,
+    sessionId: b2["session"]?.value ?? ""
+  }));
+}
+function renderTable2(rows) {
+  if (rows.length === 0) {
+    return "(no captures in kg:usage \u2014 set PREDICATE_RAW_CAPTURE=1 to enable raw capture, then re-run)";
+  }
+  const header = ["captureId", "at", "tool", "phase", "sessionId"];
+  const cells = [header, ...rows.map((r2) => [
+    r2.captureId.replace(/^urn:predicate:capture:/, ""),
+    r2.at,
+    r2.toolName,
+    r2.phase,
+    r2.sessionId
+  ])];
+  const widths = header.map((_2, i2) => Math.max(...cells.map((row) => row[i2].length)));
+  return cells.map((row) => row.map((c2, i2) => c2.padEnd(widths[i2])).join("  ")).join("\n");
+}
+async function captures(args) {
+  if (hasFlag4(args, "--help")) {
+    help4();
+    return 0;
+  }
+  const limitStr = parseFlag4(args, "--limit");
+  const limit = limitStr ? parseInt(limitStr, 10) : 20;
+  if (!Number.isFinite(limit) || limit <= 0) {
+    console.error("predicate captures: --limit must be a positive integer");
+    return 2;
+  }
+  const tool = parseFlag4(args, "--tool");
+  try {
+    const client = new SparqlClient(loadConfig());
+    const rows = await fetchCaptures(client, { limit, ...tool ? { tool } : {} });
+    if (hasFlag4(args, "--json")) console.log(JSON.stringify(rows, null, 2));
+    else console.log(renderTable2(rows));
+    return 0;
+  } catch (err2) {
+    console.error(`predicate captures failed: ${err2.message}`);
+    return 1;
+  }
+}
+
+// ../predicate-cli/src/commands/recall.ts
+function help5() {
+  console.log(`predicate recall <query> [--json] [--limit N]
+
+Search session-history (kg:abox) for files and commands matching the
+query substring. Output:
+  - Files: list of file paths matching <query>, with how many sessions
+    they were modified in and when last touched.
+  - Commands: list of bash command texts matching <query>, with success
+    and failure counts.
+
+This is a substring-match memory primitive, not a semantic search.
+Use it to answer questions like "what did I do with X recently?".
+
+Options:
+  --limit N    Cap rows per category (default 10).
+  --json       Output as JSON.
+  --help       Print this message.
+
+Example:
+  predicate recall auth
+  predicate recall "pnpm test"
+`);
+}
+function parseFlag5(args, name) {
+  const i2 = args.indexOf(name);
+  if (i2 < 0 || i2 + 1 >= args.length) return void 0;
+  return args[i2 + 1];
+}
+function hasFlag5(args, name) {
+  return args.includes(name);
+}
+function escapeSparqlLiteral(s2) {
+  return s2.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+async function searchFiles(client, query, limit) {
+  const CB2 = "https://predicate.dev/codebase#";
+  const META8 = "https://predicate.dev/meta#";
+  const r2 = await client.select(
+    `PREFIX cb:   <${CB2}>
+     PREFIX pred: <${META8}>
+     SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
+     WHERE {
+       GRAPH <kg:abox> {
+         ?file cb:modifiedIn ?session .
+         ?session pred:at ?at .
+         FILTER (CONTAINS(LCASE(STR(?file)), LCASE("${escapeSparqlLiteral(query)}")))
+       }
+     }
+     GROUP BY ?file
+     ORDER BY DESC(?lastAt)
+     LIMIT ${limit}`
+  );
+  return r2.results.bindings.map((b2) => ({
+    file: b2["file"].value,
+    modifiedInSessions: parseInt(b2["modCount"].value, 10),
+    lastModifiedAt: b2["lastAt"].value
+  }));
+}
+async function searchCommands(client, query, limit) {
+  const CB2 = "https://predicate.dev/codebase#";
+  const r2 = await client.select(
+    `PREFIX cb: <${CB2}>
+     SELECT ?text
+            (COUNT(DISTINCT ?okSession) AS ?okN)
+            (COUNT(DISTINCT ?badSession) AS ?badN)
+     WHERE {
+       GRAPH <kg:abox> {
+         ?cmd a cb:Command ; cb:commandText ?text .
+         OPTIONAL { ?cmd cb:succeededIn ?okSession }
+         OPTIONAL { ?cmd cb:failedIn    ?badSession }
+         FILTER (CONTAINS(LCASE(?text), LCASE("${escapeSparqlLiteral(query)}")))
+       }
+     }
+     GROUP BY ?text
+     ORDER BY DESC(?badN) DESC(?okN)
+     LIMIT ${limit}`
+  );
+  return r2.results.bindings.map((b2) => ({
+    commandText: b2["text"].value,
+    succeeded: parseInt(b2["okN"].value, 10),
+    failed: parseInt(b2["badN"].value, 10)
+  }));
+}
+function render(result) {
+  const lines = [];
+  lines.push(`recall "${result.query}":`);
+  lines.push("");
+  if (result.files.length > 0) {
+    lines.push(`  Files (${result.files.length}):`);
+    for (const f2 of result.files) {
+      lines.push(`    ${f2.file} \u2014 ${f2.modifiedInSessions} sessions, last ${f2.lastModifiedAt}`);
+    }
+    lines.push("");
+  }
+  if (result.commands.length > 0) {
+    lines.push(`  Commands (${result.commands.length}):`);
+    for (const c2 of result.commands) {
+      const cmd = c2.commandText.length > 80 ? c2.commandText.slice(0, 80) + "\u2026" : c2.commandText;
+      lines.push(`    ${cmd}  (ok=${c2.succeeded} fail=${c2.failed})`);
+    }
+    lines.push("");
+  }
+  if (result.files.length === 0 && result.commands.length === 0) {
+    lines.push(`  (no files or commands matched "${result.query}" in kg:abox)`);
+  }
+  return lines.join("\n");
+}
+async function recall(args) {
+  if (hasFlag5(args, "--help") || args.length === 0) {
+    help5();
+    return args.length === 0 ? 2 : 0;
+  }
+  const flagIdxs = /* @__PURE__ */ new Set();
+  for (let i2 = 0; i2 < args.length; i2++) {
+    if (args[i2] === "--limit" || args[i2] === "--json") {
+      flagIdxs.add(i2);
+      if (args[i2] === "--limit") flagIdxs.add(i2 + 1);
+    }
+  }
+  const queryParts = args.filter((_2, i2) => !flagIdxs.has(i2));
+  const query = queryParts.join(" ").trim();
+  if (!query) {
+    console.error("predicate recall: query argument is required");
+    return 2;
+  }
+  const limitStr = parseFlag5(args, "--limit");
+  const limit = limitStr ? parseInt(limitStr, 10) : 10;
+  if (!Number.isFinite(limit) || limit <= 0) {
+    console.error("predicate recall: --limit must be a positive integer");
+    return 2;
+  }
+  try {
+    const client = new SparqlClient(loadConfig());
+    const [files, commands] = await Promise.all([
+      searchFiles(client, query, limit),
+      searchCommands(client, query, limit)
+    ]);
+    const result = { query, files, commands };
+    if (hasFlag5(args, "--json")) console.log(JSON.stringify(result, null, 2));
+    else console.log(render(result));
+    return 0;
+  } catch (err2) {
+    console.error(`predicate recall failed: ${err2.message}`);
+    return 1;
+  }
+}
+
 // ../predicate-cli/src/index.ts
 var VERSION2 = "1.0.0";
-function help4() {
+function help6() {
   console.log(`predicate <command>
 
 Commands:
@@ -28122,6 +28359,8 @@ Commands:
   capture        Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
   extract        Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
   sessions       List recent extracted sessions (modifiedFiles / succeeded / failed counts).
+  captures       List raw kg:usage ToolCall captures (opt-in raw-capture path).
+  recall         Substring search over session history (files + commands).
   --version      Print the predicate version.
   --help         This message.
 
@@ -28157,6 +28396,10 @@ async function main() {
       return extract(process.argv.slice(3));
     case "sessions":
       return sessions(process.argv.slice(3));
+    case "captures":
+      return captures(process.argv.slice(3));
+    case "recall":
+      return recall(process.argv.slice(3));
     case "--version":
     case "version":
       console.log(VERSION2);
@@ -28164,11 +28407,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help4();
+      help6();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help4();
+      help6();
       return 2;
   }
 }
