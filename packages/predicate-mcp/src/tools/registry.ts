@@ -139,13 +139,14 @@ export function buildTools(client: SparqlClient): ToolDef[] {
     },
     {
       name: 'kg_research_goal',
-      description: 'Decompose a goal and report which predicates the live TBox can/cannot answer. When executeResearch=true and corpusRoot is provided, also fetch artifacts from that directory, extract candidate triples, and assert them via kg_assert.',
+      description: 'Decompose a goal and report which predicates the live TBox can/cannot answer. When executeResearch=true and corpusRoot is provided, also fetch artifacts from that directory, extract candidate triples, and assert them via kg_assert. Set useLlmDecomposer=true to enable Claude-Haiku-backed decomposition for questions that do not match a built-in pattern (requires ANTHROPIC_API_KEY; falls back to deterministic otherwise).',
       inputSchema: z.object({
         goal: z.string().min(1),
         source: z.enum(['user', 'inferred']).optional(),
         parentGoal: z.string().optional(),
         executeResearch: z.boolean().optional(),
         corpusRoot: z.string().optional(),
+        useLlmDecomposer: z.boolean().optional(),
       }),
       handler: async (raw): Promise<unknown> => {
         const args = z.object({
@@ -154,6 +155,7 @@ export function buildTools(client: SparqlClient): ToolDef[] {
           parentGoal: z.string().optional(),
           executeResearch: z.boolean().optional(),
           corpusRoot: z.string().optional(),
+          useLlmDecomposer: z.boolean().optional(),
         }).parse(raw);
         return kgResearchGoal(client, args);
       },
