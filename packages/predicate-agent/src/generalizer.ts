@@ -24,8 +24,26 @@ export class Generalizer {
     this.k = opts.k ?? 5;
   }
 
+  private async isSchemaLearningEnabled(): Promise<boolean> {
+    const r = await this.client.select(
+      `PREFIX pred: <https://predicate.dev/meta#>
+       SELECT ?v WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?v } }`,
+    );
+    const b = r.results.bindings[0];
+    if (!b) return true;
+    return b['v']!.value === 'true';
+  }
+
   async run(): Promise<GeneralizerResult> {
     const t0 = Date.now();
+    if (!(await this.isSchemaLearningEnabled())) {
+      return {
+        proposals: [],
+        scannedSubjects: 0,
+        durationMs: Date.now() - t0,
+        autoProposalsSkipped: true,
+      };
+    }
     const subjects = await this.listUntypedSubjects();
     const groups = this.groupByFingerprint(subjects);
     const proposals: GeneralizerProposal[] = [];

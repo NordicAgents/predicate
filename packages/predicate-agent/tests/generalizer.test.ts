@@ -87,3 +87,42 @@ describe('Generalizer', () => {
     expect(new Set(fps)).toEqual(new Set(['urn:p', 'urn:p,urn:q']));
   });
 });
+
+describe('Generalizer toggle (v2.0)', () => {
+  async function setLearningEnabled(value: boolean): Promise<void> {
+    await client.update(`
+      PREFIX pred: <https://predicate.dev/meta#>
+      DELETE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
+      WHERE  { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
+    `);
+    await client.update(`
+      PREFIX pred: <https://predicate.dev/meta#>
+      INSERT DATA { GRAPH <kg:meta> {
+        <urn:predicate:config> pred:schemaLearningEnabled "${value}"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+      } }
+    `);
+  }
+
+  it('skips proposal generation when schema-learning is disabled', async () => {
+    await setLearningEnabled(false);
+    const r = await new Generalizer(client, { k: 5 }).run();
+    expect(r.autoProposalsSkipped).toBe(true);
+    expect(r.proposals).toHaveLength(0);
+  });
+
+  it('runs normally when schema-learning is enabled', async () => {
+    await setLearningEnabled(true);
+    const r = await new Generalizer(client, { k: 5 }).run();
+    expect(r.autoProposalsSkipped).toBeFalsy();
+  });
+
+  it('runs normally when the toggle is absent (defaults to enabled)', async () => {
+    await client.update(`
+      PREFIX pred: <https://predicate.dev/meta#>
+      DELETE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
+      WHERE  { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
+    `);
+    const r = await new Generalizer(client, { k: 5 }).run();
+    expect(r.autoProposalsSkipped).toBeFalsy();
+  });
+});
