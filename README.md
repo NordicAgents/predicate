@@ -243,6 +243,27 @@ See `docs/superpowers/plans/` for the per-phase implementation plans
 
 ## Status
 
+**v1.12 — external LD federation.** A thin Linked-Data layer reuses the
+Phase 14 peer registry to query public SPARQL endpoints (DBpedia,
+Wikidata) without polluting local `kg:abox`. One new CLI command,
+`predicate ld`, ships three subcommands: `predicate ld init` registers
+the well-known endpoints as `kg:peers` entries tagged with
+`pred:peerKind "external-ld"` (a new property in meta vocab v0.7.0 —
+idempotent, so re-running is safe). `predicate ld list` filters the
+registry to just LD endpoints; `predicate peer list` now renders a
+`kind` column so team peers and LD peers are visible side-by-side
+(`team` is the default when the tag is absent). `predicate ld ask
+<query>` runs a one-shot SPARQL query against every registered LD
+endpoint via plain HTTPS POST and merges the rows with a `?peer` column
+tagging origin (`dbpedia` or `wikidata`). Per-endpoint errors are
+caught — a 503 from DBpedia never blocks the Wikidata result. Out of
+scope: caching (each call re-fetches), auto-discovery, custom-endpoint
+flags (use `predicate peer add` and manually tag with `pred:peerKind`),
+and writing remote results back to `kg:abox` (results stay ephemeral by
+design). SKILL.md gains a worked example so the agent reaches out for
+canonical public knowledge ("is library X deprecated?") instead of
+recalling from training data.
+
 **v1.11 — federation MVP.** Three new CLI commands and one new `kg_ask`
 flag turn Predicate from a single-user store into a team-share-ready
 substrate. `predicate peer add <name> <sparql-endpoint>` registers a
