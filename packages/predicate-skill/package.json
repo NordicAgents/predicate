@@ -1,6 +1,6 @@
 {
   "name": "predicate-skill",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — Claude Code plugin + MCP server + predicate CLI.",
   "author": {
     "name": "Nordic Agents Research",
@@ -30,6 +30,7 @@
     "commands",
     "hooks",
     "compose",
+    "dashboard",
     "LICENSE",
     "README.md"
   ],

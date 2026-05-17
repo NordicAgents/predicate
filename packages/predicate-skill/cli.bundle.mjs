@@ -11250,12 +11250,12 @@ var require_supports_color = __commonJS({
     "use strict";
     var os = __require("os");
     var tty = __require("tty");
-    var hasFlag6 = require_has_flag();
+    var hasFlag7 = require_has_flag();
     var { env } = process;
     var forceColor;
-    if (hasFlag6("no-color") || hasFlag6("no-colors") || hasFlag6("color=false") || hasFlag6("color=never")) {
+    if (hasFlag7("no-color") || hasFlag7("no-colors") || hasFlag7("color=false") || hasFlag7("color=never")) {
       forceColor = 0;
-    } else if (hasFlag6("color") || hasFlag6("colors") || hasFlag6("color=true") || hasFlag6("color=always")) {
+    } else if (hasFlag7("color") || hasFlag7("colors") || hasFlag7("color=true") || hasFlag7("color=always")) {
       forceColor = 1;
     }
     if ("FORCE_COLOR" in env) {
@@ -11282,10 +11282,10 @@ var require_supports_color = __commonJS({
       if (forceColor === 0) {
         return 0;
       }
-      if (hasFlag6("color=16m") || hasFlag6("color=full") || hasFlag6("color=truecolor")) {
+      if (hasFlag7("color=16m") || hasFlag7("color=full") || hasFlag7("color=truecolor")) {
         return 3;
       }
-      if (hasFlag6("color=256")) {
+      if (hasFlag7("color=256")) {
         return 2;
       }
       if (haveStream && !streamIsTTY && forceColor === void 0) {
@@ -28344,9 +28344,131 @@ async function recall(args) {
   }
 }
 
+// ../predicate-cli/src/commands/dashboard.ts
+import { createServer } from "node:http";
+import { readFileSync as readFileSync2 } from "node:fs";
+import { join, dirname as dirname2 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+import { spawn } from "node:child_process";
+function parseFlag6(args, name) {
+  const i2 = args.indexOf(name);
+  return i2 < 0 || i2 + 1 >= args.length ? void 0 : args[i2 + 1];
+}
+function hasFlag6(args, name) {
+  return args.includes(name);
+}
+function help6() {
+  console.log(`predicate dashboard [--port N] [--no-open]
+
+Serve a localhost dashboard for browsing session-history + reasoning
+output extracted by the Stop hook.
+
+Options:
+  --port N    Listen on this port (default 4040).
+  --no-open   Don't auto-open the browser.
+  --help      Print this message.
+`);
+}
+function openBrowser(url) {
+  const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
+  try {
+    spawn(cmd, [url], { detached: true, stdio: "ignore" }).unref();
+  } catch {
+  }
+}
+async function proxyQuery(req, res, fusekiUrl, dataset2) {
+  let body = "";
+  await new Promise((resolve3, reject) => {
+    req.on("data", (c2) => {
+      body += String(c2);
+    });
+    req.on("end", () => resolve3());
+    req.on("error", reject);
+  });
+  try {
+    const r2 = await fetch(`${fusekiUrl}/${dataset2}/query`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept": "application/sparql-results+json" },
+      body
+    });
+    const text = await r2.text();
+    res.writeHead(r2.status, { "Content-Type": r2.headers.get("Content-Type") ?? "application/sparql-results+json" });
+    res.end(text);
+  } catch (e2) {
+    res.writeHead(502, { "Content-Type": "text/plain" });
+    res.end(`upstream error: ${e2.message}`);
+  }
+}
+function findDashboardHtml() {
+  const here = dirname2(fileURLToPath2(import.meta.url));
+  const candidates = [
+    join(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
+    join(here, "dashboard", "index.html"),
+    // bundled cli.bundle.mjs sits next to dashboard/
+    join(here, "..", "dashboard", "index.html"),
+    join(here, "..", "..", "dashboard", "index.html")
+  ];
+  for (const p2 of candidates) {
+    try {
+      readFileSync2(p2, "utf8");
+      return p2;
+    } catch {
+    }
+  }
+  throw new Error(`dashboard/index.html not found \u2014 checked ${candidates.join(", ")}`);
+}
+async function startDashboardServer(port) {
+  const cfg = loadConfig();
+  const htmlPath = findDashboardHtml();
+  const html = readFileSync2(htmlPath, "utf8");
+  const server = createServer((req, res) => {
+    if (req.url === "/api/query" && req.method === "POST") {
+      void proxyQuery(req, res, cfg.fusekiUrl, cfg.dataset);
+      return;
+    }
+    if (req.url === "/" || req.url === "/index.html") {
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+      res.end(html);
+      return;
+    }
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("not found");
+  });
+  await new Promise((resolve3, reject) => {
+    server.once("error", reject);
+    server.listen(port, "127.0.0.1", () => resolve3());
+  });
+  const address = server.address();
+  const boundPort = typeof address === "object" && address ? address.port : port;
+  return {
+    port: boundPort,
+    url: `http://127.0.0.1:${boundPort}`,
+    close: () => new Promise((resolve3) => server.close(() => resolve3()))
+  };
+}
+async function dashboard(args) {
+  if (hasFlag6(args, "--help")) {
+    help6();
+    return 0;
+  }
+  const portStr = parseFlag6(args, "--port");
+  const port = portStr ? parseInt(portStr, 10) : 4040;
+  if (!Number.isFinite(port) || port <= 0 || port > 65535) {
+    console.error("predicate dashboard: --port must be 1\u201365535");
+    return 2;
+  }
+  const handle = await startDashboardServer(port);
+  console.log(`predicate dashboard: serving ${handle.url}`);
+  if (!hasFlag6(args, "--no-open")) openBrowser(handle.url);
+  console.log("press Ctrl-C to stop");
+  await new Promise(() => {
+  });
+  return 0;
+}
+
 // ../predicate-cli/src/index.ts
 var VERSION2 = "1.0.0";
-function help6() {
+function help7() {
   console.log(`predicate <command>
 
 Commands:
@@ -28361,6 +28483,7 @@ Commands:
   sessions       List recent extracted sessions (modifiedFiles / succeeded / failed counts).
   captures       List raw kg:usage ToolCall captures (opt-in raw-capture path).
   recall         Substring search over session history (files + commands).
+  dashboard      Serve a localhost web view of session-history + reasoning output.
   --version      Print the predicate version.
   --help         This message.
 
@@ -28400,6 +28523,8 @@ async function main() {
       return captures(process.argv.slice(3));
     case "recall":
       return recall(process.argv.slice(3));
+    case "dashboard":
+      return dashboard(process.argv.slice(3));
     case "--version":
     case "version":
       console.log(VERSION2);
@@ -28407,11 +28532,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help6();
+      help7();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help6();
+      help7();
       return 2;
   }
 }

@@ -10,6 +10,7 @@ import { extract } from './commands/extract.js';
 import { sessions } from './commands/sessions.js';
 import { captures } from './commands/captures.js';
 import { recall } from './commands/recall.js';
+import { dashboard } from './commands/dashboard.js';
 
 const VERSION = '1.0.0';
 
@@ -28,6 +29,7 @@ Commands:
   sessions       List recent extracted sessions (modifiedFiles / succeeded / failed counts).
   captures       List raw kg:usage ToolCall captures (opt-in raw-capture path).
   recall         Substring search over session history (files + commands).
+  dashboard      Serve a localhost web view of session-history + reasoning output.
   --version      Print the predicate version.
   --help         This message.
 
@@ -57,6 +59,7 @@ async function main(): Promise<number> {
     case 'sessions':     return sessions(process.argv.slice(3));
     case 'captures':     return captures(process.argv.slice(3));
     case 'recall':       return recall(process.argv.slice(3));
+    case 'dashboard':    return dashboard(process.argv.slice(3));
     case '--version':
     case 'version':      console.log(VERSION); return 0;
     case undefined:
