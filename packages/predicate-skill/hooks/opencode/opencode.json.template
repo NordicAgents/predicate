@@ -1,0 +1,18 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "predicate": {
+      "type": "local",
+      "command": ["node", "__PLUGIN_DIR__/server.bundle.mjs"],
+      "environment": {
+        "FUSEKI_URL": "http://localhost:3030",
+        "PREDICATE_DATASET": "predicate"
+      }
+    }
+  },
+  "events": [
+    { "on": "session.started",   "run": "bash __PLUGIN_DIR__/hooks/opencode/session-start.sh" },
+    { "on": "session.compacted", "run": "bash __PLUGIN_DIR__/hooks/opencode/pre-compact.sh" },
+    { "on": "session.stopped",   "run": "bash __PLUGIN_DIR__/hooks/opencode/stop.sh" }
+  ]
+}
