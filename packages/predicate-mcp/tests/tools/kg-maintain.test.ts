@@ -117,6 +117,36 @@ describe('kg_maintain runs the promotion sweeper', () => {
   });
 });
 
+describe('kg_maintain runs the OWL fixpoint', () => {
+  it('derives Hotspot/FlakyCommand/ActiveFile from action data after sweep', async () => {
+    await client.update(`DROP SILENT GRAPH <kg:inferred>`);
+    await client.update(`CREATE SILENT GRAPH <kg:inferred>`);
+    await client.update(`
+      PREFIX cb:   <https://predicate.dev/codebase#>
+      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:abox> {
+        <urn:session:t1> a pred:Session ; pred:at "2026-05-17T00:00:00Z"^^xsd:dateTime .
+        <urn:session:t2> a pred:Session ; pred:at "2026-05-17T01:00:00Z"^^xsd:dateTime .
+        <urn:session:t3> a pred:Session ; pred:at "2026-05-17T02:00:00Z"^^xsd:dateTime .
+        <file:///hot.ts> cb:modifiedIn <urn:session:t1> , <urn:session:t2> , <urn:session:t3> .
+      } }
+    `);
+    const result = await kgMaintain(client, {});
+    expect(result.fixpoint).toBeDefined();
+    expect(result.fixpoint!.inferredCount).toBeGreaterThan(0);
+    const hotspot = await client.ask(`
+      PREFIX cb: <https://predicate.dev/codebase#>
+      ASK { GRAPH <kg:inferred> { <file:///hot.ts> a cb:Hotspot } }
+    `);
+    expect(hotspot).toBe(true);
+
+    // Cleanup
+    await client.update(`DROP SILENT GRAPH <kg:inferred>`);
+    await client.update(`CREATE SILENT GRAPH <kg:inferred>`);
+  });
+});
+
 describe('kg_maintain runs the generalizer', () => {
   it('reports generalizer proposals when ≥K untyped instances share a fingerprint', async () => {
     for (let i = 0; i < 5; i++) {

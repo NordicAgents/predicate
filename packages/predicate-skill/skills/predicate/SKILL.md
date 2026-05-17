@@ -152,6 +152,22 @@ SELECT DISTINCT ?file WHERE {
 Cite the session URI as provenance when the answer is "you last touched
 auth.ts in session ses-X".
 
+The reasoner derives additional classes on top of the raw action data
+(refreshed by every `predicate maintain` run):
+
+| Derived class | Means |
+|---|---|
+| `codebase:Hotspot` | File modified in >= 3 sessions — likely active work-in-progress |
+| `codebase:FlakyCommand` | Command that has failed in >= 2 sessions — suspect debug target |
+| `codebase:ActiveFile` | File modified in the single most-recent session |
+
+Query them directly via `kg:inferred`:
+
+```sparql
+PREFIX cb: <https://predicate.dev/codebase#>
+SELECT ?file WHERE { GRAPH <kg:inferred> { ?file a cb:Hotspot } }
+```
+
 ## 5. Schema gap → propose
 
 ```

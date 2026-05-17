@@ -8,8 +8,9 @@ export async function maintain(): Promise<number> {
     const result = await kgMaintain(client, {});
     const proposals = result.generalizer?.proposals.length ?? 0;
     const promotions = result.sweeper?.decisions.filter((d) => d.outcome === 'promoted').length ?? 0;
+    const inferred = result.fixpoint?.inferredCount ?? 0;
     console.log(
-      `predicate maintain: archived=${result.archivedCount} proposals=${proposals} promotions=${promotions} elapsed=${result.elapsedMs}ms event=${result.eventId}`,
+      `predicate maintain: archived=${result.archivedCount} proposals=${proposals} promotions=${promotions} inferred=${inferred} elapsed=${result.elapsedMs}ms event=${result.eventId}`,
     );
     return 0;
   } catch (err) {

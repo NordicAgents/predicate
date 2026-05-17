@@ -31574,6 +31574,81 @@ var r16 = {
   }
 };
 
+// ../predicate-reasoner/src/rules/r17-hotspot.ts
+var HOTSPOT_THRESHOLD = 3;
+var r17 = {
+  id: "r17-hotspot",
+  name: "codebase:Hotspot \u2014 file modified in >=3 sessions",
+  insertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    return `
+      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      INSERT { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:Hotspot } }
+      WHERE {
+        {
+          SELECT ?file (COUNT(DISTINCT ?session) AS ?n)
+          WHERE { GRAPH <${abox}> { ?file cb:modifiedIn ?session } }
+          GROUP BY ?file
+          HAVING (?n >= ${HOTSPOT_THRESHOLD})
+        }
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:Hotspot } }
+      }
+    `;
+  }
+};
+
+// ../predicate-reasoner/src/rules/r18-flaky-command.ts
+var FLAKY_THRESHOLD = 2;
+var r18 = {
+  id: "r18-flaky-command",
+  name: "codebase:FlakyCommand \u2014 command failed in >=2 sessions",
+  insertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    return `
+      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      INSERT { GRAPH <${cfg.inferredGraph}> { ?cmd rdf:type cb:FlakyCommand } }
+      WHERE {
+        {
+          SELECT ?cmd (COUNT(DISTINCT ?session) AS ?n)
+          WHERE { GRAPH <${abox}> { ?cmd cb:failedIn ?session } }
+          GROUP BY ?cmd
+          HAVING (?n >= ${FLAKY_THRESHOLD})
+        }
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?cmd rdf:type cb:FlakyCommand } }
+      }
+    `;
+  }
+};
+
+// ../predicate-reasoner/src/rules/r19-active-file.ts
+var r19 = {
+  id: "r19-active-file",
+  name: "codebase:ActiveFile \u2014 file modified in the most recent session",
+  insertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    return `
+      PREFIX cb:   <https://predicate.dev/codebase#>
+      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      INSERT { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:ActiveFile } }
+      WHERE {
+        {
+          SELECT ?session
+          WHERE {
+            GRAPH <${abox}> { ?session rdf:type pred:Session ; pred:at ?at }
+          }
+          ORDER BY DESC(?at)
+          LIMIT 1
+        }
+        GRAPH <${abox}> { ?file cb:modifiedIn ?session }
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:ActiveFile } }
+      }
+    `;
+  }
+};
+
 // ../predicate-reasoner/src/rules/r11-disjoint-with.ts
 var r11 = {
   id: "r11-disjoint-with",
@@ -31627,7 +31702,10 @@ var RULES = [
   r13,
   r14,
   r15,
-  r16
+  r16,
+  r17,
+  r18,
+  r19
 ];
 
 // ../predicate-reasoner/src/fixpoint.ts
@@ -37692,6 +37770,12 @@ async function kgMaintain(client, input = {}) {
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3
   }).run();
+  const fixpoint = await runFixpoint(client, RULES, {
+    tboxGraph: "kg:tbox",
+    aboxGraphs: ["kg:abox"],
+    inferredGraph: "kg:inferred",
+    closureCutoff: 0.5
+  });
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
@@ -37707,11 +37791,13 @@ async function kgMaintain(client, input = {}) {
     archiveCutoff,
     ageDays,
     sweeperDecisions: sweeper.decisions.length,
-    generalizerProposals: generalizer.proposals.length
+    generalizerProposals: generalizer.proposals.length,
+    fixpointIterations: fixpoint.iterations,
+    fixpointInferred: fixpoint.inferredCount
   }))} .
     } }
   `);
-  return { archivedCount, elapsedMs, eventId, sweeper, generalizer };
+  return { archivedCount, elapsedMs, eventId, sweeper, generalizer, fixpoint };
 }
 
 // ../predicate-mcp/src/tools/kg-research-goal.ts
