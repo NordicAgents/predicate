@@ -39,9 +39,9 @@ afterAll(async () => {
     `${process.env.PREDICATE_ADMIN_USER ?? 'admin'}:${process.env.PREDICATE_ADMIN_PASSWORD ?? 'changeme'}`,
   ).toString('base64');
   for (const path of [
-    '../../predicate-ontology/tbox/codebase.ttl',
+    '../../predicate-ontology/catalog/codebase.ttl',
     '../../predicate-ontology/meta/predicate-meta.ttl',
-    '../../predicate-ontology/shapes/codebase.shacl.ttl',
+    '../../predicate-ontology/catalog/codebase.shacl.ttl',
   ]) {
     const ttl = readFileSync(resolve(import.meta.dirname, path), 'utf8');
     await fetch(`${cfg2.dataEndpoint}?graph=kg:tbox`, {
