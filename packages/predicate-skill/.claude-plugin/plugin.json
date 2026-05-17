@@ -1,12 +1,13 @@
 {
   "name": "predicate",
-  "version": "1.0.0",
-  "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents.",
+  "version": "1.6.2",
+  "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — 9 kg_* MCP tools + Stop-hook turn extraction.",
   "author": {
-    "name": "MX Research"
+    "name": "Nordic Agents Research",
+    "email": "midhunxavier@outlook.com"
   },
-  "homepage": "https://github.com/mxresearch/predicate#readme",
-  "repository": "https://github.com/mxresearch/predicate",
+  "homepage": "https://github.com/NordicAgents/predicate#readme",
+  "repository": "https://github.com/NordicAgents/predicate",
   "license": "Apache-2.0",
   "keywords": ["mcp", "knowledge-graph", "rdf", "owl", "sparql", "reasoning"],
   "mcpServers": {
