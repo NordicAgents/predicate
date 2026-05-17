@@ -28040,10 +28040,10 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META9 = "https://predicate.dev/meta#";
+  const META10 = "https://predicate.dev/meta#";
   const CB2 = "https://predicate.dev/codebase#";
   const rows = await client.select(
-    `PREFIX pred: <${META9}>
+    `PREFIX pred: <${META10}>
      PREFIX cb:   <${CB2}>
      SELECT ?s ?sid ?at
             (COUNT(DISTINCT ?f) AS ?files)
@@ -28133,10 +28133,10 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META9 = "https://predicate.dev/meta#";
+  const META10 = "https://predicate.dev/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
-    `PREFIX pred: <${META9}>
+    `PREFIX pred: <${META10}>
      SELECT ?c ?at ?tool ?phase ?session WHERE {
        GRAPH <kg:usage> {
          ?c a pred:ToolCall ;
@@ -28234,10 +28234,10 @@ function escapeSparqlLiteral(s2) {
 }
 async function searchFiles(client, query, limit) {
   const CB2 = "https://predicate.dev/codebase#";
-  const META9 = "https://predicate.dev/meta#";
+  const META10 = "https://predicate.dev/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
-     PREFIX pred: <${META9}>
+     PREFIX pred: <${META10}>
      SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
      WHERE {
        GRAPH <kg:abox> {
@@ -28521,13 +28521,14 @@ async function removePeer(client, name) {
 async function listPeers(client) {
   const r2 = await client.select(
     `PREFIX pred: <${META8}>
-     SELECT ?uri ?name ?endpoint ?addedAt
+     SELECT ?uri ?name ?endpoint ?addedAt ?kind
      WHERE {
        GRAPH <${PEERS_GRAPH}> {
          ?uri a pred:Peer ;
               pred:peerName ?name ;
               pred:peerEndpoint ?endpoint ;
               pred:peerAddedAt ?addedAt .
+         OPTIONAL { ?uri pred:peerKind ?kind }
        }
      }
      ORDER BY ?name`
@@ -28536,7 +28537,8 @@ async function listPeers(client) {
     uri: b2["uri"].value,
     name: b2["name"].value,
     endpoint: b2["endpoint"].value,
-    addedAt: b2["addedAt"].value
+    addedAt: b2["addedAt"].value,
+    kind: b2["kind"]?.value ?? "team"
   }));
 }
 async function peer(args) {
@@ -28572,10 +28574,11 @@ async function peer(args) {
       else {
         const widths = [
           Math.max(4, ...peers.map((p2) => p2.name.length)),
+          Math.max(4, ...peers.map((p2) => p2.kind.length)),
           Math.max(8, ...peers.map((p2) => p2.endpoint.length))
         ];
-        console.log(["name".padEnd(widths[0]), "endpoint".padEnd(widths[1]), "addedAt"].join("  "));
-        for (const p2 of peers) console.log([p2.name.padEnd(widths[0]), p2.endpoint.padEnd(widths[1]), p2.addedAt].join("  "));
+        console.log(["name".padEnd(widths[0]), "kind".padEnd(widths[1]), "endpoint".padEnd(widths[2]), "addedAt"].join("  "));
+        for (const p2 of peers) console.log([p2.name.padEnd(widths[0]), p2.kind.padEnd(widths[1]), p2.endpoint.padEnd(widths[2]), p2.addedAt].join("  "));
       }
       return 0;
     }
@@ -28722,9 +28725,178 @@ async function importSessions(args) {
   }
 }
 
+// ../predicate-cli/src/commands/ld.ts
+var META9 = "https://predicate.dev/meta#";
+var PEERS_GRAPH2 = "kg:peers";
+var WELL_KNOWN = [
+  { name: "dbpedia", endpoint: "https://dbpedia.org/sparql", description: "DBpedia \u2014 structured Wikipedia data" },
+  { name: "wikidata", endpoint: "https://query.wikidata.org/sparql", description: "Wikidata \u2014 collaborative knowledge base" }
+];
+function help10() {
+  console.log(`predicate ld <subcommand> [args]
+
+Linked-Data federation: query well-known public SPARQL endpoints
+(DBpedia, Wikidata) without polluting local kg:abox.
+
+Subcommands:
+  init            Register the well-known LD endpoints as peers
+                  (tagged with pred:peerKind "external-ld"). Idempotent.
+  ask <query>     Run SPARQL against ALL registered external-ld peers
+                  and merge the results. Prints \`?peer\` column to
+                  indicate which endpoint each row came from.
+  list [--json]   List registered external-ld peers.
+  --help          Print this message.
+
+Examples:
+  predicate ld init
+  predicate ld ask "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT ?label WHERE { ?s wdt:P31 wd:Q5 . ?s rdfs:label ?label } LIMIT 1"
+`);
+}
+async function initLd(client) {
+  let added = 0, kept = 0;
+  for (const ep of WELL_KNOWN) {
+    const uri2 = `urn:predicate:peer:${ep.name}`;
+    const existing = await client.ask(
+      `PREFIX pred: <${META9}>
+         ASK { GRAPH <${PEERS_GRAPH2}> {
+           ?p a pred:Peer ; pred:peerName ${escapeLiteral(ep.name)} .
+         } }`
+    ).catch(() => false);
+    if (existing) {
+      kept++;
+      continue;
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    await client.update(`
+      PREFIX pred: <${META9}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <${PEERS_GRAPH2}> {
+        ${escapeIRI(uri2)} a pred:Peer ;
+          pred:peerName     ${escapeLiteral(ep.name)} ;
+          pred:peerEndpoint "${ep.endpoint}"^^xsd:anyURI ;
+          pred:peerKind     ${escapeLiteral("external-ld")} ;
+          pred:peerAddedAt  "${now}"^^xsd:dateTime .
+      } }
+    `);
+    added++;
+  }
+  console.log(`predicate ld init: ${added} added, ${kept} already present (${WELL_KNOWN.length} total well-known endpoints).`);
+  return 0;
+}
+async function listLd(client, json) {
+  const r2 = await client.select(
+    `PREFIX pred: <${META9}>
+     SELECT ?name ?endpoint WHERE {
+       GRAPH <${PEERS_GRAPH2}> {
+         ?p a pred:Peer ;
+            pred:peerName ?name ;
+            pred:peerEndpoint ?endpoint ;
+            pred:peerKind "external-ld" .
+       }
+     } ORDER BY ?name`
+  );
+  const rows = r2.results.bindings.map((b2) => ({
+    name: b2["name"].value,
+    endpoint: b2["endpoint"].value
+  }));
+  if (json) console.log(JSON.stringify(rows, null, 2));
+  else if (rows.length === 0) console.log("(no external-ld peers \u2014 run `predicate ld init`)");
+  else {
+    const w2 = Math.max(4, ...rows.map((r3) => r3.name.length));
+    console.log(["name".padEnd(w2), "endpoint"].join("  "));
+    for (const r3 of rows) console.log([r3.name.padEnd(w2), r3.endpoint].join("  "));
+  }
+  return 0;
+}
+async function askLd(client, query, json) {
+  const peers = await client.select(
+    `PREFIX pred: <${META9}>
+     SELECT ?name ?endpoint WHERE {
+       GRAPH <${PEERS_GRAPH2}> {
+         ?p a pred:Peer ;
+            pred:peerName ?name ;
+            pred:peerEndpoint ?endpoint ;
+            pred:peerKind "external-ld" .
+       }
+     }`
+  );
+  if (peers.results.bindings.length === 0) {
+    console.error("predicate ld ask: no external-ld peers registered. Run `predicate ld init` first.");
+    return 2;
+  }
+  const allRows = [];
+  for (const p2 of peers.results.bindings) {
+    const name = p2["name"].value;
+    const endpoint = p2["endpoint"].value;
+    try {
+      const r2 = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept": "application/sparql-results+json",
+          "User-Agent": "predicate-skill (https://github.com/NordicAgents/predicate)"
+        },
+        body: "query=" + encodeURIComponent(query)
+      });
+      if (!r2.ok) {
+        console.error(`predicate ld ask: ${name} returned ${r2.status}`);
+        continue;
+      }
+      const data = await r2.json();
+      for (const b2 of data.results.bindings) allRows.push({ peer: name, binding: b2 });
+    } catch (err2) {
+      console.error(`predicate ld ask: ${name} failed: ${err2.message}`);
+    }
+  }
+  if (json) console.log(JSON.stringify(allRows, null, 2));
+  else if (allRows.length === 0) console.log("(no results from any external-ld peer)");
+  else {
+    const cols = Object.keys(allRows[0].binding);
+    const header = ["peer", ...cols];
+    const widths = header.map((h2, i2) => {
+      if (i2 === 0) return Math.max(4, ...allRows.map((r2) => r2.peer.length));
+      const k2 = cols[i2 - 1];
+      return Math.max(h2.length, ...allRows.map((r2) => (r2.binding[k2]?.value ?? "").length));
+    });
+    console.log(header.map((h2, i2) => h2.padEnd(widths[i2])).join("  "));
+    for (const r2 of allRows) {
+      const cells = [r2.peer, ...cols.map((c2) => r2.binding[c2]?.value ?? "")];
+      console.log(cells.map((c2, i2) => c2.padEnd(widths[i2])).join("  "));
+    }
+  }
+  return 0;
+}
+async function ld(args) {
+  if (args.length === 0 || args[0] === "--help") {
+    help10();
+    return args.length === 0 ? 2 : 0;
+  }
+  const sub = args[0];
+  const client = new SparqlClient(loadConfig());
+  await client.update(`CREATE SILENT GRAPH <${PEERS_GRAPH2}>`);
+  try {
+    if (sub === "init") return await initLd(client);
+    if (sub === "list") return await listLd(client, args.includes("--json"));
+    if (sub === "ask") {
+      const query = args.slice(1).filter((a2) => a2 !== "--json").join(" ").trim();
+      if (!query) {
+        console.error("predicate ld ask: query argument required");
+        return 2;
+      }
+      return await askLd(client, query, args.includes("--json"));
+    }
+    console.error(`predicate ld: unknown subcommand "${sub}"`);
+    help10();
+    return 2;
+  } catch (err2) {
+    console.error(`predicate ld failed: ${err2.message}`);
+    return 1;
+  }
+}
+
 // ../predicate-cli/src/index.ts
 var VERSION2 = "1.0.0";
-function help10() {
+function help11() {
   console.log(`predicate <command>
 
 Commands:
@@ -28743,6 +28915,7 @@ Commands:
   peer              Manage federation peers (add / list / remove).
   export-sessions   Export local session-history triples as TriG to stdout.
   import-sessions   Import a teammate's TriG export into local Fuseki.
+  ld                Linked-Data federation (DBpedia / Wikidata): init / list / ask.
   --version         Print the predicate version.
   --help            This message.
 
@@ -28790,6 +28963,8 @@ async function main() {
       return exportSessions(process.argv.slice(3));
     case "import-sessions":
       return importSessions(process.argv.slice(3));
+    case "ld":
+      return ld(process.argv.slice(3));
     case "--version":
     case "version":
       console.log(VERSION2);
@@ -28797,11 +28972,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help10();
+      help11();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help10();
+      help11();
       return 2;
   }
 }

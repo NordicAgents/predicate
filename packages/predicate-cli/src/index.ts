@@ -14,6 +14,7 @@ import { dashboard } from './commands/dashboard.js';
 import { peer } from './commands/peer.js';
 import { exportSessions } from './commands/export-sessions.js';
 import { importSessions } from './commands/import-sessions.js';
+import { ld } from './commands/ld.js';
 
 const VERSION = '1.0.0';
 
@@ -36,6 +37,7 @@ Commands:
   peer              Manage federation peers (add / list / remove).
   export-sessions   Export local session-history triples as TriG to stdout.
   import-sessions   Import a teammate's TriG export into local Fuseki.
+  ld                Linked-Data federation (DBpedia / Wikidata): init / list / ask.
   --version         Print the predicate version.
   --help            This message.
 
@@ -69,6 +71,7 @@ async function main(): Promise<number> {
     case 'peer':            return peer(process.argv.slice(3));
     case 'export-sessions': return exportSessions(process.argv.slice(3));
     case 'import-sessions': return importSessions(process.argv.slice(3));
+    case 'ld':              return ld(process.argv.slice(3));
     case '--version':
     case 'version':      console.log(VERSION); return 0;
     case undefined:

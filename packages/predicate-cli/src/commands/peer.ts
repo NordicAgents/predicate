@@ -10,6 +10,7 @@ interface PeerRow {
   name: string;
   endpoint: string;
   addedAt: string;
+  kind: string;
 }
 
 function help(): void {
@@ -66,13 +67,14 @@ async function removePeer(client: SparqlClient, name: string): Promise<number> {
 async function listPeers(client: SparqlClient): Promise<PeerRow[]> {
   const r = await client.select(
     `PREFIX pred: <${META}>
-     SELECT ?uri ?name ?endpoint ?addedAt
+     SELECT ?uri ?name ?endpoint ?addedAt ?kind
      WHERE {
        GRAPH <${PEERS_GRAPH}> {
          ?uri a pred:Peer ;
               pred:peerName ?name ;
               pred:peerEndpoint ?endpoint ;
               pred:peerAddedAt ?addedAt .
+         OPTIONAL { ?uri pred:peerKind ?kind }
        }
      }
      ORDER BY ?name`,
@@ -82,6 +84,7 @@ async function listPeers(client: SparqlClient): Promise<PeerRow[]> {
     name:     b['name']!.value,
     endpoint: b['endpoint']!.value,
     addedAt:  b['addedAt']!.value,
+    kind:     b['kind']?.value ?? 'team',
   }));
 }
 
@@ -108,10 +111,11 @@ export async function peer(args: string[]): Promise<number> {
       else {
         const widths = [
           Math.max(4, ...peers.map((p) => p.name.length)),
+          Math.max(4, ...peers.map((p) => p.kind.length)),
           Math.max(8, ...peers.map((p) => p.endpoint.length)),
         ];
-        console.log(['name'.padEnd(widths[0]!), 'endpoint'.padEnd(widths[1]!), 'addedAt'].join('  '));
-        for (const p of peers) console.log([p.name.padEnd(widths[0]!), p.endpoint.padEnd(widths[1]!), p.addedAt].join('  '));
+        console.log(['name'.padEnd(widths[0]!), 'kind'.padEnd(widths[1]!), 'endpoint'.padEnd(widths[2]!), 'addedAt'].join('  '));
+        for (const p of peers) console.log([p.name.padEnd(widths[0]!), p.kind.padEnd(widths[1]!), p.endpoint.padEnd(widths[2]!), p.addedAt].join('  '));
       }
       return 0;
     }
