@@ -8,6 +8,7 @@ import { kgMaintain } from './kg-maintain.js';
 import { kgResearchGoal } from './kg-research-goal.js';
 import { kgProposeSchema } from './kg-propose-schema.js';
 import { kgStats } from './kg-stats.js';
+import { kgCapture } from './kg-capture.js';
 
 const deltaQuadSchema = z.object({
   s: z.string(),
@@ -179,6 +180,27 @@ export function buildTools(client: SparqlClient): ToolDef[] {
       description: 'Return current graph counts (triples, abox, inferred, tbox), inferredRatio, unusedConceptRatio, and materializationLatencyMsP95.',
       inputSchema: z.object({}),
       handler: async (): Promise<unknown> => kgStats(client),
+    },
+    {
+      name: 'kg_capture',
+      description: 'Record a tool invocation (toolName, input, output, sessionId, phase) into kg:usage. Used by per-platform PreToolUse/PostToolUse hooks; safe to call directly. Returns {captureId, elapsedMs}.',
+      inputSchema: z.object({
+        toolName: z.string().min(1),
+        input: z.unknown().optional(),
+        output: z.unknown().optional(),
+        sessionId: z.string().optional(),
+        phase: z.enum(['pre', 'post']),
+      }),
+      handler: async (raw): Promise<unknown> => {
+        const args = z.object({
+          toolName: z.string().min(1),
+          input: z.unknown().optional(),
+          output: z.unknown().optional(),
+          sessionId: z.string().optional(),
+          phase: z.enum(['pre', 'post']),
+        }).parse(raw);
+        return kgCapture(client, args);
+      },
     },
     ...stubs(),
   ];

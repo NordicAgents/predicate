@@ -3643,7 +3643,7 @@ var require_fast_uri = __commonJS({
         normalizeString(uri, options);
       } else if (typeof uri === "object") {
         uri = /** @type {T} */
-        parse3(serialize(uri, options), options);
+        parse3(serialize2(uri, options), options);
       }
       return uri;
     }
@@ -3651,13 +3651,13 @@ var require_fast_uri = __commonJS({
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse3(baseURI, schemelessOptions), parse3(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
-      return serialize(resolved, schemelessOptions);
+      return serialize2(resolved, schemelessOptions);
     }
     function resolveComponent(base, relative, options, skipNormalization) {
       const target = {};
       if (!skipNormalization) {
-        base = parse3(serialize(base, options), options);
-        relative = parse3(serialize(relative, options), options);
+        base = parse3(serialize2(base, options), options);
+        relative = parse3(serialize2(relative, options), options);
       }
       options = options || {};
       if (!options.tolerant && relative.scheme) {
@@ -3711,7 +3711,7 @@ var require_fast_uri = __commonJS({
       const normalizedB = normalizeComparableURI(uriB, options);
       return normalizedA !== void 0 && normalizedB !== void 0 && normalizedA.toLowerCase() === normalizedB.toLowerCase();
     }
-    function serialize(cmpts, opts) {
+    function serialize2(cmpts, opts) {
       const component = {
         host: cmpts.host,
         scheme: cmpts.scheme,
@@ -3889,7 +3889,7 @@ var require_fast_uri = __commonJS({
     function normalizeStringWithStatus(uri, opts) {
       const { parsed, malformedAuthorityOrPort } = parseWithStatus(uri, opts);
       return {
-        normalized: malformedAuthorityOrPort ? uri : serialize(parsed, opts),
+        normalized: malformedAuthorityOrPort ? uri : serialize2(parsed, opts),
         malformedAuthorityOrPort
       };
     }
@@ -3899,7 +3899,7 @@ var require_fast_uri = __commonJS({
         return malformedAuthorityOrPort ? void 0 : normalized;
       }
       if (typeof uri === "object") {
-        return serialize(uri, opts);
+        return serialize2(uri, opts);
       }
     }
     var fastUri = {
@@ -3908,7 +3908,7 @@ var require_fast_uri = __commonJS({
       resolve: resolve2,
       resolveComponent,
       equal,
-      serialize,
+      serialize: serialize2,
       parse: parse3
     };
     module.exports = fastUri;
@@ -30990,9 +30990,9 @@ async function kgAsk(client, input) {
 async function logUsage(client, question, sparql, rowCount, elapsedMs) {
   const usage = escapeIRI(GRAPH.usage);
   const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META6 = "https://predicate.dev/meta#";
+  const META7 = "https://predicate.dev/meta#";
   await client.update(`
-    PREFIX pred: <${META6}>
+    PREFIX pred: <${META7}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH ${usage} {
       <${id}> a pred:Query ;
@@ -37832,6 +37832,51 @@ async function kgStats(client) {
   };
 }
 
+// ../predicate-mcp/src/tools/kg-capture.ts
+var META6 = "https://predicate.dev/meta#";
+function truncate(s, max) {
+  if (s.length <= max) return s;
+  const extra = s.length - max;
+  return `${s.slice(0, max)} \u2026 [truncated, ${extra} more chars]`;
+}
+function serialize(value, max) {
+  let s;
+  if (value === void 0 || value === null) s = "";
+  else if (typeof value === "string") s = value;
+  else {
+    try {
+      s = JSON.stringify(value);
+    } catch {
+      s = String(value);
+    }
+  }
+  return truncate(s, max);
+}
+async function kgCapture(client, input) {
+  const t0 = Date.now();
+  const maxChars = parseInt(process.env["PREDICATE_CAPTURE_TRUNCATE"] ?? "500", 10);
+  const captureId = `urn:predicate:capture:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const inputStr = serialize(input.input, maxChars);
+  const hasOutput = input.output !== void 0 && input.output !== null;
+  const outputStr = hasOutput ? serialize(input.output, maxChars) : "";
+  const lines = [
+    `${escapeIRI(captureId)} a <${META6}ToolCall> ;`,
+    `  <${META6}toolName>  ${escapeLiteral(input.toolName)} ;`,
+    `  <${META6}phase>     ${escapeLiteral(input.phase)} ;`,
+    `  <${META6}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
+  ];
+  if (inputStr.length > 0) lines.push(`  ; <${META6}toolInput>  ${escapeLiteral(inputStr)}`);
+  if (hasOutput) lines.push(`  ; <${META6}toolOutput> ${escapeLiteral(outputStr)}`);
+  if (input.sessionId) lines.push(`  ; <${META6}sessionId>  ${escapeLiteral(input.sessionId)}`);
+  lines.push("  .");
+  await client.update(`
+    INSERT DATA { GRAPH ${escapeIRI(GRAPH.usage)} {
+      ${lines.join("\n      ")}
+    } }
+  `);
+  return { captureId, elapsedMs: Date.now() - t0 };
+}
+
 // ../predicate-mcp/src/tools/registry.ts
 var deltaQuadSchema = external_exports.object({
   s: external_exports.string(),
@@ -37995,6 +38040,27 @@ function buildTools(client) {
       description: "Return current graph counts (triples, abox, inferred, tbox), inferredRatio, unusedConceptRatio, and materializationLatencyMsP95.",
       inputSchema: external_exports.object({}),
       handler: async () => kgStats(client)
+    },
+    {
+      name: "kg_capture",
+      description: "Record a tool invocation (toolName, input, output, sessionId, phase) into kg:usage. Used by per-platform PreToolUse/PostToolUse hooks; safe to call directly. Returns {captureId, elapsedMs}.",
+      inputSchema: external_exports.object({
+        toolName: external_exports.string().min(1),
+        input: external_exports.unknown().optional(),
+        output: external_exports.unknown().optional(),
+        sessionId: external_exports.string().optional(),
+        phase: external_exports.enum(["pre", "post"])
+      }),
+      handler: async (raw) => {
+        const args = external_exports.object({
+          toolName: external_exports.string().min(1),
+          input: external_exports.unknown().optional(),
+          output: external_exports.unknown().optional(),
+          sessionId: external_exports.string().optional(),
+          phase: external_exports.enum(["pre", "post"])
+        }).parse(raw);
+        return kgCapture(client, args);
+      }
     },
     ...stubs()
   ];

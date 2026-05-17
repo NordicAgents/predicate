@@ -46,3 +46,18 @@ pred:question  a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:
 pred:sparql    a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:string .
 pred:rowCount  a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:integer .
 pred:elapsedMs a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:integer .
+
+# --- Tool-call capture event class (used by kg_capture) ----------
+
+pred:ToolCall a owl:Class ; rdfs:label "Captured tool invocation" .
+
+pred:toolName   a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+pred:toolInput  a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+pred:toolOutput a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+pred:sessionId  a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+pred:phase      a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .

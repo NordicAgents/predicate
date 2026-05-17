@@ -7,11 +7,12 @@ describe('tool registry', () => {
   const tools = buildTools(new SparqlClient(loadConfig()));
   const names = tools.map((t) => t.name);
 
-  it('exposes all 8 tools', () => {
+  it('exposes all 9 tools', () => {
     expect(names.sort()).toEqual(
       [
         'kg_ask',
         'kg_assert',
+        'kg_capture',
         'kg_explain',
         'kg_explore_schema',
         'kg_maintain',
@@ -22,10 +23,11 @@ describe('tool registry', () => {
     );
   });
 
-  it('no remaining stubs — all 8 tools are implemented', () => {
+  it('no remaining stubs — all 9 tools are implemented', () => {
     expect(names).toEqual(expect.arrayContaining([
       'kg_explore_schema', 'kg_ask', 'kg_assert', 'kg_explain',
       'kg_propose_schema', 'kg_research_goal', 'kg_stats', 'kg_maintain',
+      'kg_capture',
     ]));
   });
 });
