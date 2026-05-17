@@ -37,6 +37,23 @@ async function writeLegacyConfig(client: SparqlClient): Promise<void> {
   `);
 }
 
+// v2.0.1: poll Fuseki's /$/ping until it responds (or we hit the timeout).
+// `docker compose up -d` returns when the container has been CREATED, not
+// when Fuseki is bound to the port and serving SPARQL. Without this poll,
+// the very next fetch() inside up() crashes with `fetch failed` (ECONNREFUSED).
+async function waitForFuseki(timeoutSec = 20): Promise<boolean> {
+  const cfg = loadConfig();
+  const url = `${cfg.fusekiUrl}/$/ping`;
+  for (let i = 0; i < timeoutSec; i++) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(1000) });
+      if (r.ok) return true;
+    } catch { /* not ready yet */ }
+    await new Promise((res) => setTimeout(res, 1000));
+  }
+  return false;
+}
+
 export async function up(): Promise<number> {
   if (!dockerAvailable()) {
     console.error('Docker not found. Install Docker Desktop or Docker Engine first.');
@@ -46,6 +63,13 @@ export async function up(): Promise<number> {
   console.log(`bringing Fuseki up from ${dir}`);
   const rc = await compose(['up', '-d'], dir);
   if (rc !== 0) return rc;
+
+  // v2.0.1: wait for Fuseki to actually serve before any SPARQL.
+  const ready = await waitForFuseki(20);
+  if (!ready) {
+    console.error('predicate up: Fuseki did not become ready in 20s. Container is running; you may need to retry `predicate up` or check `docker logs predicate-fuseki`.');
+    return 1;
+  }
 
   // v2.0: check config
   try {

@@ -100,6 +100,64 @@ describe('predicate init', () => {
     expect(err).toMatch(/unknown ontology/i);
   });
 
+  // v2.0.1 regression: init now WIPES kg:tbox before loading, even when no
+  // config exists. Without this fix, residual TBox triples from a prior
+  // partial install would leak into the new ontology selection.
+  it('--mode empty wipes kg:tbox before loading (no codebase residue from prior install)', async () => {
+    // Seed kg:tbox with stale codebase triples but leave kg:meta empty
+    // (the partial-migration state that bit a real v2.0.0 user).
+    await client.update(`
+      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      INSERT DATA { GRAPH <kg:tbox> { cb:File a owl:Class . cb:Function a owl:Class } }
+    `);
+
+    const code = await init(['--mode', 'empty']);
+    expect(code).toBe(0);
+
+    const stillHasCodebase = await client.ask(
+      `PREFIX cb:  <https://predicate.dev/codebase#>
+       PREFIX owl: <http://www.w3.org/2002/07/owl#>
+       ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
+    );
+    expect(stillHasCodebase).toBe(false);
+
+    const hasTop = await client.ask(
+      `PREFIX top: <https://predicate.dev/top#>
+       PREFIX owl: <http://www.w3.org/2002/07/owl#>
+       ASK { GRAPH <kg:tbox> { top:Thing a owl:Class } }`,
+    );
+    expect(hasTop).toBe(true);
+  });
+
+  // v2.0.1 regression: bad uploads must be rejected BEFORE the destructive
+  // reset, so the user's previous TBox state survives an invalid upload.
+  it('--force --mode upload with bad-prefix.ttl does NOT destroy previous TBox', async () => {
+    await init(['--mode', 'community', '--ontology', 'codebase']);
+    const codebaseWasLoaded = await client.ask(
+      `PREFIX cb:  <https://predicate.dev/codebase#>
+       PREFIX owl: <http://www.w3.org/2002/07/owl#>
+       ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
+    );
+    expect(codebaseWasLoaded).toBe(true);
+
+    const code = await init(['--force', '--mode', 'upload', '--file', join(FIXTURES, 'bad-prefix.ttl')]);
+    expect(code).toBe(1);
+
+    const codebaseStillThere = await client.ask(
+      `PREFIX cb:  <https://predicate.dev/codebase#>
+       PREFIX owl: <http://www.w3.org/2002/07/owl#>
+       ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
+    );
+    expect(codebaseStillThere, 'rejected upload must not destroy previous TBox').toBe(true);
+
+    const cfg = await client.select(
+      `PREFIX pred: <https://predicate.dev/meta#>
+       SELECT ?o WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology ?o } }`,
+    );
+    expect(cfg.results.bindings[0]?.o?.value).toBe('codebase');
+  });
+
   it('--help prints usage', async () => {
     const code = await init(['--help']);
     expect(code).toBe(0);

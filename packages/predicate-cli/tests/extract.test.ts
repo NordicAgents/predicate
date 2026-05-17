@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { Readable } from 'node:stream';
 import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
+import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 
 vi.mock('@anthropic-ai/sdk', () => ({
   default: vi.fn().mockImplementation(() => ({
@@ -31,6 +32,10 @@ function writeTranscript(events: Array<Record<string, unknown>>): string {
 }
 
 describe('predicate extract', () => {
+  // Extract emits codebase:modifiedIn / succeededIn triples; those predicates
+  // must exist in kg:tbox for kg_assert to accept them. v2.0+ bootstrap
+  // no longer auto-loads codebase, so this suite owns its TBox precondition.
+  beforeAll(async () => { await withCodebaseTBox(client); });
   beforeEach(async () => { await reset(); });
 
   it('reads the Stop-hook payload, runs deterministic extractor, and asserts triples', async () => {
