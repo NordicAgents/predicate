@@ -7,13 +7,13 @@
     "email": "midhunxavier@outlook.com"
   },
   "license": "Apache-2.0",
-  "homepage": "https://github.com/midhunxavier/predicate#readme",
+  "homepage": "https://github.com/NordicAgents/predicate#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/midhunxavier/predicate.git",
+    "url": "https://github.com/NordicAgents/predicate.git",
     "directory": "packages/predicate-skill"
   },
-  "bugs": "https://github.com/midhunxavier/predicate/issues",
+  "bugs": "https://github.com/NordicAgents/predicate/issues",
   "keywords": [
     "mcp", "claude-code", "knowledge-graph", "rdf", "owl",
     "sparql", "reasoning", "fuseki", "agent"
@@ -43,5 +43,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": true
+  "private": false
 }

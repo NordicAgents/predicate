@@ -7,3 +7,4 @@ coverage/
 packages/predicate-server/fuseki-data/
 *.log
 .DS_Store
+.claude/settings.json

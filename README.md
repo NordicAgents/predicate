@@ -15,7 +15,7 @@ Prerequisites everywhere: **Docker** (for Fuseki) and **Node 20+**.
 <summary><strong>Claude Code</strong> — marketplace, full plugin (SKILL.md + hooks + slash commands)</summary>
 
 ```
-/plugin marketplace add midhunxavier/predicate
+/plugin marketplace add NordicAgents/predicate
 /plugin install predicate@predicate
 ```
 
@@ -97,7 +97,7 @@ Env vars: `FUSEKI_URL`, `PREDICATE_DATASET`.
 Any client that speaks MCP over stdio can use the bundled server directly:
 
 ```bash
-git clone https://github.com/midhunxavier/predicate
+git clone https://github.com/NordicAgents/predicate
 cd predicate
 pnpm install && pnpm build
 predicate up
