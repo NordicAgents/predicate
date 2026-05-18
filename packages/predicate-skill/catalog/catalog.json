@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "ontologies": [
+    {
+      "name": "top",
+      "description": "Minimal upper ontology — Thing, dependsOn, relatedTo",
+      "license": "CC0",
+      "files": ["top.ttl"]
+    },
+    {
+      "name": "codebase",
+      "description": "Software code structure (files, symbols, calls, modifications)",
+      "license": "Apache-2.0",
+      "files": ["codebase.ttl"],
+      "shapes": "codebase.shacl.ttl"
+    },
+    {
+      "name": "foaf",
+      "description": "Friend-of-a-friend — faithful subset of xmlns.com/foaf/0.1",
+      "license": "CC0",
+      "files": ["foaf.ttl"]
+    },
+    {
+      "name": "schema-org-lite",
+      "description": "Web entities — faithful subset of schema.org core (soft-typed)",
+      "license": "CC-BY-4.0",
+      "files": ["schema-org-lite.ttl"]
+    },
+    {
+      "name": "fhir-core",
+      "description": "HL7 FHIR R4 resource class vocabulary (class hierarchy only; load fhir.ttl for full data modeling)",
+      "license": "HL7",
+      "files": ["fhir-core.ttl"]
+    }
+  ]
+}

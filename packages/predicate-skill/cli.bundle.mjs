@@ -17302,6 +17302,9 @@ function hasFlag(args, name) {
 function findCatalogDir() {
   const here = dirname2(fileURLToPath2(import.meta.url));
   const candidates = [
+    // Bundled-alongside-CLI layout (predicate-skill global install).
+    join2(here, "catalog"),
+    // Monorepo / source-tree layouts.
     join2(here, "..", "..", "..", "predicate-ontology", "catalog"),
     join2(here, "..", "predicate-ontology", "catalog"),
     join2(here, "..", "..", "predicate-ontology", "catalog"),

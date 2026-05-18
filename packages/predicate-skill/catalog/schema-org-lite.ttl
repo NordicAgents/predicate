@@ -1,0 +1,63 @@
+@prefix schema: <https://schema.org/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+
+# Schema.org-lite — true subset of schema.org's published vocabulary.
+# Upstream: https://schema.org/        License: CC-BY-4.0
+#
+# Schema.org deliberately does NOT use rdfs:domain / rdfs:range on its
+# properties — it uses its own schema:domainIncludes / schema:rangeIncludes,
+# which are "soft" expected-type hints, not OWL-style strict constraints.
+# We follow that convention so anything we publish is a faithful subset.
+
+schema:domainIncludes a rdf:Property ; rdfs:label "domain includes" .
+schema:rangeIncludes  a rdf:Property ; rdfs:label "range includes" .
+
+# --- Classes (real schema.org hierarchy) --------------------------
+
+schema:Thing               a owl:Class ; rdfs:label "Thing" .
+schema:Person              a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Person" .
+schema:Organization        a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Organization" .
+schema:Place               a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Place" .
+schema:Event               a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Event" .
+schema:Product             a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Product" .
+
+schema:CreativeWork        a owl:Class ; rdfs:subClassOf schema:Thing ; rdfs:label "Creative Work" .
+schema:Article             a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Article" .
+schema:Book                a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Book" .
+schema:Movie               a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Movie" .
+schema:Recipe              a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Recipe" .
+schema:Review              a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Review" .
+schema:WebPage             a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Web Page" .
+schema:SoftwareApplication a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Software Application" .
+schema:Dataset             a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Dataset" .
+schema:ImageObject         a owl:Class ; rdfs:subClassOf schema:CreativeWork ; rdfs:label "Image Object" .
+
+# --- Datatype-ish properties --------------------------------------
+
+schema:name           a rdf:Property ; rdfs:label "name" .
+schema:description    a rdf:Property ; rdfs:label "description" .
+schema:url            a rdf:Property ; rdfs:label "url" .
+schema:identifier     a rdf:Property ; rdfs:label "identifier" .
+schema:datePublished  a rdf:Property ; rdfs:label "date published" .
+schema:dateCreated    a rdf:Property ; rdfs:label "date created" .
+schema:dateModified   a rdf:Property ; rdfs:label "date modified" .
+
+# --- Object-ish properties (schema-style soft typing) -------------
+
+schema:author    a rdf:Property ;
+                 schema:rangeIncludes schema:Person , schema:Organization ;
+                 rdfs:label "author" .
+schema:publisher a rdf:Property ;
+                 schema:rangeIncludes schema:Organization , schema:Person ;
+                 rdfs:label "publisher" .
+schema:image     a rdf:Property ;
+                 schema:rangeIncludes schema:ImageObject , schema:URL ;
+                 rdfs:label "image" .
+schema:about     a rdf:Property ;
+                 schema:rangeIncludes schema:Thing ;
+                 rdfs:label "about" .
+schema:location  a rdf:Property ;
+                 schema:rangeIncludes schema:Place , schema:Organization ;
+                 rdfs:label "location" .

@@ -1,6 +1,6 @@
 {
   "name": "predicate-skill",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — Claude Code plugin + MCP server + predicate CLI.",
   "author": {
     "name": "Nordic Agents Research",
@@ -30,13 +30,15 @@
     "commands",
     "hooks",
     "compose",
+    "catalog",
+    "meta",
     "dashboard",
     "LICENSE",
     "README.md"
   ],
   "scripts": {
     "bundle": "node scripts/bundle.mjs",
-    "prepublishOnly": "node scripts/bundle.mjs && node -e \"const fs=require('fs');for(const f of ['server.bundle.mjs','cli.bundle.mjs']){if(!fs.existsSync(f)){console.error('missing '+f);process.exit(1)}}\""
+    "prepublishOnly": "node scripts/bundle.mjs && node -e \"const fs=require('fs');for(const f of ['server.bundle.mjs','cli.bundle.mjs','catalog/catalog.json','meta/predicate-meta.ttl']){if(!fs.existsSync(f)){console.error('missing '+f);process.exit(1)}}\""
   },
   "engines": {
     "node": ">=20"

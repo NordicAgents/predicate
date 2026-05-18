@@ -1,0 +1,24 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix :     <https://predicate.dev/codebase#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+:FileShape a sh:NodeShape ;
+    sh:targetClass :File ;
+    sh:property [
+        sh:path :path ; sh:datatype xsd:string ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] .
+
+:SymbolShape a sh:NodeShape ;
+    sh:targetClass :Symbol ;
+    sh:property [
+        sh:path :declaredIn ; sh:class :File ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] .
+
+:CommitShape a sh:NodeShape ;
+    sh:targetClass :Commit ;
+    sh:property [
+        sh:path :sha ; sh:datatype xsd:string ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] .

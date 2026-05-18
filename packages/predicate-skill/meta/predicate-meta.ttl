@@ -1,0 +1,99 @@
+@prefix pred: <https://predicate.dev/meta#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Event class hierarchy ---------------------------------------
+
+pred:Event a owl:Class ; rdfs:label "Predicate lifecycle event" .
+
+pred:SchemaProposed         a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaValidationPassed a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaValidationFailed a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaPromoted         a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaRejected         a owl:Class ; rdfs:subClassOf pred:Event .
+pred:SchemaRolledBack       a owl:Class ; rdfs:subClassOf pred:Event .
+pred:TBoxVersionAdvanced    a owl:Class ; rdfs:subClassOf pred:Event .
+
+pred:GoalCreated       a owl:Class ; rdfs:subClassOf pred:Event .
+pred:GoalStatusChanged a owl:Class ; rdfs:subClassOf pred:Event .
+
+pred:InconsistencyDetected a owl:Class ; rdfs:subClassOf pred:Event .
+pred:MaintenanceRun        a owl:Class ; rdfs:subClassOf pred:Event .
+
+# --- Common event properties -------------------------------------
+
+pred:at      a owl:DatatypeProperty , owl:FunctionalProperty ;
+             rdfs:domain pred:Event ; rdfs:range xsd:dateTime .
+pred:actor   a owl:DatatypeProperty ;
+             rdfs:domain pred:Event ; rdfs:range xsd:string .
+pred:goal    a owl:ObjectProperty ; rdfs:domain pred:Event .
+pred:payload a owl:DatatypeProperty ;
+             rdfs:domain pred:Event ; rdfs:range xsd:string .
+
+# --- Provenance properties (already used by kg_assert RDF-star) --
+
+pred:source     a owl:DatatypeProperty ; rdfs:range xsd:string .
+pred:confidence a owl:DatatypeProperty ; rdfs:range xsd:decimal .
+pred:method     a owl:DatatypeProperty ; rdfs:range xsd:string .
+pred:timestamp  a owl:DatatypeProperty ; rdfs:range xsd:dateTime .
+
+# --- Query/usage event class (already used by kg_ask) ------------
+
+pred:Query a owl:Class ; rdfs:label "Query execution record" .
+pred:question  a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:string .
+pred:sparql    a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:string .
+pred:rowCount  a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:integer .
+pred:elapsedMs a owl:DatatypeProperty ; rdfs:domain pred:Query ; rdfs:range xsd:integer .
+
+# --- Tool-call capture event class (used by kg_capture) ----------
+
+pred:ToolCall a owl:Class ; rdfs:label "Captured tool invocation" .
+
+pred:toolName   a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+pred:toolInput  a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+pred:toolOutput a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+pred:sessionId  a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+pred:phase      a owl:DatatypeProperty ;
+                rdfs:domain pred:ToolCall ; rdfs:range xsd:string .
+
+# --- Session class (used by the Stop-hook extractor) -------------
+
+pred:Session a owl:Class ; rdfs:label "Development session" .
+pred:startedAt a owl:DatatypeProperty ;
+               rdfs:domain pred:Session ; rdfs:range xsd:dateTime .
+pred:endedAt   a owl:DatatypeProperty ;
+               rdfs:domain pred:Session ; rdfs:range xsd:dateTime .
+
+# --- Peer registry (federation) ----------------------------------
+
+pred:Peer       a owl:Class ; rdfs:label "Registered federation peer" .
+pred:peerName   a owl:DatatypeProperty ;
+                rdfs:domain pred:Peer ; rdfs:range xsd:string .
+pred:peerEndpoint a owl:DatatypeProperty ;
+                rdfs:domain pred:Peer ; rdfs:range xsd:anyURI .
+pred:peerAddedAt a owl:DatatypeProperty ;
+                rdfs:domain pred:Peer ; rdfs:range xsd:dateTime .
+pred:peerKind   a owl:DatatypeProperty ;
+                rdfs:domain pred:Peer ; rdfs:range xsd:string ;
+                rdfs:label "Peer kind tag: 'team' (default) or 'external-ld'" .
+
+# --- Bootstrap/init config (v2.0) --------------------------------
+
+pred:Config           a owl:Class ; rdfs:label "Predicate runtime config singleton" .
+pred:initMode         a owl:DatatypeProperty , owl:FunctionalProperty ;
+                      rdfs:domain pred:Config ; rdfs:range xsd:string ;
+                      rdfs:comment "One of: community | upload | empty" .
+pred:initOntology     a owl:DatatypeProperty , owl:FunctionalProperty ;
+                      rdfs:domain pred:Config ; rdfs:range xsd:string ;
+                      rdfs:comment "Catalog name (e.g. codebase, foaf), or 'user' for upload, or 'top' for empty" .
+pred:schemaLearningEnabled a owl:DatatypeProperty , owl:FunctionalProperty ;
+                      rdfs:domain pred:Config ; rdfs:range xsd:boolean ;
+                      rdfs:comment "When false, Generalizer skips auto-proposal generation (Sweeper still promotes existing staging)" .
+pred:initializedAt    a owl:DatatypeProperty , owl:FunctionalProperty ;
+                      rdfs:domain pred:Config ; rdfs:range xsd:dateTime .

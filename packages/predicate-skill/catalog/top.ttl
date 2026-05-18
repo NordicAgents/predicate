@@ -1,0 +1,20 @@
+@prefix :     <https://predicate.dev/top#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+# Minimal upper ontology (Predicate v2.0 "start-empty" mode seed)
+
+:Thing      a owl:Class ;
+            rdfs:label "Thing" ;
+            rdfs:comment "The universal class. Everything is a Thing." .
+
+:dependsOn  a owl:ObjectProperty , owl:TransitiveProperty ;
+            rdfs:domain :Thing ; rdfs:range :Thing ;
+            rdfs:label "depends on" ;
+            rdfs:comment "Asymmetric directional dependency. Transitive: A→B and B→C implies A→C." .
+
+:relatedTo  a owl:ObjectProperty , owl:SymmetricProperty ;
+            rdfs:domain :Thing ; rdfs:range :Thing ;
+            rdfs:label "related to" ;
+            rdfs:comment "Generic symmetric association." .

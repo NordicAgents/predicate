@@ -1,12 +1,24 @@
 #!/usr/bin/env node
 import { build } from 'esbuild';
-import { chmodSync } from 'node:fs';
+import { chmodSync, cpSync, rmSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 const repoRoot = resolve(root, '..', '..');
+
+// Copy the ontology catalog + meta into predicate-skill so that
+// `predicate init --mode community` works when the package is installed
+// globally (the npm install dir has no access to the monorepo's
+// predicate-ontology package).
+for (const sub of ['catalog', 'meta']) {
+  const src = resolve(repoRoot, 'packages/predicate-ontology', sub);
+  const dst = resolve(root, sub);
+  rmSync(dst, { recursive: true, force: true });
+  cpSync(src, dst, { recursive: true });
+  console.log(`staged ${sub}/ from predicate-ontology`);
+}
 
 await build({
   entryPoints: [resolve(repoRoot, 'packages/predicate-mcp/src/index.ts')],
