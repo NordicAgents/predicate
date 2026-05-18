@@ -17149,9 +17149,19 @@ var require_src = __commonJS({
 
 // ../predicate-cli/src/docker.ts
 import { execSync, spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { existsSync, cpSync } from "node:fs";
+import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
+var DOCKER_SHARED_PREFIXES = ["/Users", "/Volumes", "/private", "/tmp", "/var/folders"];
+function isDockerAccessible(path) {
+  return DOCKER_SHARED_PREFIXES.some((p2) => path.startsWith(p2));
+}
+function stageComposeDir(src) {
+  const dest = join(homedir(), ".predicate", "compose");
+  cpSync(src, dest, { recursive: true, force: true });
+  return dest;
+}
 function findComposeDir() {
   const here = dirname(fileURLToPath(import.meta.url));
   const candidates = [
@@ -17163,7 +17173,9 @@ function findComposeDir() {
     resolve(here, "..", "..", "..", "predicate-server")
   ].filter((p2) => Boolean(p2));
   for (const c2 of candidates) {
-    if (c2 && existsSync(resolve(c2, "docker-compose.yml"))) return c2;
+    if (c2 && existsSync(resolve(c2, "docker-compose.yml"))) {
+      return isDockerAccessible(c2) ? c2 : stageComposeDir(c2);
+    }
   }
   throw new Error(
     `Could not locate docker-compose.yml. Set PREDICATE_COMPOSE_DIR to the directory containing it, or run from the predicate repo root. Searched: ${candidates.join(", ")}`
@@ -17274,7 +17286,7 @@ function escapeLiteral(value) {
 
 // ../predicate-cli/src/commands/init.ts
 import { readFileSync, existsSync as existsSync2, statSync } from "node:fs";
-import { join, dirname as dirname2, resolve as resolve2 } from "node:path";
+import { join as join2, dirname as dirname2, resolve as resolve2 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { createInterface } from "node:readline/promises";
 var META = "https://predicate.dev/meta#";
@@ -17290,16 +17302,16 @@ function hasFlag(args, name) {
 function findCatalogDir() {
   const here = dirname2(fileURLToPath2(import.meta.url));
   const candidates = [
-    join(here, "..", "..", "..", "predicate-ontology", "catalog"),
-    join(here, "..", "predicate-ontology", "catalog"),
-    join(here, "..", "..", "predicate-ontology", "catalog"),
-    join(here, "predicate-ontology", "catalog")
+    join2(here, "..", "..", "..", "predicate-ontology", "catalog"),
+    join2(here, "..", "predicate-ontology", "catalog"),
+    join2(here, "..", "..", "predicate-ontology", "catalog"),
+    join2(here, "predicate-ontology", "catalog")
   ];
-  for (const c2 of candidates) if (existsSync2(join(c2, "catalog.json"))) return c2;
+  for (const c2 of candidates) if (existsSync2(join2(c2, "catalog.json"))) return c2;
   throw new Error(`catalog directory not found \u2014 checked ${candidates.join(", ")}`);
 }
 function findMetaTtl(catalogDir) {
-  return join(catalogDir, "..", "meta", "predicate-meta.ttl");
+  return join2(catalogDir, "..", "meta", "predicate-meta.ttl");
 }
 function help() {
   console.log(`predicate init [--mode community|upload|empty] [--ontology NAME] [--file PATH] [--force]
@@ -17374,7 +17386,7 @@ function validateUserUpload(turtle) {
 }
 async function buildPlanCommunity(ontology) {
   const catalogDir = findCatalogDir();
-  const catalog = JSON.parse(readFileSync(join(catalogDir, "catalog.json"), "utf8"));
+  const catalog = JSON.parse(readFileSync(join2(catalogDir, "catalog.json"), "utf8"));
   const entry = catalog.ontologies.find((o2) => o2.name === ontology);
   if (!entry) {
     console.error(`predicate init: unknown ontology '${ontology}'. Available: ${catalog.ontologies.map((o2) => o2.name).join(", ")}`);
@@ -17409,8 +17421,8 @@ async function applyPlan(client, plan, force) {
   await wipeForInit(client, force);
   await loadTtlFile(client, findMetaTtl(plan.catalogDir));
   if (plan.kind === "community") {
-    for (const f2 of plan.entry.files) await loadTtlFile(client, join(plan.catalogDir, f2));
-    if (plan.entry.shapes) await loadTtlFile(client, join(plan.catalogDir, plan.entry.shapes));
+    for (const f2 of plan.entry.files) await loadTtlFile(client, join2(plan.catalogDir, f2));
+    if (plan.entry.shapes) await loadTtlFile(client, join2(plan.catalogDir, plan.entry.shapes));
     await writeConfig(client, "community", plan.entry.name);
     console.log(`predicate init: ${plan.entry.name} ontology loaded (${plan.entry.description}, license: ${plan.entry.license}).`);
     return 0;
@@ -17429,7 +17441,7 @@ async function applyPlan(client, plan, force) {
     console.log(`predicate init: uploaded ${plan.abs} (${plan.size} bytes). Schema-learning enabled.`);
     return 0;
   }
-  await loadTtlFile(client, join(plan.catalogDir, "top.ttl"));
+  await loadTtlFile(client, join2(plan.catalogDir, "top.ttl"));
   await writeConfig(client, "empty", "top");
   console.log(`predicate init: empty mode (meta + top vocabulary loaded). The agent will propose new predicates as needed; sweeper promotes after 3 uses.`);
   return 0;
@@ -17450,7 +17462,7 @@ async function interactive(client, force) {
     let plan;
     if (choice === "1") {
       const catalogDir = findCatalogDir();
-      const catalog = JSON.parse(readFileSync(join(catalogDir, "catalog.json"), "utf8"));
+      const catalog = JSON.parse(readFileSync(join2(catalogDir, "catalog.json"), "utf8"));
       console.log("\nAvailable ontologies:");
       for (const o2 of catalog.ontologies) console.log(`  - ${o2.name.padEnd(18)} ${o2.description}`);
       const name = (await rl.question("\nWhich ontology? ")).trim();
@@ -28690,7 +28702,7 @@ async function recall(args) {
 // ../predicate-cli/src/commands/dashboard.ts
 import { createServer } from "node:http";
 import { readFileSync as readFileSync3 } from "node:fs";
-import { join as join2, dirname as dirname3 } from "node:path";
+import { join as join3, dirname as dirname3 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 import { spawn } from "node:child_process";
 function parseFlag7(args, name) {
@@ -28745,11 +28757,11 @@ async function proxyQuery(req, res, fusekiUrl, dataset2) {
 function findDashboardHtml() {
   const here = dirname3(fileURLToPath3(import.meta.url));
   const candidates = [
-    join2(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
-    join2(here, "dashboard", "index.html"),
+    join3(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
+    join3(here, "dashboard", "index.html"),
     // bundled cli.bundle.mjs sits next to dashboard/
-    join2(here, "..", "dashboard", "index.html"),
-    join2(here, "..", "..", "dashboard", "index.html")
+    join3(here, "..", "dashboard", "index.html"),
+    join3(here, "..", "..", "dashboard", "index.html")
   ];
   for (const p2 of candidates) {
     try {
