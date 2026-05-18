@@ -10,7 +10,7 @@
     {
       "name": "codebase",
       "description": "Software code structure (files, symbols, calls, modifications)",
-      "license": "Apache-2.0",
+      "license": "Elastic-2.0",
       "files": ["codebase.ttl"],
       "shapes": "codebase.shacl.ttl"
     },

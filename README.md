@@ -1,18 +1,51 @@
 # Predicate
 
-A local-first MCP skill that gives AI agents a knowledge graph they can reason
-over and that improves itself with use.
+**Reasoning memory for AI agents — a knowledge graph that compounds with use.**
 
-See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the product brief,
-[`docs/superpowers/specs/2026-05-16-predicate-design.md`](docs/superpowers/specs/2026-05-16-predicate-design.md)
-for the v1 architecture.
+Predicate gives an AI coding or research agent a structured graph it can query,
+reason over, and grow with use. Facts are stored as RDF triples with
+per-triple provenance and confidence. An OWL 2 RL reasoner materializes
+entailments deterministically. The schema is versioned like code and evolves
+under a propose → validate → use-gated promotion loop. Everything runs locally
+on a bundled Apache Jena Fuseki; nothing leaves the machine.
+
+The wedge: where RAG returns documents containing the word *login*, Predicate
+traverses `auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production`,
+explains the chain with citations, and remembers it next session.
+
+See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the full product brief.
+
+## How it works
+
+- **Storage.** Apache Jena Fuseki / TDB2 in Docker, with 9 named graphs that
+  separate slow-changing schema (`kg:tbox`) from fast-flowing facts
+  (`kg:abox`), materialized entailments (`kg:inferred`), per-triple metadata
+  (`kg:provenance`), goals (`kg:goals`), usage logs (`kg:usage`), staging
+  (`kg:tbox-staging`), version history (`kg:meta`), and peer registry
+  (`kg:peers`).
+- **Reasoning.** A curated OWL 2 RL rule set runs as SPARQL `CONSTRUCT` rules
+  to a fixpoint, plus SHACL shapes for closed-world validation. Logical
+  entailment is the engine's job; the model formulates queries and
+  interprets results.
+- **Provenance.** Every triple is annotated with source, time, confidence,
+  and extraction method using RDF-star. Low-confidence triples remain
+  visible to queries but are excluded from the inference closure so they
+  cannot poison entailment.
+- **Schema lifecycle.** The agent proposes deltas to `kg:tbox-staging`,
+  never to `kg:tbox` directly. Proposals are promoted only after the
+  reasoner accepts them and they have been used by N successful queries
+  inside a TTL; unused proposals expire quietly. Every promotion is a
+  git-tracked Turtle commit.
+- **Goal-conditioned growth.** Concepts enter the graph because a goal
+  needed them, not because a document mentioned them. The promotion gate
+  makes inferred goals safe by construction.
 
 ## Install
 
-Prerequisites everywhere: **Docker** (for Fuseki) and **Node 20+**.
+Prerequisites: **Docker** (for Fuseki) and **Node 20+**.
 
 <details open>
-<summary><strong>Claude Code</strong> — marketplace, full plugin (SKILL.md + hooks + slash commands)</summary>
+<summary><strong>Claude Code</strong> — marketplace install (SKILL.md + hooks + slash commands)</summary>
 
 ```
 /plugin marketplace add NordicAgents/predicate
@@ -22,41 +55,37 @@ Prerequisites everywhere: **Docker** (for Fuseki) and **Node 20+**.
 Restart Claude Code (or `/reload-plugins`). Then:
 
 ```bash
-predicate up           # starts Fuseki, loads seed TBox + meta + shapes
-predicate doctor       # confirms everything is green
+predicate up        # starts Fuseki, creates the 9 named graphs
+predicate doctor    # confirms everything is green
 ```
 
-Slash commands available: `/predicate:up`, `/predicate:down`, `/predicate:doctor`,
+Slash commands: `/predicate:up`, `/predicate:down`, `/predicate:doctor`,
 `/predicate:stats`, `/predicate:ask <question>`.
 
 </details>
 
 <details>
-<summary><strong>Cursor</strong> — MCP + 3 maintenance scripts</summary>
+<summary><strong>Cursor</strong> — MCP + maintenance scripts</summary>
 
 ```bash
-# 1. Clone + bundle
 git clone https://github.com/NordicAgents/predicate
 cd predicate && pnpm install && pnpm build
 
-# 2. Copy the MCP config
 cp packages/predicate-skill/hooks/cursor/mcp.json.template ~/.cursor/mcp.json
 # Edit ~/.cursor/mcp.json: replace __PLUGIN_DIR__ with the absolute path to
 # this checkout's packages/predicate-skill directory.
 
-# 3. Start fuseki
 predicate up
 ```
 
-Restart Cursor's MCP servers (Cmd-Shift-P → "Reload MCP servers"). The 8
-`kg_*` tools are now available. See
+Reload MCP servers in Cursor (Cmd-Shift-P → "Reload MCP servers"). See
 `packages/predicate-skill/hooks/cursor/README.md` for optional cron wiring
 of the SessionStart, PreCompact, and Stop scripts.
 
 </details>
 
 <details>
-<summary><strong>Continue.dev</strong> — MCP-only via config.yaml</summary>
+<summary><strong>Continue.dev</strong> — MCP via config.yaml</summary>
 
 In `~/.continue/config.yaml`:
 
@@ -86,8 +115,8 @@ predicate up
 # path to this checkout's packages/predicate-skill directory.
 ```
 
-See `packages/predicate-skill/hooks/gemini-cli/README.md` for details
-on the three hook events.
+See `packages/predicate-skill/hooks/gemini-cli/README.md` for the three
+hook events.
 
 </details>
 
@@ -96,9 +125,8 @@ on the three hook events.
 
 Merge `packages/predicate-skill/hooks/vscode-copilot/settings.json.template`
 into your VS Code `settings.json`, replacing `__PLUGIN_DIR__`. Restart
-VS Code. The 8 `kg_*` tools are available to Copilot Chat. VS Code does
-not currently expose SessionStart/PreCompact/Stop events; see the
-adapter README for manual + VS Code task wiring of the maintenance
+VS Code. VS Code does not currently expose lifecycle events; the adapter
+README documents manual + VS Code task wiring for the maintenance
 scripts.
 
 </details>
@@ -116,24 +144,20 @@ predicate up
 # absolute path to this checkout's packages/predicate-skill directory.
 ```
 
-See `packages/predicate-skill/hooks/opencode/README.md` for details
-on the three plugin events.
-
 </details>
 
 <details>
 <summary><strong>Codex CLI</strong> — MCP via ~/.codex/config.toml</summary>
 
-Merge `packages/predicate-skill/hooks/codex-cli/config.toml.template`
-into `~/.codex/config.toml`, replacing `__PLUGIN_DIR__`. The 8 `kg_*`
-tools are available the next time you launch `codex`. Codex CLI has no
-lifecycle events yet; see the adapter README for manual + shell-alias
-wiring of the maintenance scripts.
+Merge `packages/predicate-skill/hooks/codex-cli/config.toml.template` into
+`~/.codex/config.toml`, replacing `__PLUGIN_DIR__`. Codex CLI has no
+lifecycle events; see the adapter README for shell-alias wiring of the
+maintenance scripts.
 
 </details>
 
 <details>
-<summary><strong>Any-MCP / generic</strong></summary>
+<summary><strong>Any MCP-capable client</strong></summary>
 
 Any client that speaks MCP over stdio can use the bundled server directly:
 
@@ -142,7 +166,7 @@ git clone https://github.com/NordicAgents/predicate
 cd predicate && pnpm install && pnpm build
 predicate up
 
-# Then point your MCP-capable tool at:
+# Point your MCP client at:
 #   node /absolute/path/to/predicate/packages/predicate-skill/server.bundle.mjs
 # with env FUSEKI_URL=http://localhost:3030 PREDICATE_DATASET=predicate
 ```
@@ -150,53 +174,73 @@ predicate up
 </details>
 
 <details>
-<summary><strong>From npm (after publish)</strong></summary>
-
-Once `predicate-skill` is published to npm (see `docs/superpowers/plans/2026-05-17-predicate-phase-6-publish-and-multiplatform.md` for the publish flow), users can:
+<summary><strong>From npm</strong></summary>
 
 ```bash
 npm install -g predicate-skill
 predicate up
 predicate doctor
 
-# Or one-shot MCP without global install:
+# Or one-shot MCP without a global install:
 claude mcp add predicate -- npx -y predicate-skill
 ```
 
-Status: package metadata is publish-ready (Phase 6); the `npm publish`
-itself is gated by maintainer credentials.
-
 </details>
 
-## Tools
+## Bootstrap modes
+
+On first `predicate up`, choose how to seed the schema:
+
+- **Community ontology.** Install a bundled vocabulary — `top`, `codebase`,
+  `foaf`, `schema-org-lite`, or `fhir-core`. The catalog lives at
+  `packages/predicate-ontology/catalog/`.
+- **Bring your own.** Upload a Turtle file as the initial TBox.
+- **Empty.** Start with no schema; let the agent grow vocabulary through the
+  propose → validate → 3-uses-in-7-days promotion gate.
+
+Schema-learning is toggleable at runtime via the `kg_config_set` /
+`kg_config_get` MCP tools.
+
+## MCP tools
 
 | Tool | What it does |
 |---|---|
-| `kg_explore_schema` | Returns the TBox slice for a concept (classes, properties, characteristics). |
-| `kg_ask` | Executes a caller-drafted SPARQL query, logs to `kg:usage`, truncates results. |
-| `kg_assert` | Writes a triple to `kg:abox` with RDF-star provenance; rejects undeclared predicates. |
-| `kg_explain` | Returns a backward-chained derivation for a claim, with cited provenance. |
+| `kg_explore_schema` | Returns the TBox slice for a concept (classes, properties, characteristics) so the model uses real predicates. |
+| `kg_ask` | Executes a caller-drafted SPARQL query against asserted + inferred graphs. Logs to `kg:usage`, truncates results. Supports `includeRemote: true` to merge results from registered peers. |
+| `kg_assert` | Writes a triple to `kg:abox` with RDF-star provenance. Rejects undeclared predicates. |
+| `kg_explain` | Returns the backward-chained derivation for a claim, with cited provenance. |
 | `kg_propose_schema` | Stages a `SchemaDelta` proposal in `kg:tbox-staging`. |
-| `kg_research_goal` | Decompose a goal → gap-detect → (optional) execute research → return a plan. |
-| `kg_stats` | Triples / abox / inferred / tbox counts, inferred ratio, unused-concept ratio. |
-| `kg_maintain` | Runs reaper + generalizer + promotion sweeper. |
-| `kg_capture` | Record a tool invocation (toolName, input, output, sessionId, phase) into `kg:usage`. Used by PreToolUse/PostToolUse hook scripts. |
+| `kg_research_goal` | Decompose a goal → gap-detect → optionally execute research → return a plan. |
+| `kg_stats` | Triples, ABox, inferred, TBox counts; inferred ratio; unused-concept ratio. |
+| `kg_maintain` | Runs reaper, generalizer, and promotion sweeper, then re-materializes inferred. |
+| `kg_capture` | Records a tool invocation (toolName, input, output, sessionId, phase) into `kg:usage`. Used by PreToolUse/PostToolUse hook scripts. |
+| `kg_config_set` / `kg_config_get` | Read or update runtime config (e.g. schema-learning toggle). |
 
 ## CLI
 
 ```
-predicate up             # docker compose up + bootstrap graphs + load TBox
-predicate down           # stop fuseki, keep the volume
-predicate doctor         # health checks (docker, fuseki, tbox, tools)
-predicate stats          # current kg_stats output
-predicate sessionstart   # one-line KG status banner (used by hook scripts)
-predicate maintain       # reaper + generalizer + promotion sweeper
-predicate capture        # record a tool call in kg:usage (opt-in: PREDICATE_RAW_CAPTURE=1)
-predicate extract        # read a Stop-hook payload and assert typed triples to kg:abox
-predicate sessions       # list recent extracted sessions (modifiedFiles / ok / fail)
-predicate captures       # list raw kg:usage ToolCall captures (opt-in raw-capture path)
-predicate recall <query> # substring search over session history (files + commands)
-predicate dashboard      # serve a localhost web view of session-history + reasoning output
+predicate up                # docker compose up + bootstrap the 9 named graphs
+predicate down              # stop Fuseki, keep the volume
+predicate doctor            # health checks (docker, fuseki, tbox, tools)
+predicate stats             # current kg_stats output
+predicate sessionstart      # one-line KG status banner (used by hook scripts)
+predicate maintain          # reaper + generalizer + promotion sweeper
+predicate capture           # record a tool call in kg:usage (opt-in: PREDICATE_RAW_CAPTURE=1)
+predicate extract           # read a Stop-hook payload and assert typed triples to kg:abox
+predicate sessions          # list recent extracted sessions (modifiedFiles / ok / fail)
+predicate captures          # list raw kg:usage ToolCall captures
+predicate recall <query>    # substring search over session history (files + commands)
+predicate dashboard         # serve a localhost web view of session history + reasoning output
+
+predicate peer add <name> <sparql-endpoint>   # register a teammate's Fuseki
+predicate peer list | peer remove
+predicate export-sessions [--since DATE] [--user NAME]
+predicate import-sessions <file.trig>
+
+predicate ld init           # register DBpedia + Wikidata as external LD peers
+predicate ld list
+predicate ld ask <query>    # one-shot SPARQL across all registered LD endpoints
+
 predicate --version
 predicate --help
 ```
@@ -207,196 +251,68 @@ predicate --help
 predicate dashboard
 ```
 
-Serves a localhost web view at http://127.0.0.1:4040 showing recent
-sessions, hotspots, flaky commands, active files, and graph stats.
-Auto-refreshes every 30s. `--port N` to override; `--no-open` to skip
-the browser launch.
+Serves a localhost web view at `http://127.0.0.1:4040` with recent sessions,
+hotspots (files modified in ≥3 sessions), flaky commands (failed in ≥2
+sessions), active files (touched in the most recent session), and a stats
+snapshot. Read-only; auto-refreshes every 30s. `--port N` to override;
+`--no-open` to skip launching a browser.
+
+## Federation
+
+Predicate is single-user by default but can share session history across a
+team without merging stores.
+
+- `predicate peer add <name> <endpoint>` registers a teammate's Fuseki in
+  `kg:peers`.
+- `predicate export-sessions` dumps the local session-history slice as a
+  TriG file wrapped in a per-export named graph
+  (`urn:predicate:export:<user>:<timestamp>`), so a receiving instance can
+  hold multiple peers' data side-by-side without collision.
+- `predicate import-sessions <file.trig>` loads such a file; each named
+  graph is preserved as-is and never mixed into local `kg:abox`.
+- `kg_ask` with `includeRemote: true` runs the SPARQL locally and against
+  every registered peer, merging results with a `?peer` column tagging
+  origin. Per-peer errors are caught — a dead peer never crashes the query.
+
+A thin Linked-Data layer reuses the same registry to query public
+endpoints (`predicate ld ask`) without writing remote results back to
+`kg:abox`.
+
+## Derived classes
+
+The reasoner materializes a small set of derive-only classes into
+`kg:inferred` so action data becomes queryable:
+
+| Derived class | Means |
+|---|---|
+| `codebase:Hotspot` | File modified in ≥3 sessions |
+| `codebase:FlakyCommand` | Command that has failed in ≥2 sessions |
+| `codebase:ActiveFile` | File modified in the single most-recent session |
 
 ## Packages
 
 | Package | Purpose |
 |---|---|
-| `predicate-server` | Fuseki/TDB2 in Docker; 8 named graphs (dev workflow) |
-| `predicate-mcp` | MCP server; 8 tools, all implemented |
-| `predicate-reasoner` | OWL 2 RL reasoner (19 rules) + SHACL + kg_explain |
-| `predicate-agent` | Goal store, decomposer, gap detector, research, schema proposer, sweeper, generalizer |
-| `predicate-cli` | `predicate up/down/doctor/stats` CLI |
-| `predicate-ontology` | Versioned TBox + SHACL shapes + meta vocabulary |
+| `predicate-server` | Fuseki / TDB2 in Docker; bootstrap of the 9 named graphs |
+| `predicate-mcp` | MCP server exposing the `kg_*` tools |
+| `predicate-reasoner` | OWL 2 RL reasoner + SHACL validation + `kg_explain` |
+| `predicate-agent` | Goal store, decomposer, gap detector, research orchestrator, schema proposer, sweeper, generalizer |
+| `predicate-cli` | The `predicate` CLI |
+| `predicate-ontology` | Versioned TBox catalog, SHACL shapes, meta vocabulary |
 | `predicate-eval` | End-to-end demo + multi-hop eval harness |
-| `predicate-skill` | Claude Code plugin — bundled server + CLI + SKILL.md + hooks |
+| `predicate-skill` | Distributable plugin — bundled server + CLI + SKILL.md + per-client hooks |
 
 ## Development
 
-Clone, install, build, test, run:
-
 ```bash
-git clone https://github.com/mxresearch/predicate
+git clone https://github.com/NordicAgents/predicate
 cd predicate
 pnpm install
 pnpm build            # builds all packages + the plugin bundle
-pnpm test             # 246 tests against a live Fuseki
-pnpm fuseki:up        # for development; `predicate up` is the user-facing alias
+pnpm test             # full test suite against a live Fuseki
+pnpm fuseki:up        # dev alias; `predicate up` is the user-facing command
 ```
 
-See `docs/superpowers/plans/` for the per-phase implementation plans
-(Foundation through Distribution).
+## License
 
-## Status
-
-**v2.0 — domain-agnostic bootstrap.** Predicate is no longer hard-coded
-to the codebase domain. On first `predicate up`, choose one of three
-init modes: install a bundled community ontology (top, codebase, foaf,
-schema-org-lite, fhir-core), upload your own .ttl, or start empty and
-let the agent grow vocabulary via the propose-validate-3-use gate.
-Schema-learning is toggleable at runtime via the new
-`kg_config_set` / `kg_config_get` MCP tools (10th + 11th tools).
-v1.13.0 installs auto-migrate silently — the legacy codebase.ttl state
-is detected and the config is written for you. The bootstrap script
-no longer pre-loads any TBox; `bootstrap-graphs.sh` only creates the 9
-named graphs. The ontology catalog lives at
-`packages/predicate-ontology/catalog/` (catalog.json + per-ontology
-.ttl). Deferred to v2.x: network-fetched community ontologies,
-multi-ontology composition, per-project workspaces, schema versioning
-for uploads.
-
-**v1.13 — LLM-augmented decomposer.** The pattern-based goal decomposer
-stays as the deterministic baseline (fast, predictable, free). A new
-`SemanticDecomposer` wraps it: if every deterministic sub-question
-returns `intent.kind: "unknown"` AND `ANTHROPIC_API_KEY` is set, it
-falls through to a Claude-Haiku call constrained to emit only the
-known intent kinds (`why-broken`, `find-callers`, `find-dependencies`,
-`find-readers-of`, `find-symbol-in-file`, `unknown`). Invented kinds
-are filtered out — predicate-discipline applies to decomposition the
-same way it applies to fact extraction. Every LLM error path (no key,
-JSON parse fail, API error, empty result) transparently falls back to
-the deterministic `unknown` result, so the agent loop never crashes on
-a flaky network. `kg_research_goal` gains an opt-in `useLlmDecomposer`
-flag and reports `decomposerKind: "deterministic" | "semantic"` on
-every response. Pattern-matched questions ("what calls X transitively")
-skip the LLM entirely. Out of scope: caching LLM decompositions,
-streaming sub-questions, multi-turn decomposition, swapping the LLM
-into `executeResearch` (deterministic still drives candidate
-extraction).
-
-**v1.12 — external LD federation.** A thin Linked-Data layer reuses the
-Phase 14 peer registry to query public SPARQL endpoints (DBpedia,
-Wikidata) without polluting local `kg:abox`. One new CLI command,
-`predicate ld`, ships three subcommands: `predicate ld init` registers
-the well-known endpoints as `kg:peers` entries tagged with
-`pred:peerKind "external-ld"` (a new property in meta vocab v0.7.0 —
-idempotent, so re-running is safe). `predicate ld list` filters the
-registry to just LD endpoints; `predicate peer list` now renders a
-`kind` column so team peers and LD peers are visible side-by-side
-(`team` is the default when the tag is absent). `predicate ld ask
-<query>` runs a one-shot SPARQL query against every registered LD
-endpoint via plain HTTPS POST and merges the rows with a `?peer` column
-tagging origin (`dbpedia` or `wikidata`). Per-endpoint errors are
-caught — a 503 from DBpedia never blocks the Wikidata result. Out of
-scope: caching (each call re-fetches), auto-discovery, custom-endpoint
-flags (use `predicate peer add` and manually tag with `pred:peerKind`),
-and writing remote results back to `kg:abox` (results stay ephemeral by
-design). SKILL.md gains a worked example so the agent reaches out for
-canonical public knowledge ("is library X deprecated?") instead of
-recalling from training data.
-
-**v1.11 — federation MVP.** Three new CLI commands and one new `kg_ask`
-flag turn Predicate from a single-user store into a team-share-ready
-substrate. `predicate peer add <name> <sparql-endpoint>` registers a
-teammate's Fuseki endpoint in `kg:peers` (a new named graph carrying
-`pred:Peer` triples — meta vocab v0.6.0); `predicate peer list` /
-`predicate peer remove` round out the registry. `predicate
-export-sessions [--since DATE] [--user NAME]` dumps the local
-session-history slice from `kg:abox` as a TriG file wrapped in a
-per-export named graph `urn:predicate:export:<user>:<timestamp>`, so a
-receiving instance can hold multiple peers' data side-by-side without
-collision. `predicate import-sessions <file.trig>` loads such a file
-into the local store via Fuseki's `application/trig` data endpoint —
-each named graph is preserved as-is and never mixed into local
-`kg:abox`. Finally, `kg_ask` gains an `includeRemote: true` flag (also
-exposed on the MCP tool registration): the CLI runs the caller's SPARQL
-locally AND against every registered peer endpoint, then merges
-results with a per-row `?peer` column tagging origin
-(`'local'` or the peer name). Per-peer errors are caught and
-logged — a dead or unreachable peer never crashes the whole query.
-Out of scope for the MVP (deferred to v2): auth/TLS, realtime
-push/pull, conflict resolution, cross-user identity reconciliation.
-
-**v1.10 — web dashboard.** `predicate dashboard` ships a minimal,
-zero-build localhost web view of the session-history slice. A single
-self-contained HTML file (inline CSS + vanilla JS, no framework, no
-npm deps) talks to a tiny Node `http` server that proxies SPARQL
-through `/api/query` to Fuseki. Cards: recent sessions, hotspots
-(files modified in ≥3 sessions, derived in `kg:inferred`), flaky
-commands (failed in ≥2 sessions), active files (touched in the latest
-session), and a stats snapshot mirroring `predicate stats`. Read-only
-— no writes — and auto-refreshes every 30s. `--port N` to override the
-default 4040; `--no-open` to skip the browser launch.
-
-**v1.9 — `predicate captures` + `predicate recall` query CLIs.** Two new
-thin SPARQL wrappers expose the session-history slice as one-shot shell
-commands:
-
-- `predicate captures [--limit N] [--tool NAME] [--json]` lists raw
-  `kg:usage` `pred:ToolCall` rows (companion to `predicate sessions`;
-  only meaningful when `PREDICATE_RAW_CAPTURE=1` was set during the
-  session — the structured Stop-hook extraction path remains the
-  default for storing per-session aggregates in `kg:abox`).
-- `predicate recall <query> [--limit N] [--json]` does a substring
-  search against `kg:abox` for files (via `cb:modifiedIn`) and bash
-  commands (via `cb:commandText` + `cb:succeededIn` / `cb:failedIn`)
-  whose path or text contains `<query>`. Returns matched files with
-  their last-modified session and matched commands with success/failure
-  counts. This is a pure SPARQL `FILTER CONTAINS` memory primitive —
-  no fuzzy or embedding search. SKILL.md §5 shows the equivalent
-  `kg_ask` form for agents that need to assemble richer answers.
-
-**v1.8 — Cross-platform Stop extraction.** Stop-hook turn extraction
-now works on Gemini CLI and OpenCode alongside Claude Code. `predicate
-extract --from-stdin` accepts a new `--platform claude-code|gemini|opencode`
-flag (default `claude-code`) that selects a per-platform transcript
-adapter. Each adapter is a pure function that maps the platform's
-JSONL events into the canonical assistant/user tool_use/tool_result
-shape the deterministic extractor already understands, so the
-downstream pipeline (deterministic + semantic extractors → kg_assert
-→ SHACL → reasoner) is unchanged. The Gemini and OpenCode `stop.sh`
-hooks now pipe stdin into `predicate extract --from-stdin --platform <p>`
-before invoking `predicate maintain`, mirroring Claude Code's flow.
-
-Notes on the new adapters:
-
-- Gemini CLI and OpenCode transcript schemas are not formally
-  documented and may vary by version. The adapters use permissive
-  field-candidate matching (e.g. `id | toolCallId | tool_use_id`) and
-  fall through silently on unrecognized shapes — empty triples are
-  acceptable, crashes are not.
-- All three `stop.sh` scripts are fail-open (exit 0 on any error) so a
-  capture failure never blocks the user's next prompt.
-
-**v1.7 — Reasoning bridge for action data.** The 16-rule OWL 2 RL
-reasoner is now joined by three derive-only rules (R17 Hotspot, R18
-FlakyCommand, R19 ActiveFile) that turn Phase 9's extracted
-`modifiedIn`/`failedIn`/`at` action triples into queryable derived
-classes in `kg:inferred`. `kg_maintain` now runs the fixpoint after
-the sweep, so `kg:inferred` reflects the current action graph after
-every Stop-hook extraction + maintenance pass.
-
-The derived classes (see SKILL.md §4):
-
-| Derived class | Means |
-|---|---|
-| `codebase:Hotspot` | File modified in >= 3 sessions |
-| `codebase:FlakyCommand` | Command that has failed in >= 2 sessions |
-| `codebase:ActiveFile` | File modified in the single most-recent session |
-
-Earlier milestones (in order): `v0.1.0-foundation` → `v0.2.0-discipline` →
-`v0.3a.0-goals-and-gaps` → `v0.3b.0-research-execution` →
-`v0.3c.0-schema-evolution` → `v1.0.0` → `v1.1.0-distribution` →
-`v1.2.0-multiplatform` → `v1.3.0-platform-hooks` → `v1.4.0-tool-capture` →
-`v1.5.0-stop-extract` → `v1.6.x-hooks-fixes` → `v1.7.0-reasoning-bridge` →
-`v1.8.0-cross-platform-stop` → `v1.9.0-captures-recall`.
-
-Deferred (see spec §17): cross-validation between deterministic and
-semantic extractors; materialization caching; tag-while-deriving for
-`kg_explain`; intent-aware `ResearchSource` filtering; journal-based
-cross-system promotion atomicity; semantic / embedding-backed recall
-beyond substring matching.
+Elastic License 2.0 (ELv2) — source-available. See [`LICENSE`](packages/predicate-skill/LICENSE).

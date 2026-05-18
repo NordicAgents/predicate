@@ -1,6 +1,6 @@
 {
   "name": "predicate",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — 9 kg_* MCP tools + cross-platform Stop-hook turn extraction (Claude Code + Gemini CLI + OpenCode) + reasoning bridge for action data.",
   "author": {
     "name": "Nordic Agents Research",
@@ -8,7 +8,7 @@
   },
   "homepage": "https://github.com/NordicAgents/predicate#readme",
   "repository": "https://github.com/NordicAgents/predicate",
-  "license": "Apache-2.0",
+  "license": "Elastic-2.0",
   "keywords": ["mcp", "knowledge-graph", "rdf", "owl", "sparql", "reasoning"],
   "mcpServers": {
     "predicate": {
