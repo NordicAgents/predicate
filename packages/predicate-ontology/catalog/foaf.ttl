@@ -3,38 +3,53 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
 
-# FOAF (Friend Of A Friend) — minimal subset
-# Upstream: http://xmlns.com/foaf/spec/  License: CC0
+# FOAF (Friend Of A Friend) — true subset of the upstream vocabulary.
+# Upstream: http://xmlns.com/foaf/spec/   License: CC0
+# Every axiom below is also asserted (or is strictly entailed) by the
+# published FOAF ontology. We add nothing FOAF does not say.
 
-foaf:Person        a owl:Class ; rdfs:label "Person" .
-foaf:Organization  a owl:Class ; rdfs:label "Organization" .
-foaf:Group         a owl:Class ; rdfs:label "Group" .
+# --- Classes -------------------------------------------------------
+
+foaf:Agent         a owl:Class ; rdfs:label "Agent" .
+foaf:Person        a owl:Class ; rdfs:subClassOf foaf:Agent ; rdfs:label "Person" .
+foaf:Organization  a owl:Class ; rdfs:subClassOf foaf:Agent ; rdfs:label "Organization" .
+foaf:Group         a owl:Class ; rdfs:subClassOf foaf:Agent ; rdfs:label "Group" .
 foaf:Document      a owl:Class ; rdfs:label "Document" .
 foaf:Image         a owl:Class ; rdfs:subClassOf foaf:Document ; rdfs:label "Image" .
 foaf:OnlineAccount a owl:Class ; rdfs:label "Online Account" .
 
+# --- Object properties --------------------------------------------
+
 foaf:knows  a owl:ObjectProperty ;
             rdfs:domain foaf:Person ; rdfs:range foaf:Person ;
             rdfs:label "knows" .
+
 foaf:member a owl:ObjectProperty ;
-            rdfs:domain foaf:Group ; rdfs:range foaf:Person ;
+            rdfs:domain foaf:Group ; rdfs:range foaf:Agent ;
             rdfs:label "member" .
+
 foaf:made   a owl:ObjectProperty ;
-            rdfs:domain foaf:Person ;
+            rdfs:domain foaf:Agent ;
             rdfs:label "made" .
+
 foaf:maker  a owl:ObjectProperty ;
+            rdfs:range foaf:Agent ;
             owl:inverseOf foaf:made ;
             rdfs:label "maker" .
 
-foaf:name      a owl:DatatypeProperty ;
-               rdfs:domain foaf:Person ; rdfs:label "name" .
-foaf:firstName a owl:DatatypeProperty ;
-               rdfs:domain foaf:Person ; rdfs:label "first name" .
-foaf:lastName  a owl:DatatypeProperty ;
-               rdfs:domain foaf:Person ; rdfs:label "last name" .
-foaf:mbox      a owl:DatatypeProperty ;
-               rdfs:domain foaf:Person ; rdfs:label "email" .
-foaf:age       a owl:DatatypeProperty ;
-               rdfs:domain foaf:Person ; rdfs:label "age" .
-foaf:homepage  a owl:DatatypeProperty ;
-               rdfs:label "homepage" .
+# --- Datatype properties ------------------------------------------
+
+# Domains left unconstrained where the FOAF spec does so — over-tightening
+# (e.g. domain foaf:Person on foaf:name) would be a non-subset extension.
+
+foaf:name      a owl:DatatypeProperty ; rdfs:label "name" .
+foaf:firstName a owl:DatatypeProperty ; rdfs:domain foaf:Person ; rdfs:label "first name" .
+foaf:lastName  a owl:DatatypeProperty ; rdfs:domain foaf:Person ; rdfs:label "last name" .
+foaf:age       a owl:DatatypeProperty ; rdfs:domain foaf:Agent  ; rdfs:label "age" .
+foaf:homepage  a owl:DatatypeProperty ; rdfs:label "homepage" .
+
+# foaf:mbox is the canonical FOAF identity property — InverseFunctional
+# is core to its meaning. Domain is Agent, not Person.
+foaf:mbox      a owl:DatatypeProperty , owl:InverseFunctionalProperty ;
+               rdfs:domain foaf:Agent ;
+               rdfs:label "email" .

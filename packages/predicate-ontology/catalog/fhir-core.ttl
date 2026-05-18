@@ -2,32 +2,31 @@
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
-@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 
-# FHIR core resources — HL7 R4 permitted subset
-# Upstream: http://hl7.org/fhir/R4/  License: see HL7 terms
+# FHIR core — TRUE subset of HL7 FHIR R4 resource-type vocabulary.
+# Upstream: http://hl7.org/fhir/R4/   License: see HL7 terms
+#
+# This file ships ONLY the resource class hierarchy. The published
+# HL7 FHIR RDF ontology (http://hl7.org/fhir/fhir.ttl) uses a rich
+# value-type metamodel (fhir:link, fhir:CodeableConcept, fhir:Reference,
+# wrapped scalar values, etc.) — flattening Patient.subject, Observation.code
+# etc. into bare OWL properties with rdfs:range xsd:string would NOT be a
+# subset of FHIR-RDF; it would contradict it. So we omit those axioms.
+#
+# If you need full FHIR data modeling, load HL7's published RDF ontology
+# directly (predicate init --mode upload --file fhir.ttl).
 
-fhir:Resource              a owl:Class ; rdfs:label "Resource" .
+fhir:Resource           a owl:Class ; rdfs:label "Resource" .
 
-fhir:Patient               a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Patient" .
-fhir:Practitioner          a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Practitioner" .
-fhir:Organization          a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Organization" .
-fhir:Encounter             a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Encounter" .
-fhir:Observation           a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Observation" .
-fhir:Condition             a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Condition" .
-fhir:Medication            a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Medication" .
-fhir:MedicationRequest     a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Medication Request" .
-fhir:Procedure             a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Procedure" .
-fhir:DiagnosticReport      a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Diagnostic Report" .
-fhir:AllergyIntolerance    a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Allergy Intolerance" .
-fhir:Immunization          a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Immunization" .
-
-fhir:subject               a owl:ObjectProperty ; rdfs:range fhir:Patient ; rdfs:label "subject" .
-fhir:performer             a owl:ObjectProperty ; rdfs:range fhir:Practitioner ; rdfs:label "performer" .
-fhir:encounter             a owl:ObjectProperty ; rdfs:range fhir:Encounter ; rdfs:label "encounter" .
-
-fhir:status                a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "status" .
-fhir:effectiveDateTime     a owl:DatatypeProperty ; rdfs:range xsd:dateTime ; rdfs:label "effective date/time" .
-fhir:code                  a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "code" .
-fhir:valueQuantity         a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "value quantity" .
-fhir:birthDate             a owl:DatatypeProperty ; rdfs:range xsd:date ; rdfs:label "birth date" .
+fhir:Patient            a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Patient" .
+fhir:Practitioner       a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Practitioner" .
+fhir:Organization       a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Organization" .
+fhir:Encounter          a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Encounter" .
+fhir:Observation        a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Observation" .
+fhir:Condition          a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Condition" .
+fhir:Medication         a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Medication" .
+fhir:MedicationRequest  a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Medication Request" .
+fhir:Procedure          a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Procedure" .
+fhir:DiagnosticReport   a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Diagnostic Report" .
+fhir:AllergyIntolerance a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Allergy Intolerance" .
+fhir:Immunization       a owl:Class ; rdfs:subClassOf fhir:Resource ; rdfs:label "Immunization" .

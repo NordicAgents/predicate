@@ -16,19 +16,19 @@
     },
     {
       "name": "foaf",
-      "description": "Friend-of-a-friend — people and their relationships",
+      "description": "Friend-of-a-friend — faithful subset of xmlns.com/foaf/0.1",
       "license": "CC0",
       "files": ["foaf.ttl"]
     },
     {
       "name": "schema-org-lite",
-      "description": "Web entities — trimmed core slice of schema.org",
+      "description": "Web entities — faithful subset of schema.org core (soft-typed)",
       "license": "CC-BY-4.0",
       "files": ["schema-org-lite.ttl"]
     },
     {
       "name": "fhir-core",
-      "description": "Healthcare core resources — HL7 R4 subset",
+      "description": "HL7 FHIR R4 resource class vocabulary (class hierarchy only; load fhir.ttl for full data modeling)",
       "license": "HL7",
       "files": ["fhir-core.ttl"]
     }
