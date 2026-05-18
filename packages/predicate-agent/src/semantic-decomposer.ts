@@ -1,8 +1,10 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { Decomposer } from './decomposer.js';
+import {
+  AnthropicSdkProvider,
+  type CompletionProvider,
+  type CompletionProviderKind,
+} from './completion-provider.js';
 import type { SubQuestion, SubQuestionIntent } from './types.js';
-
-const MODEL = 'claude-haiku-4-5-20251001';
 
 const VALID_INTENTS: ReadonlyArray<SubQuestionIntent['kind']> = [
   'why-broken',
@@ -49,44 +51,44 @@ interface LlmSubQuestion {
 }
 
 export interface SemanticDecomposerOptions {
-  fallbackOnEmpty?: boolean;  // if true (default), return deterministic 'unknown' when LLM fails
+  /** Providers tried in order; first available wins. Defaults to [AnthropicSdkProvider]. */
+  providers?: CompletionProvider[];
+  /** When true (default), an LLM failure returns the deterministic 'unknown' fallback. */
+  fallbackOnEmpty?: boolean;
 }
 
 export class SemanticDecomposer {
   private deterministic = new Decomposer();
-  private options: Required<SemanticDecomposerOptions>;
+  private providers: CompletionProvider[];
+  private fallbackOnEmpty: boolean;
+  /** Set to the provider actually used on the last decompose() call (for telemetry). */
+  lastProviderUsed: CompletionProviderKind | null = null;
 
   constructor(options: SemanticDecomposerOptions = {}) {
-    this.options = { fallbackOnEmpty: options.fallbackOnEmpty ?? true };
+    this.providers = options.providers ?? [new AnthropicSdkProvider()];
+    this.fallbackOnEmpty = options.fallbackOnEmpty ?? true;
   }
 
   async decompose(question: string, tboxSlice = ''): Promise<SubQuestion[]> {
+    this.lastProviderUsed = null;
     const deterministicResult = this.deterministic.decompose(question);
 
-    // If deterministic matched a real pattern (not 'unknown'), use it directly.
     const allUnknown = deterministicResult.every((sq) => sq.intent.kind === 'unknown');
     if (!allUnknown) return deterministicResult;
 
-    // Otherwise, try the LLM.
-    if (!process.env['ANTHROPIC_API_KEY']) {
-      return this.options.fallbackOnEmpty ? deterministicResult : [];
+    const provider = this.providers.find((p) => p.isAvailable());
+    if (!provider) {
+      return this.fallbackOnEmpty ? deterministicResult : [];
     }
 
     try {
-      const client = new Anthropic();
-      const response = await client.messages.create({
-        model: MODEL,
-        max_tokens: 1024,
-        system: [
-          { type: 'text', text: SYSTEM_PROMPT },
-          { type: 'text', text: `<tbox-slice>\n${tboxSlice}\n</tbox-slice>`, cache_control: { type: 'ephemeral' } },
-        ],
-        messages: [{ role: 'user', content: `Question: ${question}\n\nReturn the JSON.` }],
+      const text = await provider.complete({
+        systemPrompt: SYSTEM_PROMPT,
+        tboxSlice,
+        question,
+        maxTokens: 1024,
       });
-      const text = response.content
-        .filter((b) => b.type === 'text')
-        .map((b) => (b as { type: 'text'; text: string }).text)
-        .join('\n');
+      this.lastProviderUsed = provider.kind;
       const stripped = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
       const parsed = JSON.parse(stripped) as { subQuestions: LlmSubQuestion[] };
       if (!Array.isArray(parsed.subQuestions)) return deterministicResult;
@@ -103,10 +105,10 @@ export class SemanticDecomposer {
           },
         }));
 
-      if (validated.length === 0) return this.options.fallbackOnEmpty ? deterministicResult : [];
+      if (validated.length === 0) return this.fallbackOnEmpty ? deterministicResult : [];
       return validated;
     } catch {
-      return this.options.fallbackOnEmpty ? deterministicResult : [];
+      return this.fallbackOnEmpty ? deterministicResult : [];
     }
   }
 }

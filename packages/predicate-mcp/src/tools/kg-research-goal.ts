@@ -4,6 +4,9 @@ import {
   DocsResearchSource,
   ImportExtractor, FunctionDeclExtractor, EnvVarExtractor,
   GoalStore, GapDetector, SemanticDecomposer,
+  AnthropicSdkProvider,
+  type CompletionProvider,
+  type CompletionProviderKind,
 } from 'predicate-agent/src/index.js';
 import type { GoalPlan, GoalPlanWithStats } from 'predicate-agent/src/types.js';
 
@@ -20,7 +23,18 @@ export type DecomposerKind = 'deterministic' | 'semantic';
 
 export interface ResearchGoalToolResult extends GoalPlan {
   decomposerKind: DecomposerKind;
+  /** Which completion provider actually answered, when decomposerKind='semantic'. */
+  decomposerProvider?: CompletionProviderKind;
   stats?: GoalPlanWithStats['stats'];
+}
+
+export interface ResearchGoalToolDeps {
+  /**
+   * Extra completion providers tried before the built-in Anthropic SDK provider.
+   * The MCP server passes a SamplingProvider here so the LLM call is delegated
+   * to the host instead of requiring ANTHROPIC_API_KEY.
+   */
+  extraCompletionProviders?: CompletionProvider[];
 }
 
 async function buildTBoxSlice(client: SparqlClient): Promise<string> {
@@ -41,6 +55,7 @@ async function buildTBoxSlice(client: SparqlClient): Promise<string> {
 export async function kgResearchGoal(
   client: SparqlClient,
   input: ResearchGoalToolInput,
+  deps: ResearchGoalToolDeps = {},
 ): Promise<ResearchGoalToolResult> {
   const baseInput = {
     goal: input.goal,
@@ -48,8 +63,15 @@ export async function kgResearchGoal(
     parentGoal: input.parentGoal,
   };
 
-  const useSemantic = Boolean(input.useLlmDecomposer) && Boolean(process.env['ANTHROPIC_API_KEY']);
-  const decomposerKind: DecomposerKind = useSemantic ? 'semantic' : 'deterministic';
+  // Provider chain: caller-supplied extras (typically SamplingProvider) first,
+  // then the built-in Anthropic SDK provider. Decomposer picks the first one
+  // whose isAvailable() returns true.
+  const providers: CompletionProvider[] = [
+    ...(deps.extraCompletionProviders ?? []),
+    new AnthropicSdkProvider(),
+  ];
+  const hasAvailableLlmProvider = providers.some((p) => p.isAvailable());
+  const useSemantic = Boolean(input.useLlmDecomposer) && hasAvailableLlmProvider;
 
   // Semantic path: run our own goal-store + semantic-decomposer + gap-detector,
   // then optionally execute research on the resulting plan. We only divert from
@@ -57,7 +79,7 @@ export async function kgResearchGoal(
   if (useSemantic) {
     const store = new GoalStore(client);
     const detector = new GapDetector(client);
-    const semantic = new SemanticDecomposer();
+    const semantic = new SemanticDecomposer({ providers });
     const goal = await store.create({
       statement: baseInput.goal,
       source: baseInput.source,
@@ -67,8 +89,9 @@ export async function kgResearchGoal(
     const subQuestions = await semantic.decompose(baseInput.goal, tboxSlice);
     const gaps = await Promise.all(subQuestions.map((sq) => detector.detect(sq)));
     const plan: GoalPlan = { goalId: goal.id, subQuestions, gaps };
+    const decomposerProvider = semantic.lastProviderUsed ?? undefined;
     if (!input.executeResearch) {
-      return { ...plan, decomposerKind };
+      return { ...plan, decomposerKind: 'semantic', ...(decomposerProvider && { decomposerProvider }) };
     }
     // v1.13.0: research execution is wired to the deterministic Decomposer
     // inside researchGoal(). When useLlmDecomposer=true is combined with
@@ -101,7 +124,7 @@ export async function kgResearchGoal(
   // Deterministic path (default).
   if (!input.executeResearch) {
     const plan = (await researchGoal(client, baseInput)) as GoalPlan;
-    return { ...plan, decomposerKind };
+    return { ...plan, decomposerKind: 'deterministic' };
   }
   if (!input.corpusRoot) {
     throw new Error(
@@ -121,5 +144,5 @@ export async function kgResearchGoal(
       new EnvVarExtractor(),
     ],
   })) as GoalPlanWithStats;
-  return { ...plan, decomposerKind };
+  return { ...plan, decomposerKind: 'deterministic' };
 }

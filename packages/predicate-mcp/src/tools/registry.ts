@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { CompletionProvider } from 'predicate-agent/src/index.js';
 import { SparqlClient } from '../sparql/client.js';
 import { kgExploreSchema } from './kg-explore-schema.js';
 import { kgAsk } from './kg-ask.js';
@@ -10,6 +11,15 @@ import { kgProposeSchema } from './kg-propose-schema.js';
 import { kgStats } from './kg-stats.js';
 import { kgCapture } from './kg-capture.js';
 import { kgConfigGet, kgConfigSet } from './kg-config.js';
+
+export interface BuildToolsOptions {
+  /**
+   * Extra completion providers (e.g. an MCP SamplingProvider) forwarded to
+   * tools that issue LLM calls — currently kg_research_goal. The decomposer
+   * tries these before falling back to the Anthropic SDK provider.
+   */
+  extraCompletionProviders?: CompletionProvider[];
+}
 
 const deltaQuadSchema = z.object({
   s: z.string(),
@@ -56,7 +66,8 @@ export interface ToolDef {
   handler: (args: unknown) => Promise<unknown>;
 }
 
-export function buildTools(client: SparqlClient): ToolDef[] {
+export function buildTools(client: SparqlClient, options: BuildToolsOptions = {}): ToolDef[] {
+  const extraCompletionProviders = options.extraCompletionProviders ?? [];
   return [
     {
       name: 'kg_explore_schema',
@@ -140,7 +151,7 @@ export function buildTools(client: SparqlClient): ToolDef[] {
     },
     {
       name: 'kg_research_goal',
-      description: 'Decompose a goal and report which predicates the live TBox can/cannot answer. When executeResearch=true and corpusRoot is provided, also fetch artifacts from that directory, extract candidate triples, and assert them via kg_assert. Set useLlmDecomposer=true to enable Claude-Haiku-backed decomposition for questions that do not match a built-in pattern (requires ANTHROPIC_API_KEY; falls back to deterministic otherwise).',
+      description: 'Decompose a goal and report which predicates the live TBox can/cannot answer. When executeResearch=true and corpusRoot is provided, also fetch artifacts from that directory, extract candidate triples, and assert them via kg_assert. Set useLlmDecomposer=true to enable LLM-augmented decomposition for questions that do not match a built-in pattern; the decomposer prefers MCP sampling (no API key needed) and falls back to ANTHROPIC_API_KEY, then to deterministic.',
       inputSchema: z.object({
         goal: z.string().min(1),
         source: z.enum(['user', 'inferred']).optional(),
@@ -158,7 +169,7 @@ export function buildTools(client: SparqlClient): ToolDef[] {
           corpusRoot: z.string().optional(),
           useLlmDecomposer: z.boolean().optional(),
         }).parse(raw);
-        return kgResearchGoal(client, args);
+        return kgResearchGoal(client, args, { extraCompletionProviders });
       },
     },
     {

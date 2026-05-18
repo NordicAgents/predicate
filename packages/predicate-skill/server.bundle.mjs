@@ -46295,8 +46295,37 @@ Anthropic.Beta = Beta;
 var { HUMAN_PROMPT, AI_PROMPT } = Anthropic;
 var sdk_default = Anthropic;
 
+// ../predicate-agent/src/completion-provider.ts
+var ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
+var AnthropicSdkProvider = class {
+  kind = "anthropic-sdk";
+  isAvailable() {
+    return Boolean(process.env["ANTHROPIC_API_KEY"]);
+  }
+  async complete(req) {
+    const client = new sdk_default();
+    const response = await client.messages.create({
+      model: ANTHROPIC_MODEL,
+      max_tokens: req.maxTokens,
+      system: [
+        { type: "text", text: req.systemPrompt },
+        {
+          type: "text",
+          text: `<tbox-slice>
+${req.tboxSlice}
+</tbox-slice>`,
+          cache_control: { type: "ephemeral" }
+        }
+      ],
+      messages: [{ role: "user", content: `Question: ${req.question}
+
+Return the JSON.` }]
+    });
+    return response.content.filter((b2) => b2.type === "text").map((b2) => b2.text).join("\n");
+  }
+};
+
 // ../predicate-agent/src/semantic-decomposer.ts
-var MODEL = "claude-haiku-4-5-20251001";
 var VALID_INTENTS = [
   "why-broken",
   "find-callers",
@@ -46335,33 +46364,31 @@ Output strict JSON, no prose:
 }`;
 var SemanticDecomposer = class {
   deterministic = new Decomposer();
-  options;
+  providers;
+  fallbackOnEmpty;
+  /** Set to the provider actually used on the last decompose() call (for telemetry). */
+  lastProviderUsed = null;
   constructor(options = {}) {
-    this.options = { fallbackOnEmpty: options.fallbackOnEmpty ?? true };
+    this.providers = options.providers ?? [new AnthropicSdkProvider()];
+    this.fallbackOnEmpty = options.fallbackOnEmpty ?? true;
   }
   async decompose(question, tboxSlice = "") {
+    this.lastProviderUsed = null;
     const deterministicResult = this.deterministic.decompose(question);
     const allUnknown = deterministicResult.every((sq) => sq.intent.kind === "unknown");
     if (!allUnknown) return deterministicResult;
-    if (!process.env["ANTHROPIC_API_KEY"]) {
-      return this.options.fallbackOnEmpty ? deterministicResult : [];
+    const provider = this.providers.find((p2) => p2.isAvailable());
+    if (!provider) {
+      return this.fallbackOnEmpty ? deterministicResult : [];
     }
     try {
-      const client = new sdk_default();
-      const response = await client.messages.create({
-        model: MODEL,
-        max_tokens: 1024,
-        system: [
-          { type: "text", text: SYSTEM_PROMPT },
-          { type: "text", text: `<tbox-slice>
-${tboxSlice}
-</tbox-slice>`, cache_control: { type: "ephemeral" } }
-        ],
-        messages: [{ role: "user", content: `Question: ${question}
-
-Return the JSON.` }]
+      const text = await provider.complete({
+        systemPrompt: SYSTEM_PROMPT,
+        tboxSlice,
+        question,
+        maxTokens: 1024
       });
-      const text = response.content.filter((b2) => b2.type === "text").map((b2) => b2.text).join("\n");
+      this.lastProviderUsed = provider.kind;
       const stripped = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
       const parsed = JSON.parse(stripped);
       if (!Array.isArray(parsed.subQuestions)) return deterministicResult;
@@ -46373,10 +46400,10 @@ Return the JSON.` }]
           payload: sq.intent.payload ?? {}
         }
       }));
-      if (validated.length === 0) return this.options.fallbackOnEmpty ? deterministicResult : [];
+      if (validated.length === 0) return this.fallbackOnEmpty ? deterministicResult : [];
       return validated;
     } catch {
-      return this.options.fallbackOnEmpty ? deterministicResult : [];
+      return this.fallbackOnEmpty ? deterministicResult : [];
     }
   }
 };
@@ -47214,18 +47241,22 @@ async function buildTBoxSlice(client) {
   );
   return r2.results.bindings.map((b2) => `${b2["p"].value} a ${b2["kind"].value} .`).join("\n");
 }
-async function kgResearchGoal(client, input) {
+async function kgResearchGoal(client, input, deps = {}) {
   const baseInput = {
     goal: input.goal,
     source: input.source ?? "user",
     parentGoal: input.parentGoal
   };
-  const useSemantic = Boolean(input.useLlmDecomposer) && Boolean(process.env["ANTHROPIC_API_KEY"]);
-  const decomposerKind = useSemantic ? "semantic" : "deterministic";
+  const providers = [
+    ...deps.extraCompletionProviders ?? [],
+    new AnthropicSdkProvider()
+  ];
+  const hasAvailableLlmProvider = providers.some((p2) => p2.isAvailable());
+  const useSemantic = Boolean(input.useLlmDecomposer) && hasAvailableLlmProvider;
   if (useSemantic) {
     const store = new GoalStore(client);
     const detector = new GapDetector(client);
-    const semantic = new SemanticDecomposer();
+    const semantic = new SemanticDecomposer({ providers });
     const goal = await store.create({
       statement: baseInput.goal,
       source: baseInput.source,
@@ -47235,8 +47266,9 @@ async function kgResearchGoal(client, input) {
     const subQuestions = await semantic.decompose(baseInput.goal, tboxSlice);
     const gaps = await Promise.all(subQuestions.map((sq) => detector.detect(sq)));
     const plan2 = { goalId: goal.id, subQuestions, gaps };
+    const decomposerProvider = semantic.lastProviderUsed ?? void 0;
     if (!input.executeResearch) {
-      return { ...plan2, decomposerKind };
+      return { ...plan2, decomposerKind: "semantic", ...decomposerProvider && { decomposerProvider } };
     }
     if (!input.corpusRoot) {
       throw new Error(
@@ -47260,7 +47292,7 @@ async function kgResearchGoal(client, input) {
   }
   if (!input.executeResearch) {
     const plan2 = await researchGoal(client, baseInput);
-    return { ...plan2, decomposerKind };
+    return { ...plan2, decomposerKind: "deterministic" };
   }
   if (!input.corpusRoot) {
     throw new Error(
@@ -47280,7 +47312,7 @@ async function kgResearchGoal(client, input) {
       new EnvVarExtractor()
     ]
   });
-  return { ...plan, decomposerKind };
+  return { ...plan, decomposerKind: "deterministic" };
 }
 
 // ../predicate-mcp/src/tools/kg-propose-schema.ts
@@ -47522,7 +47554,8 @@ var schemaDeltaSchema = external_exports.discriminatedUnion("kind", [
     shapes: external_exports.array(deltaQuadSchema).optional()
   })
 ]);
-function buildTools(client) {
+function buildTools(client, options = {}) {
+  const extraCompletionProviders = options.extraCompletionProviders ?? [];
   return [
     {
       name: "kg_explore_schema",
@@ -47606,7 +47639,7 @@ function buildTools(client) {
     },
     {
       name: "kg_research_goal",
-      description: "Decompose a goal and report which predicates the live TBox can/cannot answer. When executeResearch=true and corpusRoot is provided, also fetch artifacts from that directory, extract candidate triples, and assert them via kg_assert. Set useLlmDecomposer=true to enable Claude-Haiku-backed decomposition for questions that do not match a built-in pattern (requires ANTHROPIC_API_KEY; falls back to deterministic otherwise).",
+      description: "Decompose a goal and report which predicates the live TBox can/cannot answer. When executeResearch=true and corpusRoot is provided, also fetch artifacts from that directory, extract candidate triples, and assert them via kg_assert. Set useLlmDecomposer=true to enable LLM-augmented decomposition for questions that do not match a built-in pattern; the decomposer prefers MCP sampling (no API key needed) and falls back to ANTHROPIC_API_KEY, then to deterministic.",
       inputSchema: external_exports.object({
         goal: external_exports.string().min(1),
         source: external_exports.enum(["user", "inferred"]).optional(),
@@ -47624,7 +47657,7 @@ function buildTools(client) {
           corpusRoot: external_exports.string().optional(),
           useLlmDecomposer: external_exports.boolean().optional()
         }).parse(raw);
-        return kgResearchGoal(client, args);
+        return kgResearchGoal(client, args, { extraCompletionProviders });
       }
     },
     {
@@ -47708,15 +47741,62 @@ function stubs() {
   return [];
 }
 
+// ../predicate-mcp/src/sampling-provider.ts
+var SAMPLING_MODEL_HINT = "claude-haiku";
+var SamplingProvider = class {
+  constructor(server) {
+    this.server = server;
+  }
+  server;
+  kind = "mcp-sampling";
+  isAvailable() {
+    const caps = this.server.getClientCapabilities();
+    return Boolean(caps?.sampling);
+  }
+  async complete(req) {
+    const result = await this.server.createMessage({
+      systemPrompt: `${req.systemPrompt}
+
+<tbox-slice>
+${req.tboxSlice}
+</tbox-slice>`,
+      maxTokens: req.maxTokens,
+      modelPreferences: {
+        hints: [{ name: SAMPLING_MODEL_HINT }],
+        intelligencePriority: 0.3,
+        speedPriority: 0.7
+      },
+      messages: [
+        {
+          role: "user",
+          content: { type: "text", text: `Question: ${req.question}
+
+Return the JSON.` }
+        }
+      ]
+    });
+    const content = result.content;
+    if (Array.isArray(content)) {
+      return content.filter((b2) => b2.type === "text").map((b2) => b2.text).join("\n");
+    }
+    if (content && typeof content === "object" && "type" in content && content.type === "text") {
+      return content.text;
+    }
+    return "";
+  }
+};
+
 // ../predicate-mcp/src/index.ts
 async function main() {
   const config2 = loadConfig();
   const client = new SparqlClient(config2);
-  const tools = buildTools(client);
   const server = new Server(
     { name: "predicate-mcp", version: "0.1.0" },
     { capabilities: { tools: {} } }
   );
+  const tools = buildTools(client, {
+    extraCompletionProviders: [new SamplingProvider(server)]
+  });
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map((t2) => ({
       name: t2.name,

@@ -8,18 +8,24 @@ import {
 import { loadConfig } from './config.js';
 import { SparqlClient } from './sparql/client.js';
 import { buildTools } from './tools/registry.js';
+import { SamplingProvider } from './sampling-provider.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { z } from 'zod';
 
 async function main(): Promise<void> {
   const config = loadConfig();
   const client = new SparqlClient(config);
-  const tools = buildTools(client);
 
   const server = new Server(
     { name: 'predicate-mcp', version: '0.1.0' },
     { capabilities: { tools: {} } },
   );
+
+  // SamplingProvider checks server.getClientCapabilities() lazily on each
+  // decompose() call, so it's safe to install before the client has connected.
+  const tools = buildTools(client, {
+    extraCompletionProviders: [new SamplingProvider(server)],
+  });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map((t) => ({
