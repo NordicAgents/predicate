@@ -1,10 +1,48 @@
 import { Store, namedNode } from 'oxigraph';
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 import type { Term as OxiTermType } from 'oxigraph';
 import type { SelectResult, Binding, Term } from '../sparql/types.js';
 import type { StorageAdapter, TurtleFormat } from './adapter.js';
 
+// Best-effort: a crash between debounced writes loses uncommitted triples; tests use ':memory:' to avoid this entirely.
+
 export interface OxigraphAdapterOptions {
-  storePath: string; // ':memory:' or filesystem path (NOTE: 0.5.x bindings only support in-memory; storePath is reserved for future use)
+  storePath: string; // ':memory:' or filesystem path for per-graph .nq file persistence
+}
+
+const KG_IRI_RE = /^kg:[A-Za-z0-9-]+$/;
+const GRAPH_IRI_RE = /GRAPH\s+<([^>]+)>/gi;
+
+const FLUSH_DEBOUNCE_MS = (() => {
+  const env = process.env['PREDICATE_FLUSH_DEBOUNCE_MS'];
+  const n = env !== undefined ? parseInt(env, 10) : NaN;
+  return isNaN(n) ? 300 : n;
+})();
+
+function graphIriToFilename(iri: string): string {
+  return encodeURIComponent(iri) + '.nq';
+}
+
+function filenameToGraphIri(basename: string): string | null {
+  if (!basename.endsWith('.nq')) return null;
+  const encoded = basename.slice(0, -3);
+  try {
+    const iri = decodeURIComponent(encoded);
+    return KG_IRI_RE.test(iri) ? iri : null;
+  } catch {
+    return null;
+  }
+}
+
+function extractDirtyGraphs(sparqlUpdate: string): Set<string> | 'ALL' {
+  const graphs = new Set<string>();
+  let match: RegExpExecArray | null;
+  GRAPH_IRI_RE.lastIndex = 0;
+  while ((match = GRAPH_IRI_RE.exec(sparqlUpdate)) !== null) {
+    graphs.add(match[1]!);
+  }
+  return graphs.size > 0 ? graphs : 'ALL';
 }
 
 function oxiTermToTerm(t: OxiTermType): Term {
@@ -27,20 +65,117 @@ function oxiTermToTerm(t: OxiTermType): Term {
 
 export class OxigraphAdapter implements StorageAdapter {
   private store: Store;
+  private storePath: string;
+  private dirtyGraphs: Set<string> = new Set();
+  private flushTimer: ReturnType<typeof setTimeout> | null = null;
+  private flushPromise: Promise<void> | null = null;
 
-  constructor(_opts: OxigraphAdapterOptions) {
+  constructor(opts: OxigraphAdapterOptions) {
     // The 0.5.x npm binding does not accept a path in the constructor;
     // the Store is always in-memory. storePath ':memory:' is the canonical
-    // value; other values are accepted for API compatibility but ignored.
+    // value; other values are accepted for API compatibility but trigger
+    // per-graph .nq file persistence.
     this.store = new Store();
+    this.storePath = opts.storePath;
+  }
+
+  private get isPersisted(): boolean {
+    return this.storePath !== ':memory:';
   }
 
   async ready(): Promise<void> {
-    // Store opens synchronously in the constructor.
+    if (!this.isPersisted) return;
+
+    await fs.mkdir(this.storePath, { recursive: true });
+
+    const entries = await fs.readdir(this.storePath);
+    for (const entry of entries) {
+      const iri = filenameToGraphIri(entry);
+      if (iri === null) continue;
+
+      const filePath = join(this.storePath, entry);
+      const content = await fs.readFile(filePath, 'utf8');
+      if (content.trim().length > 0) {
+        // dump() with from_graph_name strips the graph IRI; restore it via to_graph_name on load
+        this.store.load(content, {
+          format: 'application/n-quads',
+          to_graph_name: namedNode(iri),
+        });
+      }
+    }
   }
 
   async close(): Promise<void> {
-    // The Store releases on GC; no explicit close in 0.5.x bindings.
+    if (!this.isPersisted) return;
+
+    if (this.flushTimer !== null) {
+      clearTimeout(this.flushTimer);
+      this.flushTimer = null;
+    }
+
+    // Run flush synchronously (awaiting any already-in-flight write)
+    if (this.flushPromise !== null) {
+      await this.flushPromise;
+    }
+    await this.flushDirty();
+  }
+
+  private scheduleDebouncedFlush(): void {
+    if (!this.isPersisted) return;
+
+    if (this.flushTimer !== null) {
+      clearTimeout(this.flushTimer);
+    }
+    this.flushTimer = setTimeout(() => {
+      this.flushTimer = null;
+      this.flushPromise = this.flushDirty().finally(() => {
+        this.flushPromise = null;
+      });
+    }, FLUSH_DEBOUNCE_MS);
+  }
+
+  private async flushDirty(): Promise<void> {
+    if (this.dirtyGraphs.size === 0) return;
+
+    // Collect the set of graph IRIs to flush
+    let graphsToFlush: string[];
+    if (this.dirtyGraphs.has('ALL')) {
+      // Flush every kg: graph the store knows about
+      const known = await this.knownGraphs();
+      graphsToFlush = known;
+    } else {
+      graphsToFlush = Array.from(this.dirtyGraphs).filter((g) =>
+        KG_IRI_RE.test(g),
+      );
+    }
+
+    this.dirtyGraphs.clear();
+
+    for (const iri of graphsToFlush) {
+      const content = this.store.dump({
+        format: 'application/n-quads',
+        from_graph_name: namedNode(iri),
+      });
+      // Store.dump returns string for application/n-quads
+      const basename = graphIriToFilename(iri);
+      const finalPath = join(this.storePath, basename);
+      const tmpPath = finalPath + '.tmp';
+      await fs.writeFile(tmpPath, content, 'utf8');
+      await fs.rename(tmpPath, finalPath);
+    }
+  }
+
+  private markDirty(graphs: Set<string> | 'ALL'): void {
+    if (!this.isPersisted) return;
+
+    if (graphs === 'ALL') {
+      this.dirtyGraphs.add('ALL');
+    } else {
+      for (const g of graphs) {
+        this.dirtyGraphs.add(g);
+      }
+    }
+    this.scheduleDebouncedFlush();
   }
 
   async select(query: string): Promise<SelectResult> {
@@ -68,6 +203,7 @@ export class OxigraphAdapter implements StorageAdapter {
 
   async update(query: string): Promise<void> {
     this.store.update(query);
+    this.markDirty(extractDirtyGraphs(query));
   }
 
   async knownGraphs(): Promise<string[]> {
@@ -82,6 +218,7 @@ export class OxigraphAdapter implements StorageAdapter {
       format: 'text/turtle',
       to_graph_name: namedNode(graph),
     });
+    this.markDirty(new Set([graph]));
   }
 
   async serializeGraph(graph: string, format: TurtleFormat): Promise<string> {
