@@ -25,6 +25,18 @@
     .stat .k { color:var(--muted); }
     .stat .v { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
     .err { background:#3a1212; color:#f5c2c7; padding:12px; border-radius:6px; margin-bottom:16px; }
+    .stage-row { display:grid; grid-template-columns: 80px 1fr 90px 90px 140px; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid #2a2a2e; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+    .stage-row:last-child { border-bottom:none; }
+    .stage-just { color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .stage-kind { color:var(--accent); font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
+    .stage-actions { display:flex; gap:6px; justify-content:flex-end; }
+    .stage-actions button { background:var(--row); color:var(--fg); border:1px solid #2a2a2e; padding:4px 10px; border-radius:4px; cursor:pointer; font:inherit; }
+    .stage-actions button.ok    { border-color: var(--accent); color: var(--accent); }
+    .stage-actions button.bad   { border-color: var(--bad);    color: var(--bad); }
+    .stage-actions button.confirm { background:var(--accent); color:#000; }
+    .stage-actions button.confirm.bad { background:var(--bad); color:#fff; }
+    .stage-actions button:disabled { opacity:.5; cursor:wait; }
+    .stage-err { color:var(--bad); font-size:11px; margin-top:4px; }
   </style>
 </head>
 <body>
@@ -33,6 +45,7 @@
 <div id="err" class="err" style="display:none"></div>
 <div class="grid">
   <div class="card"><h2>Stats</h2><div class="stats" id="stats"></div></div>
+  <div class="card"><h2>Schema Staging <span class="sub" id="staging-sub"></span></h2><div id="staging"></div></div>
   <div class="card"><h2>Recent Sessions</h2><div id="sessions"></div></div>
   <div class="card"><h2>Hotspots <span class="sub">(files modified in &ge;3 sessions)</span></h2><div id="hotspots"></div></div>
   <div class="card"><h2>Flaky Commands <span class="sub">(failed in &ge;2 sessions)</span></h2><div id="flaky"></div></div>
@@ -161,9 +174,120 @@ async function loadDerived(varName, klass, predicate, divId, label, empty) {
   document.getElementById(divId).innerHTML = tbl([label, 'n'], rows, { numCols: [1], empty });
 }
 
+function ttlString(expiresAtIso) {
+  const ms = new Date(expiresAtIso).getTime() - Date.now();
+  if (ms <= 0) return 'expired';
+  const d = Math.floor(ms / 86_400_000);
+  const h = Math.floor((ms % 86_400_000) / 3_600_000);
+  return d > 0 ? `${d}d ${h}h` : `${h}h`;
+}
+
+async function loadStaging() {
+  const threshold = await ask(`
+    PREFIX pred: <https://predicate.dev/meta#>
+    SELECT ?n WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:promotionUseThreshold ?n } }
+  `).then(b => b[0] ? parseInt(b[0].n.value, 10) : 3).catch(() => 3);
+
+  const q = `
+    PREFIX pred: <https://predicate.dev/meta#>
+    SELECT ?id ?kind ?justification ?expiresAt ?useCount
+    WHERE {
+      GRAPH <kg:tbox-staging> {
+        ?id a pred:Proposal ;
+            pred:kind          ?kind ;
+            pred:justification ?justification ;
+            pred:expiresAt     ?expiresAt ;
+            pred:useCount      ?useCount .
+      }
+    }
+    ORDER BY ?expiresAt
+    LIMIT 50
+  `;
+  const rows = await ask(q);
+  const el = document.getElementById('staging');
+  const sub = document.getElementById('staging-sub');
+  if (!rows.length) {
+    sub.textContent = '';
+    el.innerHTML = '<div class="empty">no pending proposals</div>';
+    return;
+  }
+  const expiringSoon = rows.filter(r => {
+    const ms = new Date(r.expiresAt.value).getTime() - Date.now();
+    return ms > 0 && ms < 86_400_000;
+  }).length;
+  sub.textContent = `${rows.length} pending · ${expiringSoon} expiring < 24h`;
+  el.innerHTML = rows.map(b => {
+    const id = b.id.value;
+    const safeId = id.replace(/"/g, '&quot;');
+    return `
+      <div class="stage-row" data-id="${safeId}">
+        <span class="stage-kind">${b.kind.value}</span>
+        <span class="stage-just" title="${b.justification.value.replace(/"/g,'&quot;')}">${trim(b.justification.value, 80)}</span>
+        <span>${b.useCount.value}/${threshold}</span>
+        <span>${ttlString(b.expiresAt.value)}</span>
+        <span class="stage-actions">
+          <button class="ok"  data-verb="approve">Approve</button>
+          <button class="bad" data-verb="reject">Reject</button>
+        </span>
+      </div>
+    `;
+  }).join('');
+  el.querySelectorAll('.stage-row').forEach(row => {
+    row.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => handleStageAction(row, btn));
+    });
+  });
+}
+
+const PENDING_CONFIRM = new WeakMap();
+async function handleStageAction(row, btn) {
+  const verb = btn.dataset.verb;
+  const id = row.dataset.id;
+  if (!PENDING_CONFIRM.get(btn)) {
+    btn.classList.add('confirm');
+    btn.textContent = 'Confirm?';
+    PENDING_CONFIRM.set(btn, true);
+    setTimeout(() => {
+      if (PENDING_CONFIRM.get(btn)) {
+        btn.classList.remove('confirm');
+        btn.textContent = verb === 'approve' ? 'Approve' : 'Reject';
+        PENDING_CONFIRM.delete(btn);
+      }
+    }, 3000);
+    return;
+  }
+  PENDING_CONFIRM.delete(btn);
+  row.querySelectorAll('button').forEach(b => b.disabled = true);
+  btn.textContent = '...';
+  try {
+    const r = await fetch('/api/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ verb, proposalId: id }),
+    });
+    const json = await r.json();
+    if (json.ok) {
+      row.remove();
+    } else {
+      const err = document.createElement('div');
+      err.className = 'stage-err';
+      err.textContent = `${verb} failed: ` + (json.stderr || json.error || `exit ${json.exitCode}`).slice(0, 200);
+      row.appendChild(err);
+      row.querySelectorAll('button').forEach(b => { b.disabled = false; });
+      btn.textContent = verb === 'approve' ? 'Approve' : 'Reject';
+      btn.classList.remove('confirm');
+    }
+  } catch (e) {
+    row.querySelectorAll('button').forEach(b => { b.disabled = false; });
+    btn.textContent = verb === 'approve' ? 'Approve' : 'Reject';
+    btn.classList.remove('confirm');
+  }
+}
+
 async function load() {
   try {
     await loadStats();
+    await loadStaging();
     await loadSessions();
     await loadDerived('file', 'Hotspot',      'modifiedIn',  'hotspots', 'file',    'no hotspots — need ≥3 sessions touching the same file');
     await loadDerived('cmd',  'FlakyCommand', 'failedIn',    'flaky',    'command', 'no flaky commands — need ≥2 sessions with a failed command');
@@ -175,7 +299,7 @@ async function load() {
 }
 const CARD_RELOADERS = {
   sessions: async () => { await loadSessions(); await loadStats(); },
-  staging:  async () => { await loadStats(); /* staging card reload added in Task 6 */ },
+  staging:  async () => { await loadStaging(); await loadStats(); },
   inferred: async () => {
     await loadDerived('file', 'Hotspot',      'modifiedIn', 'hotspots', 'file', 'no hotspots — need ≥3 sessions touching the same file');
     await loadDerived('cmd',  'FlakyCommand', 'failedIn',   'flaky',    'command', 'no flaky commands — need ≥2 sessions with a failed command');
