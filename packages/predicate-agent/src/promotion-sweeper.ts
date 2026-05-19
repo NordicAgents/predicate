@@ -98,7 +98,7 @@ export class PromotionSweeper {
   ): Promise<PromotionDecision> {
     const row = await this.loadProposalRow(id);
     if (!row) {
-      return { proposalId: id, outcome: 'rejected-expired', reason: 'proposal not found' };
+      return { proposalId: id, outcome: 'rejected-validation', reason: 'proposal not found' };
     }
     await this.rejectExpired(row, opts.actor, opts.reason);
     return { proposalId: id, outcome: 'rejected-expired', reason: opts.reason };
@@ -137,12 +137,11 @@ export class PromotionSweeper {
   private async loadProposalRow(id: string): Promise<ProposalRow | null> {
     const r = await this.client.select(`
       PREFIX pred: <${META}>
-      SELECT ?kind ?expiresAt ?useCount ?justification ?parent ?migration WHERE {
+      SELECT ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ${escapeIRI(id)} a pred:Proposal ;
                             pred:kind          ?kind ;
                             pred:expiresAt     ?expiresAt ;
-                            pred:useCount      ?useCount ;
                             pred:justification ?justification .
           OPTIONAL { ${escapeIRI(id)} pred:parent    ?parent }
           OPTIONAL { ${escapeIRI(id)} pred:migration ?migration }
@@ -151,11 +150,12 @@ export class PromotionSweeper {
     `);
     const b = r.results.bindings[0];
     if (!b) return null;
+    const useCount = await this.countUses(id);
     return {
       id,
       kind: b['kind']!.value,
       expiresAt: b['expiresAt']!.value,
-      useCount: parseInt(b['useCount']!.value, 10),
+      useCount,
       justification: b['justification']!.value,
       parent: b['parent']?.value,
       migration: b['migration']?.value,

@@ -12,16 +12,14 @@ async function reset(g: string): Promise<void> {
   await client.update(`CREATE SILENT GRAPH <${g}>`);
 }
 
+const RESET_GRAPHS = ['kg:tbox-staging', 'kg:meta', 'kg:usage', 'kg:inferred', 'kg:tbox'];
+
 beforeEach(async () => {
-  for (const g of ['kg:tbox-staging', 'kg:meta', 'kg:usage', 'kg:inferred']) {
-    await reset(g);
-  }
+  for (const g of RESET_GRAPHS) { await reset(g); }
 });
 
 afterAll(async () => {
-  for (const g of ['kg:tbox-staging', 'kg:meta', 'kg:usage', 'kg:inferred']) {
-    await reset(g);
-  }
+  for (const g of RESET_GRAPHS) { await reset(g); }
 });
 
 describe('PromotionSweeper.promoteById', () => {
@@ -39,6 +37,10 @@ describe('PromotionSweeper.promoteById', () => {
     const sweeper = new PromotionSweeper(client, { useThreshold: 999 });
     const result = await sweeper.promoteById(id, { actor: 'user-approve' });
     expect(result.outcome).toBe('promoted');
+    if (result.outcome === 'promoted') {
+      expect(result.turtleFile).toMatch(/\.ttl$/);
+      expect(result.tboxVersion).toMatch(/^urn:predicate:tbox:/);
+    }
 
     const events = await client.select(`
       PREFIX pred: <https://predicate.dev/meta#>
@@ -48,6 +50,7 @@ describe('PromotionSweeper.promoteById', () => {
         }
       }
     `);
+    expect(events.results.bindings).toHaveLength(1);
     expect(events.results.bindings[0]!['actor']!.value).toBe('user-approve');
   });
 });
@@ -85,16 +88,18 @@ describe('PromotionSweeper.rejectById', () => {
         }
       }
     `);
+    expect(events.results.bindings).toHaveLength(1);
     const b = events.results.bindings[0]!;
     expect(b['actor']!.value).toBe('user-reject');
     expect(JSON.parse(b['payload']!.value)).toEqual({ reason: 'rejected via dashboard' });
   });
 
-  it('returns "rejected-expired" with reason="proposal not found" for unknown IRIs', async () => {
+  it('returns "rejected-validation" with reason="proposal not found" for unknown IRIs', async () => {
     const sweeper = new PromotionSweeper(client);
     const result = await sweeper.rejectById('urn:predicate:proposal:nope', {
       actor: 'user-reject', reason: 'x',
     });
+    expect(result.outcome).toBe('rejected-validation');
     expect(result.reason).toBe('proposal not found');
   });
 });
