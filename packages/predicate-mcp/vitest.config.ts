@@ -9,5 +9,8 @@ export default defineConfig({
     // Test files share live Fuseki state (kg:abox, kg:provenance, etc.).
     // Run them serially within this package to avoid cross-file races.
     fileParallelism: false,
+    env: {
+      PREDICATE_BACKEND: 'fuseki',
+    },
   },
 });
