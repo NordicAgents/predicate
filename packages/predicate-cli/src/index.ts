@@ -96,7 +96,24 @@ async function main(): Promise<number> {
   }
 }
 
-main().then((code) => process.exit(code)).catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Flush any in-flight debounced writes (e.g. OxigraphAdapter's 300ms timer)
+// before the process exits. We only close if an adapter was actually opened
+// during this run; getCachedAdapter() never constructs one.
+async function flushAdapter(): Promise<void> {
+  const { getCachedAdapter } = await import('predicate-mcp/src/storage/factory.js');
+  const adapter = getCachedAdapter();
+  if (adapter) {
+    try { await adapter.close(); } catch { /* best effort */ }
+  }
+}
+
+main()
+  .then(async (code) => {
+    await flushAdapter();
+    process.exit(code);
+  })
+  .catch(async (err) => {
+    console.error(err);
+    await flushAdapter();
+    process.exit(1);
+  });

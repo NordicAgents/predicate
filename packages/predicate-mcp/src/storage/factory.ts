@@ -20,6 +20,12 @@ export function getAdapter(): StorageAdapter {
   }
 }
 
+// Returns the cached adapter without constructing one. Safe to call even if
+// no command called getAdapter() during this run — returns undefined in that case.
+export function getCachedAdapter(): StorageAdapter | undefined {
+  return cached;
+}
+
 // Test-only.
 export function _resetAdapterCache(): void {
   cached = undefined;
