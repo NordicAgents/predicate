@@ -8,11 +8,16 @@ const client = new SparqlClient(cfg);
 // Test isolation via per-test graph
 const TEST_GRAPH = 'kg:test-client';
 
+// SparqlClient is the legacy direct-HTTP client; the conformance/RDF-star
+// suites cover the modern FusekiAdapter path. Only exercise this file when
+// Fuseki is the active backend — under Oxigraph there is no HTTP endpoint.
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
 async function clearTestGraph(): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${TEST_GRAPH}>`);
 }
 
-describe('SparqlClient', () => {
+describe.skipIf(!isFuseki)('SparqlClient', () => {
   beforeAll(clearTestGraph);
   afterAll(clearTestGraph);
 
