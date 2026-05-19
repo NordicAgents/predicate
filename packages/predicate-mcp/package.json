@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "oxigraph": "^0.5.0",
     "predicate-agent": "workspace:^",
     "predicate-reasoner": "workspace:^",
     "zod": "^3.23.0",
