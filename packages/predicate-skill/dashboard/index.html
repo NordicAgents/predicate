@@ -37,6 +37,20 @@
     .stage-actions button.confirm.bad { background:var(--bad); color:#fff; }
     .stage-actions button:disabled { opacity:.5; cursor:wait; }
     .stage-err { color:var(--bad); font-size:11px; margin-top:4px; }
+    .panel { position:fixed; top:0; right:0; bottom:0; width:40vw; min-width:480px; max-width:720px; background:#141417; border-left:1px solid #2a2a2e; padding:20px 24px; overflow-y:auto; transform:translateX(100%); transition:transform 200ms ease; z-index:10; }
+    .panel.open { transform:translateX(0); }
+    .panel-head { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+    .panel-kind { background:#2a2a2e; color:var(--accent); padding:2px 8px; border-radius:4px; font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
+    .panel-title { flex:1; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; word-break:break-all; }
+    .panel-close { background:none; border:none; color:var(--fg); font-size:22px; cursor:pointer; padding:0 6px; }
+    .panel-section { margin-bottom:20px; }
+    .panel-section h3 { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin:0 0 6px; }
+    .panel-section .empty { font-size:12px; }
+    .panel-section table { font-size:12px; }
+    .panel-scrim { position:fixed; inset:0; background:rgba(0,0,0,.4); opacity:0; pointer-events:none; transition:opacity 200ms ease; z-index:9; }
+    .panel-scrim.open { opacity:1; pointer-events:auto; }
+    tr.row-button { cursor:pointer; }
+    tr.row-button:hover td { background:#22222a; }
   </style>
 </head>
 <body>
@@ -51,6 +65,15 @@
   <div class="card"><h2>Flaky Commands <span class="sub">(failed in &ge;2 sessions)</span></h2><div id="flaky"></div></div>
   <div class="card"><h2>Active Files <span class="sub">(modified in latest session)</span></h2><div id="active"></div></div>
 </div>
+<div id="panel" class="panel" aria-hidden="true">
+  <div class="panel-head">
+    <span class="panel-kind" id="panel-kind"></span>
+    <span class="panel-title" id="panel-title"></span>
+    <button class="panel-close" id="panel-close" aria-label="Close">×</button>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+</div>
+<div id="panel-scrim" class="panel-scrim" aria-hidden="true"></div>
 <script>
 const EP = '/api/query';
 document.getElementById('ep').textContent = location.host;
@@ -71,6 +94,17 @@ function tbl(headers, rows, opts = {}) {
        + headers.map(h => '<th>' + h + '</th>').join('')
        + '</tr></thead><tbody>'
        + rows.map(r => '<tr>' + r.map((c, i) => '<td' + (opts.numCols && opts.numCols.includes(i) ? ' class="num"' : '') + '>' + c + '</td>').join('') + '</tr>').join('')
+       + '</tbody></table>';
+}
+
+function clickableTable(headers, rows, opts = {}) {
+  if (!rows.length) return '<div class="empty">' + (opts.empty || 'no data') + '</div>';
+  return '<table><thead><tr>'
+       + headers.map(h => '<th>' + h + '</th>').join('')
+       + '</tr></thead><tbody>'
+       + rows.map(r => `<tr class="row-button" tabindex="0" data-kind="${r.kind}" data-id="${r.id.replace(/"/g,'&quot;')}">`
+           + r.cells.map((c, i) => '<td' + (opts.numCols && opts.numCols.includes(i) ? ' class="num"' : '') + '>' + c + '</td>').join('')
+           + '</tr>').join('')
        + '</tbody></table>';
 }
 
@@ -143,14 +177,18 @@ async function loadSessions() {
     ORDER BY DESC(?at)
     LIMIT 20
   `;
-  const rows = (await ask(q)).map(b => [
-    trim(b.sid.value, 32),
-    b.at.value.slice(0, 19).replace('T', ' '),
-    b.nFiles.value,
-    b.nOk.value,
-    `<span class="${parseInt(b.nBad.value) > 0 ? 'bad' : ''}">${b.nBad.value}</span>`,
-  ]);
-  document.getElementById('sessions').innerHTML = tbl(['session', 'at', 'files', 'ok', 'fail'], rows, { numCols: [2, 3, 4], empty: 'no sessions extracted yet' });
+  const rows = (await ask(q)).map(b => ({
+    kind: 'session',
+    id: b.sid.value,
+    cells: [
+      trim(b.sid.value, 32),
+      b.at.value.slice(0, 19).replace('T', ' '),
+      b.nFiles.value,
+      b.nOk.value,
+      `<span class="${parseInt(b.nBad.value) > 0 ? 'bad' : ''}">${b.nBad.value}</span>`,
+    ],
+  }));
+  document.getElementById('sessions').innerHTML = clickableTable(['session', 'at', 'files', 'ok', 'fail'], rows, { numCols: [2, 3, 4], empty: 'no sessions extracted yet' });
 }
 
 async function loadDerived(varName, klass, predicate, divId, label, empty) {
@@ -169,9 +207,9 @@ async function loadDerived(varName, klass, predicate, divId, label, empty) {
   const rows = bindings.map(b => {
     const v = b[varName].value;
     const display = klass === 'FlakyCommand' ? trim(v, 80) : shortFile(v);
-    return [display, b.n.value];
+    return { kind: klass === 'FlakyCommand' ? 'cmd' : 'file', id: v, cells: [display, b.n.value] };
   });
-  document.getElementById(divId).innerHTML = tbl([label, 'n'], rows, { numCols: [1], empty });
+  document.getElementById(divId).innerHTML = clickableTable([label, 'n'], rows, { numCols: [1], empty });
 }
 
 function ttlString(expiresAtIso) {
@@ -284,6 +322,156 @@ async function handleStageAction(row, btn) {
   }
 }
 
+function openPanel(kind, id) {
+  const panel = document.getElementById('panel');
+  const scrim = document.getElementById('panel-scrim');
+  panel.classList.add('open');
+  scrim.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  scrim.setAttribute('aria-hidden', 'false');
+  document.getElementById('panel-kind').textContent = kind;
+  document.getElementById('panel-title').textContent = id;
+  document.getElementById('panel-body').innerHTML = '<div class="panel-section"><div class="empty">loading…</div></div>';
+  location.hash = `#/${kind}/${encodeURIComponent(id)}`;
+  if (kind === 'session') loadSessionPanel(id);
+  else if (kind === 'file') loadFilePanel(id);
+  else if (kind === 'cmd')  loadCommandPanel(id);
+}
+
+function closePanel() {
+  const panel = document.getElementById('panel');
+  const scrim = document.getElementById('panel-scrim');
+  panel.classList.remove('open');
+  scrim.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  scrim.setAttribute('aria-hidden', 'true');
+  if (location.hash.startsWith('#/')) history.replaceState(null, '', location.pathname);
+}
+
+function loadFromHash() {
+  const m = location.hash.match(/^#\/(session|file|cmd)\/(.+)$/);
+  if (!m) { closePanel(); return; }
+  openPanel(m[1], decodeURIComponent(m[2]));
+}
+
+async function loadSessionPanel(sid) {
+  const filesQ = `
+    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX pred: <https://predicate.dev/meta#>
+    SELECT ?file WHERE {
+      GRAPH <kg:abox> { ?s a pred:Session ; pred:sessionId "${sid.replace(/"/g,'\\"')}" . ?file cb:modifiedIn ?s }
+    } LIMIT 100
+  `;
+  const cmdsQ = `
+    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX pred: <https://predicate.dev/meta#>
+    SELECT ?cmd ?text ?status WHERE {
+      GRAPH <kg:abox> {
+        ?s a pred:Session ; pred:sessionId "${sid.replace(/"/g,'\\"')}" .
+        ?cmd a cb:Command ; cb:commandText ?text .
+        { ?cmd cb:succeededIn ?s . BIND("ok" AS ?status) }
+        UNION { ?cmd cb:failedIn ?s . BIND("fail" AS ?status) }
+      }
+    } LIMIT 100
+  `;
+  const [files, cmds] = await Promise.all([ask(filesQ).catch(() => []), ask(cmdsQ).catch(() => [])]);
+  const filesRows = files.map(b => ({ kind: 'file', id: b.file.value, cells: [shortFile(b.file.value)] }));
+  const cmdsRows  = cmds.map(b => ({
+    kind: 'cmd', id: b.cmd.value,
+    cells: [
+      trim(b.text.value, 80),
+      `<span class="${b.status.value === 'fail' ? 'bad' : ''}">${b.status.value}</span>`,
+    ],
+  }));
+  document.getElementById('panel-body').innerHTML = `
+    <div class="panel-section">
+      <h3>Files modified (${filesRows.length})</h3>
+      ${clickableTable(['file'], filesRows, { empty: 'none' })}
+    </div>
+    <div class="panel-section">
+      <h3>Commands (${cmdsRows.length})</h3>
+      ${clickableTable(['command', 'status'], cmdsRows, { empty: 'none' })}
+    </div>
+  `;
+}
+
+async function loadFilePanel(fileIri) {
+  const q = `
+    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX pred: <https://predicate.dev/meta#>
+    SELECT ?sid ?at WHERE {
+      GRAPH <kg:abox> {
+        <${fileIri}> cb:modifiedIn ?s .
+        ?s pred:sessionId ?sid ; pred:at ?at .
+      }
+    } ORDER BY DESC(?at) LIMIT 50
+  `;
+  const klassQ = `
+    PREFIX cb: <https://predicate.dev/codebase#>
+    SELECT ?k WHERE { GRAPH <kg:inferred> { <${fileIri}> a ?k FILTER (?k IN (cb:Hotspot, cb:ActiveFile)) } }
+  `;
+  const [sessions, klasses] = await Promise.all([ask(q).catch(() => []), ask(klassQ).catch(() => [])]);
+  const badges = klasses.map(b => `<span class="stage-kind">${b.k.value.split('#').pop()}</span>`).join(' ');
+  const rows = sessions.map(b => ({
+    kind: 'session', id: b.sid.value,
+    cells: [trim(b.sid.value, 32), b.at.value.slice(0, 19).replace('T', ' ')],
+  }));
+  document.getElementById('panel-body').innerHTML = `
+    <div class="panel-section">${badges || ''}</div>
+    <div class="panel-section">
+      <h3>Modified in (${rows.length} sessions)</h3>
+      ${clickableTable(['session', 'at'], rows, { empty: 'none' })}
+    </div>
+  `;
+}
+
+async function loadCommandPanel(cmdIri) {
+  const okQ = `
+    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX pred: <https://predicate.dev/meta#>
+    SELECT ?sid ?at WHERE {
+      GRAPH <kg:abox> {
+        <${cmdIri}> cb:succeededIn ?s . ?s pred:sessionId ?sid ; pred:at ?at .
+      }
+    } ORDER BY DESC(?at) LIMIT 30
+  `;
+  const badQ = `
+    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX pred: <https://predicate.dev/meta#>
+    SELECT ?sid ?at WHERE {
+      GRAPH <kg:abox> {
+        <${cmdIri}> cb:failedIn ?s . ?s pred:sessionId ?sid ; pred:at ?at .
+      }
+    } ORDER BY DESC(?at) LIMIT 30
+  `;
+  const flakyQ = `
+    PREFIX cb: <https://predicate.dev/codebase#>
+    ASK { GRAPH <kg:inferred> { <${cmdIri}> a cb:FlakyCommand } }
+  `;
+  const [oks, bads, flakyResp] = await Promise.all([
+    ask(okQ).catch(() => []),
+    ask(badQ).catch(() => []),
+    fetch('/api/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'query=' + encodeURIComponent(flakyQ),
+    }).then(r => r.json()).then(j => j.boolean === true).catch(() => false),
+  ]);
+  const okRows = oks.map(b => ({ kind: 'session', id: b.sid.value, cells: [trim(b.sid.value, 32), b.at.value.slice(0, 19).replace('T', ' ')] }));
+  const badRows = bads.map(b => ({ kind: 'session', id: b.sid.value, cells: [trim(b.sid.value, 32), b.at.value.slice(0, 19).replace('T', ' ')] }));
+  document.getElementById('panel-body').innerHTML = `
+    <div class="panel-section">${flakyResp ? '<span class="stage-kind">FlakyCommand</span>' : ''}</div>
+    <div class="panel-section">
+      <h3>Succeeded in (${okRows.length})</h3>
+      ${clickableTable(['session', 'at'], okRows, { empty: 'none' })}
+    </div>
+    <div class="panel-section">
+      <h3>Failed in (${badRows.length})</h3>
+      ${clickableTable(['session', 'at'], badRows, { empty: 'none' })}
+    </div>
+  `;
+}
+
 async function load() {
   try {
     await loadStats();
@@ -292,6 +480,7 @@ async function load() {
     await loadDerived('file', 'Hotspot',      'modifiedIn',  'hotspots', 'file',    'no hotspots — need ≥3 sessions touching the same file');
     await loadDerived('cmd',  'FlakyCommand', 'failedIn',    'flaky',    'command', 'no flaky commands — need ≥2 sessions with a failed command');
     await loadDerived('file', 'ActiveFile',   'modifiedIn',  'active',   'file',    'no active files — run a session, then `predicate maintain`');
+    loadFromHash();
   } catch (e) {
     document.getElementById('err').textContent = 'Failed to load: ' + e.message;
     document.getElementById('err').style.display = 'block';
@@ -356,6 +545,21 @@ function startPollingFallback() {
   setInterval(load, 30000);
 }
 
+document.body.addEventListener('click', (e) => {
+  const tr = e.target.closest('tr.row-button');
+  if (!tr) return;
+  openPanel(tr.dataset.kind, tr.dataset.id);
+});
+document.body.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const tr = e.target.closest('tr.row-button');
+    if (tr) { e.preventDefault(); openPanel(tr.dataset.kind, tr.dataset.id); }
+  }
+  if (e.key === 'Escape') closePanel();
+});
+document.getElementById('panel-close').addEventListener('click', closePanel);
+document.getElementById('panel-scrim').addEventListener('click', closePanel);
+window.addEventListener('hashchange', loadFromHash);
 load();
 startLive();
 </script>
