@@ -19,9 +19,9 @@ async function main(): Promise<void> {
   }
 
   const root = resolve(import.meta.dirname, '..', '..', 'predicate-ontology');
-  await loadTtl(client, join(root, 'tbox', 'codebase.ttl'),         'kg:tbox-staging');
-  await loadTtl(client, join(root, 'meta', 'predicate-meta.ttl'),   'kg:tbox-staging');
-  await loadTtl(client, join(root, 'shapes', 'codebase.shacl.ttl'), 'kg:tbox-staging');
+  await loadTtl(client, join(root, 'catalog', 'codebase.ttl'),        'kg:tbox-staging');
+  await loadTtl(client, join(root, 'meta',    'predicate-meta.ttl'),  'kg:tbox-staging');
+  await loadTtl(client, join(root, 'catalog', 'codebase.shacl.ttl'),  'kg:tbox-staging');
 
   // Minimal sample so validation isn't a no-op
   await client.update(`
