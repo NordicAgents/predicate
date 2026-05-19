@@ -1,6 +1,6 @@
 # Predicate
 
-**Reasoning memory for AI agents — a knowledge graph that compounds with use.**
+**Reasoning memory for AI agents — a self-improving knowledge graph that grows with use.**
 
 Predicate gives an AI coding or research agent a structured graph it can query,
 reason over, and grow with use. Facts are stored as RDF triples with
@@ -9,9 +9,12 @@ entailments deterministically. The schema is versioned like code and evolves
 under a propose → validate → use-gated promotion loop. Everything runs locally
 on a bundled Apache Jena Fuseki; nothing leaves the machine.
 
-The wedge: where RAG returns documents containing the word *login*, Predicate
-traverses `auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production`,
-explains the chain with citations, and remembers it next session.
+Ask *"why did login break?"* and Predicate traverses
+`auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production`,
+explains the chain with citations, and remembers it next session. It can
+tell you the blast radius of a rename, the services downstream of a
+failing dependency, and which of two documents contradicts the other —
+because it stores relations, not text.
 
 See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the full product brief.
 

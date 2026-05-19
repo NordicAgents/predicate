@@ -1,6 +1,6 @@
 # Predicate
 
-**Reasoning memory for AI agents — a knowledge graph that compounds with use.**
+**Reasoning memory for AI agents — a self-improving knowledge graph that grows with use.**
 
 [![npm](https://img.shields.io/npm/v/predicate-skill?label=npm&color=blue)](https://www.npmjs.com/package/predicate-skill)
 [![marketplace](https://img.shields.io/badge/Claude%20Code-Marketplace-blue)](https://github.com/NordicAgents/predicate)
@@ -12,8 +12,7 @@
 
 An AI coding or research agent loses most of its value to two failures: it
 forgets across sessions, and it can only answer single-hop lookups. Ask
-*"why did login break?"* and a RAG system returns documents containing the
-word *login*. It cannot traverse
+*"why did login break?"* and the agent cannot traverse
 `auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production`,
 cannot tell you the blast radius of a rename, and cannot say which of two
 documents contradicts the other. The "agent memory" category mostly stores
@@ -23,10 +22,9 @@ fact, and grows without bound until the operator cleans up by hand.
 
 ### How Predicate solves it
 
-Predicate is an MCP skill that gives the agent a real reasoning graph,
-not a search index.
+Predicate is an MCP skill that gives the agent a real reasoning graph.
 
-1. **RDF/OWL, not retrieval.** Facts are stored as triples in Apache Jena
+1. **RDF/OWL with logical entailment.** Facts are stored as triples in Apache Jena
    Fuseki. A curated OWL 2 RL ruleset materializes entailments through
    SPARQL `CONSTRUCT` rules; SHACL covers closed-world validation. The
    model formulates SPARQL against a freshly read schema — pre-baked

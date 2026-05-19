@@ -1,6 +1,6 @@
 ---
 name: predicate
-description: Local reasoning knowledge graph for "why", "what breaks if", and "what's connected to" questions. OWL-backed, provenance-tracked, schema-versioned. Use instead of RAG when the question is structural rather than fuzzy-semantic.
+description: Local reasoning knowledge graph for "why", "what breaks if", and "what's connected to" questions. OWL-backed, provenance-tracked, schema-versioned. Use when the question is structural — about relations, transitive dependencies, contradictions, or prior-session state.
 ---
 
 <EXTREMELY-IMPORTANT>
@@ -23,7 +23,7 @@ Use Predicate when the user asks:
   `failedIn` triples. See worked example 4.
 
 Do NOT use Predicate for:
-- Fuzzy semantic recall ("find docs about login" — use vector search)
+- Fuzzy semantic recall over unstructured text ("find docs about login")
 - One-shot Q&A with no entities/relations
 
 # Workflow
