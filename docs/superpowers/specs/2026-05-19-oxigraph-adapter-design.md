@@ -26,8 +26,10 @@ Add an Oxigraph storage adapter to Predicate, make it the default for new instal
 
 Introduce a `StorageAdapter` interface. Two implementations ship:
 
-- `OxigraphAdapter` — in-process, uses the `oxigraph` npm package (N-API binding), RocksDB on disk. **Default.**
+- `OxigraphAdapter` — in-process, uses the `oxigraph` npm package (WASM build, in-memory only). Persistence is layered on top via per-graph N-Quads serialization at `~/.predicate/store/<graph>.nq`: load on `ready()`, debounced dump on writes, flush on `close()`. **Default.**
 - `FusekiAdapter` — HTTP, the current `SparqlClient` behavior, wrapped to satisfy the new interface. **Opt-in via `PREDICATE_BACKEND=fuseki`.**
+
+**Persistence note.** The original spec named RocksDB on disk. The `oxigraph` npm 0.5.x package is in-memory only — its WASM binding doesn't expose Oxigraph's RocksDB layer. The product property the spec actually needs is *data survives across sessions*; file-backed N-Quads serialization satisfies that at the data scales Predicate targets (single user, single project, up to ~100k triples comfortably). Heavy users can opt into Fuseki, which retains its native TDB2 persistence. If the npm binding adds disk persistence in a future release, the adapter can switch transparently.
 
 Selected at startup by a single config flag. The reasoner, MCP tools, hooks, and CLI never know which is live.
 
@@ -111,7 +113,7 @@ The `predicate-server` package gains a programmatic export shape; it is no longe
 
 ## 10. Default + migration
 
-- **New installs:** Oxigraph default. Store at `$XDG_DATA_HOME/predicate/store/` if `XDG_DATA_HOME` is set, else `~/.predicate/store/`. RocksDB files written on first `predicate up`.
+- **New installs:** Oxigraph default. Store directory at `$XDG_DATA_HOME/predicate/store/` if `XDG_DATA_HOME` is set, else `~/.predicate/store/`. One N-Quads file per named graph (`kg%3Aabox.nq`, `kg%3Atbox.nq`, …) created on first `predicate up`. The directory is loaded into the in-memory store on every `ready()` and flushed back after writes.
 - **Existing Fuseki users:** continue to work by setting `PREDICATE_BACKEND=fuseki`. No silent breakage and no auto-migration. If the env var is unset and a Fuseki instance is reachable on the historical port, `predicate doctor` prints a non-interactive one-line notice ("Detected Fuseki at localhost:3030 — set PREDICATE_BACKEND=fuseki to keep using it, or run `predicate migrate --from fuseki --to oxigraph` to switch"). The notice is informational only; doctor never modifies state.
 - **Migration command:** `predicate migrate --from fuseki --to oxigraph` walks each named graph, calls `fusekiAdapter.serializeGraph(g, 'nt')`, and feeds the result through `oxigraphAdapter.loadTurtle(...)` (N-Triples is a Turtle subset). Round-trip is verified by triple-count parity per graph.
 
