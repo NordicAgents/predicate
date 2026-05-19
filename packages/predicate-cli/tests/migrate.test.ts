@@ -18,7 +18,10 @@ afterEach(() => {
   rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe('migrate fuseki → oxigraph', () => {
+// Migration tests need a live Fuseki to migrate FROM. Skip under Oxigraph CI.
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
+describe.skipIf(!isFuseki)('migrate fuseki → oxigraph', () => {
   it('round-trips a 1k-triple ABox with count parity', async () => {
     const cfg = loadConfig();
     const src = new FusekiAdapter(cfg);

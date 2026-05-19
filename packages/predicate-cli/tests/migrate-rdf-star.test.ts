@@ -20,7 +20,10 @@ import { GRAPH } from 'predicate-mcp/src/graphs.js';
 // that non-determinism while still exercising the exact code path that was
 // broken (FusekiAdapter returning 406 when requesting nt-star format).
 
-describe('FusekiAdapter → OxigraphAdapter preserves RDF-star annotations', () => {
+// Migration tests need a live Fuseki to migrate FROM. Skip under Oxigraph CI.
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
+describe.skipIf(!isFuseki)('FusekiAdapter → OxigraphAdapter preserves RDF-star annotations', () => {
   let tmp: string;
 
   beforeEach(() => {

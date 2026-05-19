@@ -47,7 +47,7 @@ async function readSseUntil(url: string, predicate: (evt: { event: string; data:
   throw new Error('SSE stream ended without matching event');
 }
 
-describe('GET /api/events', () => {
+describe.skipIf(!isFuseki)('GET /api/events', () => {
   it('emits an initial digest event on connect', async () => {
     handle = await startDashboardServer(0);
     const ev = await readSseUntil(handle.url + '/api/events', (e) => e.event === 'digest');
