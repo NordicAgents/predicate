@@ -16,8 +16,9 @@ Verbs:
 }
 
 async function listProposals(): Promise<number> {
-  const client = new SparqlClient(loadConfig());
-  const r = await client.select(`
+  try {
+    const client = new SparqlClient(loadConfig());
+    const r = await client.select(`
     PREFIX pred: <${META}>
     SELECT ?id ?kind ?justification ?motivatingGoal ?proposedAt ?expiresAt ?useCount
     WHERE {
@@ -34,17 +35,21 @@ async function listProposals(): Promise<number> {
     ORDER BY ?expiresAt
     LIMIT 200
   `);
-  const out = r.results.bindings.map((b) => ({
-    id: b['id']!.value,
-    kind: b['kind']!.value,
-    justification: b['justification']!.value,
-    motivatingGoal: b['motivatingGoal']?.value,
-    proposedAt: b['proposedAt']!.value,
-    expiresAt: b['expiresAt']!.value,
-    useCount: parseInt(b['useCount']!.value, 10),
-  }));
-  process.stdout.write(JSON.stringify(out));
-  return 0;
+    const out = r.results.bindings.map((b) => ({
+      id: b['id']!.value,
+      kind: b['kind']!.value,
+      justification: b['justification']!.value,
+      motivatingGoal: b['motivatingGoal']?.value,
+      proposedAt: b['proposedAt']!.value,
+      expiresAt: b['expiresAt']!.value,
+      useCount: parseInt(b['useCount']!.value, 10),
+    }));
+    process.stdout.write(JSON.stringify(out));
+    return 0;
+  } catch (e) {
+    process.stdout.write(JSON.stringify({ ok: false, error: (e as Error).message }));
+    return 1;
+  }
 }
 
 async function approveProposal(id: string): Promise<number> {
@@ -52,12 +57,17 @@ async function approveProposal(id: string): Promise<number> {
     console.error(`predicate schema approve: invalid proposal IRI: ${id}`);
     return 2;
   }
-  const client = new SparqlClient(loadConfig());
-  const sweeper = new PromotionSweeper(client);
-  const decision = await sweeper.promoteById(id, { actor: 'user-approve' });
-  const ok = decision.outcome === 'promoted';
-  process.stdout.write(JSON.stringify({ ok, ...decision }));
-  return ok ? 0 : 1;
+  try {
+    const client = new SparqlClient(loadConfig());
+    const sweeper = new PromotionSweeper(client);
+    const decision = await sweeper.promoteById(id, { actor: 'user-approve' });
+    const ok = decision.outcome === 'promoted';
+    process.stdout.write(JSON.stringify({ ok, ...decision }));
+    return ok ? 0 : 1;
+  } catch (e) {
+    process.stdout.write(JSON.stringify({ ok: false, error: (e as Error).message }));
+    return 1;
+  }
 }
 
 async function rejectProposal(id: string): Promise<number> {
@@ -65,15 +75,20 @@ async function rejectProposal(id: string): Promise<number> {
     console.error(`predicate schema reject: invalid proposal IRI: ${id}`);
     return 2;
   }
-  const client = new SparqlClient(loadConfig());
-  const sweeper = new PromotionSweeper(client);
-  const decision = await sweeper.rejectById(id, {
-    actor: 'user-reject',
-    reason: 'rejected via dashboard',
-  });
-  const ok = decision.outcome === 'rejected-expired';
-  process.stdout.write(JSON.stringify({ ok, ...decision }));
-  return ok ? 0 : 1;
+  try {
+    const client = new SparqlClient(loadConfig());
+    const sweeper = new PromotionSweeper(client);
+    const decision = await sweeper.rejectById(id, {
+      actor: 'user-reject',
+      reason: 'rejected via dashboard',
+    });
+    const ok = decision.outcome === 'rejected-expired';
+    process.stdout.write(JSON.stringify({ ok, ...decision }));
+    return ok ? 0 : 1;
+  } catch (e) {
+    process.stdout.write(JSON.stringify({ ok: false, error: (e as Error).message }));
+    return 1;
+  }
 }
 
 export async function schema(args: string[]): Promise<number> {

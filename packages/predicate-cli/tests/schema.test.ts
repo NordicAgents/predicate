@@ -22,14 +22,19 @@ afterAll(async () => {
   for (const g of RESET_GRAPHS) { await reset(g); }
 });
 
-function captureStdout(): { restore: () => string } {
+async function captureStdout<T>(fn: () => Promise<T>): Promise<{ result: T; out: string }> {
   const chunks: string[] = [];
   const orig = process.stdout.write.bind(process.stdout);
   process.stdout.write = ((c: string | Uint8Array) => {
     chunks.push(typeof c === 'string' ? c : Buffer.from(c).toString('utf8'));
     return true;
   }) as typeof process.stdout.write;
-  return { restore: () => { process.stdout.write = orig; return chunks.join(''); } };
+  try {
+    const result = await fn();
+    return { result, out: chunks.join('') };
+  } finally {
+    process.stdout.write = orig;
+  }
 }
 
 describe('predicate schema list', () => {
@@ -44,9 +49,7 @@ describe('predicate schema list', () => {
       }],
     }, { justification: 'test' });
 
-    const cap = captureStdout();
-    const code = await schema(['list']);
-    const out = cap.restore();
+    const { result: code, out } = await captureStdout(() => schema(['list']));
     expect(code).toBe(0);
 
     const parsed = JSON.parse(out) as Array<{ id: string; kind: string; useCount: number }>;
@@ -66,9 +69,7 @@ describe('predicate schema approve', () => {
       }],
     }, { justification: 'test' });
 
-    const cap = captureStdout();
-    const code = await schema(['approve', id]);
-    const out = cap.restore();
+    const { result: code, out } = await captureStdout(() => schema(['approve', id]));
     expect(code).toBe(0);
     const result = JSON.parse(out) as { ok: boolean; outcome: string };
     expect(result.ok).toBe(true);
@@ -93,9 +94,7 @@ describe('predicate schema reject', () => {
       }],
     }, { justification: 'test' });
 
-    const cap = captureStdout();
-    const code = await schema(['reject', id]);
-    const out = cap.restore();
+    const { result: code, out } = await captureStdout(() => schema(['reject', id]));
     expect(code).toBe(0);
     const result = JSON.parse(out) as { ok: boolean; outcome: string };
     expect(result.ok).toBe(true);
