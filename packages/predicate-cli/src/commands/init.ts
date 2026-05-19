@@ -5,6 +5,7 @@ import { createInterface } from 'node:readline/promises';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
+import { bootstrapGraphs } from 'predicate-server/src/index.js';
 
 const META = 'https://predicate.dev/meta#';
 const CONFIG_URI = 'urn:predicate:config';
@@ -83,10 +84,7 @@ async function wipeForInit(client: StorageAdapter, force: boolean): Promise<void
   const tboxGraphs = ['kg:tbox', 'kg:tbox-staging', 'kg:meta'];
   const aboxGraphs = ['kg:abox', 'kg:inferred', 'kg:provenance', 'kg:goals', 'kg:usage'];
   const toWipe = force ? [...tboxGraphs, ...aboxGraphs] : tboxGraphs;
-  for (const g of toWipe) {
-    await client.update(`DROP SILENT GRAPH <${g}>`);
-    await client.update(`CREATE SILENT GRAPH <${g}>`);
-  }
+  for (const g of toWipe) await client.clearGraph(g);
 }
 
 async function writeConfig(
@@ -180,8 +178,7 @@ async function applyPlan(client: StorageAdapter, plan: Plan, force: boolean): Pr
     } catch (err) {
       // Fuseki rejected the file at load time (malformed turtle, etc.). Roll
       // back to meta-only so the user isn't left in a broken state.
-      await client.update(`DROP SILENT GRAPH <kg:tbox>`);
-      await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
+      await client.clearGraph('kg:tbox');
       await loadTtlFile(client, findMetaTtl(plan.catalogDir));
       console.error(`predicate init: upload failed during load: ${(err as Error).message}. kg:tbox rolled back to meta-only.`);
       return 1;
@@ -238,6 +235,7 @@ async function interactive(client: StorageAdapter, force: boolean): Promise<numb
 export async function init(args: string[]): Promise<number> {
   if (hasFlag(args, '--help')) { help(); return 0; }
   const client = getAdapter();
+  await bootstrapGraphs(client);
   const force = hasFlag(args, '--force');
 
   // Refusal check FIRST: refuse if config exists and no --force.

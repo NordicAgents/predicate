@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "predicate-agent": "workspace:*",
-    "predicate-mcp": "workspace:*"
+    "predicate-mcp": "workspace:*",
+    "predicate-server": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
