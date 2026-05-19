@@ -27,6 +27,8 @@ jobs:
         options: >-
           --health-cmd "curl -fsS http://localhost:3030/$/ping"
           --health-interval 10s --health-timeout 5s --health-retries 10
+    env:
+      PREDICATE_ADMIN_PASSWORD: testpass
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
