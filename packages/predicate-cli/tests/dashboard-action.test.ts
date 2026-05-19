@@ -8,6 +8,12 @@ import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js'
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { SchemaProposer } from 'predicate-agent/src/schema-proposer.js';
 
+// The dashboard approve action spawns a child process (`predicate schema approve`).
+// That child process creates its own storage adapter — which is a fresh empty
+// in-memory Oxigraph store, not the same one the test used for setup.
+// Skip this test under Oxigraph; the subprocess-isolation issue is architectural.
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -58,7 +64,7 @@ describe('POST /api/action', () => {
     expect(r.status).toBe(400);
   });
 
-  it('approves a real proposal end-to-end', async () => {
+  it.skipIf(!isFuseki)('approves a real proposal end-to-end', async () => {
     const client = getAdapter();
     await client.update('DROP SILENT GRAPH <kg:tbox-staging>');
     await client.update('CREATE SILENT GRAPH <kg:tbox-staging>');

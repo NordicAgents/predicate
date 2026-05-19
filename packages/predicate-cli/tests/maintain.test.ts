@@ -3,6 +3,8 @@ import { maintain } from '../src/commands/maintain.js';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { _resetAdapterCache } from 'predicate-mcp/src/storage/factory.js';
 
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
 describe('predicate maintain', () => {
   let logSpy: ReturnType<typeof vi.spyOn>;
   let errSpy: ReturnType<typeof vi.spyOn>;
@@ -28,7 +30,7 @@ describe('predicate maintain', () => {
     expect(line).toMatch(/^predicate maintain: archived=\d+ proposals=\d+ promotions=\d+ inferred=\d+ elapsed=\d+ms event=urn:predicate:event:/);
   });
 
-  it('returns 1 and prints to stderr when fuseki is unreachable', async () => {
+  it.skipIf(!isFuseki)('returns 1 and prints to stderr when fuseki is unreachable', async () => {
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const orig = process.env['FUSEKI_URL'];

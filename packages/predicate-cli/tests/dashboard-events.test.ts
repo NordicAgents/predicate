@@ -4,6 +4,10 @@ import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js'
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { SchemaProposer } from 'predicate-agent/src/schema-proposer.js';
 
+// The dashboard server polls Fuseki's HTTP endpoint directly for the digest.
+// Tests that verify the change event require Fuseki to see the mutations.
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
 let handle: DashboardServerHandle | undefined;
 
 beforeAll(async () => { await withCodebaseTBox(); });
@@ -53,7 +57,7 @@ describe('GET /api/events', () => {
     expect(typeof data.staging).toBe('number');
   });
 
-  it('broadcasts a change event when staging count changes', async () => {
+  it.skipIf(!isFuseki)('broadcasts a change event when staging count changes', async () => {
     handle = await startDashboardServer(0);
     const url = handle.url + '/api/events';
     const changePromise = readSseUntil(

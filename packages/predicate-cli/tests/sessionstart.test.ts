@@ -3,6 +3,8 @@ import { sessionstart } from '../src/commands/sessionstart.js';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { _resetAdapterCache } from 'predicate-mcp/src/storage/factory.js';
 
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
 describe('predicate sessionstart', () => {
   let logSpy: ReturnType<typeof vi.spyOn>;
   let errSpy: ReturnType<typeof vi.spyOn>;
@@ -73,7 +75,7 @@ describe('predicate sessionstart', () => {
     }
   });
 
-  it('returns 0 and prints a fallback message when fuseki is unreachable', async () => {
+  it.skipIf(!isFuseki)('returns 0 and prints a fallback message when fuseki is unreachable', async () => {
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const orig = process.env['FUSEKI_URL'];
