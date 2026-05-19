@@ -54,6 +54,9 @@ Env:
   PREDICATE_RAW_CAPTURE     "1" enables raw kg_capture writes (default off)
   PREDICATE_CAPTURE_SKIP    when raw capture is on, comma list of tools to skip
   PREDICATE_CAPTURE_TRUNCATE  max chars per captured input/output (default 500)
+  PREDICATE_CLI_BIN         override the binary spawned by \`predicate dashboard\` actions
+  PREDICATE_CLI_ARGS        extra leading args for that binary (space-separated)
+  PREDICATE_PROMOTED_DIR    override the path PromotionSweeper writes promoted TBox Turtle into
 `);
 }
 
