@@ -2,10 +2,12 @@ import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { getAdapter } from '../../src/storage/index.js';
 
 import { kgAssert } from '../../src/tools/kg-assert.js';
+import { withCodebaseTBox } from '../fixtures/with-codebase.js';
 
 const client = getAdapter();
 
 beforeAll(async () => {
+  await withCodebaseTBox(client);
   await client.update('CREATE SILENT GRAPH <kg:abox>');
   await client.update('CREATE SILENT GRAPH <kg:provenance>');
 });

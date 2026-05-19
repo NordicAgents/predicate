@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getAdapter } from '../../src/storage/index.js';
 
 import { buildTools } from '../../src/tools/registry.js';
+import { withCodebaseTBox } from '../fixtures/with-codebase.js';
 
 const client = getAdapter();
 
@@ -12,6 +13,10 @@ async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);
   await client.update(`CREATE SILENT GRAPH <${g}>`);
 }
+
+beforeAll(async () => {
+  await withCodebaseTBox(client);
+});
 
 beforeEach(async () => {
   for (const g of ['kg:goals', 'kg:meta']) await reset(g);
