@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { SchemaProposer } from '../src/schema-proposer.js';
 import type { SchemaDelta } from '../src/types.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const proposer = new SchemaProposer(client);
 
 async function reset(g: string): Promise<void> {

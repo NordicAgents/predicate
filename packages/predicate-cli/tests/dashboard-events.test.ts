@@ -1,8 +1,7 @@
 import { describe, it, expect, afterEach, beforeAll } from 'vitest';
 import { startDashboardServer, type DashboardServerHandle } from '../src/commands/dashboard.js';
 import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { SchemaProposer } from 'predicate-agent/src/schema-proposer.js';
 
 let handle: DashboardServerHandle | undefined;
@@ -64,7 +63,7 @@ describe('GET /api/events', () => {
     );
     // Give the server a moment to attach the client and snapshot the digest.
     await new Promise((r) => setTimeout(r, 1500));
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     const proposer = new SchemaProposer(client);
     await proposer.propose({
       kind: 'add-property',

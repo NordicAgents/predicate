@@ -1,4 +1,4 @@
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import type {
   Quad, InferenceTrace, DerivationStep, ProvenanceRecord,
 } from './types.js';
@@ -12,7 +12,7 @@ function quadKey(q: Quad): string {
   return `${q.s}|${q.p}|${o}`;
 }
 
-async function isAsserted(client: SparqlClient, q: Quad): Promise<boolean> {
+async function isAsserted(client: StorageAdapter, q: Quad): Promise<boolean> {
   const o = typeof q.o === 'string' ? `<${q.o}>` : `"${(q.o as { value: string }).value}"`;
   return client.ask(`
     ASK {
@@ -25,7 +25,7 @@ async function isAsserted(client: SparqlClient, q: Quad): Promise<boolean> {
   `);
 }
 
-async function getProvenance(client: SparqlClient, q: Quad): Promise<ProvenanceRecord | null> {
+async function getProvenance(client: StorageAdapter, q: Quad): Promise<ProvenanceRecord | null> {
   const o = typeof q.o === 'string' ? `<${q.o}>` : `"${(q.o as { value: string }).value}"`;
   const r = await client.select(`
     PREFIX pred: <${META}>
@@ -50,7 +50,7 @@ async function getProvenance(client: SparqlClient, q: Quad): Promise<ProvenanceR
 }
 
 export async function explain(
-  client: SparqlClient,
+  client: StorageAdapter,
   rules: Rule[],
   claim: Quad,
 ): Promise<InferenceTrace | null> {

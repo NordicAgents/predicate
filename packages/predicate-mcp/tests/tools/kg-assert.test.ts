@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { SparqlClient } from '../../src/sparql/client.js';
-import { loadConfig } from '../../src/config.js';
+import { getAdapter } from '../../src/storage/index.js';
+
 import { kgAssert } from '../../src/tools/kg-assert.js';
 
-const cfg = loadConfig();
-const client = new SparqlClient(cfg);
+const client = getAdapter();
 
 beforeAll(async () => {
   await client.update('CREATE SILENT GRAPH <kg:abox>');

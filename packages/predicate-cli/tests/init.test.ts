@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { join } from 'node:path';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { init } from '../src/commands/init.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const FIXTURES = join(__dirname, 'fixtures');
 
 async function fullReset(): Promise<void> {

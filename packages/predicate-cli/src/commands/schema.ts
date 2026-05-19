@@ -1,5 +1,4 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { PromotionSweeper } from 'predicate-agent/src/promotion-sweeper.js';
 
 const META = 'https://predicate.dev/meta#';
@@ -17,7 +16,7 @@ Verbs:
 
 async function listProposals(): Promise<number> {
   try {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     const r = await client.select(`
     PREFIX pred: <${META}>
     SELECT ?id ?kind ?justification ?motivatingGoal ?proposedAt ?expiresAt ?useCount
@@ -58,7 +57,7 @@ async function approveProposal(id: string): Promise<number> {
     return 2;
   }
   try {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     const sweeper = new PromotionSweeper(client);
     const decision = await sweeper.promoteById(id, { actor: 'user-approve' });
     const ok = decision.outcome === 'promoted';
@@ -76,7 +75,7 @@ async function rejectProposal(id: string): Promise<number> {
     return 2;
   }
   try {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     const sweeper = new PromotionSweeper(client);
     const decision = await sweeper.rejectById(id, {
       actor: 'user-reject',

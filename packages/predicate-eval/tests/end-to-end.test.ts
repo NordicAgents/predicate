@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { execSync } from 'node:child_process';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 
 beforeAll(async () => {
   await client.update('DROP SILENT GRAPH <kg:abox>');

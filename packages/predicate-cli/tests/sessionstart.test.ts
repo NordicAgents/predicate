@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { sessionstart } from '../src/commands/sessionstart.js';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import { _resetAdapterCache } from 'predicate-mcp/src/storage/factory.js';
 
 describe('predicate sessionstart', () => {
   let logSpy: ReturnType<typeof vi.spyOn>;
@@ -9,7 +9,7 @@ describe('predicate sessionstart', () => {
 
   beforeAll(async () => {
     // Bootstrap a minimal kg:tbox so the count is non-zero
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
     await client.update(`CREATE SILENT GRAPH <kg:goals>`);
     await client.update(`CREATE SILENT GRAPH <kg:abox>`);
@@ -31,7 +31,7 @@ describe('predicate sessionstart', () => {
   });
 
   it('mentions prior sessions when kg:abox has Session entities', async () => {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     await client.update(`
       INSERT DATA { GRAPH <kg:abox> {
         <urn:predicate:session:test-prior> a <https://predicate.dev/meta#Session> .
@@ -53,7 +53,7 @@ describe('predicate sessionstart', () => {
   });
 
   it('includes ontology name in banner when init config exists', async () => {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     await client.update(`
       PREFIX pred: <https://predicate.dev/meta#>
       INSERT DATA { GRAPH <kg:meta> {
@@ -78,6 +78,7 @@ describe('predicate sessionstart', () => {
     errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const orig = process.env['FUSEKI_URL'];
     process.env['FUSEKI_URL'] = 'http://127.0.0.1:1';  // unreachable
+    _resetAdapterCache();  // force new adapter with the updated URL
     try {
       const code = await sessionstart();
       expect(code).toBe(0);
@@ -86,6 +87,7 @@ describe('predicate sessionstart', () => {
     } finally {
       if (orig !== undefined) process.env['FUSEKI_URL'] = orig;
       else delete process.env['FUSEKI_URL'];
+      _resetAdapterCache();  // restore cache for subsequent tests
     }
   });
 });

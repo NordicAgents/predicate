@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { maintain } from '../src/commands/maintain.js';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import { _resetAdapterCache } from 'predicate-mcp/src/storage/factory.js';
 
 describe('predicate maintain', () => {
   let logSpy: ReturnType<typeof vi.spyOn>;
   let errSpy: ReturnType<typeof vi.spyOn>;
 
   beforeAll(async () => {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     await client.update(`CREATE SILENT GRAPH <kg:abox>`);
     await client.update(`CREATE SILENT GRAPH <kg:provenance>`);
     await client.update(`CREATE SILENT GRAPH <kg:meta>`);
@@ -33,6 +33,7 @@ describe('predicate maintain', () => {
     errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const orig = process.env['FUSEKI_URL'];
     process.env['FUSEKI_URL'] = 'http://127.0.0.1:1';
+    _resetAdapterCache();  // force new adapter with the updated URL
     try {
       const code = await maintain();
       expect(code).toBe(1);
@@ -42,6 +43,7 @@ describe('predicate maintain', () => {
     } finally {
       if (orig !== undefined) process.env['FUSEKI_URL'] = orig;
       else delete process.env['FUSEKI_URL'];
+      _resetAdapterCache();  // restore cache for subsequent tests
     }
   });
 });

@@ -5,8 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { startDashboardServer, type DashboardServerHandle } from '../src/commands/dashboard.js';
 import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { SchemaProposer } from 'predicate-agent/src/schema-proposer.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -60,7 +59,7 @@ describe('POST /api/action', () => {
   });
 
   it('approves a real proposal end-to-end', async () => {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     await client.update('DROP SILENT GRAPH <kg:tbox-staging>');
     await client.update('CREATE SILENT GRAPH <kg:tbox-staging>');
     const proposer = new SchemaProposer(client);

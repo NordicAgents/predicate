@@ -1,5 +1,5 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 
 interface RecallResult {
   query: string;
@@ -46,7 +46,7 @@ function escapeSparqlLiteral(s: string): string {
 }
 
 async function searchFiles(
-  client: SparqlClient,
+  client: StorageAdapter,
   query: string,
   limit: number,
 ): Promise<RecallResult['files']> {
@@ -75,7 +75,7 @@ async function searchFiles(
 }
 
 async function searchCommands(
-  client: SparqlClient,
+  client: StorageAdapter,
   query: string,
   limit: number,
 ): Promise<RecallResult['commands']> {
@@ -154,7 +154,7 @@ export async function recall(args: string[]): Promise<number> {
     return 2;
   }
   try {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     const [files, commands] = await Promise.all([
       searchFiles(client, query, limit),
       searchCommands(client, query, limit),

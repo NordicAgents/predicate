@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { runFixpoint } from '../../src/fixpoint.js';
 import { RULES } from '../../src/rules/index.js';
 import type { RuleConfig } from '../../src/rules/types.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 
 const cfg: RuleConfig = {
   tboxGraph: 'kg:tbox',

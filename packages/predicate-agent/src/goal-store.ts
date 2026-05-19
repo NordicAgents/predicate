@@ -1,4 +1,4 @@
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeLiteral, escapeIRI } from 'predicate-mcp/src/sparql/escape.js';
 import type { Goal, GoalStatus } from './types.js';
 
@@ -21,7 +21,7 @@ export interface CreateGoalInput {
 }
 
 export class GoalStore {
-  constructor(private client: SparqlClient) {}
+  constructor(private client: StorageAdapter) {}
 
   async create(input: CreateGoalInput): Promise<Goal> {
     const id = newGoalId();

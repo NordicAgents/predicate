@@ -1,4 +1,4 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { dockerAvailable } from '../docker.js';
 
@@ -22,7 +22,7 @@ export async function doctor(): Promise<number> {
   });
 
   if (ping?.ok) {
-    const client = new SparqlClient(cfg);
+    const client = getAdapter();
     const tboxOk = await client.ask(`
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       ASK { GRAPH <kg:tbox> { ?c a owl:Class } }

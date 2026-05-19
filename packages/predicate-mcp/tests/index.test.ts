@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { SparqlClient } from '../src/sparql/client.js';
-import { loadConfig } from '../src/config.js';
+import { getAdapter } from '../src/storage/index.js';
+
 import { buildTools } from '../src/tools/registry.js';
 
 describe('tool registry', () => {
-  const tools = buildTools(new SparqlClient(loadConfig()));
+  const tools = buildTools(getAdapter());
   const names = tools.map((t) => t.name);
 
   it('exposes all 11 tools', () => {

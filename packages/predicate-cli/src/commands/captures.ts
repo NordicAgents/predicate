@@ -1,5 +1,5 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 
 interface CaptureRow {
   captureId: string;
@@ -36,7 +36,7 @@ Options:
 }
 
 async function fetchCaptures(
-  client: SparqlClient,
+  client: StorageAdapter,
   opts: { limit: number; tool?: string },
 ): Promise<CaptureRow[]> {
   const META = 'https://predicate.dev/meta#';
@@ -95,7 +95,7 @@ export async function captures(args: string[]): Promise<number> {
   }
   const tool = parseFlag(args, '--tool');
   try {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     const rows = await fetchCaptures(client, { limit, ...(tool ? { tool } : {}) });
     if (hasFlag(args, '--json')) console.log(JSON.stringify(rows, null, 2));
     else console.log(renderTable(rows));

@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { escapeLiteral } from '../sparql/escape.js';
 import {
   PromotionSweeper, type SweeperResult,
@@ -27,7 +27,7 @@ export interface MaintainResult {
 }
 
 export async function kgMaintain(
-  client: SparqlClient,
+  client: StorageAdapter,
   input: MaintainInput = {},
 ): Promise<MaintainResult> {
   const archiveCutoff = input.archiveCutoff ?? 0.6;

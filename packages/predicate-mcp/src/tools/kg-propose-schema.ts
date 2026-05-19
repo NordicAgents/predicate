@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { SchemaProposer, type SchemaDelta } from 'predicate-agent/src/index.js';
 
 export interface ProposeSchemaInput {
@@ -9,7 +9,7 @@ export interface ProposeSchemaInput {
 }
 
 export async function kgProposeSchema(
-  client: SparqlClient,
+  client: StorageAdapter,
   input: ProposeSchemaInput,
 ): Promise<{ proposalId: string }> {
   const proposer = new SchemaProposer(client);

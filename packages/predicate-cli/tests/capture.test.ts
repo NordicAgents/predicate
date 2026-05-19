@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Readable } from 'node:stream';
 import { capture } from '../src/commands/capture.js';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 
-const client = new SparqlClient(loadConfig());
+
+const client = getAdapter();
 
 async function reset(): Promise<void> {
   await client.update(`DROP SILENT GRAPH <kg:usage>`);

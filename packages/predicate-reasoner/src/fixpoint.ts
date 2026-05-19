@@ -1,4 +1,4 @@
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import type { Rule, RuleConfig } from './rules/types.js';
 
 export interface FixpointResult {
@@ -9,7 +9,7 @@ export interface FixpointResult {
 const MAX_ITERATIONS = 10;
 
 export async function runFixpoint(
-  client: SparqlClient,
+  client: StorageAdapter,
   rules: Rule[],
   cfg: RuleConfig,
 ): Promise<FixpointResult> {

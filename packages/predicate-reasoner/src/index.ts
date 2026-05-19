@@ -1,4 +1,4 @@
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import type {
   ReasonerAdapter,
   MaterializeInput, MaterializeResult,
@@ -17,7 +17,7 @@ export class FusekiConstructAdapter implements ReasonerAdapter {
   /** Override for tests; in production this is the RULES registry. */
   protected __rules: Rule[] = RULES;
 
-  constructor(private client: SparqlClient) {}
+  constructor(private client: StorageAdapter) {}
 
   async materialize(input: MaterializeInput): Promise<MaterializeResult> {
     const t0 = Date.now();

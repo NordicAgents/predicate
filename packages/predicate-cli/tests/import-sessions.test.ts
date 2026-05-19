@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+
 import { importSessions } from '../src/commands/import-sessions.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const IMPORT_GRAPH = 'urn:predicate:import:test-peer';
 
 async function dropImportGraph(): Promise<void> {

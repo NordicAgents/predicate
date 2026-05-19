@@ -2,8 +2,8 @@ import { readFileSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline/promises';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
 const META = 'https://predicate.dev/meta#';
@@ -64,29 +64,22 @@ Examples:
 `);
 }
 
-async function checkConfigExists(client: SparqlClient): Promise<boolean> {
+async function checkConfigExists(client: StorageAdapter): Promise<boolean> {
   return client.ask(`
     PREFIX pred: <${META}>
     ASK { GRAPH <kg:meta> { <${CONFIG_URI}> a pred:Config } }
   `);
 }
 
-async function loadTtlFile(_client: SparqlClient, path: string): Promise<void> {
-  const cfg = loadConfig();
+async function loadTtlFile(client: StorageAdapter, path: string): Promise<void> {
   const turtle = readFileSync(path, 'utf8');
-  const auth = 'Basic ' + Buffer.from(`admin:${process.env['PREDICATE_ADMIN_PASSWORD'] ?? 'changeme'}`).toString('base64');
-  const r = await fetch(`${cfg.fusekiUrl}/${cfg.dataset}/data?graph=kg:tbox`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/turtle', 'Authorization': auth },
-    body: turtle,
-  });
-  if (!r.ok) throw new Error(`Fuseki load failed for ${path}: ${r.status} ${await r.text()}`);
+  await client.loadTurtle(turtle, 'kg:tbox');
 }
 
 // v2.0.1: always wipes kg:tbox + kg:tbox-staging + kg:meta so init is idempotent
 // against TBox residue from a half-migrated v1.13 install or earlier test pollution.
 // When `force=true` also wipes the ABox-side graphs (caller has accepted destruction).
-async function wipeForInit(client: SparqlClient, force: boolean): Promise<void> {
+async function wipeForInit(client: StorageAdapter, force: boolean): Promise<void> {
   const tboxGraphs = ['kg:tbox', 'kg:tbox-staging', 'kg:meta'];
   const aboxGraphs = ['kg:abox', 'kg:inferred', 'kg:provenance', 'kg:goals', 'kg:usage'];
   const toWipe = force ? [...tboxGraphs, ...aboxGraphs] : tboxGraphs;
@@ -97,7 +90,7 @@ async function wipeForInit(client: SparqlClient, force: boolean): Promise<void> 
 }
 
 async function writeConfig(
-  client: SparqlClient,
+  client: StorageAdapter,
   mode: 'community' | 'upload' | 'empty',
   ontology: string,
 ): Promise<void> {
@@ -170,7 +163,7 @@ function buildPlanEmpty(): Plan {
 
 // --- Apply: do the destructive write. Only called after a Plan is valid.
 
-async function applyPlan(client: SparqlClient, plan: Plan, force: boolean): Promise<number> {
+async function applyPlan(client: StorageAdapter, plan: Plan, force: boolean): Promise<number> {
   await wipeForInit(client, force);
   await loadTtlFile(client, findMetaTtl(plan.catalogDir));
 
@@ -208,7 +201,7 @@ function isPlanError(p: Plan | PlanError): p is PlanError {
   return 'exitCode' in p;
 }
 
-async function interactive(client: SparqlClient, force: boolean): Promise<number> {
+async function interactive(client: StorageAdapter, force: boolean): Promise<number> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
     console.log(`Welcome to Predicate. Choose how to initialize the knowledge graph:
@@ -244,7 +237,7 @@ async function interactive(client: SparqlClient, force: boolean): Promise<number
 
 export async function init(args: string[]): Promise<number> {
   if (hasFlag(args, '--help')) { help(); return 0; }
-  const client = new SparqlClient(loadConfig());
+  const client = getAdapter();
   const force = hasFlag(args, '--force');
 
   // Refusal check FIRST: refuse if config exists and no --force.

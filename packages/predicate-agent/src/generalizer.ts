@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { SchemaProposer } from './schema-proposer.js';
 import type { GeneralizerProposal, GeneralizerResult } from './types.js';
 
@@ -20,7 +20,7 @@ function fingerprintHash(fingerprint: string[]): string {
 
 export class Generalizer {
   private k: number;
-  constructor(private client: SparqlClient, opts: GeneralizerOptions = {}) {
+  constructor(private client: StorageAdapter, opts: GeneralizerOptions = {}) {
     this.k = opts.k ?? 5;
   }
 

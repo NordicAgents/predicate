@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
-import { SparqlClient } from '../../src/sparql/client.js';
-import { loadConfig } from '../../src/config.js';
+import { getAdapter } from '../../src/storage/index.js';
+
 import { kgMaintain } from '../../src/tools/kg-maintain.js';
 import { SchemaProposer } from 'predicate-agent/src/index.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);

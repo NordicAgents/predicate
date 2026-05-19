@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { CompletionProvider } from 'predicate-agent/src/index.js';
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { kgExploreSchema } from './kg-explore-schema.js';
 import { kgAsk } from './kg-ask.js';
 import { kgAssert, type Triple } from './kg-assert.js';
@@ -66,7 +66,7 @@ export interface ToolDef {
   handler: (args: unknown) => Promise<unknown>;
 }
 
-export function buildTools(client: SparqlClient, options: BuildToolsOptions = {}): ToolDef[] {
+export function buildTools(client: StorageAdapter, options: BuildToolsOptions = {}): ToolDef[] {
   const extraCompletionProviders = options.extraCompletionProviders ?? [];
   return [
     {

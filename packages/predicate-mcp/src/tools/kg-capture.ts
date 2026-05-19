@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { GRAPH } from '../graphs.js';
 import { escapeIRI, escapeLiteral } from '../sparql/escape.js';
 
@@ -34,7 +34,7 @@ function serialize(value: unknown, max: number): string {
 }
 
 export async function kgCapture(
-  client: SparqlClient,
+  client: StorageAdapter,
   input: CaptureInput,
 ): Promise<CaptureResult> {
   const t0 = Date.now();

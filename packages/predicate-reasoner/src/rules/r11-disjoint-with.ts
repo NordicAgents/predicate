@@ -1,9 +1,9 @@
 import type { Rule, RuleConfig } from './types.js';
 import type { Inconsistency } from '../types.js';
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 
 export const r11: Rule & {
-  findInconsistencies: (c: SparqlClient, cfg: RuleConfig) => Promise<Inconsistency[]>;
+  findInconsistencies: (c: StorageAdapter, cfg: RuleConfig) => Promise<Inconsistency[]>;
 } = {
   id: 'r11-disjoint-with',
   name: 'owl:disjointWith inconsistency detection',

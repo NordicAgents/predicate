@@ -1,6 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
 import type {
@@ -47,7 +47,7 @@ export class PromotionSweeper {
   private promotedDir: string;
   private reasoner: FusekiConstructAdapter;
 
-  constructor(private client: SparqlClient, opts: PromotionSweeperOptions = {}) {
+  constructor(private client: StorageAdapter, opts: PromotionSweeperOptions = {}) {
     this.useThreshold = opts.useThreshold ?? 3;
     this.promotedDir = opts.promotedDir
       ?? process.env['PREDICATE_PROMOTED_DIR']

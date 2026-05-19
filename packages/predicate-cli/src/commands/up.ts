@@ -1,5 +1,6 @@
 import { findComposeDir, dockerAvailable, compose } from '../docker.js';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { init } from './init.js';
@@ -7,14 +8,14 @@ import { init } from './init.js';
 const META = 'https://predicate.dev/meta#';
 const CONFIG_URI = 'urn:predicate:config';
 
-async function checkConfigExists(client: SparqlClient): Promise<boolean> {
+async function checkConfigExists(client: StorageAdapter): Promise<boolean> {
   return client.ask(`
     PREFIX pred: <${META}>
     ASK { GRAPH <kg:meta> { <${CONFIG_URI}> a pred:Config } }
   `);
 }
 
-async function detectLegacyCodebase(client: SparqlClient): Promise<boolean> {
+async function detectLegacyCodebase(client: StorageAdapter): Promise<boolean> {
   return client.ask(`
     PREFIX cb:  <https://predicate.dev/codebase#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -22,7 +23,7 @@ async function detectLegacyCodebase(client: SparqlClient): Promise<boolean> {
   `);
 }
 
-async function writeLegacyConfig(client: SparqlClient): Promise<void> {
+async function writeLegacyConfig(client: StorageAdapter): Promise<void> {
   const now = new Date().toISOString();
   await client.update(`
     PREFIX pred: <${META}>
@@ -55,6 +56,7 @@ async function waitForFuseki(timeoutSec = 20): Promise<boolean> {
 }
 
 export async function up(): Promise<number> {
+  if (!process.env.PREDICATE_BACKEND) process.env.PREDICATE_BACKEND = 'fuseki';
   if (!dockerAvailable()) {
     console.error('Docker not found. Install Docker Desktop or Docker Engine first.');
     return 2;
@@ -73,7 +75,7 @@ export async function up(): Promise<number> {
 
   // v2.0: check config
   try {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     if (await checkConfigExists(client)) return 0;
     if (await detectLegacyCodebase(client)) {
       await writeLegacyConfig(client);

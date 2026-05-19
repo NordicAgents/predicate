@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { GRAPH } from '../graphs.js';
 import { escapeIRI, escapeLiteral } from '../sparql/escape.js';
 import type { Binding } from '../sparql/types.js';
@@ -20,7 +20,7 @@ export interface AskOutput {
 const FORBIDDEN = /\b(INSERT|DELETE|DROP|CREATE|CLEAR|LOAD)\b/i;
 const DEFAULT_MAX = 200;
 
-export async function kgAsk(client: SparqlClient, input: AskInput): Promise<AskOutput> {
+export async function kgAsk(client: StorageAdapter, input: AskInput): Promise<AskOutput> {
   if (FORBIDDEN.test(input.sparql)) {
     throw new Error('kg_ask is read-only; got update keyword in SPARQL');
   }
@@ -61,7 +61,7 @@ interface PeerInfo {
   endpoint: string;
 }
 
-async function listPeers(client: SparqlClient): Promise<PeerInfo[]> {
+async function listPeers(client: StorageAdapter): Promise<PeerInfo[]> {
   const META = 'https://predicate.dev/meta#';
   const r = await client.select(
     `PREFIX pred: <${META}>
@@ -80,7 +80,7 @@ async function listPeers(client: SparqlClient): Promise<PeerInfo[]> {
 }
 
 async function askWithRemote(
-  client: SparqlClient,
+  client: StorageAdapter,
   sparql: string,
 ): Promise<{ vars: string[]; bindings: Binding[] }> {
   let peers: PeerInfo[] = [];
@@ -132,7 +132,7 @@ async function askWithRemote(
 }
 
 async function logUsage(
-  client: SparqlClient,
+  client: StorageAdapter,
   question: string,
   sparql: string,
   rowCount: number,

@@ -1,9 +1,8 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgStats } from 'predicate-mcp/src/tools/kg-stats.js';
 
 export async function stats(): Promise<number> {
-  const client = new SparqlClient(loadConfig());
+  const client = getAdapter();
   const s = await kgStats(client);
   const rows: [string, string | number][] = [
     ['triples', s.triples],

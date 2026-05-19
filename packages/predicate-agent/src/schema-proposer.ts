@@ -1,4 +1,4 @@
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import type {
   DeltaQuad, ProposalMeta, SchemaDelta, Term,
@@ -34,7 +34,7 @@ export interface ProposeInput {
 }
 
 export class SchemaProposer {
-  constructor(private client: SparqlClient) {}
+  constructor(private client: StorageAdapter) {}
 
   async propose(delta: SchemaDelta, meta: ProposeInput): Promise<string> {
     const id = newProposalId();

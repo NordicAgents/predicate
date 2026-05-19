@@ -1,7 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 
 const C = 'https://predicate.dev/codebase#';
@@ -17,7 +16,7 @@ const fnRE = /export\s+function\s+(\w+)\s*\(/g;
 const envRE = /process\.env\.([A-Z0-9_]+)/g;
 
 async function main(): Promise<void> {
-  const client = new SparqlClient(loadConfig());
+  const client = getAdapter();
   const files = readdirSync(ROOT).filter((f) => f.endsWith('.ts'));
   for (const f of files) {
     const path = join(ROOT, f);

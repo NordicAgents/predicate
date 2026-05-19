@@ -1,5 +1,5 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
 const META = 'https://predicate.dev/meta#';
@@ -31,7 +31,7 @@ Example:
 `);
 }
 
-async function addPeer(client: SparqlClient, name: string, endpoint: string): Promise<number> {
+async function addPeer(client: StorageAdapter, name: string, endpoint: string): Promise<number> {
   const uri = `urn:predicate:peer:${encodeURIComponent(name)}`;
   const now = new Date().toISOString();
   await client.update(`
@@ -54,7 +54,7 @@ async function addPeer(client: SparqlClient, name: string, endpoint: string): Pr
   return 0;
 }
 
-async function removePeer(client: SparqlClient, name: string): Promise<number> {
+async function removePeer(client: StorageAdapter, name: string): Promise<number> {
   const uri = `urn:predicate:peer:${encodeURIComponent(name)}`;
   await client.update(`
     DELETE { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri)} ?p ?o } }
@@ -64,7 +64,7 @@ async function removePeer(client: SparqlClient, name: string): Promise<number> {
   return 0;
 }
 
-async function listPeers(client: SparqlClient): Promise<PeerRow[]> {
+async function listPeers(client: StorageAdapter): Promise<PeerRow[]> {
   const r = await client.select(
     `PREFIX pred: <${META}>
      SELECT ?uri ?name ?endpoint ?addedAt ?kind
@@ -91,7 +91,7 @@ async function listPeers(client: SparqlClient): Promise<PeerRow[]> {
 export async function peer(args: string[]): Promise<number> {
   if (args.length === 0 || args[0] === '--help') { help(); return args.length === 0 ? 2 : 0; }
   const sub = args[0];
-  const client = new SparqlClient(loadConfig());
+  const client = getAdapter();
   await client.update(`CREATE SILENT GRAPH <${PEERS_GRAPH}>`);
   try {
     if (sub === 'add') {

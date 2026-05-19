@@ -1,4 +1,4 @@
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI } from 'predicate-mcp/src/sparql/escape.js';
 import type { GapReport, MissingPredicate, SubQuestion } from './types.js';
 
@@ -29,7 +29,7 @@ function requiredPredicates(sq: SubQuestion): string[] {
 }
 
 export class GapDetector {
-  constructor(private client: SparqlClient) {}
+  constructor(private client: StorageAdapter) {}
 
   async detect(sq: SubQuestion): Promise<GapReport> {
     if (sq.intent.kind === 'unknown') {

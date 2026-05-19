@@ -12,8 +12,11 @@ async function makeAdapter(): Promise<StorageAdapter> {
     return new FusekiAdapter(loadConfig());
   }
   if (BACKEND === 'oxigraph') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error — OxigraphAdapter is implemented in Task 9
     const { OxigraphAdapter } = await import('../../src/storage/oxigraph.js');
-    return new OxigraphAdapter({ storePath: ':memory:' });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return new OxigraphAdapter({ storePath: ':memory:' }) as StorageAdapter;
   }
   throw new Error(`unknown BACKEND=${BACKEND}`);
 }
@@ -36,7 +39,7 @@ describe(`StorageAdapter conformance (BACKEND=${BACKEND})`, () => {
     const r = await adapter.select(
       `SELECT ?o WHERE { GRAPH <kg:a> { <urn:s> <urn:p> ?o } }`,
     );
-    expect(r.results.bindings.map((b) => b.o.value)).toEqual(['v']);
+    expect(r.results.bindings.map((b) => b['o']!.value)).toEqual(['v']);
   });
 
   it('ask returns boolean', async () => {

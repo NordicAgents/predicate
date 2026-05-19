@@ -1,12 +1,11 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { rmSync, existsSync } from 'node:fs';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { SchemaProposer } from 'predicate-agent/src/index.js';
 import { kgMaintain } from 'predicate-mcp/src/tools/kg-maintain.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const C = 'https://predicate.dev/codebase';
 const propIri = `${C}#owns_evol`;
 

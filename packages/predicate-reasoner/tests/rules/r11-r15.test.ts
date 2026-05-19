@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { FusekiConstructAdapter } from '../../src/index.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const adapter = new FusekiConstructAdapter(client);
 const T = 'kg:tbox-test-r11-15';
 const A = 'kg:abox-test-r11-15';
