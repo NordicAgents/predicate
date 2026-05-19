@@ -25,6 +25,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
+      - name: Create Fuseki dataset
+        run: |
+          curl -sf -u admin:testpass -X POST http://localhost:3030/$/datasets \
+            --data 'dbName=predicate&dbType=tdb2'
       - name: bootstrap graphs
         run: |
           cd packages/predicate-server
