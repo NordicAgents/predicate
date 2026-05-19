@@ -173,8 +173,67 @@ async function load() {
     document.getElementById('err').style.display = 'block';
   }
 }
+const CARD_RELOADERS = {
+  sessions: async () => { await loadSessions(); await loadStats(); },
+  staging:  async () => { await loadStats(); /* staging card reload added in Task 6 */ },
+  inferred: async () => {
+    await loadDerived('file', 'Hotspot',      'modifiedIn', 'hotspots', 'file', 'no hotspots — need ≥3 sessions touching the same file');
+    await loadDerived('cmd',  'FlakyCommand', 'failedIn',   'flaky',    'command', 'no flaky commands — need ≥2 sessions with a failed command');
+    await loadDerived('file', 'ActiveFile',   'modifiedIn', 'active',   'file', 'no active files — run a session, then `predicate maintain`');
+    await loadStats();
+  },
+};
+
+function setConnState(connected) {
+  const sub = document.querySelector('.sub');
+  if (!sub) return;
+  let badge = document.getElementById('conn-badge');
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.id = 'conn-badge';
+    badge.style.marginLeft = '8px';
+    badge.style.fontSize = '11px';
+    badge.style.padding = '2px 6px';
+    badge.style.borderRadius = '4px';
+    sub.appendChild(badge);
+  }
+  badge.textContent = connected ? '● live' : '○ disconnected';
+  badge.style.background = connected ? '#0f3a30' : '#3a1212';
+  badge.style.color = connected ? '#2dd4bf' : '#f5c2c7';
+}
+
+function startLive() {
+  if (typeof EventSource === 'undefined') return startPollingFallback();
+  let es;
+  try { es = new EventSource('/api/events'); } catch { return startPollingFallback(); }
+  let opened = false;
+  es.addEventListener('digest', () => { opened = true; setConnState(true); });
+  es.addEventListener('change', (ev) => {
+    setConnState(true);
+    let payload;
+    try { payload = JSON.parse(ev.data); } catch { return; }
+    const changed = payload.changed || [];
+    const keys = new Set();
+    for (const k of changed) {
+      if (k === 'sessions' || k === 'sessionsMaxAt') keys.add('sessions');
+      else if (k === 'staging') keys.add('staging');
+      else if (k === 'inferred') keys.add('inferred');
+    }
+    for (const k of keys) { CARD_RELOADERS[k]?.(); }
+  });
+  es.addEventListener('error', () => {
+    setConnState(false);
+    if (!opened) { es.close(); startPollingFallback(); }
+  });
+}
+
+function startPollingFallback() {
+  setConnState(false);
+  setInterval(load, 30000);
+}
+
 load();
-setInterval(load, 30000); // refresh every 30s
+startLive();
 </script>
 </body>
 </html>
