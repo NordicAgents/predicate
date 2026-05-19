@@ -1,6 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
+import { OxigraphAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
 import type {
@@ -253,26 +254,73 @@ export class PromotionSweeper {
     }
   }
 
-  private async rejectExpired(p: ProposalRow, actor: string = 'PromotionSweeper', reason: string = 'expired'): Promise<void> {
-    // Delete the RDF-star tagged triples and the proposal metadata node
+  /**
+   * Delete all base triples tagged with a proposal ID, plus the RDF-star annotation
+   * quads that reference those triples, plus the proposal metadata node.
+   *
+   * Oxigraph 0.5.x rejects any SPARQL Update that contains quoted triples (`<<>>`)
+   * in template or pattern position.  When running against Oxigraph we therefore use
+   * the lower-level quad API exposed by `OxigraphAdapter.deleteRdfStarAnnotationsForProposal`.
+   * On Fuseki the original single-pass SPARQL DELETE is used.
+   */
+  private async deleteProposalFromStaging(proposalId: string): Promise<void> {
+    if (this.client instanceof OxigraphAdapter) {
+      // Oxigraph path: use quad-level API to remove RDF-star annotations.
+      // Step 1: find the base triples tagged with this proposal.
+      const matches = await this.client.select(`
+        PREFIX pred: <${META}>
+        SELECT ?s ?p ?o WHERE {
+          GRAPH <kg:tbox-staging> {
+            << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
+          }
+        }
+      `);
+      type SparqlBinding = { type: string; value: string; datatype?: string };
+      // Step 2: delete each base triple via SPARQL (no <<>> needed).
+      for (const b of matches.results.bindings) {
+        const sTerm = escapeIRI(b['s']!.value);
+        const pTerm = escapeIRI(b['p']!.value);
+        const oRaw = b['o'] as SparqlBinding;
+        const oTerm = oRaw.type === 'uri'
+          ? escapeIRI(oRaw.value)
+          : (oRaw.datatype
+            ? `${escapeLiteral(oRaw.value)}^^${escapeIRI(oRaw.datatype)}`
+            : escapeLiteral(oRaw.value));
+        await this.client.update(
+          `DELETE DATA { GRAPH <kg:tbox-staging> { ${sTerm} ${pTerm} ${oTerm} } }`,
+        );
+      }
+      // Step 3: delete annotation quads via the quad-level API (bypasses SPARQL Update parser).
+      this.client.deleteRdfStarAnnotationsForProposal('kg:tbox-staging', proposalId);
+    } else {
+      // Fuseki path: original single-pass SPARQL DELETE.
+      await this.client.update(`
+        PREFIX pred: <${META}>
+        DELETE {
+          GRAPH <kg:tbox-staging> {
+            ?s ?p ?o .
+            << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
+          }
+        }
+        WHERE {
+          GRAPH <kg:tbox-staging> {
+            << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
+            ?s ?p ?o .
+          }
+        }
+      `);
+    }
+    // Delete the proposal metadata node (no <<>> — safe for both backends).
     await this.client.update(`
       PREFIX pred: <${META}>
-      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-      DELETE {
-        GRAPH <kg:tbox-staging> {
-          ?s ?p ?o .
-          << ?s ?p ?o >> pred:proposalId ${escapeIRI(p.id)} .
-          ${escapeIRI(p.id)} ?mp ?mo .
-        }
-      }
-      WHERE {
-        GRAPH <kg:tbox-staging> {
-          << ?s ?p ?o >> pred:proposalId ${escapeIRI(p.id)} .
-          ?s ?p ?o .
-          OPTIONAL { ${escapeIRI(p.id)} ?mp ?mo }
-        }
+      DELETE WHERE {
+        GRAPH <kg:tbox-staging> { ${escapeIRI(proposalId)} ?mp ?mo }
       }
     `);
+  }
+
+  private async rejectExpired(p: ProposalRow, actor: string = 'PromotionSweeper', reason: string = 'expired'): Promise<void> {
+    await this.deleteProposalFromStaging(p.id);
     await this.client.update(`
       PREFIX pred: <${META}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
@@ -367,24 +415,8 @@ export class PromotionSweeper {
       }
     `);
 
-    // Remove from staging (delta triples + RDF-star tags + proposal metadata)
-    await this.client.update(`
-      PREFIX pred: <${META}>
-      DELETE {
-        GRAPH <kg:tbox-staging> {
-          ?s ?p ?o .
-          << ?s ?p ?o >> pred:proposalId ${escapeIRI(p.id)} .
-          ${escapeIRI(p.id)} ?mp ?mo .
-        }
-      }
-      WHERE {
-        GRAPH <kg:tbox-staging> {
-          << ?s ?p ?o >> pred:proposalId ${escapeIRI(p.id)} .
-          ?s ?p ?o .
-          OPTIONAL { ${escapeIRI(p.id)} ?mp ?mo }
-        }
-      }
-    `);
+    // Remove from staging (delta triples + RDF-star tags + proposal metadata).
+    await this.deleteProposalFromStaging(p.id);
 
     return { turtleFile, tboxVersion };
   }

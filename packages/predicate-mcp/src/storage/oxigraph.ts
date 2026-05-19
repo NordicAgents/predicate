@@ -232,4 +232,41 @@ export class OxigraphAdapter implements StorageAdapter {
   async clearGraph(graph: string): Promise<void> {
     await this.update(`DROP SILENT GRAPH <${graph}>`);
   }
+
+  /**
+   * Delete all RDF-star annotation quads for a quoted triple `<< s p o >>` inside
+   * a named graph, along with the base triple `s p o` itself.
+   *
+   * Oxigraph 0.5.x stores RDF-star annotations internally as blank-node reification
+   * pairs and does not support `<<>>` in SPARQL Update operations at all.  This
+   * method uses the lower-level quad API (`Store.match` + `Store.delete`) to work
+   * around that limitation.
+   *
+   * @param graphIri  The named graph IRI (compact kg: form OK, e.g. "kg:tbox-staging")
+   * @param proposalId  The IRI of the proposal whose annotation quads should be removed
+   */
+  deleteRdfStarAnnotationsForProposal(graphIri: string, proposalId: string): void {
+    const PROPOSAL_PRED = 'https://predicate.dev/meta#proposalId';
+    const graphNode = namedNode(graphIri);
+    const proposalNode = namedNode(proposalId);
+
+    // Find all quads in the graph where the predicate is pred:proposalId and the
+    // object is the target proposal IRI.  These quads have a BlankNode subject
+    // (Oxigraph's internal reification bnode for the quoted triple).
+    const annotationQuads = [
+      ...this.store.match(null, namedNode(PROPOSAL_PRED), proposalNode, graphNode),
+    ];
+
+    for (const aq of annotationQuads) {
+      const bnode = aq.subject;
+      // Delete every quad in the graph that has this bnode as its subject
+      // (the annotation quad itself + the synthetic rdf:reifies quad).
+      const bnodeQuads = [...this.store.match(bnode, null, null, graphNode)];
+      for (const bq of bnodeQuads) {
+        this.store.delete(bq);
+      }
+    }
+
+    this.markDirty(new Set([graphIri]));
+  }
 }
