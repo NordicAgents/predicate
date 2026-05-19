@@ -1,4 +1,7 @@
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { SchemaProposer } from '../src/schema-proposer.js';
@@ -6,6 +9,13 @@ import { PromotionSweeper } from '../src/promotion-sweeper.js';
 
 const client = new SparqlClient(loadConfig());
 const C = 'https://predicate.dev/codebase';
+
+let promotedDir: string;
+
+beforeAll(() => {
+  promotedDir = mkdtempSync(join(tmpdir(), 'predicate-promoted-'));
+  process.env['PREDICATE_PROMOTED_DIR'] = promotedDir;
+});
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);
@@ -20,6 +30,8 @@ beforeEach(async () => {
 
 afterAll(async () => {
   for (const g of RESET_GRAPHS) { await reset(g); }
+  delete process.env['PREDICATE_PROMOTED_DIR'];
+  rmSync(promotedDir, { recursive: true, force: true });
 });
 
 describe('PromotionSweeper.promoteById', () => {
