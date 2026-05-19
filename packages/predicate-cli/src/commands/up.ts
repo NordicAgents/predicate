@@ -1,5 +1,4 @@
 import { findComposeDir, dockerAvailable, compose } from '../docker.js';
-import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
@@ -56,38 +55,45 @@ async function waitForFuseki(timeoutSec = 20): Promise<boolean> {
 }
 
 export async function up(): Promise<number> {
-  if (!dockerAvailable()) {
-    console.error('Docker not found. Install Docker Desktop or Docker Engine first.');
-    return 2;
-  }
-  const dir = findComposeDir();
-  console.log(`bringing Fuseki up from ${dir}`);
-  const rc = await compose(['up', '-d'], dir);
-  if (rc !== 0) return rc;
+  const { loadConfig } = await import('predicate-mcp/src/config.js');
+  const cfg = loadConfig();
 
-  // v2.0.1: wait for Fuseki to actually serve before any SPARQL.
-  const ready = await waitForFuseki(20);
-  if (!ready) {
-    console.error('predicate up: Fuseki did not become ready in 20s. Container is running; you may need to retry `predicate up` or check `docker logs predicate-fuseki`.');
-    return 1;
+  if (cfg.backend === 'fuseki') {
+    if (!dockerAvailable()) {
+      console.error('Docker not found. Install Docker Desktop or Docker Engine first, or unset PREDICATE_BACKEND to use the default in-process Oxigraph backend.');
+      return 2;
+    }
+    const dir = findComposeDir();
+    console.log(`bringing Fuseki up from ${dir}`);
+    const rc = await compose(['up', '-d'], dir);
+    if (rc !== 0) return rc;
+    const ready = await waitForFuseki(20);
+    if (!ready) {
+      console.error('predicate up: Fuseki did not become ready in 20s.');
+      return 1;
+    }
+  } else {
+    console.log(`opening Oxigraph store at ${cfg.oxigraphStorePath}`);
   }
 
-  // v2.0: check config
+  // Bootstrap + init paths are shared.
+  const { bootstrapGraphs } = await import('predicate-server/src/index.js');
+  const { getAdapter } = await import('predicate-mcp/src/storage/index.js');
+  const client = getAdapter();
+  await bootstrapGraphs(client);
+
   try {
-    const client = getAdapter();
     if (await checkConfigExists(client)) return 0;
     if (await detectLegacyCodebase(client)) {
       await writeLegacyConfig(client);
       console.log(`predicate up: legacy codebase ontology detected — wrote 'community/codebase' config.`);
       return 0;
     }
-    if (process.stdin.isTTY) {
-      return init([]);
-    }
+    if (process.stdin.isTTY) return init([]);
     console.error('predicate up: no init config and non-TTY stdin; defaulting to empty mode.');
     return init(['--mode', 'empty']);
   } catch (err) {
     console.error(`predicate up: post-bootstrap init check failed: ${(err as Error).message}`);
-    return 0;  // Fuseki is up; init failure is non-fatal
+    return 0;
   }
 }
