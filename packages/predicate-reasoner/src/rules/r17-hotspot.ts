@@ -16,7 +16,7 @@ export const r17: Rule = {
           SELECT ?file (COUNT(DISTINCT ?session) AS ?n)
           WHERE { GRAPH <${abox}> { ?file cb:modifiedIn ?session } }
           GROUP BY ?file
-          HAVING (?n >= ${HOTSPOT_THRESHOLD})
+          HAVING (COUNT(DISTINCT ?session) >= ${HOTSPOT_THRESHOLD})
         }
         FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:Hotspot } }
       }
