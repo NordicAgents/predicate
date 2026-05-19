@@ -57,6 +57,9 @@ importers:
       predicate-mcp:
         specifier: workspace:*
         version: link:../predicate-mcp
+      predicate-server:
+        specifier: workspace:^
+        version: link:../predicate-server
     devDependencies:
       '@types/node':
         specifier: ^20.14.0
