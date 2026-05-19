@@ -8,7 +8,7 @@ export default defineConfig({
     testTimeout: 30_000,
     fileParallelism: false,
     env: {
-      PREDICATE_BACKEND: 'fuseki',
+      PREDICATE_BACKEND: process.env.PREDICATE_BACKEND ?? 'fuseki',
     },
   },
 });

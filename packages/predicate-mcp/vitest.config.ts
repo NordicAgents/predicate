@@ -10,7 +10,7 @@ export default defineConfig({
     // Run them serially within this package to avoid cross-file races.
     fileParallelism: false,
     env: {
-      PREDICATE_BACKEND: 'fuseki',
+      PREDICATE_BACKEND: process.env.PREDICATE_BACKEND ?? 'fuseki',
     },
   },
 });

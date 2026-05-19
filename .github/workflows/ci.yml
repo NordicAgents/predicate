@@ -1,7 +1,23 @@
 name: ci
 on: [push, pull_request]
 jobs:
-  test:
+  test-oxigraph:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+        env:
+          PREDICATE_BACKEND: oxigraph
+          BACKEND: oxigraph
+
+  test-fuseki:
     runs-on: ubuntu-latest
     services:
       fuseki:
@@ -22,3 +38,6 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: FUSEKI_URL=http://localhost:3030 pnpm test
+        env:
+          PREDICATE_BACKEND: fuseki
+          BACKEND: fuseki
