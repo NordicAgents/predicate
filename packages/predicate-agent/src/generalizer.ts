@@ -74,8 +74,10 @@ export class Generalizer {
   }
 
   private async listUntypedSubjects(): Promise<SubjectRow[]> {
-    const r = await this.client.select(`
-      SELECT ?s (GROUP_CONCAT(DISTINCT ?p; separator="|") AS ?preds)
+    // Two-pass approach: avoids GROUP_CONCAT which is silently broken in Oxigraph 0.5.x
+    // (the aggregate column is absent from result rows even when the row exists).
+    const subjectsResult = await this.client.select(`
+      SELECT DISTINCT ?s
       WHERE {
         GRAPH <kg:abox> {
           ?s ?p ?o .
@@ -85,12 +87,20 @@ export class Generalizer {
         FILTER NOT EXISTS { GRAPH <kg:inferred> { ?s <${RDF_TYPE}> ?ti } }
         FILTER NOT EXISTS { GRAPH <kg:tbox>     { ?s <${RDF_TYPE}> ?tb } }
       }
-      GROUP BY ?s
     `);
-    return r.results.bindings.map((b) => ({
-      s: b.s!.value,
-      predicates: (b.preds?.value ?? '').split('|').filter((p) => p.length > 0),
-    }));
+    const subjects = subjectsResult.results.bindings.map((b) => b['s']!.value);
+
+    const rows: SubjectRow[] = [];
+    for (const s of subjects) {
+      const predsResult = await this.client.select(`
+        SELECT DISTINCT ?p
+        WHERE { GRAPH <kg:abox> { <${s}> ?p ?o . FILTER (?p != <${RDF_TYPE}>) } }
+        ORDER BY ?p
+      `);
+      const predicates = predsResult.results.bindings.map((b) => b['p']!.value);
+      rows.push({ s, predicates });
+    }
+    return rows;
   }
 
   private groupByFingerprint(rows: SubjectRow[]): Map<string, string[]> {
