@@ -46804,7 +46804,7 @@ var PromotionSweeper = class {
   constructor(client, opts = {}) {
     this.client = client;
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? resolve(
+    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? resolve(
       import.meta.dirname ?? process.cwd(),
       "..",
       "..",
@@ -46826,6 +46826,36 @@ var PromotionSweeper = class {
       decisions.push(await this.decide(p2));
     }
     return { decisions, durationMs: Date.now() - t0 };
+  }
+  async promoteById(id, opts) {
+    const row = await this.loadProposalRow(id);
+    if (!row) {
+      return { proposalId: id, outcome: "rejected-validation", reason: "proposal not found" };
+    }
+    const validation = await this.validateProposalInIsolation(row);
+    if (!validation.ok) {
+      await this.recordValidationFailed(row, validation.reason ?? "validation failed");
+      return {
+        proposalId: id,
+        outcome: "rejected-validation",
+        reason: validation.reason
+      };
+    }
+    const promoted = await this.promote(row, opts.actor);
+    return {
+      proposalId: id,
+      outcome: "promoted",
+      turtleFile: promoted.turtleFile,
+      tboxVersion: promoted.tboxVersion
+    };
+  }
+  async rejectById(id, opts) {
+    const row = await this.loadProposalRow(id);
+    if (!row) {
+      return { proposalId: id, outcome: "rejected-validation", reason: "proposal not found" };
+    }
+    await this.rejectExpired(row, opts.actor, opts.reason);
+    return { proposalId: id, outcome: "rejected-expired", reason: opts.reason };
   }
   async listProposals() {
     const r2 = await this.client.select(`
@@ -46855,6 +46885,33 @@ var PromotionSweeper = class {
       });
     }
     return out;
+  }
+  async loadProposalRow(id) {
+    const r2 = await this.client.select(`
+      PREFIX pred: <${META4}>
+      SELECT ?kind ?expiresAt ?justification ?parent ?migration WHERE {
+        GRAPH <kg:tbox-staging> {
+          ${escapeIRI(id)} a pred:Proposal ;
+                            pred:kind          ?kind ;
+                            pred:expiresAt     ?expiresAt ;
+                            pred:justification ?justification .
+          OPTIONAL { ${escapeIRI(id)} pred:parent    ?parent }
+          OPTIONAL { ${escapeIRI(id)} pred:migration ?migration }
+        }
+      }
+    `);
+    const b2 = r2.results.bindings[0];
+    if (!b2) return null;
+    const useCount = await this.countUses(id);
+    return {
+      id,
+      kind: b2["kind"].value,
+      expiresAt: b2["expiresAt"].value,
+      useCount,
+      justification: b2["justification"].value,
+      parent: b2["parent"]?.value,
+      migration: b2["migration"]?.value
+    };
   }
   async countUses(proposalId) {
     const subjects = await this.client.select(`
@@ -46938,7 +46995,7 @@ var PromotionSweeper = class {
       await this.client.update(`DROP SILENT GRAPH <${scratch}>`);
     }
   }
-  async rejectExpired(p2) {
+  async rejectExpired(p2, actor = "PromotionSweeper", reason = "expired") {
     await this.client.update(`
       PREFIX pred: <${META4}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
@@ -46964,9 +47021,9 @@ var PromotionSweeper = class {
         GRAPH <kg:meta> {
           ${escapeIRI(newEventId3("schema-rejected"))} a pred:SchemaRejected ;
             pred:at    "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(p2.id)} ;
-            pred:payload ${escapeLiteral(JSON.stringify({ reason: "expired" }))} .
+            pred:payload ${escapeLiteral(JSON.stringify({ reason }))} .
         }
       }
     `);
@@ -46986,7 +47043,7 @@ var PromotionSweeper = class {
       }
     `);
   }
-  async promote(p2) {
+  async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
       PREFIX pred: <${META4}>
       SELECT ?s ?p ?o WHERE {
@@ -47030,12 +47087,12 @@ var PromotionSweeper = class {
         GRAPH <kg:meta> {
           ${escapeIRI(promotedEventId)} a pred:SchemaPromoted ;
             pred:at    "${now}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(p2.id)} ;
             pred:payload ${payloadPromoted} .
           ${escapeIRI(advancedEventId)} a pred:TBoxVersionAdvanced ;
             pred:at    "${now}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(tboxVersion)} ;
             pred:payload ${payloadAdvanced} .
         }

@@ -60,6 +60,62 @@ async function proxyQuery(req: IncomingMessage, res: ServerResponse, fusekiUrl: 
   }
 }
 
+const PROPOSAL_IRI = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
+const ALLOWED_VERBS = new Set(['approve', 'reject']);
+
+async function runAction(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  let body = '';
+  let aborted = false;
+  await new Promise<void>((resolve, reject) => {
+    req.on('data', (c) => {
+      body += String(c);
+      if (body.length > 4096) { aborted = true; req.destroy(); }
+    });
+    req.on('end', () => resolve());
+    req.on('error', reject);
+  });
+  if (aborted) {
+    res.writeHead(413, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: false, error: 'request body too large' }));
+    return;
+  }
+  let parsed: { verb?: unknown; proposalId?: unknown };
+  try { parsed = JSON.parse(body); } catch {
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: false, error: 'invalid JSON' }));
+    return;
+  }
+  const verb = parsed.verb;
+  const id = parsed.proposalId;
+  if (typeof verb !== 'string' || !ALLOWED_VERBS.has(verb)) {
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: false, error: 'invalid verb' }));
+    return;
+  }
+  if (typeof id !== 'string' || !PROPOSAL_IRI.test(id)) {
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: false, error: 'invalid proposalId' }));
+    return;
+  }
+  const cliBin = process.env.PREDICATE_CLI_BIN ?? 'predicate';
+  const cliArgs = (process.env.PREDICATE_CLI_ARGS ?? '').split(' ').filter(Boolean);
+  const child = spawn(cliBin, [...cliArgs, 'schema', verb, id], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    shell: false,
+  });
+  let stdout = '';
+  let stderr = '';
+  const cap = (s: string, chunk: string) => (s + chunk).slice(0, 64 * 1024);
+  child.stdout.on('data', (c) => { stdout = cap(stdout, String(c)); });
+  child.stderr.on('data', (c) => { stderr = cap(stderr, String(c)); });
+  const exitCode: number = await new Promise((resolve) => {
+    child.on('close', (code) => resolve(code ?? -1));
+    child.on('error', () => resolve(-1));
+  });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ ok: exitCode === 0, exitCode, stdout, stderr }));
+}
+
 function findDashboardHtml(): string {
   // Try multiple candidates so this works both from source (workspace dev) and from the bundled package.
   const here = dirname(fileURLToPath(import.meta.url));
@@ -89,6 +145,10 @@ export async function startDashboardServer(port: number): Promise<DashboardServe
   const server = createServer((req, res) => {
     if (req.url === '/api/query' && req.method === 'POST') {
       void proxyQuery(req, res, cfg.fusekiUrl, cfg.dataset);
+      return;
+    }
+    if (req.url === '/api/action' && req.method === 'POST') {
+      void runAction(req, res);
       return;
     }
     if (req.url === '/' || req.url === '/index.html') {

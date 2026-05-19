@@ -49,10 +49,12 @@ export class PromotionSweeper {
 
   constructor(private client: SparqlClient, opts: PromotionSweeperOptions = {}) {
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? resolve(
-      import.meta.dirname ?? process.cwd(),
-      '..', '..', 'predicate-ontology', 'tbox', 'promoted',
-    );
+    this.promotedDir = opts.promotedDir
+      ?? process.env['PREDICATE_PROMOTED_DIR']
+      ?? resolve(
+        import.meta.dirname ?? process.cwd(),
+        '..', '..', 'predicate-ontology', 'tbox', 'promoted',
+      );
     this.reasoner = new FusekiConstructAdapter(client);
   }
 

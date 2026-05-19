@@ -27320,7 +27320,7 @@ var PromotionSweeper = class {
   constructor(client, opts = {}) {
     this.client = client;
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? resolve3(
+    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? resolve3(
       import.meta.dirname ?? process.cwd(),
       "..",
       "..",
@@ -27342,6 +27342,36 @@ var PromotionSweeper = class {
       decisions.push(await this.decide(p2));
     }
     return { decisions, durationMs: Date.now() - t0 };
+  }
+  async promoteById(id, opts) {
+    const row = await this.loadProposalRow(id);
+    if (!row) {
+      return { proposalId: id, outcome: "rejected-validation", reason: "proposal not found" };
+    }
+    const validation = await this.validateProposalInIsolation(row);
+    if (!validation.ok) {
+      await this.recordValidationFailed(row, validation.reason ?? "validation failed");
+      return {
+        proposalId: id,
+        outcome: "rejected-validation",
+        reason: validation.reason
+      };
+    }
+    const promoted = await this.promote(row, opts.actor);
+    return {
+      proposalId: id,
+      outcome: "promoted",
+      turtleFile: promoted.turtleFile,
+      tboxVersion: promoted.tboxVersion
+    };
+  }
+  async rejectById(id, opts) {
+    const row = await this.loadProposalRow(id);
+    if (!row) {
+      return { proposalId: id, outcome: "rejected-validation", reason: "proposal not found" };
+    }
+    await this.rejectExpired(row, opts.actor, opts.reason);
+    return { proposalId: id, outcome: "rejected-expired", reason: opts.reason };
   }
   async listProposals() {
     const r2 = await this.client.select(`
@@ -27371,6 +27401,33 @@ var PromotionSweeper = class {
       });
     }
     return out;
+  }
+  async loadProposalRow(id) {
+    const r2 = await this.client.select(`
+      PREFIX pred: <${META6}>
+      SELECT ?kind ?expiresAt ?justification ?parent ?migration WHERE {
+        GRAPH <kg:tbox-staging> {
+          ${escapeIRI(id)} a pred:Proposal ;
+                            pred:kind          ?kind ;
+                            pred:expiresAt     ?expiresAt ;
+                            pred:justification ?justification .
+          OPTIONAL { ${escapeIRI(id)} pred:parent    ?parent }
+          OPTIONAL { ${escapeIRI(id)} pred:migration ?migration }
+        }
+      }
+    `);
+    const b2 = r2.results.bindings[0];
+    if (!b2) return null;
+    const useCount = await this.countUses(id);
+    return {
+      id,
+      kind: b2["kind"].value,
+      expiresAt: b2["expiresAt"].value,
+      useCount,
+      justification: b2["justification"].value,
+      parent: b2["parent"]?.value,
+      migration: b2["migration"]?.value
+    };
   }
   async countUses(proposalId) {
     const subjects = await this.client.select(`
@@ -27454,7 +27511,7 @@ var PromotionSweeper = class {
       await this.client.update(`DROP SILENT GRAPH <${scratch}>`);
     }
   }
-  async rejectExpired(p2) {
+  async rejectExpired(p2, actor = "PromotionSweeper", reason = "expired") {
     await this.client.update(`
       PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
@@ -27480,9 +27537,9 @@ var PromotionSweeper = class {
         GRAPH <kg:meta> {
           ${escapeIRI(newEventId2("schema-rejected"))} a pred:SchemaRejected ;
             pred:at    "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(p2.id)} ;
-            pred:payload ${escapeLiteral(JSON.stringify({ reason: "expired" }))} .
+            pred:payload ${escapeLiteral(JSON.stringify({ reason }))} .
         }
       }
     `);
@@ -27502,7 +27559,7 @@ var PromotionSweeper = class {
       }
     `);
   }
-  async promote(p2) {
+  async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
       PREFIX pred: <${META6}>
       SELECT ?s ?p ?o WHERE {
@@ -27546,12 +27603,12 @@ var PromotionSweeper = class {
         GRAPH <kg:meta> {
           ${escapeIRI(promotedEventId)} a pred:SchemaPromoted ;
             pred:at    "${now}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(p2.id)} ;
             pred:payload ${payloadPromoted} .
           ${escapeIRI(advancedEventId)} a pred:TBoxVersionAdvanced ;
             pred:at    "${now}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(tboxVersion)} ;
             pred:payload ${payloadAdvanced} .
         }
@@ -28397,10 +28454,10 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META12 = "https://predicate.dev/meta#";
+  const META13 = "https://predicate.dev/meta#";
   const CB2 = "https://predicate.dev/codebase#";
   const rows = await client.select(
-    `PREFIX pred: <${META12}>
+    `PREFIX pred: <${META13}>
      PREFIX cb:   <${CB2}>
      SELECT ?s ?sid ?at
             (COUNT(DISTINCT ?f) AS ?files)
@@ -28490,10 +28547,10 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META12 = "https://predicate.dev/meta#";
+  const META13 = "https://predicate.dev/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
-    `PREFIX pred: <${META12}>
+    `PREFIX pred: <${META13}>
      SELECT ?c ?at ?tool ?phase ?session WHERE {
        GRAPH <kg:usage> {
          ?c a pred:ToolCall ;
@@ -28591,10 +28648,10 @@ function escapeSparqlLiteral(s2) {
 }
 async function searchFiles(client, query, limit) {
   const CB2 = "https://predicate.dev/codebase#";
-  const META12 = "https://predicate.dev/meta#";
+  const META13 = "https://predicate.dev/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
-     PREFIX pred: <${META12}>
+     PREFIX pred: <${META13}>
      SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
      WHERE {
        GRAPH <kg:abox> {
@@ -28757,6 +28814,69 @@ async function proxyQuery(req, res, fusekiUrl, dataset2) {
     res.end(`upstream error: ${e2.message}`);
   }
 }
+var PROPOSAL_IRI = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
+var ALLOWED_VERBS = /* @__PURE__ */ new Set(["approve", "reject"]);
+async function runAction(req, res) {
+  let body = "";
+  let aborted = false;
+  await new Promise((resolve4, reject) => {
+    req.on("data", (c2) => {
+      body += String(c2);
+      if (body.length > 4096) {
+        aborted = true;
+        req.destroy();
+      }
+    });
+    req.on("end", () => resolve4());
+    req.on("error", reject);
+  });
+  if (aborted) {
+    res.writeHead(413, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: false, error: "request body too large" }));
+    return;
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    res.writeHead(400, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: false, error: "invalid JSON" }));
+    return;
+  }
+  const verb = parsed.verb;
+  const id = parsed.proposalId;
+  if (typeof verb !== "string" || !ALLOWED_VERBS.has(verb)) {
+    res.writeHead(400, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: false, error: "invalid verb" }));
+    return;
+  }
+  if (typeof id !== "string" || !PROPOSAL_IRI.test(id)) {
+    res.writeHead(400, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: false, error: "invalid proposalId" }));
+    return;
+  }
+  const cliBin = process.env.PREDICATE_CLI_BIN ?? "predicate";
+  const cliArgs = (process.env.PREDICATE_CLI_ARGS ?? "").split(" ").filter(Boolean);
+  const child = spawn(cliBin, [...cliArgs, "schema", verb, id], {
+    stdio: ["ignore", "pipe", "pipe"],
+    shell: false
+  });
+  let stdout = "";
+  let stderr = "";
+  const cap = (s2, chunk) => (s2 + chunk).slice(0, 64 * 1024);
+  child.stdout.on("data", (c2) => {
+    stdout = cap(stdout, String(c2));
+  });
+  child.stderr.on("data", (c2) => {
+    stderr = cap(stderr, String(c2));
+  });
+  const exitCode = await new Promise((resolve4) => {
+    child.on("close", (code) => resolve4(code ?? -1));
+    child.on("error", () => resolve4(-1));
+  });
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ ok: exitCode === 0, exitCode, stdout, stderr }));
+}
 function findDashboardHtml() {
   const here = dirname3(fileURLToPath3(import.meta.url));
   const candidates = [
@@ -28782,6 +28902,10 @@ async function startDashboardServer(port) {
   const server = createServer((req, res) => {
     if (req.url === "/api/query" && req.method === "POST") {
       void proxyQuery(req, res, cfg.fusekiUrl, cfg.dataset);
+      return;
+    }
+    if (req.url === "/api/action" && req.method === "POST") {
+      void runAction(req, res);
       return;
     }
     if (req.url === "/" || req.url === "/index.html") {
@@ -29251,9 +29375,127 @@ async function ld(args) {
   }
 }
 
+// ../predicate-cli/src/commands/schema.ts
+var META12 = "https://predicate.dev/meta#";
+var PROPOSAL_IRI2 = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
+function help12() {
+  console.log(`predicate schema <verb> [args]
+
+Verbs:
+  list                    Print pending proposals from kg:tbox-staging as JSON.
+  approve <proposalIri>   Force-promote a proposal (still runs validation).
+  reject  <proposalIri>   Reject and remove a proposal from staging.
+`);
+}
+async function listProposals() {
+  try {
+    const client = new SparqlClient(loadConfig());
+    const r2 = await client.select(`
+    PREFIX pred: <${META12}>
+    SELECT ?id ?kind ?justification ?motivatingGoal ?proposedAt ?expiresAt ?useCount
+    WHERE {
+      GRAPH <kg:tbox-staging> {
+        ?id a pred:Proposal ;
+            pred:kind          ?kind ;
+            pred:justification ?justification ;
+            pred:proposedAt    ?proposedAt ;
+            pred:expiresAt     ?expiresAt ;
+            pred:useCount      ?useCount .
+        OPTIONAL { ?id pred:motivatingGoal ?motivatingGoal }
+      }
+    }
+    ORDER BY ?expiresAt
+    LIMIT 200
+  `);
+    const out = r2.results.bindings.map((b2) => ({
+      id: b2["id"].value,
+      kind: b2["kind"].value,
+      justification: b2["justification"].value,
+      motivatingGoal: b2["motivatingGoal"]?.value,
+      proposedAt: b2["proposedAt"].value,
+      expiresAt: b2["expiresAt"].value,
+      useCount: parseInt(b2["useCount"].value, 10)
+    }));
+    process.stdout.write(JSON.stringify(out));
+    return 0;
+  } catch (e2) {
+    process.stdout.write(JSON.stringify({ ok: false, error: e2.message }));
+    return 1;
+  }
+}
+async function approveProposal(id) {
+  if (!PROPOSAL_IRI2.test(id)) {
+    console.error(`predicate schema approve: invalid proposal IRI: ${id}`);
+    return 2;
+  }
+  try {
+    const client = new SparqlClient(loadConfig());
+    const sweeper = new PromotionSweeper(client);
+    const decision = await sweeper.promoteById(id, { actor: "user-approve" });
+    const ok = decision.outcome === "promoted";
+    process.stdout.write(JSON.stringify({ ok, ...decision }));
+    return ok ? 0 : 1;
+  } catch (e2) {
+    process.stdout.write(JSON.stringify({ ok: false, error: e2.message }));
+    return 1;
+  }
+}
+async function rejectProposal(id) {
+  if (!PROPOSAL_IRI2.test(id)) {
+    console.error(`predicate schema reject: invalid proposal IRI: ${id}`);
+    return 2;
+  }
+  try {
+    const client = new SparqlClient(loadConfig());
+    const sweeper = new PromotionSweeper(client);
+    const decision = await sweeper.rejectById(id, {
+      actor: "user-reject",
+      reason: "rejected via dashboard"
+    });
+    const ok = decision.outcome === "rejected-expired";
+    process.stdout.write(JSON.stringify({ ok, ...decision }));
+    return ok ? 0 : 1;
+  } catch (e2) {
+    process.stdout.write(JSON.stringify({ ok: false, error: e2.message }));
+    return 1;
+  }
+}
+async function schema(args) {
+  const verb = args[0];
+  switch (verb) {
+    case "list":
+      return listProposals();
+    case "approve": {
+      const id = args[1];
+      if (!id) {
+        help12();
+        return 2;
+      }
+      return approveProposal(id);
+    }
+    case "reject": {
+      const id = args[1];
+      if (!id) {
+        help12();
+        return 2;
+      }
+      return rejectProposal(id);
+    }
+    case void 0:
+    case "--help":
+    case "help":
+      help12();
+      return 0;
+    default:
+      console.error(`predicate schema: unknown verb: ${verb}`);
+      help12();
+      return 2;
+  }
+}
+
 // ../predicate-cli/src/index.ts
 var VERSION2 = "1.0.0";
-function help12() {
+function help13() {
   console.log(`predicate <command>
 
 Commands:
@@ -29270,6 +29512,7 @@ Commands:
   captures          List raw kg:usage ToolCall captures (opt-in raw-capture path).
   recall            Substring search over session history (files + commands).
   dashboard         Serve a localhost web view of session-history + reasoning output.
+  schema            List / approve / reject pending kg:tbox-staging proposals.
   peer              Manage federation peers (add / list / remove).
   export-sessions   Export local session-history triples as TriG to stdout.
   import-sessions   Import a teammate's TriG export into local Fuseki.
@@ -29315,6 +29558,8 @@ async function main() {
       return recall(process.argv.slice(3));
     case "dashboard":
       return dashboard(process.argv.slice(3));
+    case "schema":
+      return schema(process.argv.slice(3));
     case "peer":
       return peer(process.argv.slice(3));
     case "export-sessions":
@@ -29332,11 +29577,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help12();
+      help13();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help12();
+      help13();
       return 2;
   }
 }
