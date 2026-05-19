@@ -2,19 +2,28 @@
 
 **Reasoning memory for AI agents — a self-improving knowledge graph that grows with use.**
 
-Predicate gives an AI coding or research agent a structured graph it can query,
-reason over, and grow with use. Facts are stored as RDF triples with
-per-triple provenance and confidence. An OWL 2 RL reasoner materializes
-entailments deterministically. The schema is versioned like code and evolves
-under a propose → validate → use-gated promotion loop. Everything runs locally
-on a bundled Apache Jena Fuseki; nothing leaves the machine.
+Predicate gives an AI coding or research agent a structured graph it can
+query, reason over, and grow with use. Facts are stored as RDF triples
+with per-triple provenance and confidence. An OWL 2 RL reasoner
+materializes entailments deterministically and produces an explanation
+path for every derived claim. The schema is versioned like code and
+evolves under a propose → validate → use-gated promotion loop.
+Everything runs locally on a bundled Apache Jena Fuseki; nothing leaves
+the machine.
 
-Ask *"why did login break?"* and Predicate traverses
-`auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production`,
-explains the chain with citations, and remembers it next session. It can
-tell you the blast radius of a rename, the services downstream of a
-failing dependency, and which of two documents contradicts the other —
-because it stores relations, not text.
+What that buys an agent that a flat memory doesn't:
+
+- **Auditable answers.** `kg_explain` returns the chain of triples and
+  rules that produced a claim, each step cited back to its source and
+  confidence. Useful when the agent's output drives a change you have to
+  defend.
+- **Contradictions surface instead of averaging out.** When two sources
+  disagree about a fact the schema marks as functional or disjoint, the
+  reasoner flags the conflict rather than silently picking one.
+- **The graph remembers, and the schema earns its keep.** Facts persist
+  across sessions with provenance. New schema only becomes durable after
+  three real queries reference it within a week — proposals nothing
+  references expire from staging on their own.
 
 See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the full product brief.
 

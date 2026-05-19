@@ -10,19 +10,19 @@
 
 ## The Problem
 
-An AI coding or research agent loses most of its value to two failures: it
-forgets across sessions, and it can only answer single-hop lookups. Ask
-*"why did login break?"* and the agent cannot traverse
-`auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production`,
-cannot tell you the blast radius of a rename, and cannot say which of two
-documents contradicts the other. The "agent memory" category mostly stores
-text or vectors with light graph structure on top — it does not separate
-schema from data, does not run a reasoner, does not track provenance per
-fact, and grows without bound until the operator cleans up by hand.
+An AI coding or research agent loses continuity across sessions, and what
+it does remember it cannot defend. There is no schema separating durable
+concepts from disposable facts, no logical entailment producing answers
+the user can audit, no per-fact provenance, and no mechanism to keep the
+store from rotting as it accumulates.
 
 ### How Predicate solves it
 
 Predicate is an MCP skill that gives the agent a real reasoning graph.
+What that buys you over a flat memory: every derived claim comes with an
+explanation path cited back to source; contradictions surface via
+disjointness and functional-property axioms instead of averaging out;
+the schema only becomes durable after real queries reference it.
 
 1. **RDF/OWL with logical entailment.** Facts are stored as triples in Apache Jena
    Fuseki. A curated OWL 2 RL ruleset materializes entailments through
