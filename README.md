@@ -8,8 +8,8 @@ with per-triple provenance and confidence. An OWL 2 RL reasoner
 materializes entailments deterministically and produces an explanation
 path for every derived claim. The schema is versioned like code and
 evolves under a propose → validate → use-gated promotion loop.
-Everything runs locally on a bundled Apache Jena Fuseki; nothing leaves
-the machine.
+Everything runs locally — no daemon, no Docker by default — and nothing
+leaves the machine.
 
 What that buys an agent that a flat memory doesn't:
 
@@ -29,7 +29,9 @@ See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the full product brief.
 
 ## How it works
 
-- **Storage.** Apache Jena Fuseki / TDB2 in Docker, with 9 named graphs that
+- **Storage.** In-process Oxigraph by default (file-backed N-Quads in
+  `~/.predicate/store/`); Apache Jena Fuseki / TDB2 as an opt-in backend via
+  `PREDICATE_BACKEND=fuseki`. Either way the layout is 9 named graphs that
   separate slow-changing schema (`kg:tbox`) from fast-flowing facts
   (`kg:abox`), materialized entailments (`kg:inferred`), per-triple metadata
   (`kg:provenance`), goals (`kg:goals`), usage logs (`kg:usage`), staging
@@ -336,8 +338,8 @@ git clone https://github.com/NordicAgents/predicate
 cd predicate
 pnpm install
 pnpm build            # builds all packages + the plugin bundle
-pnpm test             # full test suite against a live Fuseki
-pnpm fuseki:up        # dev alias; `predicate up` is the user-facing command
+pnpm test             # runs against the active backend (default Oxigraph in-process)
+                      # set PREDICATE_BACKEND=fuseki and `predicate up` first to test against Fuseki
 ```
 
 ## License

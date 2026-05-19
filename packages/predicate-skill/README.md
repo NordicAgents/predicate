@@ -79,16 +79,18 @@ predicate up
 predicate doctor
 ```
 
-All checks should show OK. The doctor validates Docker, Fuseki, the named
-graphs, the reasoner, and plugin registration.
+All checks should show OK. The doctor reports the active backend and
+validates whatever it needs — store directory writable (Oxigraph) or
+Docker + Fuseki reachable (opt-in) — plus the named graphs, the
+reasoner, and plugin registration.
 
 **Slash commands:**
 
 | Command | What it does |
 |---|---|
-| `/predicate:up` | Start Fuseki and bootstrap the 9 named graphs. |
-| `/predicate:down` | Stop Fuseki, keep the volume. |
-| `/predicate:doctor` | Health check across Docker, Fuseki, TBox, tools. |
+| `/predicate:up` | Open the active backend (Oxigraph store or Fuseki container) and bootstrap the 9 named graphs. |
+| `/predicate:down` | Flush + close the backend (no daemon to stop on Oxigraph; `docker compose down` on Fuseki). |
+| `/predicate:doctor` | Health check; backend-aware (skips Docker on the default Oxigraph backend). |
 | `/predicate:stats` | Triples, ABox, inferred, TBox counts; inferred ratio; unused-concept ratio. |
 | `/predicate:ask <question>` | Free-form question routed through `kg_ask`. |
 
@@ -397,10 +399,12 @@ pnpm build
 
 ## Tests
 
-The full workspace test suite runs against a live Fuseki:
+The full workspace test suite runs against the active backend (default
+Oxigraph in-process). To run it against Fuseki, set
+`PREDICATE_BACKEND=fuseki` and start the container first:
 
 ```bash
-predicate up
+predicate up      # opens Oxigraph store, or boots Fuseki under PREDICATE_BACKEND=fuseki
 pnpm test
 ```
 

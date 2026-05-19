@@ -18,7 +18,7 @@ containing all triples for sessions started after --since).
 Options:
   --since DATE   ISO 8601 datetime cutoff (default: 7 days ago).
   --user NAME    Tag the export graph name with this user identifier
-                 (default: \$USER env var).
+                 (default: $USER env var).
   --help         Print this message.
 
 Example:

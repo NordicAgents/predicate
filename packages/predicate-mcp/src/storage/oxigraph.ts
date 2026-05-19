@@ -14,7 +14,7 @@ export interface OxigraphAdapterOptions {
 const KG_IRI_RE = /^kg:[A-Za-z0-9-]+$/;
 const GRAPH_IRI_RE = /GRAPH\s+<([^>]+)>/gi;
 
-const FLUSH_DEBOUNCE_MS = (() => {
+const FLUSH_DEBOUNCE_MS = ((): number => {
   const env = process.env['PREDICATE_FLUSH_DEBOUNCE_MS'];
   const n = env !== undefined ? parseInt(env, 10) : NaN;
   return isNaN(n) ? 300 : n;
