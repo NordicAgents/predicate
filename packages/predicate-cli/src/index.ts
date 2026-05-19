@@ -16,6 +16,7 @@ import { exportSessions } from './commands/export-sessions.js';
 import { importSessions } from './commands/import-sessions.js';
 import { ld } from './commands/ld.js';
 import { init } from './commands/init.js';
+import { schema } from './commands/schema.js';
 
 const VERSION = '1.0.0';
 
@@ -36,6 +37,7 @@ Commands:
   captures          List raw kg:usage ToolCall captures (opt-in raw-capture path).
   recall            Substring search over session history (files + commands).
   dashboard         Serve a localhost web view of session-history + reasoning output.
+  schema            List / approve / reject pending kg:tbox-staging proposals.
   peer              Manage federation peers (add / list / remove).
   export-sessions   Export local session-history triples as TriG to stdout.
   import-sessions   Import a teammate's TriG export into local Fuseki.
@@ -70,6 +72,7 @@ async function main(): Promise<number> {
     case 'captures':        return captures(process.argv.slice(3));
     case 'recall':          return recall(process.argv.slice(3));
     case 'dashboard':       return dashboard(process.argv.slice(3));
+    case 'schema':          return schema(process.argv.slice(3));
     case 'peer':            return peer(process.argv.slice(3));
     case 'export-sessions': return exportSessions(process.argv.slice(3));
     case 'import-sessions': return importSessions(process.argv.slice(3));
