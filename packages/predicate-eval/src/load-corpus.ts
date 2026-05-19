@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 
@@ -15,8 +16,7 @@ const importRE = /import\s+\{[^}]*\}\s+from\s+['"]\.\/([\w-]+)['"]/g;
 const fnRE = /export\s+function\s+(\w+)\s*\(/g;
 const envRE = /process\.env\.([A-Z0-9_]+)/g;
 
-async function main(): Promise<void> {
-  const client = getAdapter();
+export async function main(client: StorageAdapter = getAdapter()): Promise<void> {
   const files = readdirSync(ROOT).filter((f) => f.endsWith('.ts'));
   for (const f of files) {
     const path = join(ROOT, f);
@@ -77,4 +77,7 @@ async function main(): Promise<void> {
   console.log('corpus loaded');
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+// Only run as a standalone script — not when imported as a module (e.g. by tests).
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}

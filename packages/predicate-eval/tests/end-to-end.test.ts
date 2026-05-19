@@ -1,13 +1,17 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { execSync } from 'node:child_process';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
+import { main as loadCorpus } from '../src/load-corpus.js';
 
 const client = getAdapter();
 
 beforeAll(async () => {
+  await withCodebaseTBox(client);
   await client.update('DROP SILENT GRAPH <kg:abox>');
+  await client.update('CREATE SILENT GRAPH <kg:abox>');
   await client.update('DROP SILENT GRAPH <kg:provenance>');
-  execSync('pnpm tsx src/load-corpus.ts', { cwd: import.meta.dirname + '/..', stdio: 'inherit' });
+  await client.update('CREATE SILENT GRAPH <kg:provenance>');
+  await loadCorpus(client);
 });
 
 describe('end-to-end demo', () => {
