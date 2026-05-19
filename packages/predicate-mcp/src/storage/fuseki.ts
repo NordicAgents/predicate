@@ -77,7 +77,13 @@ export class FusekiAdapter implements StorageAdapter {
   }
 
   async serializeGraph(graph: string, format: TurtleFormat): Promise<string> {
-    const mime = format === 'turtle' ? 'text/turtle' : 'application/n-triples';
+    // Fuseki 5.x (Jena) does not recognise application/n-triples-star and
+    // returns 406 for that MIME type. RDF-star quoted-triple syntax is
+    // preserved when the graph is serialised as Turtle, so we request
+    // text/turtle for both 'turtle' and 'nt-star'. Plain 'nt' uses
+    // application/n-triples as before (no RDF-star needed).
+    const mime =
+      format === 'nt' ? 'application/n-triples' : 'text/turtle';
     const url = `${this.cfg.dataEndpoint}?graph=${encodeURIComponent(graph)}`;
     const res = await fetch(url, {
       method: 'GET',
