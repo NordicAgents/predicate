@@ -49,10 +49,12 @@ export class PromotionSweeper {
 
   constructor(private client: SparqlClient, opts: PromotionSweeperOptions = {}) {
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? resolve(
-      import.meta.dirname ?? process.cwd(),
-      '..', '..', 'predicate-ontology', 'tbox', 'promoted',
-    );
+    this.promotedDir = opts.promotedDir
+      ?? process.env['PREDICATE_PROMOTED_DIR']
+      ?? resolve(
+        import.meta.dirname ?? process.cwd(),
+        '..', '..', 'predicate-ontology', 'tbox', 'promoted',
+      );
     this.reasoner = new FusekiConstructAdapter(client);
   }
 
@@ -64,6 +66,44 @@ export class PromotionSweeper {
       decisions.push(await this.decide(p));
     }
     return { decisions, durationMs: Date.now() - t0 };
+  }
+
+  async promoteById(
+    id: string,
+    opts: { actor: string },
+  ): Promise<PromotionDecision> {
+    const row = await this.loadProposalRow(id);
+    if (!row) {
+      return { proposalId: id, outcome: 'rejected-validation', reason: 'proposal not found' };
+    }
+    const validation = await this.validateProposalInIsolation(row);
+    if (!validation.ok) {
+      await this.recordValidationFailed(row, validation.reason ?? 'validation failed');
+      return {
+        proposalId: id,
+        outcome: 'rejected-validation',
+        reason: validation.reason,
+      };
+    }
+    const promoted = await this.promote(row, opts.actor);
+    return {
+      proposalId: id,
+      outcome: 'promoted',
+      turtleFile: promoted.turtleFile,
+      tboxVersion: promoted.tboxVersion,
+    };
+  }
+
+  async rejectById(
+    id: string,
+    opts: { actor: string; reason: string },
+  ): Promise<PromotionDecision> {
+    const row = await this.loadProposalRow(id);
+    if (!row) {
+      return { proposalId: id, outcome: 'rejected-validation', reason: 'proposal not found' };
+    }
+    await this.rejectExpired(row, opts.actor, opts.reason);
+    return { proposalId: id, outcome: 'rejected-expired', reason: opts.reason };
   }
 
   private async listProposals(): Promise<ProposalRow[]> {
@@ -94,6 +134,34 @@ export class PromotionSweeper {
       });
     }
     return out;
+  }
+
+  private async loadProposalRow(id: string): Promise<ProposalRow | null> {
+    const r = await this.client.select(`
+      PREFIX pred: <${META}>
+      SELECT ?kind ?expiresAt ?justification ?parent ?migration WHERE {
+        GRAPH <kg:tbox-staging> {
+          ${escapeIRI(id)} a pred:Proposal ;
+                            pred:kind          ?kind ;
+                            pred:expiresAt     ?expiresAt ;
+                            pred:justification ?justification .
+          OPTIONAL { ${escapeIRI(id)} pred:parent    ?parent }
+          OPTIONAL { ${escapeIRI(id)} pred:migration ?migration }
+        }
+      }
+    `);
+    const b = r.results.bindings[0];
+    if (!b) return null;
+    const useCount = await this.countUses(id);
+    return {
+      id,
+      kind: b['kind']!.value,
+      expiresAt: b['expiresAt']!.value,
+      useCount,
+      justification: b['justification']!.value,
+      parent: b['parent']?.value,
+      migration: b['migration']?.value,
+    };
   }
 
   private async countUses(proposalId: string): Promise<number> {
@@ -185,7 +253,7 @@ export class PromotionSweeper {
     }
   }
 
-  private async rejectExpired(p: ProposalRow): Promise<void> {
+  private async rejectExpired(p: ProposalRow, actor: string = 'PromotionSweeper', reason: string = 'expired'): Promise<void> {
     // Delete the RDF-star tagged triples and the proposal metadata node
     await this.client.update(`
       PREFIX pred: <${META}>
@@ -212,9 +280,9 @@ export class PromotionSweeper {
         GRAPH <kg:meta> {
           ${escapeIRI(newEventId('schema-rejected'))} a pred:SchemaRejected ;
             pred:at    "${new Date().toISOString()}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(p.id)} ;
-            pred:payload ${escapeLiteral(JSON.stringify({ reason: 'expired' }))} .
+            pred:payload ${escapeLiteral(JSON.stringify({ reason }))} .
         }
       }
     `);
@@ -236,7 +304,7 @@ export class PromotionSweeper {
     `);
   }
 
-  private async promote(p: ProposalRow): Promise<{ turtleFile: string; tboxVersion: string }> {
+  private async promote(p: ProposalRow, actor: string = 'PromotionSweeper'): Promise<{ turtleFile: string; tboxVersion: string }> {
     const r = await this.client.select(`
       PREFIX pred: <${META}>
       SELECT ?s ?p ?o WHERE {
@@ -287,12 +355,12 @@ export class PromotionSweeper {
         GRAPH <kg:meta> {
           ${escapeIRI(promotedEventId)} a pred:SchemaPromoted ;
             pred:at    "${now}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(p.id)} ;
             pred:payload ${payloadPromoted} .
           ${escapeIRI(advancedEventId)} a pred:TBoxVersionAdvanced ;
             pred:at    "${now}"^^xsd:dateTime ;
-            pred:actor "PromotionSweeper" ;
+            pred:actor ${escapeLiteral(actor)} ;
             pred:goal  ${escapeIRI(tboxVersion)} ;
             pred:payload ${payloadAdvanced} .
         }

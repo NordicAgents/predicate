@@ -16,6 +16,7 @@ import { exportSessions } from './commands/export-sessions.js';
 import { importSessions } from './commands/import-sessions.js';
 import { ld } from './commands/ld.js';
 import { init } from './commands/init.js';
+import { schema } from './commands/schema.js';
 
 const VERSION = '1.0.0';
 
@@ -36,6 +37,7 @@ Commands:
   captures          List raw kg:usage ToolCall captures (opt-in raw-capture path).
   recall            Substring search over session history (files + commands).
   dashboard         Serve a localhost web view of session-history + reasoning output.
+  schema            List / approve / reject pending kg:tbox-staging proposals.
   peer              Manage federation peers (add / list / remove).
   export-sessions   Export local session-history triples as TriG to stdout.
   import-sessions   Import a teammate's TriG export into local Fuseki.
@@ -52,6 +54,9 @@ Env:
   PREDICATE_RAW_CAPTURE     "1" enables raw kg_capture writes (default off)
   PREDICATE_CAPTURE_SKIP    when raw capture is on, comma list of tools to skip
   PREDICATE_CAPTURE_TRUNCATE  max chars per captured input/output (default 500)
+  PREDICATE_CLI_BIN         override the binary spawned by \`predicate dashboard\` actions
+  PREDICATE_CLI_ARGS        extra leading args for that binary (space-separated)
+  PREDICATE_PROMOTED_DIR    override the path PromotionSweeper writes promoted TBox Turtle into
 `);
 }
 
@@ -70,6 +75,7 @@ async function main(): Promise<number> {
     case 'captures':        return captures(process.argv.slice(3));
     case 'recall':          return recall(process.argv.slice(3));
     case 'dashboard':       return dashboard(process.argv.slice(3));
+    case 'schema':          return schema(process.argv.slice(3));
     case 'peer':            return peer(process.argv.slice(3));
     case 'export-sessions': return exportSessions(process.argv.slice(3));
     case 'import-sessions': return importSessions(process.argv.slice(3));
