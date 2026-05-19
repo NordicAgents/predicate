@@ -55,7 +55,7 @@ the schema only becomes durable after real queries reference it.
 
 ## Install
 
-Prerequisites everywhere: **Docker** (for Fuseki) and **Node 20+**.
+**Prerequisites: Node 20+.** That is all the default install needs. Docker is only required if you opt into the Fuseki backend (see "Alternative backends" below).
 
 <details open>
 <summary><strong>Claude Code</strong> — plugin marketplace, fully automatic</summary>
@@ -277,6 +277,21 @@ mcpServers:
 Then `predicate up` and restart Continue.
 
 </details>
+
+## Alternative backends
+
+Predicate ships two storage adapters:
+
+- **Oxigraph (default).** In-process, on-disk store at `~/.predicate/store/` (one N-Quads file per named graph, loaded on `predicate up`, flushed on writes). No Docker, no daemon, sub-second cold start. This is what you get unless you set the env var below.
+- **Fuseki (opt-in).** Apache Jena Fuseki in Docker — same as previous releases. Set `PREDICATE_BACKEND=fuseki`. Requires Docker.
+
+To migrate an existing Fuseki install to Oxigraph in place:
+
+```bash
+predicate migrate --from fuseki --to oxigraph
+unset PREDICATE_BACKEND   # or remove it from your shell rc
+predicate down            # stop the Fuseki container, your data is in Oxigraph now
+```
 
 ## Bootstrap modes
 
