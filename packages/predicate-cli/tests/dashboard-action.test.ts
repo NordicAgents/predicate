@@ -1,6 +1,8 @@
 import { describe, it, expect, afterEach, beforeAll, afterAll } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { startDashboardServer, type DashboardServerHandle } from '../src/commands/dashboard.js';
 import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
@@ -11,22 +13,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 let handle: DashboardServerHandle | undefined;
+let promotedDir: string;
 
 beforeAll(async () => {
   await withCodebaseTBox();
   // Point the spawned child at the workspace bundle so it has the latest
   // schema verb without depending on the global install being current.
   const skillPkg = resolve(__dirname, '..', '..', 'predicate-skill');
-  const ontologyPkg = resolve(__dirname, '..', '..', 'predicate-ontology');
   process.env.PREDICATE_CLI_BIN = 'node';
   process.env.PREDICATE_CLI_ARGS = resolve(skillPkg, 'cli.bundle.mjs');
-  process.env.PREDICATE_PROMOTED_DIR = resolve(ontologyPkg, 'tbox', 'promoted');
+  promotedDir = mkdtempSync(join(tmpdir(), 'predicate-promoted-'));
+  process.env.PREDICATE_PROMOTED_DIR = promotedDir;
 }, 60_000);
 
 afterAll(() => {
   delete process.env.PREDICATE_CLI_BIN;
   delete process.env.PREDICATE_CLI_ARGS;
   delete process.env.PREDICATE_PROMOTED_DIR;
+  rmSync(promotedDir, { recursive: true, force: true });
 });
 
 afterEach(async () => { if (handle) { await handle.close(); handle = undefined; } });
