@@ -56,7 +56,6 @@ async function waitForFuseki(timeoutSec = 20): Promise<boolean> {
 }
 
 export async function up(): Promise<number> {
-  if (!process.env.PREDICATE_BACKEND) process.env.PREDICATE_BACKEND = 'fuseki';
   if (!dockerAvailable()) {
     console.error('Docker not found. Install Docker Desktop or Docker Engine first.');
     return 2;

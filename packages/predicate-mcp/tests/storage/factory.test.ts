@@ -18,4 +18,10 @@ describe('getAdapter', () => {
     process.env.PREDICATE_BACKEND = 'sqlite';
     expect(() => getAdapter()).toThrow(/unknown PREDICATE_BACKEND/);
   });
+
+  it('returns OxigraphAdapter by default (no env var set)', () => {
+    // beforeEach already deletes PREDICATE_BACKEND.
+    const a = getAdapter();
+    expect(a.constructor.name).toBe('OxigraphAdapter');
+  });
 });
