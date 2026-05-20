@@ -19,7 +19,8 @@ export async function withJudgmentTBox(client: StorageAdapter = getAdapter()): P
   const top = readFileSync(join(CATALOG, 'top.ttl'), 'utf8');
   const cb = readFileSync(join(CATALOG, 'codebase.ttl'), 'utf8');
   const j = readFileSync(join(CATALOG, 'judgment.ttl'), 'utf8');
-  for (const turtle of [meta, top, cb, j]) {
+  const jShapes = readFileSync(join(CATALOG, 'judgment.shacl.ttl'), 'utf8');
+  for (const turtle of [meta, top, cb, j, jShapes]) {
     await client.loadTurtle(turtle, 'kg:tbox');
   }
 }

@@ -1,0 +1,33 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix j:    <https://predicate.dev/judgment#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+j:JudgmentShape a sh:NodeShape ;
+    sh:targetClass j:Judgment ;
+    sh:property [
+        sh:path j:basedOn ;
+        sh:minCount 1 ;
+        sh:message "Every j:Judgment must cite at least one j:basedOn (its basis)." ;
+    ] ;
+    sh:property [
+        sh:path j:rationale ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every j:Judgment must record a j:rationale." ;
+    ] .
+
+j:ReconciliationShape a sh:NodeShape ;
+    sh:targetClass j:Reconciliation ;
+    sh:property [
+        sh:path j:reconciledFrom ;
+        sh:minCount 1 ;
+        sh:message "A j:Reconciliation must cite at least one j:reconciledFrom source." ;
+    ] .
+
+j:DecisionShape a sh:NodeShape ;
+    sh:targetClass j:Decision ;
+    sh:property [
+        sh:path j:settledAs ;
+        sh:maxCount 1 ;
+        sh:message "A single j:Decision settles on at most one value (cross-judgment conflict is r21's job)." ;
+    ] .
