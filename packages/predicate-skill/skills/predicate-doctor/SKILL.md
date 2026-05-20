@@ -1,6 +1,6 @@
 ---
 name: predicate-doctor
-description: Run a health check on the Predicate stack — Fuseki reachability, TBox loaded, all 11 kg_* tools responsive. Use when the user asks "is predicate working", "what's the status", or any kg_* tool just returned an unexpected error.
+description: Run a health check on the Predicate stack — Fuseki reachability, TBox loaded, all 8 kg_* tools responsive. Use when the user asks "is predicate working", "what's the status", or any kg_* tool just returned an unexpected error.
 ---
 
 # When to use

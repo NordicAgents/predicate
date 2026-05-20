@@ -222,11 +222,11 @@ On first `predicate up`:
 
 Non-interactive: `predicate init --mode community --ontology codebase`
 (or `--mode empty`). Schema-learning toggles at runtime via
-`kg_config_set` / `kg_config_get`.
+`predicate config get|set`.
 
 ## MCP tools
 
-The bundled server exposes 11 tools over stdio:
+The bundled server exposes 8 tools over stdio:
 
 | Tool | What it does |
 |---|---|
@@ -238,8 +238,6 @@ The bundled server exposes 11 tools over stdio:
 | `kg_research_goal` | Decompose a goal → gap-detect → optionally execute research → return a plan. |
 | `kg_stats` | Triple / ABox / inferred / TBox counts and ratios. |
 | `kg_maintain` | Runs reaper, generalizer, and promotion sweeper, then re-materializes inferred. |
-| `kg_capture` | Records a tool invocation into `kg:usage`. Used by the lifecycle hooks. |
-| `kg_config_get` / `kg_config_set` | Read or update runtime config. |
 
 ## CLI
 
@@ -255,6 +253,8 @@ predicate extract           # read a Stop-hook payload and assert typed triples 
 predicate sessions          # list recent extracted sessions
 predicate recall <query>    # substring search over session history
 predicate dashboard         # localhost web view of session history + reasoning output
+predicate config get|set    # runtime config (schema-learning toggle, init keys)
+predicate extract --replay <path>   # rebuild extracted abox slice from transcripts
 
 predicate --version
 predicate --help

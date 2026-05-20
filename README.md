@@ -216,7 +216,7 @@ On first `predicate up`, choose how to seed the schema:
 
 Run non-interactively with `predicate init --mode community --ontology codebase`
 (or `--mode empty`). Schema-learning is toggleable at runtime via the
-`kg_config_set` / `kg_config_get` MCP tools.
+`predicate config get|set` CLI command.
 
 ## MCP tools
 
@@ -230,8 +230,6 @@ Run non-interactively with `predicate init --mode community --ontology codebase`
 | `kg_research_goal` | Decompose a goal → gap-detect → optionally execute research → return a plan. |
 | `kg_stats` | Triples, ABox, inferred, TBox counts; inferred ratio; unused-concept ratio. |
 | `kg_maintain` | Runs reaper, generalizer, and promotion sweeper, then re-materializes inferred. |
-| `kg_capture` | Records a tool invocation into `kg:usage`. Used by the lifecycle hooks. |
-| `kg_config_get` / `kg_config_set` | Read or update runtime config (e.g. schema-learning toggle). |
 
 ## CLI
 
@@ -245,6 +243,8 @@ predicate migrate --from fuseki --to oxigraph   # move an existing Fuseki store 
 predicate maintain          # reaper + generalizer + promotion sweeper
 predicate recall <query>    # substring search over session history (files + commands)
 predicate dashboard         # localhost web view of session history + reasoning output
+predicate config get|set    # runtime config (schema-learning toggle, init keys)
+predicate extract --replay <path>   # rebuild extracted abox slice from transcripts
 
 predicate --version
 predicate --help

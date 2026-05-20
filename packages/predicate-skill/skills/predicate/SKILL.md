@@ -235,10 +235,11 @@ asserts a triple using a not-yet-declared pattern that appears in >= K
 instances, it auto-stages a `kg_propose_schema` candidate. The sweeper
 promotes after 3 successful uses.
 
-To pause that loop (e.g., the user says "stop adding new predicates"):
+To pause that loop (e.g., the user says "stop adding new predicates"),
+use the `predicate config` CLI (runtime config is no longer an MCP tool):
 
-```
-kg_config_set({ key: "schema-learning", value: false })
+```bash
+predicate config set schema-learning false
 ```
 
 When off:
@@ -246,8 +247,8 @@ When off:
 - `kg_propose_schema` (explicit MCP calls) STILL works.
 - The PromotionSweeper STILL promotes existing staged proposals.
 
-Re-enable with `kg_config_set({ key: "schema-learning", value: true })`.
-Read current state with `kg_config_get({ key: "schema-learning" })`.
+Re-enable with `predicate config set schema-learning true`.
+Read current state with `predicate config get schema-learning`.
 
 ## Init / bootstrap (v2.0)
 

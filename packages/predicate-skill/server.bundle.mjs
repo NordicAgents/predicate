@@ -3646,7 +3646,7 @@ var require_fast_uri = __commonJS({
         normalizeString(uri, options);
       } else if (typeof uri === "object") {
         uri = /** @type {T} */
-        parse4(serialize2(uri, options), options);
+        parse4(serialize(uri, options), options);
       }
       return uri;
     }
@@ -3654,13 +3654,13 @@ var require_fast_uri = __commonJS({
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse4(baseURI, schemelessOptions), parse4(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
-      return serialize2(resolved, schemelessOptions);
+      return serialize(resolved, schemelessOptions);
     }
     function resolveComponent(base, relative, options, skipNormalization) {
       const target = {};
       if (!skipNormalization) {
-        base = parse4(serialize2(base, options), options);
-        relative = parse4(serialize2(relative, options), options);
+        base = parse4(serialize(base, options), options);
+        relative = parse4(serialize(relative, options), options);
       }
       options = options || {};
       if (!options.tolerant && relative.scheme) {
@@ -3714,7 +3714,7 @@ var require_fast_uri = __commonJS({
       const normalizedB = normalizeComparableURI(uriB, options);
       return normalizedA !== void 0 && normalizedB !== void 0 && normalizedA.toLowerCase() === normalizedB.toLowerCase();
     }
-    function serialize2(cmpts, opts) {
+    function serialize(cmpts, opts) {
       const component = {
         host: cmpts.host,
         scheme: cmpts.scheme,
@@ -3892,7 +3892,7 @@ var require_fast_uri = __commonJS({
     function normalizeStringWithStatus(uri, opts) {
       const { parsed, malformedAuthorityOrPort } = parseWithStatus(uri, opts);
       return {
-        normalized: malformedAuthorityOrPort ? uri : serialize2(parsed, opts),
+        normalized: malformedAuthorityOrPort ? uri : serialize(parsed, opts),
         malformedAuthorityOrPort
       };
     }
@@ -3902,7 +3902,7 @@ var require_fast_uri = __commonJS({
         return malformedAuthorityOrPort ? void 0 : normalized;
       }
       if (typeof uri === "object") {
-        return serialize2(uri, opts);
+        return serialize(uri, opts);
       }
     }
     var fastUri = {
@@ -3911,7 +3911,7 @@ var require_fast_uri = __commonJS({
       resolve: resolve3,
       resolveComponent,
       equal,
-      serialize: serialize2,
+      serialize,
       parse: parse4
     };
     module.exports = fastUri;
@@ -37034,9 +37034,9 @@ async function kgAsk(client, input) {
 async function logUsage(client, question, sparql, rowCount, elapsedMs) {
   const usage = escapeIRI(GRAPH.usage);
   const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META8 = "https://predicate.dev/meta#";
+  const META6 = "https://predicate.dev/meta#";
   await client.update(`
-    PREFIX pred: <${META8}>
+    PREFIX pred: <${META6}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH ${usage} {
       <${id}> a pred:Query ;
@@ -47842,119 +47842,6 @@ async function kgStats(client) {
   };
 }
 
-// ../predicate-mcp/src/tools/kg-capture.ts
-var META6 = "https://predicate.dev/meta#";
-function truncate(s2, max) {
-  if (s2.length <= max) return s2;
-  const extra = s2.length - max;
-  return `${s2.slice(0, max)} \u2026 [truncated, ${extra} more chars]`;
-}
-function serialize(value, max) {
-  let s2;
-  if (value === void 0 || value === null) s2 = "";
-  else if (typeof value === "string") s2 = value;
-  else {
-    try {
-      s2 = JSON.stringify(value);
-    } catch {
-      s2 = String(value);
-    }
-  }
-  return truncate(s2, max);
-}
-async function kgCapture(client, input) {
-  const t0 = Date.now();
-  const maxChars = parseInt(process.env["PREDICATE_CAPTURE_TRUNCATE"] ?? "500", 10);
-  const captureId = `urn:predicate:capture:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  const inputStr = serialize(input.input, maxChars);
-  const hasOutput = input.output !== void 0 && input.output !== null;
-  const outputStr = hasOutput ? serialize(input.output, maxChars) : "";
-  const lines = [
-    `${escapeIRI(captureId)} a <${META6}ToolCall> ;`,
-    `  <${META6}toolName>  ${escapeLiteral(input.toolName)} ;`,
-    `  <${META6}phase>     ${escapeLiteral(input.phase)} ;`,
-    `  <${META6}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
-  ];
-  if (inputStr.length > 0) lines.push(`  ; <${META6}toolInput>  ${escapeLiteral(inputStr)}`);
-  if (hasOutput) lines.push(`  ; <${META6}toolOutput> ${escapeLiteral(outputStr)}`);
-  if (input.sessionId) lines.push(`  ; <${META6}sessionId>  ${escapeLiteral(input.sessionId)}`);
-  lines.push("  .");
-  await client.update(`
-    INSERT DATA { GRAPH ${escapeIRI(GRAPH.usage)} {
-      ${lines.join("\n      ")}
-    } }
-  `);
-  return { captureId, elapsedMs: Date.now() - t0 };
-}
-
-// ../predicate-mcp/src/tools/kg-config.ts
-var META7 = "https://predicate.dev/meta#";
-var CONFIG_URI = "urn:predicate:config";
-var KEY_TO_PROP = {
-  "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
-  "init-mode": { prop: "initMode", type: "string" },
-  "init-ontology": { prop: "initOntology", type: "string" }
-};
-function literalFor(value, type) {
-  if (type === "boolean") {
-    return `"${value}"^^<http://www.w3.org/2001/XMLSchema#boolean>`;
-  }
-  return escapeLiteral(String(value));
-}
-async function kgConfigSet(client, input) {
-  const meta = KEY_TO_PROP[input.key];
-  if (!meta) {
-    return { ok: false, error: `unknown key '${input.key}'. Valid keys: ${Object.keys(KEY_TO_PROP).join(", ")}` };
-  }
-  if (meta.type === "boolean" && typeof input.value !== "boolean") {
-    return { ok: false, error: `${input.key} expects boolean, got ${typeof input.value}` };
-  }
-  if (meta.type === "string" && typeof input.value !== "string") {
-    return { ok: false, error: `${input.key} expects string, got ${typeof input.value}` };
-  }
-  const propIri = `<${META7}${meta.prop}>`;
-  const lit = literalFor(input.value, meta.type);
-  await client.update(`
-    PREFIX pred: <${META7}>
-    DELETE { GRAPH <kg:meta> { <${CONFIG_URI}> ${propIri} ?o } }
-    WHERE  { GRAPH <kg:meta> { <${CONFIG_URI}> ${propIri} ?o } }
-  `);
-  await client.update(`
-    PREFIX pred: <${META7}>
-    INSERT DATA { GRAPH <kg:meta> { <${CONFIG_URI}> ${propIri} ${lit} } }
-  `);
-  return { ok: true, key: input.key, value: input.value };
-}
-async function kgConfigGet(client, input) {
-  if (input.key) {
-    const meta = KEY_TO_PROP[input.key];
-    if (!meta) return { key: input.key, value: null };
-    const r3 = await client.select(`
-      PREFIX pred: <${META7}>
-      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> <${META7}${meta.prop}> ?o } }
-    `);
-    const b2 = r3.results.bindings[0];
-    if (!b2) return { key: input.key, value: null };
-    const raw = b2["o"].value;
-    const value = meta.type === "boolean" ? raw === "true" : raw;
-    return { key: input.key, value };
-  }
-  const r2 = await client.select(`
-    PREFIX pred: <${META7}>
-    SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> ?p ?o } }
-  `);
-  const config2 = {};
-  for (const b2 of r2.results.bindings) {
-    const propIri = b2["p"].value;
-    const propLocal = propIri.slice(META7.length);
-    const externalKey = Object.entries(KEY_TO_PROP).find(([, v2]) => v2.prop === propLocal);
-    if (!externalKey) continue;
-    const [, kmeta] = externalKey;
-    config2[kmeta.prop] = kmeta.type === "boolean" ? b2["o"].value === "true" : b2["o"].value;
-  }
-  return { config: config2 };
-}
-
 // ../predicate-mcp/src/tools/registry.ts
 var deltaQuadSchema = external_exports.object({
   s: external_exports.string(),
@@ -48121,55 +48008,6 @@ function buildTools(client, options = {}) {
       description: "Return current graph counts (triples, abox, inferred, tbox), inferredRatio, unusedConceptRatio, and materializationLatencyMsP95.",
       inputSchema: external_exports.object({}),
       handler: async () => kgStats(client)
-    },
-    {
-      name: "kg_capture",
-      description: "Record a tool invocation (toolName, input, output, sessionId, phase) into kg:usage. Used by per-platform PreToolUse/PostToolUse hooks; safe to call directly. Returns {captureId, elapsedMs}.",
-      inputSchema: external_exports.object({
-        toolName: external_exports.string().min(1),
-        input: external_exports.unknown().optional(),
-        output: external_exports.unknown().optional(),
-        sessionId: external_exports.string().optional(),
-        phase: external_exports.enum(["pre", "post"])
-      }),
-      handler: async (raw) => {
-        const args = external_exports.object({
-          toolName: external_exports.string().min(1),
-          input: external_exports.unknown().optional(),
-          output: external_exports.unknown().optional(),
-          sessionId: external_exports.string().optional(),
-          phase: external_exports.enum(["pre", "post"])
-        }).parse(raw);
-        return kgCapture(client, args);
-      }
-    },
-    {
-      name: "kg_config_get",
-      description: "Read v2.0 runtime config from kg:meta. Pass {key} to get one value or {} to get the full config object.",
-      inputSchema: external_exports.object({
-        key: external_exports.enum(["schema-learning", "init-mode", "init-ontology"]).optional()
-      }),
-      handler: async (raw) => {
-        const args = external_exports.object({
-          key: external_exports.enum(["schema-learning", "init-mode", "init-ontology"]).optional()
-        }).parse(raw);
-        return kgConfigGet(client, args);
-      }
-    },
-    {
-      name: "kg_config_set",
-      description: "Write a v2.0 runtime config value into kg:meta. schema-learning is a boolean toggle for the auto-proposer; init-mode and init-ontology are usually written by `predicate init` but exposed for advanced use.",
-      inputSchema: external_exports.object({
-        key: external_exports.enum(["schema-learning", "init-mode", "init-ontology"]),
-        value: external_exports.union([external_exports.string(), external_exports.boolean()])
-      }),
-      handler: async (raw) => {
-        const args = external_exports.object({
-          key: external_exports.enum(["schema-learning", "init-mode", "init-ontology"]),
-          value: external_exports.union([external_exports.string(), external_exports.boolean()])
-        }).parse(raw);
-        return kgConfigSet(client, args);
-      }
     },
     ...stubs()
   ];

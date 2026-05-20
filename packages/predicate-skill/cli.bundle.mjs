@@ -389,9 +389,9 @@ import { join as join4 } from "node:path";
 function graphIriToFilename(iri) {
   return encodeURIComponent(iri) + ".nq";
 }
-function filenameToGraphIri(basename2) {
-  if (!basename2.endsWith(".nq")) return null;
-  const encoded = basename2.slice(0, -3);
+function filenameToGraphIri(basename3) {
+  if (!basename3.endsWith(".nq")) return null;
+  const encoded = basename3.slice(0, -3);
   try {
     const iri = decodeURIComponent(encoded);
     return KG_IRI_RE.test(iri) ? iri : null;
@@ -502,8 +502,8 @@ var init_oxigraph = __esm({
             format: "application/n-quads",
             from_graph_name: namedNode(iri)
           });
-          const basename2 = graphIriToFilename(iri);
-          const finalPath = join4(this.storePath, basename2);
+          const basename3 = graphIriToFilename(iri);
+          const finalPath = join4(this.storePath, basename3);
           const tmpPath = finalPath + ".tmp";
           await fs2.writeFile(tmpPath, content, "utf8");
           await fs2.rename(tmpPath, finalPath);
@@ -28744,11 +28744,37 @@ async function capture(args, stdin = process.stdin) {
 
 // ../predicate-cli/src/commands/extract.ts
 init_storage();
-import { readFileSync as readFileSync3 } from "node:fs";
+import { readFileSync as readFileSync3, readdirSync as readdirSync2, statSync as statSync4 } from "node:fs";
+import { basename as basename2, join as join6 } from "node:path";
+
+// ../predicate-cli/src/commands/replay-rebuild.ts
+var META9 = "https://predicate.dev/meta#";
+async function deleteExtractedSlice(client, sessionId) {
+  const source = escapeLiteral(`urn:predicate:session:${sessionId}`);
+  await client.update(`
+    PREFIX pred: <${META9}>
+    DELETE {
+      GRAPH <kg:abox> { ?s ?p ?o }
+      GRAPH <kg:provenance> { << ?s ?p ?o >> ?pp ?po }
+    }
+    WHERE {
+      GRAPH <kg:provenance> {
+        << ?s ?p ?o >> pred:source ${source} .
+        << ?s ?p ?o >> ?pp ?po .
+      }
+      FILTER NOT EXISTS {
+        GRAPH <kg:provenance> {
+          << ?s ?p ?o >> pred:source ?other .
+          FILTER (?other != ${source})
+        }
+      }
+    }
+  `);
+}
 
 // ../predicate-agent/src/turn-extractor.ts
 import { createHash as createHash3 } from "node:crypto";
-var META9 = "https://predicate.dev/meta#";
+var META10 = "https://predicate.dev/meta#";
 var CB = "https://predicate.dev/codebase#";
 var RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 var XSD = "http://www.w3.org/2001/XMLSchema#";
@@ -28812,9 +28838,9 @@ function extractDeterministic(transcript) {
     triples.push(t2);
   }
   const base = { source: sessionUri, confidence: 0.95, method: "tool-parse" };
-  push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META9}Session`), ...base });
-  push({ subject: sessionUri, predicate: `${META9}sessionId`, object: literal3(transcript.sessionId), ...base });
-  push({ subject: sessionUri, predicate: `${META9}at`, object: literal3(now, `${XSD}dateTime`), ...base });
+  push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META10}Session`), ...base });
+  push({ subject: sessionUri, predicate: `${META10}sessionId`, object: literal3(transcript.sessionId), ...base });
+  push({ subject: sessionUri, predicate: `${META10}at`, object: literal3(now, `${XSD}dateTime`), ...base });
   const results = collectToolResults(transcript.events);
   const uses = collectToolUses(transcript.events);
   for (const use of uses) {
@@ -29018,7 +29044,9 @@ The CLI:
   5. Asserts all triples via kg_assert.
 
 Options:
-  --from-stdin         Required.
+  --from-stdin         Required (unless --replay is used).
+  --replay <path>   Rebuild the extracted abox slice from a transcript file or
+                    a directory of <session-id>.jsonl files (re-materializes inferred).
   --platform <name>    One of: claude-code (default), gemini, opencode.
                        Selects the transcript adapter for the platform.
   --help               Print this message.
@@ -29027,6 +29055,81 @@ Env:
   ANTHROPIC_API_KEY    Enables the semantic extractor (default: off).
   FUSEKI_URL, PREDICATE_DATASET    Graph server.
 `);
+}
+async function extractTranscript(client, opts) {
+  const lines = readFileSync3(opts.transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
+  const events = lines.map((l2) => JSON.parse(l2));
+  const adapted = adapterFor(opts.platform)(events);
+  const transcript = { sessionId: opts.sessionId, events: adapted };
+  const deterministic = extractDeterministic(transcript);
+  let semantic = { triples: [], skipped: [] };
+  if (process.env["ANTHROPIC_API_KEY"]) {
+    const tboxSlice = await buildTBoxSlice(client);
+    semantic = await extractSemantic({
+      sessionId: opts.sessionId,
+      finalMessage: lastAssistantText(adapted),
+      toolSummary: summarizeToolCalls(adapted),
+      tboxSlice
+    });
+  }
+  let asserted = 0;
+  let rejected = 0;
+  for (const t2 of [...deterministic.triples, ...semantic.triples]) {
+    try {
+      await kgAssert(client, t2);
+      asserted++;
+    } catch {
+      rejected++;
+    }
+  }
+  return {
+    deterministic: deterministic.triples.length,
+    semantic: semantic.triples.length,
+    asserted,
+    rejected
+  };
+}
+async function replay(pathArg, platform) {
+  let files;
+  try {
+    const st2 = statSync4(pathArg);
+    files = st2.isDirectory() ? readdirSync2(pathArg).filter((f2) => f2.endsWith(".jsonl")).map((f2) => join6(pathArg, f2)) : [pathArg];
+  } catch (err2) {
+    console.error(`predicate extract --replay: cannot read ${pathArg}: ${err2.message}`);
+    return 2;
+  }
+  if (files.length === 0) {
+    console.error(`predicate extract --replay: no .jsonl transcripts in ${pathArg}`);
+    return 2;
+  }
+  const client = getAdapter();
+  let sessions2 = 0, asserted = 0, rejected = 0, errors = 0;
+  for (const file of files) {
+    const sessionId = basename2(file, ".jsonl");
+    try {
+      await deleteExtractedSlice(client, sessionId);
+      const r2 = await extractTranscript(client, { sessionId, transcriptPath: file, platform });
+      asserted += r2.asserted;
+      rejected += r2.rejected;
+      sessions2++;
+    } catch (err2) {
+      console.error(`predicate extract --replay: session ${sessionId} failed: ${err2.message}`);
+      errors++;
+    }
+  }
+  if (sessions2 > 0) {
+    await client.update("DROP SILENT GRAPH <kg:inferred>");
+    await new FusekiConstructAdapter(client).materialize({
+      tboxGraph: "kg:tbox",
+      aboxGraphs: ["kg:abox"],
+      targetGraph: "kg:inferred",
+      closureCutoff: 0.5
+    });
+  }
+  console.log(
+    `predicate extract --replay: replayed ${sessions2} sessions, asserted ${asserted}, rejected ${rejected}, errors ${errors}`
+  );
+  return sessions2 === 0 && errors > 0 ? 1 : 0;
 }
 async function buildTBoxSlice(client) {
   const r2 = await client.select(
@@ -29045,10 +29148,6 @@ async function extract(args, stdin = process.stdin) {
     help3();
     return 0;
   }
-  if (!hasFlag3(args, "--from-stdin")) {
-    console.error("predicate extract: --from-stdin is required.");
-    return 2;
-  }
   const platformRaw = parseFlag3(args, "--platform") ?? "claude-code";
   if (!SUPPORTED_PLATFORMS.includes(platformRaw)) {
     console.error(
@@ -29057,6 +29156,14 @@ async function extract(args, stdin = process.stdin) {
     return 2;
   }
   const platform = platformRaw;
+  const replayPath = parseFlag3(args, "--replay");
+  if (replayPath !== void 0) {
+    return replay(replayPath, platform);
+  }
+  if (!hasFlag3(args, "--from-stdin")) {
+    console.error("predicate extract: --from-stdin or --replay <path> is required.");
+    return 2;
+  }
   const raw = await readStdin2(stdin);
   let payload;
   try {
@@ -29071,40 +29178,15 @@ async function extract(args, stdin = process.stdin) {
     console.error("predicate extract: payload must include session_id and transcript_path.");
     return 2;
   }
-  let events;
+  let result;
   try {
-    const lines = readFileSync3(transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
-    events = lines.map((l2) => JSON.parse(l2));
+    result = await extractTranscript(getAdapter(), { sessionId, transcriptPath, platform });
   } catch (err2) {
-    console.error(`predicate extract: failed to read transcript: ${err2.message}`);
+    console.error(`predicate extract: failed to process transcript: ${err2.message}`);
     return 1;
   }
-  const adapted = adapterFor(platform)(events);
-  const transcript = { sessionId, events: adapted };
-  const deterministic = extractDeterministic(transcript);
-  let semantic = { triples: [], skipped: [] };
-  const client = getAdapter();
-  if (process.env["ANTHROPIC_API_KEY"]) {
-    const tboxSlice = await buildTBoxSlice(client);
-    semantic = await extractSemantic({
-      sessionId,
-      finalMessage: lastAssistantText(adapted),
-      toolSummary: summarizeToolCalls(adapted),
-      tboxSlice
-    });
-  }
-  let asserted = 0;
-  let rejected = 0;
-  for (const t2 of [...deterministic.triples, ...semantic.triples]) {
-    try {
-      await kgAssert(client, t2);
-      asserted++;
-    } catch {
-      rejected++;
-    }
-  }
   console.log(
-    `predicate extract: session=${sessionId} deterministic=${deterministic.triples.length} semantic=${semantic.triples.length} asserted=${asserted} rejected=${rejected}`
+    `predicate extract: session=${sessionId} deterministic=${result.deterministic} semantic=${result.semantic} asserted=${result.asserted} rejected=${result.rejected}`
   );
   return 0;
 }
@@ -29134,10 +29216,10 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META11 = "https://predicate.dev/meta#";
+  const META13 = "https://predicate.dev/meta#";
   const CB2 = "https://predicate.dev/codebase#";
   const rows = await client.select(
-    `PREFIX pred: <${META11}>
+    `PREFIX pred: <${META13}>
      PREFIX cb:   <${CB2}>
      SELECT ?s ?sid ?at
             (COUNT(DISTINCT ?f) AS ?files)
@@ -29228,10 +29310,10 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META11 = "https://predicate.dev/meta#";
+  const META13 = "https://predicate.dev/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
-    `PREFIX pred: <${META11}>
+    `PREFIX pred: <${META13}>
      SELECT ?c ?at ?tool ?phase ?session WHERE {
        GRAPH <kg:usage> {
          ?c a pred:ToolCall ;
@@ -29330,10 +29412,10 @@ function escapeSparqlLiteral(s2) {
 }
 async function searchFiles(client, query, limit) {
   const CB2 = "https://predicate.dev/codebase#";
-  const META11 = "https://predicate.dev/meta#";
+  const META13 = "https://predicate.dev/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
-     PREFIX pred: <${META11}>
+     PREFIX pred: <${META13}>
      SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
      WHERE {
        GRAPH <kg:abox> {
@@ -29445,7 +29527,7 @@ async function recall(args) {
 init_config();
 import { createServer } from "node:http";
 import { readFileSync as readFileSync4 } from "node:fs";
-import { join as join6, dirname as dirname5 } from "node:path";
+import { join as join7, dirname as dirname5 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 import { spawn } from "node:child_process";
 function parseFlag7(args, name) {
@@ -29657,11 +29739,11 @@ async function handleEvents(req, res, fusekiUrl, dataset2) {
 function findDashboardHtml() {
   const here = dirname5(fileURLToPath3(import.meta.url));
   const candidates = [
-    join6(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
-    join6(here, "dashboard", "index.html"),
+    join7(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
+    join7(here, "dashboard", "index.html"),
     // bundled cli.bundle.mjs sits next to dashboard/
-    join6(here, "..", "dashboard", "index.html"),
-    join6(here, "..", "..", "dashboard", "index.html")
+    join7(here, "..", "dashboard", "index.html"),
+    join7(here, "..", "..", "dashboard", "index.html")
   ];
   for (const p2 of candidates) {
     try {
@@ -29740,7 +29822,7 @@ async function dashboard(args) {
 
 // ../predicate-cli/src/commands/schema.ts
 init_storage();
-var META10 = "https://predicate.dev/meta#";
+var META11 = "https://predicate.dev/meta#";
 var PROPOSAL_IRI2 = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
 function help8() {
   console.log(`predicate schema <verb> [args]
@@ -29755,7 +29837,7 @@ async function listProposals() {
   try {
     const client = getAdapter();
     const r2 = await client.select(`
-    PREFIX pred: <${META10}>
+    PREFIX pred: <${META11}>
     SELECT ?id ?kind ?justification ?motivatingGoal ?proposedAt ?expiresAt ?useCount
     WHERE {
       GRAPH <kg:tbox-staging> {
@@ -29857,6 +29939,148 @@ async function schema(args) {
   }
 }
 
+// ../predicate-cli/src/commands/config.ts
+init_storage();
+
+// ../predicate-mcp/src/tools/kg-config.ts
+var META12 = "https://predicate.dev/meta#";
+var CONFIG_URI3 = "urn:predicate:config";
+var KEY_TO_PROP = {
+  "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
+  "init-mode": { prop: "initMode", type: "string" },
+  "init-ontology": { prop: "initOntology", type: "string" }
+};
+function literalFor(value, type) {
+  if (type === "boolean") {
+    return `"${value}"^^<http://www.w3.org/2001/XMLSchema#boolean>`;
+  }
+  return escapeLiteral(String(value));
+}
+async function kgConfigSet(client, input) {
+  const meta = KEY_TO_PROP[input.key];
+  if (!meta) {
+    return { ok: false, error: `unknown key '${input.key}'. Valid keys: ${Object.keys(KEY_TO_PROP).join(", ")}` };
+  }
+  if (meta.type === "boolean" && typeof input.value !== "boolean") {
+    return { ok: false, error: `${input.key} expects boolean, got ${typeof input.value}` };
+  }
+  if (meta.type === "string" && typeof input.value !== "string") {
+    return { ok: false, error: `${input.key} expects string, got ${typeof input.value}` };
+  }
+  const propIri = `<${META12}${meta.prop}>`;
+  const lit = literalFor(input.value, meta.type);
+  await client.update(`
+    PREFIX pred: <${META12}>
+    DELETE { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ?o } }
+    WHERE  { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ?o } }
+  `);
+  await client.update(`
+    PREFIX pred: <${META12}>
+    INSERT DATA { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ${lit} } }
+  `);
+  return { ok: true, key: input.key, value: input.value };
+}
+async function kgConfigGet(client, input) {
+  if (input.key) {
+    const meta = KEY_TO_PROP[input.key];
+    if (!meta) return { key: input.key, value: null };
+    const r3 = await client.select(`
+      PREFIX pred: <${META12}>
+      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> <${META12}${meta.prop}> ?o } }
+    `);
+    const b2 = r3.results.bindings[0];
+    if (!b2) return { key: input.key, value: null };
+    const raw = b2["o"].value;
+    const value = meta.type === "boolean" ? raw === "true" : raw;
+    return { key: input.key, value };
+  }
+  const r2 = await client.select(`
+    PREFIX pred: <${META12}>
+    SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> ?p ?o } }
+  `);
+  const config2 = {};
+  for (const b2 of r2.results.bindings) {
+    const propIri = b2["p"].value;
+    const propLocal = propIri.slice(META12.length);
+    const externalKey = Object.entries(KEY_TO_PROP).find(([, v2]) => v2.prop === propLocal);
+    if (!externalKey) continue;
+    const [extKey, kmeta] = externalKey;
+    config2[extKey] = kmeta.type === "boolean" ? b2["o"].value === "true" : b2["o"].value;
+  }
+  return { config: config2 };
+}
+
+// ../predicate-cli/src/commands/config.ts
+var KEYS = ["schema-learning", "init-mode", "init-ontology"];
+function isKey(s2) {
+  return s2 !== void 0 && KEYS.includes(s2);
+}
+function help9() {
+  console.log(`predicate config <get|set>
+
+  config get [<key>]            Print one value, or the full config if key omitted.
+  config set <key> <value>      Write a runtime config value into kg:meta.
+
+Keys:
+  schema-learning   boolean (true|false) \u2014 toggles the auto-proposer.
+  init-mode         string  \u2014 usually written by \`predicate init\`.
+  init-ontology     string  \u2014 usually written by \`predicate init\`.
+`);
+}
+async function config(args) {
+  const sub = args[0];
+  if (sub === "--help") {
+    help9();
+    return 0;
+  }
+  if (sub === void 0) {
+    help9();
+    return 2;
+  }
+  if (sub === "get") {
+    const client = getAdapter();
+    const key = args[1];
+    if (key !== void 0 && !isKey(key)) {
+      console.error(`predicate config get: unknown key '${key}'. Valid: ${KEYS.join(", ")}`);
+      return 2;
+    }
+    const r2 = await kgConfigGet(client, isKey(key) ? { key } : {});
+    console.log(JSON.stringify(isKey(key) ? { [key]: r2.value } : r2.config ?? {}, null, 2));
+    return 0;
+  }
+  if (sub === "set") {
+    const key = args[1];
+    const valueRaw = args[2];
+    if (!isKey(key)) {
+      console.error(`predicate config set: key must be one of ${KEYS.join(", ")}`);
+      return 2;
+    }
+    if (valueRaw === void 0) {
+      console.error("predicate config set: a value is required");
+      return 2;
+    }
+    let value = valueRaw;
+    if (key === "schema-learning") {
+      if (valueRaw !== "true" && valueRaw !== "false") {
+        console.error(`predicate config set: schema-learning expects true|false, got '${valueRaw}'`);
+        return 2;
+      }
+      value = valueRaw === "true";
+    }
+    const client = getAdapter();
+    const res = await kgConfigSet(client, { key, value });
+    if (!res.ok) {
+      console.error(`predicate config set: ${res.error}`);
+      return 2;
+    }
+    console.log(`predicate config set: ${res.key}=${res.value}`);
+    return 0;
+  }
+  console.error(`predicate config: unknown subcommand '${sub}'`);
+  help9();
+  return 2;
+}
+
 // ../predicate-cli/src/commands/migrate.ts
 init_fuseki();
 init_oxigraph();
@@ -29917,7 +30141,7 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 
 // ../predicate-cli/src/index.ts
 var VERSION2 = true ? "2.1.0" : "0.0.0-dev";
-function help9() {
+function help10() {
   console.log(`predicate <command>
 
 Commands:
@@ -29943,6 +30167,7 @@ Commands:
   recall            Substring search over session history (files + commands).
   dashboard         Serve a localhost web view of session-history + reasoning output.
   schema            List / approve / reject pending kg:tbox-staging proposals.
+  config            Get/set runtime config (schema-learning toggle, init keys).
   migrate           Migrate data: --from fuseki --to oxigraph.
   --version         Print the predicate version.
   --help            This message.
@@ -29992,6 +30217,8 @@ async function main() {
       return dashboard(process.argv.slice(3));
     case "schema":
       return schema(process.argv.slice(3));
+    case "config":
+      return config(process.argv.slice(3));
     case "init":
       return init(process.argv.slice(3));
     case "migrate":
@@ -30003,11 +30230,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help9();
+      help10();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help9();
+      help10();
       return 2;
   }
 }
