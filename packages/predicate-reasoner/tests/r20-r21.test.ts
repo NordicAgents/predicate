@@ -95,3 +95,36 @@ describe('r20 current-judgment', () => {
     expect(newCurrent).toBe(true);
   });
 });
+
+describe('r21 unresolved-conflict', () => {
+  it('flags two current decisions with different settledAs about the same subject', async () => {
+    await withProv('<urn:jd:A>', 'a', `<${J}Decision>`);
+    await withProv('<urn:jd:A>', `<${J}about>`, '<urn:payments>');
+    await withProv('<urn:jd:A>', `<${J}settledAs>`, '<urn:teamPlatform>');
+    await withProv('<urn:jd:B>', 'a', `<${J}Decision>`);
+    await withProv('<urn:jd:B>', `<${J}about>`, '<urn:payments>');
+    await withProv('<urn:jd:B>', `<${J}settledAs>`, '<urn:teamCheckout>');
+    await materialize();
+    const aConflict = await client.ask(`PREFIX j: <${J}> ASK { GRAPH <${R20_INF}> { <urn:jd:A> a j:UnresolvedConflict } }`);
+    const bConflict = await client.ask(`PREFIX j: <${J}> ASK { GRAPH <${R20_INF}> { <urn:jd:B> a j:UnresolvedConflict } }`);
+    const linked = await client.ask(`PREFIX j: <${J}> ASK { GRAPH <${R20_INF}> { <urn:jd:A> j:conflictsWith <urn:jd:B> } }`);
+    const merged = await client.ask(`PREFIX owl: <http://www.w3.org/2002/07/owl#> ASK { GRAPH <${R20_INF}> { <urn:teamPlatform> owl:sameAs <urn:teamCheckout> } }`);
+    expect(aConflict).toBe(true);
+    expect(bConflict).toBe(true);
+    expect(linked).toBe(true);
+    expect(merged).toBe(false); // D4 footgun guard: no sameAs merge
+  });
+
+  it('suppresses the conflict once one judgment supersedes the other', async () => {
+    await withProv('<urn:jd:A>', 'a', `<${J}Decision>`);
+    await withProv('<urn:jd:A>', `<${J}about>`, '<urn:payments>');
+    await withProv('<urn:jd:A>', `<${J}settledAs>`, '<urn:teamPlatform>');
+    await withProv('<urn:jd:B>', 'a', `<${J}Decision>`);
+    await withProv('<urn:jd:B>', `<${J}about>`, '<urn:payments>');
+    await withProv('<urn:jd:B>', `<${J}settledAs>`, '<urn:teamCheckout>');
+    await withProv('<urn:jd:B>', `<${J}supersedes>`, '<urn:jd:A>');
+    await materialize();
+    const anyConflict = await client.ask(`PREFIX j: <${J}> ASK { GRAPH <${R20_INF}> { ?x a j:UnresolvedConflict } }`);
+    expect(anyConflict).toBe(false);
+  });
+});
