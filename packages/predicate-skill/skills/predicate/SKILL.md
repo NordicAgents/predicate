@@ -215,6 +215,32 @@ kg_propose_schema(
 # This goes to kg:tbox-staging. The promotion gate requires 3 successful uses in 7 days.
 ```
 
+## Capturing judgments
+
+A **judgment** is a reconciled conclusion you reached that has no live source — a decision and why, a standing preference, a fragility assessment, a reconciliation of conflicting sources. Lookups (anything re-derivable from a file or config) do NOT belong in the graph.
+
+**Trigger:** At the end of a session in which you made a non-obvious decision, formed a standing preference or qualitative assessment, or reconciled two conflicting sources — call `kg_extract_judgments` (pass `touchedEntities` with the IRIs you worked on), then assert each judgment.
+
+**Workflow:**
+1. `kg_extract_judgments` → read the returned `judgmentSchema`, `currentJudgments`, and `brief`.
+2. For each judgment, `kg_assert` it with `j:about <entity>`, a `j:rationale`, and ≥1 `j:basedOn <input>`. Decisions add `j:settledAs`/`j:rejected`; preferences add `j:prefers`/`j:over`.
+3. If a new judgment conflicts with one already in `currentJudgments`, also `kg_assert <new> j:supersedes <old>`.
+
+**Anti-patterns:** do not store lookups; never assert a judgment without `j:basedOn`; do not invent `j:` predicates (use what `judgmentSchema` shows).
+
+**Worked example — abandoned approach:**
+
+```
+kg_assert(ex:eventStoreDecision a j:Decision)
+kg_assert(ex:eventStoreDecision j:about ex:eventStore)
+kg_assert(ex:eventStoreDecision j:settledAs ex:kafkaOption)
+kg_assert(ex:eventStoreDecision j:rejected ex:postgresOption)
+kg_assert(ex:eventStoreDecision j:rationale "Postgres abandoned: write amplification under fan-out exceeded budget.")
+kg_assert(ex:eventStoreDecision j:basedOn ex:loadTest_2026_02)
+```
+
+Later, "why didn't we use Postgres?" is answerable from the graph alone — the reason lives in no file.
+
 ## Goal decomposition
 
 The default `kg_research_goal` uses a pattern-based decomposer

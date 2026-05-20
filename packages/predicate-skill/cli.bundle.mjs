@@ -17933,6 +17933,10 @@ async function loadTtlFile(client, path2) {
   const turtle = readFileSync2(path2, "utf8");
   await client.loadTurtle(turtle, "kg:tbox");
 }
+async function loadJudgmentOverlay(client, catalogDir) {
+  await loadTtlFile(client, join5(catalogDir, "judgment.ttl"));
+  await loadTtlFile(client, join5(catalogDir, "judgment.shacl.ttl"));
+}
 async function wipeForInit(client, force) {
   const tboxGraphs = ["kg:tbox", "kg:tbox-staging", "kg:meta"];
   const aboxGraphs = ["kg:abox", "kg:inferred", "kg:provenance", "kg:goals", "kg:usage"];
@@ -17995,6 +17999,7 @@ function buildPlanEmpty() {
 async function applyPlan(client, plan, force) {
   await wipeForInit(client, force);
   await loadTtlFile(client, findMetaTtl(plan.catalogDir));
+  await loadJudgmentOverlay(client, plan.catalogDir);
   if (plan.kind === "community") {
     for (const f2 of plan.entry.files) await loadTtlFile(client, join5(plan.catalogDir, f2));
     if (plan.entry.shapes) await loadTtlFile(client, join5(plan.catalogDir, plan.entry.shapes));
@@ -22793,6 +22798,86 @@ var r19 = {
   }
 };
 
+// ../predicate-reasoner/src/rules/r20-current-judgment.ts
+var J2 = "https://predicate.dev/judgment#";
+var r20 = {
+  id: "r20-current-judgment",
+  name: "j:Current \u2014 a judgment with no j:supersededBy",
+  insertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    return `
+      PREFIX j: <${J2}>
+      INSERT { GRAPH <${cfg.inferredGraph}> { ?jd a j:Current } }
+      WHERE {
+        {
+          { GRAPH <${abox}>                { ?jd a j:Judgment } }
+          UNION
+          { GRAPH <${cfg.inferredGraph}>   { ?jd a j:Judgment } }
+        }
+        FILTER NOT EXISTS { GRAPH <${abox}>              { ?jd j:supersededBy ?n } }
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?jd j:supersededBy ?n } }
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?jd a j:Current } }
+      }
+    `;
+  }
+};
+
+// ../predicate-reasoner/src/rules/r21-unresolved-conflict.ts
+var J3 = "https://predicate.dev/judgment#";
+var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var UNRESOLVED = `${J3}UnresolvedConflict`;
+var ABOUT = `${J3}about`;
+var BASED_ON = `${J3}basedOn`;
+var r21 = {
+  id: "r21-unresolved-conflict",
+  name: "j:UnresolvedConflict \u2014 two current judgments disagree on a ConflictFunctionalProperty",
+  insertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    return `
+      PREFIX j:   <${J3}>
+      INSERT {
+        GRAPH <${cfg.inferredGraph}> {
+          ?a a j:UnresolvedConflict .
+          ?b a j:UnresolvedConflict .
+          ?a j:conflictsWith ?b .
+        }
+      }
+      WHERE {
+        GRAPH <${cfg.tboxGraph}>     { ?p a j:ConflictFunctionalProperty }
+        GRAPH <${cfg.inferredGraph}> { ?a a j:Current . ?b a j:Current . }
+        GRAPH <${abox}> {
+          ?a j:about ?s ; ?p ?va .
+          ?b j:about ?s ; ?p ?vb .
+        }
+        FILTER (str(?a) < str(?b))
+        FILTER (?va != ?vb)
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?a j:conflictsWith ?b } }
+      }
+    `;
+  },
+  backward: {
+    matches: (q2) => q2.p === RDF_TYPE2 && (typeof q2.o === "string" ? q2.o : q2.o.value) === UNRESOLVED,
+    premiseQuery: (q2) => `
+      PREFIX j: <${J3}>
+      SELECT ?b ?s ?ba ?bb WHERE {
+        { GRAPH <kg:inferred> { <${q2.s}> j:conflictsWith ?b } }
+        UNION
+        { GRAPH <kg:inferred> { ?b j:conflictsWith <${q2.s}> } }
+        GRAPH <kg:abox> {
+          <${q2.s}> j:about ?s ; j:basedOn ?ba .
+          ?b       j:about ?s ; j:basedOn ?bb .
+        }
+      } LIMIT 1
+    `,
+    buildPremises: (q2, binding) => [
+      { s: q2.s, p: ABOUT, o: binding.s },
+      { s: q2.s, p: BASED_ON, o: binding.ba },
+      { s: binding.b, p: ABOUT, o: binding.s },
+      { s: binding.b, p: BASED_ON, o: binding.bb }
+    ]
+  }
+};
+
 // ../predicate-reasoner/src/rules/r11-disjoint-with.ts
 var r11 = {
   id: "r11-disjoint-with",
@@ -22849,7 +22934,9 @@ var RULES = [
   r16,
   r17,
   r18,
-  r19
+  r19,
+  r20,
+  r21
 ];
 
 // ../predicate-reasoner/src/fixpoint.ts
@@ -28304,7 +28391,7 @@ var PromotionSweeper = class {
 
 // ../predicate-agent/src/generalizer.ts
 import { createHash as createHash2 } from "node:crypto";
-var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var RDF_TYPE3 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fingerprintHash(fingerprint) {
   return createHash2("sha1").update(fingerprint.join("|")).digest("hex").slice(0, 12);
 }
@@ -28347,7 +28434,7 @@ var Generalizer = class {
         kind: "add-class",
         add: [{
           s: className,
-          p: RDF_TYPE2,
+          p: RDF_TYPE3,
           o: { type: "uri", value: "http://www.w3.org/2002/07/owl#Class" }
         }]
       }, {
@@ -28367,11 +28454,11 @@ var Generalizer = class {
       WHERE {
         GRAPH <kg:abox> {
           ?s ?p ?o .
-          FILTER (?p != <${RDF_TYPE2}>)
-          FILTER NOT EXISTS { ?s <${RDF_TYPE2}> ?t }
+          FILTER (?p != <${RDF_TYPE3}>)
+          FILTER NOT EXISTS { ?s <${RDF_TYPE3}> ?t }
         }
-        FILTER NOT EXISTS { GRAPH <kg:inferred> { ?s <${RDF_TYPE2}> ?ti } }
-        FILTER NOT EXISTS { GRAPH <kg:tbox>     { ?s <${RDF_TYPE2}> ?tb } }
+        FILTER NOT EXISTS { GRAPH <kg:inferred> { ?s <${RDF_TYPE3}> ?ti } }
+        FILTER NOT EXISTS { GRAPH <kg:tbox>     { ?s <${RDF_TYPE3}> ?tb } }
       }
     `);
     const subjects = subjectsResult.results.bindings.map((b2) => b2["s"].value);
@@ -28379,7 +28466,7 @@ var Generalizer = class {
     for (const s2 of subjects) {
       const predsResult = await this.client.select(`
         SELECT DISTINCT ?p
-        WHERE { GRAPH <kg:abox> { <${s2}> ?p ?o . FILTER (?p != <${RDF_TYPE2}>) } }
+        WHERE { GRAPH <kg:abox> { <${s2}> ?p ?o . FILTER (?p != <${RDF_TYPE3}>) } }
         ORDER BY ?p
       `);
       const predicates = predsResult.results.bindings.map((b2) => b2["p"].value);
