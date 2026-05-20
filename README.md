@@ -227,6 +227,7 @@ Run non-interactively with `predicate init --mode community --ontology codebase`
 | `kg_assert` | Writes a triple to `kg:abox` with RDF-star provenance. Rejects undeclared predicates. |
 | `kg_explain` | Returns the backward-chained derivation for a claim, with cited provenance. |
 | `kg_propose_schema` | Stages a `SchemaDelta` proposal in `kg:tbox-staging`. |
+| `kg_extract_judgments` | Returns the `j:` schema slice, current judgments about touched entities, and a brief instructing the host model to distill and assert this session's judgments. Makes no LLM call. |
 | `kg_research_goal` | Decompose a goal → gap-detect → optionally execute research → return a plan. |
 | `kg_stats` | Triples, ABox, inferred, TBox counts; inferred ratio; unused-concept ratio. |
 | `kg_maintain` | Runs reaper, generalizer, and promotion sweeper, then re-materializes inferred. |

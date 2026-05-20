@@ -31,6 +31,13 @@
       "description": "HL7 FHIR R4 resource class vocabulary (class hierarchy only; load fhir.ttl for full data modeling)",
       "license": "HL7",
       "files": ["fhir-core.ttl"]
+    },
+    {
+      "name": "judgment",
+      "description": "Judgment layer — j:Decision/Preference/Reconciliation/Assessment, conflict surfacing (loaded by default)",
+      "license": "Elastic-2.0",
+      "files": ["judgment.ttl"],
+      "shapes": "judgment.shacl.ttl"
     }
   ]
 }

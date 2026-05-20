@@ -17,10 +17,12 @@ import { r16 } from './r16-subpropertyof-instance.js';
 import { r17 } from './r17-hotspot.js';
 import { r18 } from './r18-flaky-command.js';
 import { r19 } from './r19-active-file.js';
+import { r20 } from './r20-current-judgment.js';
+import { r21 } from './r21-unresolved-conflict.js';
 
 export const RULES: Rule[] = [
   r01, r02, r03, r04, r05, r06, r07, r08, r09, r10, r12, r13, r14, r15, r16,
-  r17, r18, r19,
+  r17, r18, r19, r20, r21,
 ];
 export { r11 } from './r11-disjoint-with.js';
 export type { Rule, RuleConfig } from './types.js';

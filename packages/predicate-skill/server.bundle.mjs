@@ -21540,7 +21540,7 @@ function G(e2, t2, r2) {
 function X(e2) {
   return e2._reader._readRequests.length;
 }
-function J(e2) {
+function J3(e2) {
   const t2 = e2._reader;
   return void 0 !== t2 && !!K(t2);
 }
@@ -21603,7 +21603,7 @@ function be(e2) {
     if ("readable" !== t3._state) return false;
     if (e3._closeRequested) return false;
     if (!e3._started) return false;
-    if (J(t3) && X(t3) > 0) return true;
+    if (J3(t3) && X(t3) > 0) return true;
     if (Le(t3) && ze(t3) > 0) return true;
     if (ke(e3) > 0) return true;
     return false;
@@ -22607,7 +22607,7 @@ var init_ponyfill = __esm({
             const t4 = e3._pendingPullIntos.peek();
             t4.buffer, 0, Re(e3), t4.buffer = t4.buffer, "none" === t4.readerType && ge(e3, t4);
           }
-          if (J(r2)) if ((function(e4) {
+          if (J3(r2)) if ((function(e4) {
             const t4 = e4._controlledReadableByteStream._reader;
             for (; t4._readRequests.length > 0; ) {
               if (0 === e4._queueTotalSize) return;
@@ -37693,6 +37693,86 @@ var r19 = {
   }
 };
 
+// ../predicate-reasoner/src/rules/r20-current-judgment.ts
+var J = "https://predicate.dev/judgment#";
+var r20 = {
+  id: "r20-current-judgment",
+  name: "j:Current \u2014 a judgment with no j:supersededBy",
+  insertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    return `
+      PREFIX j: <${J}>
+      INSERT { GRAPH <${cfg.inferredGraph}> { ?jd a j:Current } }
+      WHERE {
+        {
+          { GRAPH <${abox}>                { ?jd a j:Judgment } }
+          UNION
+          { GRAPH <${cfg.inferredGraph}>   { ?jd a j:Judgment } }
+        }
+        FILTER NOT EXISTS { GRAPH <${abox}>              { ?jd j:supersededBy ?n } }
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?jd j:supersededBy ?n } }
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?jd a j:Current } }
+      }
+    `;
+  }
+};
+
+// ../predicate-reasoner/src/rules/r21-unresolved-conflict.ts
+var J2 = "https://predicate.dev/judgment#";
+var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var UNRESOLVED = `${J2}UnresolvedConflict`;
+var ABOUT = `${J2}about`;
+var BASED_ON = `${J2}basedOn`;
+var r21 = {
+  id: "r21-unresolved-conflict",
+  name: "j:UnresolvedConflict \u2014 two current judgments disagree on a ConflictFunctionalProperty",
+  insertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    return `
+      PREFIX j:   <${J2}>
+      INSERT {
+        GRAPH <${cfg.inferredGraph}> {
+          ?a a j:UnresolvedConflict .
+          ?b a j:UnresolvedConflict .
+          ?a j:conflictsWith ?b .
+        }
+      }
+      WHERE {
+        GRAPH <${cfg.tboxGraph}>     { ?p a j:ConflictFunctionalProperty }
+        GRAPH <${cfg.inferredGraph}> { ?a a j:Current . ?b a j:Current . }
+        GRAPH <${abox}> {
+          ?a j:about ?s ; ?p ?va .
+          ?b j:about ?s ; ?p ?vb .
+        }
+        FILTER (str(?a) < str(?b))
+        FILTER (?va != ?vb)
+        FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?a j:conflictsWith ?b } }
+      }
+    `;
+  },
+  backward: {
+    matches: (q2) => q2.p === RDF_TYPE2 && (typeof q2.o === "string" ? q2.o : q2.o.value) === UNRESOLVED,
+    premiseQuery: (q2) => `
+      PREFIX j: <${J2}>
+      SELECT ?b ?s ?ba ?bb WHERE {
+        { GRAPH <kg:inferred> { <${q2.s}> j:conflictsWith ?b } }
+        UNION
+        { GRAPH <kg:inferred> { ?b j:conflictsWith <${q2.s}> } }
+        GRAPH <kg:abox> {
+          <${q2.s}> j:about ?s ; j:basedOn ?ba .
+          ?b       j:about ?s ; j:basedOn ?bb .
+        }
+      } LIMIT 1
+    `,
+    buildPremises: (q2, binding) => [
+      { s: q2.s, p: ABOUT, o: binding.s },
+      { s: q2.s, p: BASED_ON, o: binding.ba },
+      { s: binding.b, p: ABOUT, o: binding.s },
+      { s: binding.b, p: BASED_ON, o: binding.bb }
+    ]
+  }
+};
+
 // ../predicate-reasoner/src/rules/r11-disjoint-with.ts
 var r11 = {
   id: "r11-disjoint-with",
@@ -37749,7 +37829,9 @@ var RULES = [
   r16,
   r17,
   r18,
-  r19
+  r19,
+  r20,
+  r21
 ];
 
 // ../predicate-reasoner/src/fixpoint.ts
@@ -46943,7 +47025,7 @@ var DocsResearchSource = class {
 // ../predicate-agent/src/extractor.ts
 import { basename as basename2 } from "node:path";
 var C3 = "https://predicate.dev/codebase";
-var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var RDF_TYPE3 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fileIri(uri) {
   const path2 = uri.replace(/^file:\/\//, "");
   const name = basename2(path2);
@@ -46969,7 +47051,7 @@ var ImportExtractor = class {
     const out = [
       {
         subject: fIri,
-        predicate: RDF_TYPE2,
+        predicate: RDF_TYPE3,
         object: { type: "uri", value: `${C3}#File` },
         source: artifact.uri,
         confidence: 1,
@@ -47011,7 +47093,7 @@ var FunctionDeclExtractor = class {
       const symIri = fnIri(artifact.uri, sym);
       out.push({
         subject: symIri,
-        predicate: RDF_TYPE2,
+        predicate: RDF_TYPE3,
         object: { type: "uri", value: `${C3}#Function` },
         source: artifact.uri,
         confidence: 1,
@@ -47043,7 +47125,7 @@ var EnvVarExtractor = class {
     for (const env of envs) {
       out.push({
         subject: envIri(env),
-        predicate: RDF_TYPE2,
+        predicate: RDF_TYPE3,
         object: { type: "uri", value: `${C3}#EnvVar` },
         source: artifact.uri,
         confidence: 1,
@@ -47496,7 +47578,7 @@ var PromotionSweeper = class {
 
 // ../predicate-agent/src/generalizer.ts
 import { createHash as createHash2 } from "node:crypto";
-var RDF_TYPE3 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var RDF_TYPE4 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fingerprintHash(fingerprint) {
   return createHash2("sha1").update(fingerprint.join("|")).digest("hex").slice(0, 12);
 }
@@ -47539,7 +47621,7 @@ var Generalizer = class {
         kind: "add-class",
         add: [{
           s: className,
-          p: RDF_TYPE3,
+          p: RDF_TYPE4,
           o: { type: "uri", value: "http://www.w3.org/2002/07/owl#Class" }
         }]
       }, {
@@ -47559,11 +47641,11 @@ var Generalizer = class {
       WHERE {
         GRAPH <kg:abox> {
           ?s ?p ?o .
-          FILTER (?p != <${RDF_TYPE3}>)
-          FILTER NOT EXISTS { ?s <${RDF_TYPE3}> ?t }
+          FILTER (?p != <${RDF_TYPE4}>)
+          FILTER NOT EXISTS { ?s <${RDF_TYPE4}> ?t }
         }
-        FILTER NOT EXISTS { GRAPH <kg:inferred> { ?s <${RDF_TYPE3}> ?ti } }
-        FILTER NOT EXISTS { GRAPH <kg:tbox>     { ?s <${RDF_TYPE3}> ?tb } }
+        FILTER NOT EXISTS { GRAPH <kg:inferred> { ?s <${RDF_TYPE4}> ?ti } }
+        FILTER NOT EXISTS { GRAPH <kg:tbox>     { ?s <${RDF_TYPE4}> ?tb } }
       }
     `);
     const subjects = subjectsResult.results.bindings.map((b2) => b2["s"].value);
@@ -47571,7 +47653,7 @@ var Generalizer = class {
     for (const s2 of subjects) {
       const predsResult = await this.client.select(`
         SELECT DISTINCT ?p
-        WHERE { GRAPH <kg:abox> { <${s2}> ?p ?o . FILTER (?p != <${RDF_TYPE3}>) } }
+        WHERE { GRAPH <kg:abox> { <${s2}> ?p ?o . FILTER (?p != <${RDF_TYPE4}>) } }
         ORDER BY ?p
       `);
       const predicates = predsResult.results.bindings.map((b2) => b2["p"].value);
@@ -47842,6 +47924,107 @@ async function kgStats(client) {
   };
 }
 
+// ../predicate-mcp/src/tools/kg-extract-judgments.ts
+var J4 = "https://predicate.dev/judgment#";
+var BRIEF = [
+  "Distill JUDGMENTS from this session \u2014 reconciled conclusions with no live source.",
+  "For each decision, standing preference, qualitative assessment, or reconciliation you made:",
+  "  1. Choose the j: subclass (j:Decision | j:Preference | j:Assessment | j:Reconciliation).",
+  '  2. kg_assert it with: j:about <entity>, a j:rationale (your "why"), and >=1 j:basedOn <input>.',
+  "     Decisions add j:settledAs <chosen> and j:rejected <alternative>; preferences add j:prefers/j:over.",
+  "  3. If your new judgment conflicts with one already listed in currentJudgments, also",
+  "     kg_assert <new> j:supersedes <old> so the reasoner retires the old one.",
+  "Do NOT store lookups (anything re-derivable from a live source). Never assert a judgment without j:basedOn.",
+  "Use only j: predicates shown in judgmentSchema; do not invent predicates."
+].join("\n");
+async function buildJudgmentSchema(client) {
+  const classQ = await client.select(`
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+    SELECT ?iri ?label ?sup ?sub ?disj WHERE {
+      GRAPH <kg:tbox> {
+        ?iri a owl:Class .
+        FILTER(STRSTARTS(STR(?iri), "${J4}"))
+        OPTIONAL { ?iri rdfs:label ?label }
+        OPTIONAL { ?iri rdfs:subClassOf ?sup . FILTER(isIRI(?sup)) }
+        OPTIONAL { ?sub rdfs:subClassOf ?iri . FILTER(isIRI(?sub)) }
+        OPTIONAL { ?iri owl:disjointWith ?disj }
+      }
+    }
+  `);
+  const classMap = /* @__PURE__ */ new Map();
+  for (const b2 of classQ.results.bindings) {
+    const iri = b2.iri.value;
+    const slice = classMap.get(iri) ?? { iri, subClassOf: [], superClassOf: [], disjointWith: [] };
+    if (b2.label) slice.label = b2.label.value;
+    if (b2.sup && !slice.subClassOf.includes(b2.sup.value)) slice.subClassOf.push(b2.sup.value);
+    if (b2.sub && !slice.superClassOf.includes(b2.sub.value)) slice.superClassOf.push(b2.sub.value);
+    if (b2.disj && !slice.disjointWith.includes(b2.disj.value)) slice.disjointWith.push(b2.disj.value);
+    classMap.set(iri, slice);
+  }
+  const propQ = await client.select(`
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+    SELECT ?p ?label ?dom ?rng ?char WHERE {
+      GRAPH <kg:tbox> {
+        ?p a ?propType .
+        FILTER(?propType IN (owl:ObjectProperty, owl:DatatypeProperty))
+        FILTER(STRSTARTS(STR(?p), "${J4}"))
+        OPTIONAL { ?p rdfs:domain ?dom }
+        OPTIONAL { ?p rdfs:range ?rng }
+        OPTIONAL { ?p rdfs:label ?label }
+        OPTIONAL { ?p a ?char .
+                   FILTER(?char IN (owl:TransitiveProperty, owl:SymmetricProperty,
+                                    owl:FunctionalProperty, owl:InverseFunctionalProperty)) }
+      }
+    }
+  `);
+  const propMap = /* @__PURE__ */ new Map();
+  for (const b2 of propQ.results.bindings) {
+    const iri = b2.p.value;
+    const slice = propMap.get(iri) ?? { iri, domain: [], range: [], characteristics: [] };
+    if (b2.label) slice.label = b2.label.value;
+    if (b2.dom && !slice.domain.includes(b2.dom.value)) slice.domain.push(b2.dom.value);
+    if (b2.rng && !slice.range.includes(b2.rng.value)) slice.range.push(b2.rng.value);
+    if (b2.char && !slice.characteristics.includes(b2.char.value))
+      slice.characteristics.push(b2.char.value);
+    propMap.set(iri, slice);
+  }
+  if (classMap.size === 0) {
+    return kgExploreSchema(client, `${J4}Judgment`);
+  }
+  return {
+    concept: `${J4}Judgment`,
+    classes: Array.from(classMap.values()),
+    properties: Array.from(propMap.values())
+  };
+}
+async function kgExtractJudgments(client, input) {
+  const judgmentSchema = await buildJudgmentSchema(client);
+  const touched = input.touchedEntities ?? [];
+  let currentJudgments = [];
+  if (touched.length > 0) {
+    const values = touched.map((e2) => escapeIRI(e2)).join(" ");
+    const r2 = await client.select(`
+      PREFIX j: <${J4}>
+      SELECT ?jd ?about ?rationale WHERE {
+        GRAPH <kg:inferred> { ?jd a j:Current }
+        GRAPH <kg:abox> {
+          ?jd j:about ?about .
+          OPTIONAL { ?jd j:rationale ?rationale }
+          VALUES ?about { ${values} }
+        }
+      }
+    `);
+    currentJudgments = r2.results.bindings.map((b2) => ({
+      judgment: b2.jd.value,
+      about: b2.about.value,
+      rationale: b2.rationale?.value
+    }));
+  }
+  return { judgmentSchema, currentJudgments, brief: BRIEF };
+}
+
 // ../predicate-mcp/src/tools/registry.ts
 var deltaQuadSchema = external_exports.object({
   s: external_exports.string(),
@@ -48008,6 +48191,21 @@ function buildTools(client, options = {}) {
       description: "Return current graph counts (triples, abox, inferred, tbox), inferredRatio, unusedConceptRatio, and materializationLatencyMsP95.",
       inputSchema: external_exports.object({}),
       handler: async () => kgStats(client)
+    },
+    {
+      name: "kg_extract_judgments",
+      description: "Return the j: schema slice, current judgments about touched entities, and a brief instructing you (the host model) to distill this session's judgments and assert them via kg_assert. Makes no LLM call. Call near session end when you made a decision, formed a preference/assessment, or reconciled conflicting sources.",
+      inputSchema: external_exports.object({
+        touchedEntities: external_exports.array(external_exports.string()).optional(),
+        sessionId: external_exports.string().optional()
+      }),
+      handler: async (raw) => {
+        const args = external_exports.object({
+          touchedEntities: external_exports.array(external_exports.string()).optional(),
+          sessionId: external_exports.string().optional()
+        }).parse(raw);
+        return kgExtractJudgments(client, args);
+      }
     },
     ...stubs()
   ];

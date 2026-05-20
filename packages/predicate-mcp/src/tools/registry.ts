@@ -9,6 +9,7 @@ import { kgMaintain } from './kg-maintain.js';
 import { kgResearchGoal } from './kg-research-goal.js';
 import { kgProposeSchema } from './kg-propose-schema.js';
 import { kgStats } from './kg-stats.js';
+import { kgExtractJudgments } from './kg-extract-judgments.js';
 
 export interface BuildToolsOptions {
   /**
@@ -192,6 +193,21 @@ export function buildTools(client: StorageAdapter, options: BuildToolsOptions = 
       description: 'Return current graph counts (triples, abox, inferred, tbox), inferredRatio, unusedConceptRatio, and materializationLatencyMsP95.',
       inputSchema: z.object({}),
       handler: async (): Promise<unknown> => kgStats(client),
+    },
+    {
+      name: 'kg_extract_judgments',
+      description: 'Return the j: schema slice, current judgments about touched entities, and a brief instructing you (the host model) to distill this session\'s judgments and assert them via kg_assert. Makes no LLM call. Call near session end when you made a decision, formed a preference/assessment, or reconciled conflicting sources.',
+      inputSchema: z.object({
+        touchedEntities: z.array(z.string()).optional(),
+        sessionId: z.string().optional(),
+      }),
+      handler: async (raw): Promise<unknown> => {
+        const args = z.object({
+          touchedEntities: z.array(z.string()).optional(),
+          sessionId: z.string().optional(),
+        }).parse(raw);
+        return kgExtractJudgments(client, args);
+      },
     },
     ...stubs(),
   ];
