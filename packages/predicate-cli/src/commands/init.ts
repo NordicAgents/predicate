@@ -77,6 +77,12 @@ async function loadTtlFile(client: StorageAdapter, path: string): Promise<void> 
   await client.loadTurtle(turtle, 'kg:tbox');
 }
 
+// The judgment layer is core vocabulary, loaded regardless of seed mode.
+async function loadJudgmentOverlay(client: StorageAdapter, catalogDir: string): Promise<void> {
+  await loadTtlFile(client, join(catalogDir, 'judgment.ttl'));
+  await loadTtlFile(client, join(catalogDir, 'judgment.shacl.ttl'));
+}
+
 // v2.0.1: always wipes kg:tbox + kg:tbox-staging + kg:meta so init is idempotent
 // against TBox residue from a half-migrated v1.13 install or earlier test pollution.
 // When `force=true` also wipes the ABox-side graphs (caller has accepted destruction).
@@ -164,6 +170,7 @@ function buildPlanEmpty(): Plan {
 async function applyPlan(client: StorageAdapter, plan: Plan, force: boolean): Promise<number> {
   await wipeForInit(client, force);
   await loadTtlFile(client, findMetaTtl(plan.catalogDir));
+  await loadJudgmentOverlay(client, plan.catalogDir);
 
   if (plan.kind === 'community') {
     for (const f of plan.entry.files) await loadTtlFile(client, join(plan.catalogDir, f));
