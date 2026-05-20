@@ -30111,7 +30111,7 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = "1.0.0";
+var VERSION2 = true ? "2.0.7" : "0.0.0-dev";
 function help13() {
   console.log(`predicate <command>
 
