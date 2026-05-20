@@ -13,6 +13,7 @@
   "dependencies": {
     "predicate-agent": "workspace:*",
     "predicate-mcp": "workspace:*",
+    "predicate-reasoner": "workspace:*",
     "predicate-server": "workspace:^"
   },
   "devDependencies": {

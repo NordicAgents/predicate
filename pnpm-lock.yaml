@@ -57,6 +57,9 @@ importers:
       predicate-mcp:
         specifier: workspace:*
         version: link:../predicate-mcp
+      predicate-reasoner:
+        specifier: workspace:*
+        version: link:../predicate-reasoner
       predicate-server:
         specifier: workspace:^
         version: link:../predicate-server

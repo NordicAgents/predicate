@@ -1,6 +1,9 @@
 import type { Readable } from 'node:stream';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { basename, join } from 'node:path';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
+import { deleteExtractedSlice } from './replay-rebuild.js';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 import {
@@ -69,7 +72,9 @@ The CLI:
   5. Asserts all triples via kg_assert.
 
 Options:
-  --from-stdin         Required.
+  --from-stdin         Required (unless --replay is used).
+  --replay <path>   Rebuild the extracted abox slice from a transcript file or
+                    a directory of <session-id>.jsonl files (re-materializes inferred).
   --platform <name>    One of: claude-code (default), gemini, opencode.
                        Selects the transcript adapter for the platform.
   --help               Print this message.
@@ -124,6 +129,50 @@ export async function extractTranscript(
   };
 }
 
+async function replay(pathArg: string, platform: Platform): Promise<number> {
+  let files: string[];
+  try {
+    const st = statSync(pathArg);
+    files = st.isDirectory()
+      ? readdirSync(pathArg).filter((f) => f.endsWith('.jsonl')).map((f) => join(pathArg, f))
+      : [pathArg];
+  } catch (err) {
+    console.error(`predicate extract --replay: cannot read ${pathArg}: ${(err as Error).message}`);
+    return 2;
+  }
+  if (files.length === 0) {
+    console.error(`predicate extract --replay: no .jsonl transcripts in ${pathArg}`);
+    return 2;
+  }
+
+  const client = getAdapter();
+  let sessions = 0, asserted = 0, rejected = 0, errors = 0;
+  for (const file of files) {
+    const sessionId = basename(file, '.jsonl');
+    try {
+      await deleteExtractedSlice(client, sessionId);
+      const r = await extractTranscript(client, { sessionId, transcriptPath: file, platform });
+      asserted += r.asserted; rejected += r.rejected; sessions++;
+    } catch (err) {
+      console.error(`predicate extract --replay: session ${sessionId} failed: ${(err as Error).message}`);
+      errors++;
+    }
+  }
+
+  await client.update('DROP SILENT GRAPH <kg:inferred>');
+  await new FusekiConstructAdapter(client).materialize({
+    tboxGraph: 'kg:tbox',
+    aboxGraphs: ['kg:abox'],
+    targetGraph: 'kg:inferred',
+    closureCutoff: 0.5,
+  });
+
+  console.log(
+    `predicate extract --replay: replayed ${sessions} sessions, asserted ${asserted}, rejected ${rejected}, errors ${errors}`,
+  );
+  return sessions === 0 && errors > 0 ? 1 : 0;
+}
+
 async function buildTBoxSlice(client: StorageAdapter): Promise<string> {
   // Naive slice: list every declared predicate. Good enough for v1.5;
   // future versions can scope by concept.
@@ -141,10 +190,6 @@ async function buildTBoxSlice(client: StorageAdapter): Promise<string> {
 
 export async function extract(args: string[], stdin: Readable = process.stdin): Promise<number> {
   if (hasFlag(args, '--help')) { help(); return 0; }
-  if (!hasFlag(args, '--from-stdin')) {
-    console.error('predicate extract: --from-stdin is required.');
-    return 2;
-  }
 
   const platformRaw = parseFlag(args, '--platform') ?? 'claude-code';
   if (!(SUPPORTED_PLATFORMS as readonly string[]).includes(platformRaw)) {
@@ -154,6 +199,16 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
     return 2;
   }
   const platform = platformRaw as Platform;
+
+  const replayPath = parseFlag(args, '--replay');
+  if (replayPath !== undefined) {
+    return replay(replayPath, platform);
+  }
+
+  if (!hasFlag(args, '--from-stdin')) {
+    console.error('predicate extract: --from-stdin or --replay <path> is required.');
+    return 2;
+  }
 
   const raw = await readStdin(stdin);
   let payload: Record<string, unknown>;
