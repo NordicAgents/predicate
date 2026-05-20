@@ -1,6 +1,6 @@
 {
   "name": "predicate-skill",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — Claude Code plugin + MCP server + predicate CLI.",
   "author": {
     "name": "Nordic Agents Research",
@@ -25,6 +25,7 @@
   "files": [
     "server.bundle.mjs",
     "cli.bundle.mjs",
+    "vendor",
     ".claude-plugin",
     "skills",
     "commands",
@@ -38,13 +39,10 @@
   ],
   "scripts": {
     "bundle": "node scripts/bundle.mjs",
-    "prepublishOnly": "node scripts/bundle.mjs && node -e \"const fs=require('fs');for(const f of ['server.bundle.mjs','cli.bundle.mjs','catalog/catalog.json','meta/predicate-meta.ttl']){if(!fs.existsSync(f)){console.error('missing '+f);process.exit(1)}}\""
+    "prepublishOnly": "node scripts/bundle.mjs && node -e \"const fs=require('fs');for(const f of ['server.bundle.mjs','cli.bundle.mjs','catalog/catalog.json','meta/predicate-meta.ttl','vendor/oxigraph/node.js','vendor/oxigraph/node_bg.wasm']){if(!fs.existsSync(f)){console.error('missing '+f);process.exit(1)}}\""
   },
   "engines": {
     "node": ">=20"
-  },
-  "dependencies": {
-    "oxigraph": "^0.5.0"
   },
   "publishConfig": {
     "access": "public"

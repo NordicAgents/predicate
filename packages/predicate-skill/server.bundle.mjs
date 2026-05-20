@@ -36501,7 +36501,7 @@ var FusekiAdapter = class {
 };
 
 // ../predicate-mcp/src/storage/oxigraph.ts
-import { Store, namedNode } from "oxigraph";
+import { Store, namedNode } from "./vendor/oxigraph/node.js";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 var KG_IRI_RE = /^kg:[A-Za-z0-9-]+$/;

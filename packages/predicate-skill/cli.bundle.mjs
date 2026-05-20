@@ -170,7 +170,7 @@ var init_fuseki = __esm({
 });
 
 // ../predicate-mcp/src/storage/oxigraph.ts
-import { Store, namedNode } from "oxigraph";
+import { Store, namedNode } from "./vendor/oxigraph/node.js";
 import { promises as fs } from "node:fs";
 import { join as join2 } from "node:path";
 function graphIriToFilename(iri) {
@@ -30111,7 +30111,7 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.0.7" : "0.0.0-dev";
+var VERSION2 = true ? "2.0.8" : "0.0.0-dev";
 function help13() {
   console.log(`predicate <command>
 
