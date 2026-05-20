@@ -12,7 +12,7 @@
     {
       "name": "predicate",
       "source": "./packages/predicate-skill",
-      "description": "Local RDF/OWL knowledge graph with 19-rule reasoner, agent loop, schema-evolution gates, the 9 kg_* MCP tools, and cross-platform Stop-hook turn extraction for Claude Code, Gemini CLI, and OpenCode.",
+      "description": "Local RDF/OWL knowledge graph with 19-rule reasoner, agent loop, schema-evolution gates, the 11 kg_* MCP tools, and cross-platform Stop-hook turn extraction for Claude Code, Gemini CLI, and OpenCode.",
       "version": "2.1.0",
       "author": { "name": "Nordic Agents Research" },
       "category": "knowledge-graph",
