@@ -249,7 +249,7 @@ export async function init(args: string[]): Promise<number> {
     const b = cfg.results.bindings[0];
     const mode = b?.m?.value ?? '?';
     const ont = b?.o?.value ?? '?';
-    console.error(`predicate init: already initialized as '${mode}/${ont}'. Use --force to reset (destructive). Or kg_config_set to toggle individual fields.`);
+    console.error(`predicate init: already initialized as '${mode}/${ont}'. Use --force to reset (destructive). Or 'predicate config set' to toggle individual fields.`);
     return 2;
   }
 

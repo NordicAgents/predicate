@@ -18074,7 +18074,7 @@ async function init(args) {
     const b2 = cfg.results.bindings[0];
     const mode2 = b2?.m?.value ?? "?";
     const ont = b2?.o?.value ?? "?";
-    console.error(`predicate init: already initialized as '${mode2}/${ont}'. Use --force to reset (destructive). Or kg_config_set to toggle individual fields.`);
+    console.error(`predicate init: already initialized as '${mode2}/${ont}'. Use --force to reset (destructive). Or 'predicate config set' to toggle individual fields.`);
     return 2;
   }
   const mode = parseFlag(args, "--mode");
