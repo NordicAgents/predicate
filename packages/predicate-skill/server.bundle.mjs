@@ -2992,7 +2992,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve2.call(this, root, ref);
+      let _sch = resolve3.call(this, root, ref);
       if (_sch === void 0) {
         const schema = (_a2 = root.localRefs) === null || _a2 === void 0 ? void 0 : _a2[ref];
         const { schemaId } = this.opts;
@@ -3019,7 +3019,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve2(root, ref) {
+    function resolve3(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -3646,21 +3646,21 @@ var require_fast_uri = __commonJS({
         normalizeString(uri, options);
       } else if (typeof uri === "object") {
         uri = /** @type {T} */
-        parse3(serialize2(uri, options), options);
+        parse4(serialize2(uri, options), options);
       }
       return uri;
     }
-    function resolve2(baseURI, relativeURI, options) {
+    function resolve3(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
-      const resolved = resolveComponent(parse3(baseURI, schemelessOptions), parse3(relativeURI, schemelessOptions), schemelessOptions, true);
+      const resolved = resolveComponent(parse4(baseURI, schemelessOptions), parse4(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
       return serialize2(resolved, schemelessOptions);
     }
     function resolveComponent(base, relative, options, skipNormalization) {
       const target = {};
       if (!skipNormalization) {
-        base = parse3(serialize2(base, options), options);
-        relative = parse3(serialize2(relative, options), options);
+        base = parse4(serialize2(base, options), options);
+        relative = parse4(serialize2(relative, options), options);
       }
       options = options || {};
       if (!options.tolerant && relative.scheme) {
@@ -3883,7 +3883,7 @@ var require_fast_uri = __commonJS({
       }
       return { parsed, malformedAuthorityOrPort };
     }
-    function parse3(uri, opts) {
+    function parse4(uri, opts) {
       return parseWithStatus(uri, opts).parsed;
     }
     function normalizeString(uri, opts) {
@@ -3908,11 +3908,11 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize,
-      resolve: resolve2,
+      resolve: resolve3,
       resolveComponent,
       equal,
       serialize: serialize2,
-      parse: parse3
+      parse: parse4
     };
     module.exports = fastUri;
     module.exports.default = fastUri;
@@ -10152,25 +10152,25 @@ var require_util2 = __commonJS({
         };
       },
       createDeferredPromise: function() {
-        let resolve2;
+        let resolve3;
         let reject;
         const promise = new Promise((res, rej) => {
-          resolve2 = res;
+          resolve3 = res;
           reject = rej;
         });
         return {
           promise,
-          resolve: resolve2,
+          resolve: resolve3,
           reject
         };
       },
       promisify(fn) {
-        return new Promise((resolve2, reject) => {
+        return new Promise((resolve3, reject) => {
           fn((err2, ...args) => {
             if (err2) {
               return reject(err2);
             }
-            return resolve2(...args);
+            return resolve3(...args);
           });
         });
       },
@@ -10961,7 +10961,7 @@ var require_end_of_stream = __commonJS({
         validateBoolean(opts.cleanup, "cleanup");
         autoCleanup = opts.cleanup;
       }
-      return new Promise2((resolve2, reject) => {
+      return new Promise2((resolve3, reject) => {
         const cleanup = eos(stream, opts, (err2) => {
           if (autoCleanup) {
             cleanup();
@@ -10969,7 +10969,7 @@ var require_end_of_stream = __commonJS({
           if (err2) {
             reject(err2);
           } else {
-            resolve2();
+            resolve3();
           }
         });
       });
@@ -12135,7 +12135,7 @@ var require_readable = __commonJS({
         error3 = this.readableEnded ? null : new AbortError();
         this.destroy(error3);
       }
-      return new Promise2((resolve2, reject) => eos(this, (err2) => err2 && err2 !== error3 ? reject(err2) : resolve2(null)));
+      return new Promise2((resolve3, reject) => eos(this, (err2) => err2 && err2 !== error3 ? reject(err2) : resolve3(null)));
     };
     Readable2.prototype.push = function(chunk, encoding) {
       return readableAddChunk(this, chunk, encoding, false);
@@ -12679,12 +12679,12 @@ var require_readable = __commonJS({
     }
     async function* createAsyncIterator(stream, options) {
       let callback = nop;
-      function next(resolve2) {
+      function next(resolve3) {
         if (this === stream) {
           callback();
           callback = nop;
         } else {
-          callback = resolve2;
+          callback = resolve3;
         }
       }
       stream.on("readable", next);
@@ -13736,7 +13736,7 @@ var require_duplexify = __commonJS({
       );
     };
     function fromAsyncGen(fn) {
-      let { promise, resolve: resolve2 } = createDeferredPromise();
+      let { promise, resolve: resolve3 } = createDeferredPromise();
       const ac = new AbortController2();
       const signal = ac.signal;
       const value = fn(
@@ -13751,7 +13751,7 @@ var require_duplexify = __commonJS({
               throw new AbortError(void 0, {
                 cause: signal.reason
               });
-            ({ promise, resolve: resolve2 } = createDeferredPromise());
+            ({ promise, resolve: resolve3 } = createDeferredPromise());
             yield chunk;
           }
         })(),
@@ -13762,8 +13762,8 @@ var require_duplexify = __commonJS({
       return {
         value,
         write(chunk, encoding, cb) {
-          const _resolve = resolve2;
-          resolve2 = null;
+          const _resolve = resolve3;
+          resolve3 = null;
           _resolve({
             chunk,
             done: false,
@@ -13771,8 +13771,8 @@ var require_duplexify = __commonJS({
           });
         },
         final(cb) {
-          const _resolve = resolve2;
-          resolve2 = null;
+          const _resolve = resolve3;
+          resolve3 = null;
           _resolve({
             done: true,
             cb
@@ -14223,7 +14223,7 @@ var require_pipeline = __commonJS({
           callback();
         }
       };
-      const wait = () => new Promise2((resolve2, reject) => {
+      const wait = () => new Promise2((resolve3, reject) => {
         if (error3) {
           reject(error3);
         } else {
@@ -14231,7 +14231,7 @@ var require_pipeline = __commonJS({
             if (error3) {
               reject(error3);
             } else {
-              resolve2();
+              resolve3();
             }
           };
         }
@@ -14875,8 +14875,8 @@ var require_operators = __commonJS({
                 next = null;
               }
               if (!done && (queue.length >= highWaterMark || cnt >= concurrency)) {
-                await new Promise2((resolve2) => {
-                  resume = resolve2;
+                await new Promise2((resolve3) => {
+                  resume = resolve3;
                 });
               }
             }
@@ -14910,8 +14910,8 @@ var require_operators = __commonJS({
               queue.shift();
               maybeResume();
             }
-            await new Promise2((resolve2) => {
-              next = resolve2;
+            await new Promise2((resolve3) => {
+              next = resolve3;
             });
           }
         } finally {
@@ -15169,7 +15169,7 @@ var require_promises = __commonJS({
     var { finished } = require_end_of_stream();
     require_stream();
     function pipeline(...streams) {
-      return new Promise2((resolve2, reject) => {
+      return new Promise2((resolve3, reject) => {
         let signal;
         let end;
         const lastArg = streams[streams.length - 1];
@@ -15184,7 +15184,7 @@ var require_promises = __commonJS({
             if (err2) {
               reject(err2);
             } else {
-              resolve2(value);
+              resolve3(value);
             }
           },
           {
@@ -17637,7 +17637,7 @@ var require_ms = __commonJS({
       options = options || {};
       var type = typeof val;
       if (type === "string" && val.length > 0) {
-        return parse3(val);
+        return parse4(val);
       } else if (type === "number" && isFinite(val)) {
         return options.long ? fmtLong(val) : fmtShort(val);
       }
@@ -17645,7 +17645,7 @@ var require_ms = __commonJS({
         "val is not a non-empty string or a valid number. val=" + JSON.stringify(val)
       );
     };
-    function parse3(str) {
+    function parse4(str) {
       str = String(str);
       if (str.length > 100) {
         return;
@@ -20446,7 +20446,7 @@ var require_lib3 = __commonJS({
       let accum = [];
       let accumBytes = 0;
       let abort = false;
-      return new Body.Promise(function(resolve2, reject) {
+      return new Body.Promise(function(resolve3, reject) {
         let resTimeout;
         if (_this4.timeout) {
           resTimeout = setTimeout(function() {
@@ -20480,7 +20480,7 @@ var require_lib3 = __commonJS({
           }
           clearTimeout(resTimeout);
           try {
-            resolve2(Buffer.concat(accum, accumBytes));
+            resolve3(Buffer.concat(accum, accumBytes));
           } catch (err2) {
             reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err2.message}`, "system", err2));
           }
@@ -21155,7 +21155,7 @@ var require_lib3 = __commonJS({
         throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
       }
       Body.Promise = fetch3.Promise;
-      return new fetch3.Promise(function(resolve2, reject) {
+      return new fetch3.Promise(function(resolve3, reject) {
         const request = new Request3(url, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
@@ -21288,7 +21288,7 @@ var require_lib3 = __commonJS({
                   requestOpts.body = void 0;
                   requestOpts.headers.delete("content-length");
                 }
-                resolve2(fetch3(new Request3(locationURL, requestOpts)));
+                resolve3(fetch3(new Request3(locationURL, requestOpts)));
                 finalize();
                 return;
             }
@@ -21309,7 +21309,7 @@ var require_lib3 = __commonJS({
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
             response = new Response3(body, response_options);
-            resolve2(response);
+            resolve3(response);
             return;
           }
           const zlibOptions = {
@@ -21319,7 +21319,7 @@ var require_lib3 = __commonJS({
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
             response = new Response3(body, response_options);
-            resolve2(response);
+            resolve3(response);
             return;
           }
           if (codings == "deflate" || codings == "x-deflate") {
@@ -21331,12 +21331,12 @@ var require_lib3 = __commonJS({
                 body = body.pipe(zlib.createInflateRaw());
               }
               response = new Response3(body, response_options);
-              resolve2(response);
+              resolve3(response);
             });
             raw.on("end", function() {
               if (!response) {
                 response = new Response3(body, response_options);
-                resolve2(response);
+                resolve3(response);
               }
             });
             return;
@@ -21344,11 +21344,11 @@ var require_lib3 = __commonJS({
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
             response = new Response3(body, response_options);
-            resolve2(response);
+            resolve3(response);
             return;
           }
           response = new Response3(body, response_options);
-          resolve2(response);
+          resolve3(response);
         });
         writeToStream(req, request);
       });
@@ -35165,7 +35165,7 @@ var Protocol = class {
           return;
         }
         const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve2) => setTimeout(resolve2, pollInterval));
+        await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
         options?.signal?.throwIfAborted();
       }
     } catch (error3) {
@@ -35182,7 +35182,7 @@ var Protocol = class {
    */
   request(request, resultSchema, options) {
     const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve3, reject) => {
       const earlyReject = (error3) => {
         reject(error3);
       };
@@ -35260,7 +35260,7 @@ var Protocol = class {
           if (!parseResult.success) {
             reject(parseResult.error);
           } else {
-            resolve2(parseResult.data);
+            resolve3(parseResult.data);
           }
         } catch (error3) {
           reject(error3);
@@ -35521,12 +35521,12 @@ var Protocol = class {
       }
     } catch {
     }
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve3, reject) => {
       if (signal.aborted) {
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
         return;
       }
-      const timeoutId = setTimeout(resolve2, interval);
+      const timeoutId = setTimeout(resolve3, interval);
       signal.addEventListener("abort", () => {
         clearTimeout(timeoutId);
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
@@ -36396,12 +36396,12 @@ var StdioServerTransport = class {
     this.onclose?.();
   }
   send(message) {
-    return new Promise((resolve2) => {
+    return new Promise((resolve3) => {
       const json = serializeMessage(message);
       if (this._stdout.write(json)) {
-        resolve2();
+        resolve3();
       } else {
-        this._stdout.once("drain", resolve2);
+        this._stdout.once("drain", resolve3);
       }
     });
   }
@@ -36709,14 +36709,39 @@ var OxigraphAdapter = class {
 };
 
 // ../predicate-mcp/src/config.ts
+import { existsSync } from "node:fs";
+import { dirname, join as join2, parse as parse3, resolve } from "node:path";
+var MARKER_DIR = ".predicate";
+function userStorePath() {
+  const xdg = process.env.XDG_DATA_HOME;
+  const home = process.env.HOME ?? "";
+  return xdg ? join2(xdg, "predicate", "store") : join2(home, MARKER_DIR, "store");
+}
+function findMarkerStore(startDir) {
+  let dir = resolve(startDir);
+  const root = parse3(dir).root;
+  for (; ; ) {
+    if (existsSync(join2(dir, MARKER_DIR))) return join2(dir, MARKER_DIR, "store");
+    if (dir === root) return void 0;
+    dir = dirname(dir);
+  }
+}
+function resolveStorePath() {
+  const override = process.env.PREDICATE_STORE_PATH;
+  if (override) return override;
+  const baseDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  const marker = findMarkerStore(baseDir);
+  if (marker) return marker;
+  const userStore = userStorePath();
+  if (existsSync(userStore)) return userStore;
+  return join2(resolve(baseDir), MARKER_DIR, "store");
+}
 function loadConfig() {
   const raw = process.env.FUSEKI_URL ?? "http://localhost:3030";
   const fusekiUrl = raw.replace(/\/+$/, "");
   const dataset2 = process.env.PREDICATE_DATASET ?? "predicate";
   const backend = process.env.PREDICATE_BACKEND ?? "oxigraph";
-  const home = process.env.HOME ?? "";
-  const xdg = process.env.XDG_DATA_HOME;
-  const oxigraphStorePath = process.env.PREDICATE_STORE_PATH ?? (xdg ? `${xdg}/predicate/store` : `${home}/.predicate/store`);
+  const oxigraphStorePath = resolveStorePath();
   return {
     backend,
     fusekiUrl,
@@ -43967,8 +43992,8 @@ function _addRequestID(value, response) {
 }
 var APIPromise = class _APIPromise extends Promise {
   constructor(responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve2) => {
-      resolve2(null);
+    super((resolve3) => {
+      resolve3(null);
     });
     this.responsePromise = responsePromise;
     this.parseResponse = parseResponse;
@@ -44560,7 +44585,7 @@ var startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
 var isAbsoluteURL = (url) => {
   return startsWithSchemeRegexp.test(url);
 };
-var sleep = (ms) => new Promise((resolve2) => setTimeout(resolve2, ms));
+var sleep = (ms) => new Promise((resolve3) => setTimeout(resolve3, ms));
 var validatePositiveInteger = (name, n2) => {
   if (typeof n2 !== "number" || !Number.isInteger(n2)) {
     throw new AnthropicError(`${name} must be an integer`);
@@ -45174,12 +45199,12 @@ var BetaMessageStream = class _BetaMessageStream {
       }
       return this._emit("error", new AnthropicError(String(error3)));
     });
-    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve2, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve2, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve3, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve3, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve2, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve2, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve3, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve3, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet8(this, _BetaMessageStream_connectedPromise, "f").catch(() => {
@@ -45337,11 +45362,11 @@ var BetaMessageStream = class _BetaMessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve3, reject) => {
       __classPrivateFieldSet7(this, _BetaMessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve2);
+      this.once(event, resolve3);
     });
   }
   async done() {
@@ -45625,7 +45650,7 @@ var BetaMessageStream = class _BetaMessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve2, reject) => readQueue.push({ resolve: resolve2, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve3, reject) => readQueue.push({ resolve: resolve3, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -45899,12 +45924,12 @@ var MessageStream = class _MessageStream {
       }
       return this._emit("error", new AnthropicError(String(error3)));
     });
-    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve2, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve2, "f");
+    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve3, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve3, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve2, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve2, "f");
+    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve3, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve3, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet9(this, _MessageStream_connectedPromise, "f").catch(() => {
@@ -46062,11 +46087,11 @@ var MessageStream = class _MessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve3, reject) => {
       __classPrivateFieldSet8(this, _MessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve2);
+      this.once(event, resolve3);
     });
   }
   async done() {
@@ -46350,7 +46375,7 @@ var MessageStream = class _MessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve2, reject) => readQueue.push({ resolve: resolve2, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve3, reject) => readQueue.push({ resolve: resolve3, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -46812,7 +46837,7 @@ async function assertCandidate(client, c2) {
 
 // ../predicate-agent/src/research-source.ts
 import { readFileSync, readdirSync, statSync as statSync2 } from "node:fs";
-import { join as join2, extname } from "node:path";
+import { join as join3, extname } from "node:path";
 var DocsResearchSource = class {
   name = "docs";
   root;
@@ -46828,7 +46853,7 @@ var DocsResearchSource = class {
   }
   walk(dir, out) {
     for (const entry of readdirSync(dir)) {
-      const full = join2(dir, entry);
+      const full = join3(dir, entry);
       const st2 = statSync2(full);
       if (st2.isDirectory()) {
         this.walk(full, out);
@@ -47045,7 +47070,7 @@ var SchemaProposer = class {
 
 // ../predicate-agent/src/promotion-sweeper.ts
 import { writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { resolve as resolve2 } from "node:path";
 var META4 = "https://predicate.dev/meta#";
 function newEventId3(kind2) {
   return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -47065,7 +47090,7 @@ var PromotionSweeper = class {
   constructor(client, opts = {}) {
     this.client = client;
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? resolve(
+    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? resolve2(
       import.meta.dirname ?? process.cwd(),
       "..",
       "..",
@@ -47358,7 +47383,7 @@ var PromotionSweeper = class {
         o: o2.type === "uri" ? { type: "uri", value: o2.value } : { type: "literal", value: o2.value, datatype: o2.datatype }
       };
     });
-    const turtleFile = resolve(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
+    const turtleFile = resolve2(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
     const turtle = quads.map(tripleTurtle).join("\n") + "\n";
     writeFileSync(turtleFile, turtle, "utf8");
     const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;

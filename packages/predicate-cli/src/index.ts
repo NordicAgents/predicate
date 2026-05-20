@@ -28,7 +28,12 @@ function help(): void {
   console.log(`predicate <command>
 
 Commands:
-  up                Bring Fuseki up (docker compose up -d) and load the seed TBox.
+  up                Open the Oxigraph store and load the seed TBox.
+                    --scope local|project|user   where the store lives (default: auto)
+                       local   = ./.predicate/store (current dir)
+                       project = <git-root>/.predicate/store
+                       user    = ~/.predicate/store
+                    --if-needed                  no-op if the graph is already initialised
   init              Initialize kg:tbox with a community ontology, an uploaded file, or empty.
   down              Stop Fuseki, preserve the data volume.
   doctor            Health checks: docker, fuseki, tbox.
@@ -51,7 +56,9 @@ Commands:
   --help            This message.
 
 Env:
-  FUSEKI_URL                http://localhost:3030 (default)
+  PREDICATE_BACKEND         oxigraph (default) | fuseki
+  PREDICATE_STORE_PATH      explicit Oxigraph store path (overrides scope resolution)
+  FUSEKI_URL                http://localhost:3030 (only used when PREDICATE_BACKEND=fuseki)
   PREDICATE_DATASET         predicate (default)
   PREDICATE_ADMIN_USER      admin (default)
   PREDICATE_ADMIN_PASSWORD  changeme (default)
@@ -68,7 +75,7 @@ Env:
 async function main(): Promise<number> {
   const cmd = process.argv[2];
   switch (cmd) {
-    case 'up':              return up();
+    case 'up':              return up(process.argv.slice(3));
     case 'down':            return down();
     case 'doctor':          return doctor();
     case 'stats':           return stats();

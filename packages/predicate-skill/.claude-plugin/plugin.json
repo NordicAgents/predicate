@@ -1,6 +1,6 @@
 {
   "name": "predicate",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — 9 kg_* MCP tools + cross-platform Stop-hook turn extraction (Claude Code + Gemini CLI + OpenCode) + reasoning bridge for action data.",
   "author": {
     "name": "Nordic Agents Research",
@@ -15,7 +15,7 @@
       "command": "node",
       "args": ["${CLAUDE_PLUGIN_ROOT}/server.bundle.mjs"],
       "env": {
-        "FUSEKI_URL": "http://localhost:3030",
+        "PREDICATE_BACKEND": "oxigraph",
         "PREDICATE_DATASET": "predicate"
       }
     }

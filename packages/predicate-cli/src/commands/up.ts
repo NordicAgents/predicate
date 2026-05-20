@@ -54,8 +54,41 @@ async function waitForFuseki(timeoutSec = 20): Promise<boolean> {
   return false;
 }
 
-export async function up(): Promise<number> {
-  const { loadConfig } = await import('predicate-mcp/src/config.js');
+type StoreScope = 'local' | 'project' | 'user';
+
+/** Parse `--scope <s>` / `--scope=<s>`; returns undefined when not passed. */
+function parseScope(args: string[]): StoreScope | undefined {
+  let raw: string | undefined;
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === undefined) continue;
+    if (a === '--scope') raw = args[i + 1];
+    else if (a.startsWith('--scope=')) raw = a.slice('--scope='.length);
+  }
+  if (raw === undefined) return undefined;
+  if (raw === 'local' || raw === 'project' || raw === 'user') return raw;
+  throw new Error(`invalid --scope '${raw}' (expected local|project|user)`);
+}
+
+export async function up(args: string[] = []): Promise<number> {
+  const { loadConfig, scopeStorePath, resolveStorePath } = await import('predicate-mcp/src/config.js');
+
+  let scope: StoreScope | undefined;
+  try {
+    scope = parseScope(args);
+  } catch (err) {
+    console.error(`predicate up: ${(err as Error).message}`);
+    return 2;
+  }
+  const ifNeeded = args.includes('--if-needed');
+
+  // Decide the store path and make it sticky: setting PREDICATE_STORE_PATH
+  // pins it for the rest of this process, and opening the adapter creates the
+  // .predicate/ marker that the MCP server later resolves to (same logic).
+  const baseDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  const storePath = scope ? scopeStorePath(scope, baseDir) : resolveStorePath();
+  process.env.PREDICATE_STORE_PATH = storePath;
+
   const cfg = loadConfig();
 
   if (cfg.backend === 'fuseki') {
@@ -73,13 +106,18 @@ export async function up(): Promise<number> {
       return 1;
     }
   } else {
-    console.log(`opening Oxigraph store at ${cfg.oxigraphStorePath}`);
+    console.log(`predicate up: scope=${scope ?? 'auto'} — opening Oxigraph store at ${cfg.oxigraphStorePath}`);
   }
 
   // Bootstrap + init paths are shared.
   const { bootstrapGraphs } = await import('predicate-server/src/index.js');
   const { getAdapter } = await import('predicate-mcp/src/storage/index.js');
   const client = getAdapter();
+
+  // --if-needed (used by the SessionStart hook): if the graph is already
+  // initialised, do nothing further — don't re-bootstrap every session.
+  if (ifNeeded && (await checkConfigExists(client))) return 0;
+
   await bootstrapGraphs(client);
 
   try {

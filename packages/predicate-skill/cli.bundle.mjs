@@ -44,16 +44,68 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // ../predicate-mcp/src/config.ts
 var config_exports = {};
 __export(config_exports, {
-  loadConfig: () => loadConfig
+  MARKER_DIR: () => MARKER_DIR,
+  findMarkerStore: () => findMarkerStore,
+  gitRoot: () => gitRoot,
+  loadConfig: () => loadConfig,
+  resolveStorePath: () => resolveStorePath,
+  scopeStorePath: () => scopeStorePath,
+  userStorePath: () => userStorePath
 });
+import { existsSync as existsSync2 } from "node:fs";
+import { dirname as dirname2, join as join2, parse, resolve as resolve2 } from "node:path";
+function userStorePath() {
+  const xdg = process.env.XDG_DATA_HOME;
+  const home = process.env.HOME ?? "";
+  return xdg ? join2(xdg, "predicate", "store") : join2(home, MARKER_DIR, "store");
+}
+function findMarkerStore(startDir) {
+  let dir = resolve2(startDir);
+  const root = parse(dir).root;
+  for (; ; ) {
+    if (existsSync2(join2(dir, MARKER_DIR))) return join2(dir, MARKER_DIR, "store");
+    if (dir === root) return void 0;
+    dir = dirname2(dir);
+  }
+}
+function resolveStorePath() {
+  const override = process.env.PREDICATE_STORE_PATH;
+  if (override) return override;
+  const baseDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  const marker = findMarkerStore(baseDir);
+  if (marker) return marker;
+  const userStore = userStorePath();
+  if (existsSync2(userStore)) return userStore;
+  return join2(resolve2(baseDir), MARKER_DIR, "store");
+}
+function gitRoot(start) {
+  let dir = resolve2(start);
+  const root = parse(dir).root;
+  for (; ; ) {
+    if (existsSync2(join2(dir, ".git"))) return dir;
+    if (dir === root) return void 0;
+    dir = dirname2(dir);
+  }
+}
+function scopeStorePath(scope, baseDir) {
+  switch (scope) {
+    case "user":
+      return userStorePath();
+    case "project": {
+      const root = gitRoot(baseDir) ?? baseDir;
+      return join2(resolve2(root), MARKER_DIR, "store");
+    }
+    case "local":
+    default:
+      return join2(resolve2(baseDir), MARKER_DIR, "store");
+  }
+}
 function loadConfig() {
   const raw = process.env.FUSEKI_URL ?? "http://localhost:3030";
   const fusekiUrl = raw.replace(/\/+$/, "");
   const dataset2 = process.env.PREDICATE_DATASET ?? "predicate";
   const backend = process.env.PREDICATE_BACKEND ?? "oxigraph";
-  const home = process.env.HOME ?? "";
-  const xdg = process.env.XDG_DATA_HOME;
-  const oxigraphStorePath = process.env.PREDICATE_STORE_PATH ?? (xdg ? `${xdg}/predicate/store` : `${home}/.predicate/store`);
+  const oxigraphStorePath = resolveStorePath();
   return {
     backend,
     fusekiUrl,
@@ -64,9 +116,11 @@ function loadConfig() {
     oxigraphStorePath
   };
 }
+var MARKER_DIR;
 var init_config = __esm({
   "../predicate-mcp/src/config.ts"() {
     "use strict";
+    MARKER_DIR = ".predicate";
   }
 });
 
@@ -172,7 +226,7 @@ var init_fuseki = __esm({
 // ../predicate-mcp/src/storage/oxigraph.ts
 import { Store, namedNode } from "./vendor/oxigraph/node.js";
 import { promises as fs } from "node:fs";
-import { join as join2 } from "node:path";
+import { join as join3 } from "node:path";
 function graphIriToFilename(iri) {
   return encodeURIComponent(iri) + ".nq";
 }
@@ -239,7 +293,7 @@ var init_oxigraph = __esm({
         for (const entry of entries) {
           const iri = filenameToGraphIri(entry);
           if (iri === null) continue;
-          const filePath = join2(this.storePath, entry);
+          const filePath = join3(this.storePath, entry);
           const content = await fs.readFile(filePath, "utf8");
           if (content.trim().length > 0) {
             this.store.load(content, {
@@ -290,7 +344,7 @@ var init_oxigraph = __esm({
             from_graph_name: namedNode(iri)
           });
           const basename2 = graphIriToFilename(iri);
-          const finalPath = join2(this.storePath, basename2);
+          const finalPath = join3(this.storePath, basename2);
           const tmpPath = finalPath + ".tmp";
           await fs.writeFile(tmpPath, content, "utf8");
           await fs.rename(tmpPath, finalPath);
@@ -2542,7 +2596,7 @@ var require_lib2 = __commonJS({
       let accum = [];
       let accumBytes = 0;
       let abort = false;
-      return new Body.Promise(function(resolve4, reject) {
+      return new Body.Promise(function(resolve5, reject) {
         let resTimeout;
         if (_this4.timeout) {
           resTimeout = setTimeout(function() {
@@ -2576,7 +2630,7 @@ var require_lib2 = __commonJS({
           }
           clearTimeout(resTimeout);
           try {
-            resolve4(Buffer.concat(accum, accumBytes));
+            resolve5(Buffer.concat(accum, accumBytes));
           } catch (err2) {
             reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err2.message}`, "system", err2));
           }
@@ -3251,7 +3305,7 @@ var require_lib2 = __commonJS({
         throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
       }
       Body.Promise = fetch3.Promise;
-      return new fetch3.Promise(function(resolve4, reject) {
+      return new fetch3.Promise(function(resolve5, reject) {
         const request = new Request3(url, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
@@ -3384,7 +3438,7 @@ var require_lib2 = __commonJS({
                   requestOpts.body = void 0;
                   requestOpts.headers.delete("content-length");
                 }
-                resolve4(fetch3(new Request3(locationURL, requestOpts)));
+                resolve5(fetch3(new Request3(locationURL, requestOpts)));
                 finalize();
                 return;
             }
@@ -3405,7 +3459,7 @@ var require_lib2 = __commonJS({
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
             response = new Response3(body, response_options);
-            resolve4(response);
+            resolve5(response);
             return;
           }
           const zlibOptions = {
@@ -3415,7 +3469,7 @@ var require_lib2 = __commonJS({
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
             response = new Response3(body, response_options);
-            resolve4(response);
+            resolve5(response);
             return;
           }
           if (codings == "deflate" || codings == "x-deflate") {
@@ -3427,12 +3481,12 @@ var require_lib2 = __commonJS({
                 body = body.pipe(zlib.createInflateRaw());
               }
               response = new Response3(body, response_options);
-              resolve4(response);
+              resolve5(response);
             });
             raw.on("end", function() {
               if (!response) {
                 response = new Response3(body, response_options);
-                resolve4(response);
+                resolve5(response);
               }
             });
             return;
@@ -3440,11 +3494,11 @@ var require_lib2 = __commonJS({
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
             response = new Response3(body, response_options);
-            resolve4(response);
+            resolve5(response);
             return;
           }
           response = new Response3(body, response_options);
-          resolve4(response);
+          resolve5(response);
         });
         writeToStream(req, request);
       });
@@ -5566,7 +5620,7 @@ var require_ms = __commonJS({
       options = options || {};
       var type = typeof val;
       if (type === "string" && val.length > 0) {
-        return parse(val);
+        return parse2(val);
       } else if (type === "number" && isFinite(val)) {
         return options.long ? fmtLong(val) : fmtShort(val);
       }
@@ -5574,7 +5628,7 @@ var require_ms = __commonJS({
         "val is not a non-empty string or a valid number. val=" + JSON.stringify(val)
       );
     };
-    function parse(str) {
+    function parse2(str) {
       str = String(str);
       if (str.length > 100) {
         return;
@@ -9470,25 +9524,25 @@ var require_util = __commonJS({
         };
       },
       createDeferredPromise: function() {
-        let resolve4;
+        let resolve5;
         let reject;
         const promise = new Promise((res, rej) => {
-          resolve4 = res;
+          resolve5 = res;
           reject = rej;
         });
         return {
           promise,
-          resolve: resolve4,
+          resolve: resolve5,
           reject
         };
       },
       promisify(fn) {
-        return new Promise((resolve4, reject) => {
+        return new Promise((resolve5, reject) => {
           fn((err2, ...args) => {
             if (err2) {
               return reject(err2);
             }
-            return resolve4(...args);
+            return resolve5(...args);
           });
         });
       },
@@ -10279,7 +10333,7 @@ var require_end_of_stream = __commonJS({
         validateBoolean(opts.cleanup, "cleanup");
         autoCleanup = opts.cleanup;
       }
-      return new Promise2((resolve4, reject) => {
+      return new Promise2((resolve5, reject) => {
         const cleanup = eos(stream, opts, (err2) => {
           if (autoCleanup) {
             cleanup();
@@ -10287,7 +10341,7 @@ var require_end_of_stream = __commonJS({
           if (err2) {
             reject(err2);
           } else {
-            resolve4();
+            resolve5();
           }
         });
       });
@@ -11453,7 +11507,7 @@ var require_readable = __commonJS({
         error2 = this.readableEnded ? null : new AbortError();
         this.destroy(error2);
       }
-      return new Promise2((resolve4, reject) => eos(this, (err2) => err2 && err2 !== error2 ? reject(err2) : resolve4(null)));
+      return new Promise2((resolve5, reject) => eos(this, (err2) => err2 && err2 !== error2 ? reject(err2) : resolve5(null)));
     };
     Readable2.prototype.push = function(chunk, encoding) {
       return readableAddChunk(this, chunk, encoding, false);
@@ -11997,12 +12051,12 @@ var require_readable = __commonJS({
     }
     async function* createAsyncIterator(stream, options) {
       let callback = nop;
-      function next(resolve4) {
+      function next(resolve5) {
         if (this === stream) {
           callback();
           callback = nop;
         } else {
-          callback = resolve4;
+          callback = resolve5;
         }
       }
       stream.on("readable", next);
@@ -13054,7 +13108,7 @@ var require_duplexify = __commonJS({
       );
     };
     function fromAsyncGen(fn) {
-      let { promise, resolve: resolve4 } = createDeferredPromise();
+      let { promise, resolve: resolve5 } = createDeferredPromise();
       const ac = new AbortController2();
       const signal = ac.signal;
       const value = fn(
@@ -13069,7 +13123,7 @@ var require_duplexify = __commonJS({
               throw new AbortError(void 0, {
                 cause: signal.reason
               });
-            ({ promise, resolve: resolve4 } = createDeferredPromise());
+            ({ promise, resolve: resolve5 } = createDeferredPromise());
             yield chunk;
           }
         })(),
@@ -13080,8 +13134,8 @@ var require_duplexify = __commonJS({
       return {
         value,
         write(chunk, encoding, cb) {
-          const _resolve = resolve4;
-          resolve4 = null;
+          const _resolve = resolve5;
+          resolve5 = null;
           _resolve({
             chunk,
             done: false,
@@ -13089,8 +13143,8 @@ var require_duplexify = __commonJS({
           });
         },
         final(cb) {
-          const _resolve = resolve4;
-          resolve4 = null;
+          const _resolve = resolve5;
+          resolve5 = null;
           _resolve({
             done: true,
             cb
@@ -13541,7 +13595,7 @@ var require_pipeline = __commonJS({
           callback();
         }
       };
-      const wait = () => new Promise2((resolve4, reject) => {
+      const wait = () => new Promise2((resolve5, reject) => {
         if (error2) {
           reject(error2);
         } else {
@@ -13549,7 +13603,7 @@ var require_pipeline = __commonJS({
             if (error2) {
               reject(error2);
             } else {
-              resolve4();
+              resolve5();
             }
           };
         }
@@ -14193,8 +14247,8 @@ var require_operators = __commonJS({
                 next = null;
               }
               if (!done && (queue.length >= highWaterMark || cnt >= concurrency)) {
-                await new Promise2((resolve4) => {
-                  resume = resolve4;
+                await new Promise2((resolve5) => {
+                  resume = resolve5;
                 });
               }
             }
@@ -14228,8 +14282,8 @@ var require_operators = __commonJS({
               queue.shift();
               maybeResume();
             }
-            await new Promise2((resolve4) => {
-              next = resolve4;
+            await new Promise2((resolve5) => {
+              next = resolve5;
             });
           }
         } finally {
@@ -14487,7 +14541,7 @@ var require_promises = __commonJS({
     var { finished } = require_end_of_stream();
     require_stream();
     function pipeline(...streams) {
-      return new Promise2((resolve4, reject) => {
+      return new Promise2((resolve5, reject) => {
         let signal;
         let end;
         const lastArg = streams[streams.length - 1];
@@ -14502,7 +14556,7 @@ var require_promises = __commonJS({
             if (err2) {
               reject(err2);
             } else {
-              resolve4(value);
+              resolve5(value);
             }
           },
           {
@@ -17654,8 +17708,8 @@ function escapeLiteral(value) {
 
 // ../predicate-cli/src/commands/init.ts
 init_storage();
-import { readFileSync, existsSync as existsSync2, statSync } from "node:fs";
-import { join as join3, dirname as dirname2, resolve as resolve2 } from "node:path";
+import { readFileSync, existsSync as existsSync3, statSync } from "node:fs";
+import { join as join4, dirname as dirname3, resolve as resolve3 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { createInterface } from "node:readline/promises";
 init_src();
@@ -17670,21 +17724,21 @@ function hasFlag(args, name) {
   return args.includes(name);
 }
 function findCatalogDir() {
-  const here = dirname2(fileURLToPath2(import.meta.url));
+  const here = dirname3(fileURLToPath2(import.meta.url));
   const candidates = [
     // Bundled-alongside-CLI layout (predicate-skill global install).
-    join3(here, "catalog"),
+    join4(here, "catalog"),
     // Monorepo / source-tree layouts.
-    join3(here, "..", "..", "..", "predicate-ontology", "catalog"),
-    join3(here, "..", "predicate-ontology", "catalog"),
-    join3(here, "..", "..", "predicate-ontology", "catalog"),
-    join3(here, "predicate-ontology", "catalog")
+    join4(here, "..", "..", "..", "predicate-ontology", "catalog"),
+    join4(here, "..", "predicate-ontology", "catalog"),
+    join4(here, "..", "..", "predicate-ontology", "catalog"),
+    join4(here, "predicate-ontology", "catalog")
   ];
-  for (const c2 of candidates) if (existsSync2(join3(c2, "catalog.json"))) return c2;
+  for (const c2 of candidates) if (existsSync3(join4(c2, "catalog.json"))) return c2;
   throw new Error(`catalog directory not found \u2014 checked ${candidates.join(", ")}`);
 }
 function findMetaTtl(catalogDir) {
-  return join3(catalogDir, "..", "meta", "predicate-meta.ttl");
+  return join4(catalogDir, "..", "meta", "predicate-meta.ttl");
 }
 function help() {
   console.log(`predicate init [--mode community|upload|empty] [--ontology NAME] [--file PATH] [--force]
@@ -17749,7 +17803,7 @@ function validateUserUpload(turtle) {
 }
 async function buildPlanCommunity(ontology) {
   const catalogDir = findCatalogDir();
-  const catalog = JSON.parse(readFileSync(join3(catalogDir, "catalog.json"), "utf8"));
+  const catalog = JSON.parse(readFileSync(join4(catalogDir, "catalog.json"), "utf8"));
   const entry = catalog.ontologies.find((o2) => o2.name === ontology);
   if (!entry) {
     console.error(`predicate init: unknown ontology '${ontology}'. Available: ${catalog.ontologies.map((o2) => o2.name).join(", ")}`);
@@ -17758,8 +17812,8 @@ async function buildPlanCommunity(ontology) {
   return { kind: "community", entry, catalogDir };
 }
 async function buildPlanUpload(filePath) {
-  const abs = resolve2(filePath);
-  if (!existsSync2(abs)) {
+  const abs = resolve3(filePath);
+  if (!existsSync3(abs)) {
     console.error(`predicate init: file not found: ${abs}`);
     return { exitCode: 1 };
   }
@@ -17784,8 +17838,8 @@ async function applyPlan(client, plan, force) {
   await wipeForInit(client, force);
   await loadTtlFile(client, findMetaTtl(plan.catalogDir));
   if (plan.kind === "community") {
-    for (const f2 of plan.entry.files) await loadTtlFile(client, join3(plan.catalogDir, f2));
-    if (plan.entry.shapes) await loadTtlFile(client, join3(plan.catalogDir, plan.entry.shapes));
+    for (const f2 of plan.entry.files) await loadTtlFile(client, join4(plan.catalogDir, f2));
+    if (plan.entry.shapes) await loadTtlFile(client, join4(plan.catalogDir, plan.entry.shapes));
     await writeConfig(client, "community", plan.entry.name);
     console.log(`predicate init: ${plan.entry.name} ontology loaded (${plan.entry.description}, license: ${plan.entry.license}).`);
     return 0;
@@ -17803,7 +17857,7 @@ async function applyPlan(client, plan, force) {
     console.log(`predicate init: uploaded ${plan.abs} (${plan.size} bytes). Schema-learning enabled.`);
     return 0;
   }
-  await loadTtlFile(client, join3(plan.catalogDir, "top.ttl"));
+  await loadTtlFile(client, join4(plan.catalogDir, "top.ttl"));
   await writeConfig(client, "empty", "top");
   console.log(`predicate init: empty mode (meta + top vocabulary loaded). The agent will propose new predicates as needed; sweeper promotes after 3 uses.`);
   return 0;
@@ -17824,7 +17878,7 @@ async function interactive(client, force) {
     let plan;
     if (choice === "1") {
       const catalogDir = findCatalogDir();
-      const catalog = JSON.parse(readFileSync(join3(catalogDir, "catalog.json"), "utf8"));
+      const catalog = JSON.parse(readFileSync(join4(catalogDir, "catalog.json"), "utf8"));
       console.log("\nAvailable ontologies:");
       for (const o2 of catalog.ontologies) console.log(`  - ${o2.name.padEnd(18)} ${o2.description}`);
       const name = (await rl.question("\nWhich ontology? ")).trim();
@@ -17935,8 +17989,31 @@ async function waitForFuseki(timeoutSec = 20) {
   }
   return false;
 }
-async function up() {
-  const { loadConfig: loadConfig2 } = await Promise.resolve().then(() => (init_config(), config_exports));
+function parseScope(args) {
+  let raw;
+  for (let i2 = 0; i2 < args.length; i2++) {
+    const a2 = args[i2];
+    if (a2 === void 0) continue;
+    if (a2 === "--scope") raw = args[i2 + 1];
+    else if (a2.startsWith("--scope=")) raw = a2.slice("--scope=".length);
+  }
+  if (raw === void 0) return void 0;
+  if (raw === "local" || raw === "project" || raw === "user") return raw;
+  throw new Error(`invalid --scope '${raw}' (expected local|project|user)`);
+}
+async function up(args = []) {
+  const { loadConfig: loadConfig2, scopeStorePath: scopeStorePath2, resolveStorePath: resolveStorePath2 } = await Promise.resolve().then(() => (init_config(), config_exports));
+  let scope;
+  try {
+    scope = parseScope(args);
+  } catch (err2) {
+    console.error(`predicate up: ${err2.message}`);
+    return 2;
+  }
+  const ifNeeded = args.includes("--if-needed");
+  const baseDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  const storePath = scope ? scopeStorePath2(scope, baseDir) : resolveStorePath2();
+  process.env.PREDICATE_STORE_PATH = storePath;
   const cfg = loadConfig2();
   if (cfg.backend === "fuseki") {
     if (!dockerAvailable()) {
@@ -17953,11 +18030,12 @@ async function up() {
       return 1;
     }
   } else {
-    console.log(`opening Oxigraph store at ${cfg.oxigraphStorePath}`);
+    console.log(`predicate up: scope=${scope ?? "auto"} \u2014 opening Oxigraph store at ${cfg.oxigraphStorePath}`);
   }
   const { bootstrapGraphs: bootstrapGraphs2 } = await Promise.resolve().then(() => (init_src(), src_exports));
   const { getAdapter: getAdapter2 } = await Promise.resolve().then(() => (init_storage(), storage_exports));
   const client = getAdapter2();
+  if (ifNeeded && await checkConfigExists2(client)) return 0;
   await bootstrapGraphs2(client);
   try {
     if (await checkConfigExists2(client)) return 0;
@@ -18004,8 +18082,8 @@ async function down() {
 init_config();
 init_storage();
 init_graphs();
-import { existsSync as existsSync3, accessSync, constants } from "node:fs";
-import { dirname as dirname3 } from "node:path";
+import { existsSync as existsSync4, accessSync, constants } from "node:fs";
+import { dirname as dirname4 } from "node:path";
 async function doctor() {
   const cfg = loadConfig();
   const checks = [];
@@ -18025,8 +18103,8 @@ async function doctor() {
   } else {
     let writable = true;
     try {
-      const dir = dirname3(cfg.oxigraphStorePath);
-      if (existsSync3(dir)) accessSync(dir, constants.W_OK);
+      const dir = dirname4(cfg.oxigraphStorePath);
+      if (existsSync4(dir)) accessSync(dir, constants.W_OK);
     } catch {
       writable = false;
     }
@@ -19232,8 +19310,8 @@ function _addRequestID(value, response) {
 }
 var APIPromise = class _APIPromise extends Promise {
   constructor(responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve4) => {
-      resolve4(null);
+    super((resolve5) => {
+      resolve5(null);
     });
     this.responsePromise = responsePromise;
     this.parseResponse = parseResponse;
@@ -19825,7 +19903,7 @@ var startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
 var isAbsoluteURL = (url) => {
   return startsWithSchemeRegexp.test(url);
 };
-var sleep = (ms) => new Promise((resolve4) => setTimeout(resolve4, ms));
+var sleep = (ms) => new Promise((resolve5) => setTimeout(resolve5, ms));
 var validatePositiveInteger = (name, n2) => {
   if (typeof n2 !== "number" || !Number.isInteger(n2)) {
     throw new AnthropicError(`${name} must be an integer`);
@@ -20439,12 +20517,12 @@ var BetaMessageStream = class _BetaMessageStream {
       }
       return this._emit("error", new AnthropicError(String(error2)));
     });
-    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve4, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve4, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve5, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve5, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve4, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve4, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve5, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve5, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet8(this, _BetaMessageStream_connectedPromise, "f").catch(() => {
@@ -20602,11 +20680,11 @@ var BetaMessageStream = class _BetaMessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve4, reject) => {
+    return new Promise((resolve5, reject) => {
       __classPrivateFieldSet7(this, _BetaMessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve4);
+      this.once(event, resolve5);
     });
   }
   async done() {
@@ -20890,7 +20968,7 @@ var BetaMessageStream = class _BetaMessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve4, reject) => readQueue.push({ resolve: resolve4, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve5, reject) => readQueue.push({ resolve: resolve5, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -21164,12 +21242,12 @@ var MessageStream = class _MessageStream {
       }
       return this._emit("error", new AnthropicError(String(error2)));
     });
-    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve4, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve4, "f");
+    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve5, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve5, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve4, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve4, "f");
+    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve5, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve5, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet9(this, _MessageStream_connectedPromise, "f").catch(() => {
@@ -21327,11 +21405,11 @@ var MessageStream = class _MessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve4, reject) => {
+    return new Promise((resolve5, reject) => {
       __classPrivateFieldSet8(this, _MessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve4);
+      this.once(event, resolve5);
     });
   }
   async done() {
@@ -21615,7 +21693,7 @@ var MessageStream = class _MessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve4, reject) => readQueue.push({ resolve: resolve4, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve5, reject) => readQueue.push({ resolve: resolve5, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -21976,7 +22054,7 @@ var SchemaProposer = class {
 // ../predicate-agent/src/promotion-sweeper.ts
 init_storage();
 import { writeFileSync } from "node:fs";
-import { resolve as resolve3 } from "node:path";
+import { resolve as resolve4 } from "node:path";
 
 // ../predicate-reasoner/src/rules/r01-subclassof-transitivity.ts
 var SUBCLASS_OF = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
@@ -27731,7 +27809,7 @@ var PromotionSweeper = class {
   constructor(client, opts = {}) {
     this.client = client;
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? resolve3(
+    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? resolve4(
       import.meta.dirname ?? process.cwd(),
       "..",
       "..",
@@ -28024,7 +28102,7 @@ var PromotionSweeper = class {
         o: o2.type === "uri" ? { type: "uri", value: o2.value } : { type: "literal", value: o2.value, datatype: o2.datatype }
       };
     });
-    const turtleFile = resolve3(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
+    const turtleFile = resolve4(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
     const turtle = quads.map(tripleTurtle).join("\n") + "\n";
     writeFileSync(turtleFile, turtle, "utf8");
     const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
@@ -29209,7 +29287,7 @@ async function recall(args) {
 init_config();
 import { createServer } from "node:http";
 import { readFileSync as readFileSync3 } from "node:fs";
-import { join as join4, dirname as dirname4 } from "node:path";
+import { join as join5, dirname as dirname5 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 import { spawn } from "node:child_process";
 function parseFlag7(args, name) {
@@ -29240,11 +29318,11 @@ function openBrowser(url) {
 }
 async function proxyQuery(req, res, fusekiUrl, dataset2) {
   let body = "";
-  await new Promise((resolve4, reject) => {
+  await new Promise((resolve5, reject) => {
     req.on("data", (c2) => {
       body += String(c2);
     });
-    req.on("end", () => resolve4());
+    req.on("end", () => resolve5());
     req.on("error", reject);
   });
   try {
@@ -29270,7 +29348,7 @@ var lastDigest;
 async function runAction(req, res) {
   let body = "";
   let aborted = false;
-  await new Promise((resolve4, reject) => {
+  await new Promise((resolve5, reject) => {
     req.on("data", (c2) => {
       body += String(c2);
       if (body.length > 4096) {
@@ -29278,7 +29356,7 @@ async function runAction(req, res) {
         req.destroy();
       }
     });
-    req.on("end", () => resolve4());
+    req.on("end", () => resolve5());
     req.on("error", reject);
   });
   if (aborted) {
@@ -29321,9 +29399,9 @@ async function runAction(req, res) {
   child.stderr.on("data", (c2) => {
     stderr = cap(stderr, String(c2));
   });
-  const exitCode = await new Promise((resolve4) => {
-    child.on("close", (code) => resolve4(code ?? -1));
-    child.on("error", () => resolve4(-1));
+  const exitCode = await new Promise((resolve5) => {
+    child.on("close", (code) => resolve5(code ?? -1));
+    child.on("error", () => resolve5(-1));
   });
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ ok: exitCode === 0, exitCode, stdout, stderr }));
@@ -29419,13 +29497,13 @@ async function handleEvents(req, res, fusekiUrl, dataset2) {
   });
 }
 function findDashboardHtml() {
-  const here = dirname4(fileURLToPath3(import.meta.url));
+  const here = dirname5(fileURLToPath3(import.meta.url));
   const candidates = [
-    join4(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
-    join4(here, "dashboard", "index.html"),
+    join5(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
+    join5(here, "dashboard", "index.html"),
     // bundled cli.bundle.mjs sits next to dashboard/
-    join4(here, "..", "dashboard", "index.html"),
-    join4(here, "..", "..", "dashboard", "index.html")
+    join5(here, "..", "dashboard", "index.html"),
+    join5(here, "..", "..", "dashboard", "index.html")
   ];
   for (const p2 of candidates) {
     try {
@@ -29461,16 +29539,16 @@ async function startDashboardServer(port) {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("not found");
   });
-  await new Promise((resolve4, reject) => {
+  await new Promise((resolve5, reject) => {
     server.once("error", reject);
-    server.listen(port, "127.0.0.1", () => resolve4());
+    server.listen(port, "127.0.0.1", () => resolve5());
   });
   const address = server.address();
   const boundPort = typeof address === "object" && address ? address.port : port;
   return {
     port: boundPort,
     url: `http://127.0.0.1:${boundPort}`,
-    close: () => new Promise((resolve4) => {
+    close: () => new Promise((resolve5) => {
       for (const c2 of sseClients) c2.end();
       sseClients.clear();
       if (pollerTimer) {
@@ -29478,7 +29556,7 @@ async function startDashboardServer(port) {
         pollerTimer = void 0;
         lastDigest = void 0;
       }
-      server.close(() => resolve4());
+      server.close(() => resolve5());
     })
   };
 }
@@ -30111,12 +30189,17 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.0.8" : "0.0.0-dev";
+var VERSION2 = true ? "2.0.9" : "0.0.0-dev";
 function help13() {
   console.log(`predicate <command>
 
 Commands:
-  up                Bring Fuseki up (docker compose up -d) and load the seed TBox.
+  up                Open the Oxigraph store and load the seed TBox.
+                    --scope local|project|user   where the store lives (default: auto)
+                       local   = ./.predicate/store (current dir)
+                       project = <git-root>/.predicate/store
+                       user    = ~/.predicate/store
+                    --if-needed                  no-op if the graph is already initialised
   init              Initialize kg:tbox with a community ontology, an uploaded file, or empty.
   down              Stop Fuseki, preserve the data volume.
   doctor            Health checks: docker, fuseki, tbox.
@@ -30139,7 +30222,9 @@ Commands:
   --help            This message.
 
 Env:
-  FUSEKI_URL                http://localhost:3030 (default)
+  PREDICATE_BACKEND         oxigraph (default) | fuseki
+  PREDICATE_STORE_PATH      explicit Oxigraph store path (overrides scope resolution)
+  FUSEKI_URL                http://localhost:3030 (only used when PREDICATE_BACKEND=fuseki)
   PREDICATE_DATASET         predicate (default)
   PREDICATE_ADMIN_USER      admin (default)
   PREDICATE_ADMIN_PASSWORD  changeme (default)
@@ -30156,7 +30241,7 @@ async function main() {
   const cmd = process.argv[2];
   switch (cmd) {
     case "up":
-      return up();
+      return up(process.argv.slice(3));
     case "down":
       return down();
     case "doctor":
