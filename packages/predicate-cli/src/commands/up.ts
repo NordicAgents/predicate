@@ -71,7 +71,8 @@ function parseScope(args: string[]): StoreScope | undefined {
 }
 
 export async function up(args: string[] = []): Promise<number> {
-  const { loadConfig, scopeStorePath, resolveStorePath } = await import('predicate-mcp/src/config.js');
+  const { loadConfig, scopeStorePath, resolveStorePath, currentProjectDir } =
+    await import('predicate-mcp/src/config.js');
 
   let scope: StoreScope | undefined;
   try {
@@ -82,10 +83,9 @@ export async function up(args: string[] = []): Promise<number> {
   }
   const ifNeeded = args.includes('--if-needed');
 
-  // Decide the store path and make it sticky: setting PREDICATE_STORE_PATH
-  // pins it for the rest of this process, and opening the adapter creates the
-  // .predicate/ marker that the MCP server later resolves to (same logic).
-  const baseDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  // Resolve the same project dir the MCP server will, then pin the store path
+  // via PREDICATE_STORE_PATH so the CLI and the server agree exactly.
+  const baseDir = currentProjectDir();
   const storePath = scope ? scopeStorePath(scope, baseDir) : resolveStorePath();
   process.env.PREDICATE_STORE_PATH = storePath;
 

@@ -1,6 +1,6 @@
 {
   "name": "predicate",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — 9 kg_* MCP tools + cross-platform Stop-hook turn extraction (Claude Code + Gemini CLI + OpenCode) + reasoning bridge for action data.",
   "author": {
     "name": "Nordic Agents Research",
@@ -20,6 +20,5 @@
       }
     }
   },
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }

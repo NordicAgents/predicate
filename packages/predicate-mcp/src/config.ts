@@ -1,6 +1,9 @@
 import { existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { homedir } from 'node:os';
 import { dirname, join, parse, resolve } from 'node:path';
 import type { BackendName } from './storage/adapter.js';
+import { resolveProjectDir } from './project-dir.js';
 
 export interface Config {
   backend: BackendName;
@@ -12,57 +15,33 @@ export interface Config {
   oxigraphStorePath: string;
 }
 
-/** Directory name that marks a scoped (project/local) Oxigraph store. */
+/** Directory name for Predicate's home root. */
 export const MARKER_DIR = '.predicate';
 
+/** Predicate's home root: `$XDG_DATA_HOME/predicate` if set, else `$HOME/.predicate`. */
+export function homeRoot(): string {
+  const xdg = process.env.XDG_DATA_HOME;
+  if (xdg) return join(xdg, 'predicate');
+  const home = process.env.HOME ?? homedir();
+  return join(home, MARKER_DIR);
+}
+
 /**
- * The user-level store path (`--scope user`): `$XDG_DATA_HOME/predicate/store`
- * if XDG is set, else `$HOME/.predicate/store`.
+ * The global user-level store (`--scope user`): `<homeRoot>/store`. A single
+ * shared graph across all projects.
  */
 export function userStorePath(): string {
-  const xdg = process.env.XDG_DATA_HOME;
-  const home = process.env.HOME ?? '';
-  return xdg ? join(xdg, 'predicate', 'store') : join(home, MARKER_DIR, 'store');
+  return join(homeRoot(), 'store');
 }
 
 /**
- * Walk up from `startDir` looking for a `.predicate/` marker directory.
- * Returns the path to its `store/` subdir, or undefined if none is found.
- * This is what keeps the CLI and the Claude-launched MCP server pointed at
- * the same store without any shared config file — both resolve from the
- * filesystem marker created by `predicate up`.
+ * Per-project store, keyed by a hash of the absolute project dir. Lives under
+ * `<homeRoot>/projects/<hash>/store` so projects never share state and nothing
+ * is written inside the repo (no .gitignore needed). This is the default.
  */
-export function findMarkerStore(startDir: string): string | undefined {
-  let dir = resolve(startDir);
-  const root = parse(dir).root;
-  for (;;) {
-    if (existsSync(join(dir, MARKER_DIR))) return join(dir, MARKER_DIR, 'store');
-    if (dir === root) return undefined;
-    dir = dirname(dir);
-  }
-}
-
-/**
- * Resolve the Oxigraph store path. Precedence:
- *   1. PREDICATE_STORE_PATH                         (explicit override)
- *   2. nearest .predicate/ marker walking up from   (project / local scope)
- *      CLAUDE_PROJECT_DIR ?? cwd
- *   3. ~/.predicate/store if it already exists       (user scope / legacy installs)
- *   4. <baseDir>/.predicate/store                    (default = current dir)
- */
-export function resolveStorePath(): string {
-  const override = process.env.PREDICATE_STORE_PATH;
-  if (override) return override;
-
-  const baseDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
-
-  const marker = findMarkerStore(baseDir);
-  if (marker) return marker;
-
-  const userStore = userStorePath();
-  if (existsSync(userStore)) return userStore;
-
-  return join(resolve(baseDir), MARKER_DIR, 'store');
+export function projectStorePath(projectDir: string): string {
+  const key = createHash('sha256').update(resolve(projectDir)).digest('hex').slice(0, 16);
+  return join(homeRoot(), 'projects', key, 'store');
 }
 
 export type StoreScope = 'local' | 'project' | 'user';
@@ -78,24 +57,45 @@ export function gitRoot(start: string): string | undefined {
   }
 }
 
+/** The project dir for this process, resolved robustly (see project-dir.ts). */
+export function currentProjectDir(): string {
+  return resolveProjectDir({
+    env: process.env,
+    cwd: process.cwd(),
+    pwd: process.env.PWD,
+    transcriptsRoot: join(process.env.HOME ?? homedir(), '.claude', 'projects'),
+    // Only trust a transcript touched within the last day as a project signal.
+    transcriptMaxAgeMs: 24 * 60 * 60 * 1000,
+  });
+}
+
 /**
- * Map a requested scope to the store path `predicate up --scope <scope>`
- * should create and use:
- *   - local   → <baseDir>/.predicate/store
- *   - project → <git-root>/.predicate/store (falls back to baseDir if not a repo)
- *   - user    → ~/.predicate/store
+ * Resolve the Oxigraph store path. Precedence:
+ *   1. PREDICATE_STORE_PATH                    (explicit override)
+ *   2. <homeRoot>/projects/<hash>/store        (per-project, keyed by the
+ *                                               robustly-resolved project dir)
+ */
+export function resolveStorePath(): string {
+  const override = process.env.PREDICATE_STORE_PATH;
+  if (override) return override;
+  return projectStorePath(currentProjectDir());
+}
+
+/**
+ * Map a requested scope to a store path:
+ *   - local   → per-project store keyed by baseDir
+ *   - project → per-project store keyed by the git root (falls back to baseDir)
+ *   - user    → the global ~/.predicate/store
  */
 export function scopeStorePath(scope: StoreScope, baseDir: string): string {
   switch (scope) {
     case 'user':
       return userStorePath();
-    case 'project': {
-      const root = gitRoot(baseDir) ?? baseDir;
-      return join(resolve(root), MARKER_DIR, 'store');
-    }
+    case 'project':
+      return projectStorePath(gitRoot(baseDir) ?? baseDir);
     case 'local':
     default:
-      return join(resolve(baseDir), MARKER_DIR, 'store');
+      return projectStorePath(baseDir);
   }
 }
 

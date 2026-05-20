@@ -3237,8 +3237,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path) {
-      let input = path;
+    function removeDotSegments(path2) {
+      let input = path2;
       const output = [];
       let nextSlash = -1;
       let len = 0;
@@ -3490,8 +3490,8 @@ var require_schemes = __commonJS({
         wsComponent.secure = void 0;
       }
       if (wsComponent.resourceName) {
-        const [path, query] = wsComponent.resourceName.split("?");
-        wsComponent.path = path && path !== "/" ? path : void 0;
+        const [path2, query] = wsComponent.resourceName.split("?");
+        wsComponent.path = path2 && path2 !== "/" ? path2 : void 0;
         wsComponent.query = query;
         wsComponent.resourceName = void 0;
       }
@@ -6884,12 +6884,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f2;
     };
-    function addFormats(ajv, list, fs3, exportName) {
+    function addFormats(ajv, list, fs4, exportName) {
       var _a2;
       var _b;
       (_a2 = (_b = ajv.opts.code).formats) !== null && _a2 !== void 0 ? _a2 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f2 of list)
-        ajv.addFormat(f2, fs3[f2]);
+        ajv.addFormat(f2, fs4[f2]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -19119,14 +19119,14 @@ var require_url_state_machine = __commonJS({
       return url.replace(/\u0009|\u000A|\u000D/g, "");
     }
     function shortenPath(url) {
-      const path = url.path;
-      if (path.length === 0) {
+      const path2 = url.path;
+      if (path2.length === 0) {
         return;
       }
-      if (url.scheme === "file" && path.length === 1 && isNormalizedWindowsDriveLetter(path[0])) {
+      if (url.scheme === "file" && path2.length === 1 && isNormalizedWindowsDriveLetter(path2[0])) {
         return;
       }
-      path.pop();
+      path2.pop();
     }
     function includesCredentials(url) {
       return url.username !== "" || url.password !== "";
@@ -23921,16 +23921,16 @@ __export(fileFromPath_exports, {
   fileFromPathSync: () => fileFromPathSync,
   isFile: () => isFile
 });
-import { statSync, createReadStream, promises as fs2 } from "fs";
+import { statSync as statSync2, createReadStream, promises as fs3 } from "fs";
 import { basename } from "path";
-function createFileFromPath(path, { mtimeMs, size }, filenameOrOptions, options = {}) {
+function createFileFromPath(path2, { mtimeMs, size }, filenameOrOptions, options = {}) {
   let filename;
   if (isPlainObject_default2(filenameOrOptions)) {
     [options, filename] = [filenameOrOptions, void 0];
   } else {
     filename = filenameOrOptions;
   }
-  const file = new FileFromPath({ path, size, lastModified: mtimeMs });
+  const file = new FileFromPath({ path: path2, size, lastModified: mtimeMs });
   if (!filename) {
     filename = file.name;
   }
@@ -23939,13 +23939,13 @@ function createFileFromPath(path, { mtimeMs, size }, filenameOrOptions, options 
     lastModified: file.lastModified
   });
 }
-function fileFromPathSync(path, filenameOrOptions, options = {}) {
-  const stats = statSync(path);
-  return createFileFromPath(path, stats, filenameOrOptions, options);
+function fileFromPathSync(path2, filenameOrOptions, options = {}) {
+  const stats = statSync2(path2);
+  return createFileFromPath(path2, stats, filenameOrOptions, options);
 }
-async function fileFromPath2(path, filenameOrOptions, options) {
-  const stats = await fs2.stat(path);
-  return createFileFromPath(path, stats, filenameOrOptions, options);
+async function fileFromPath2(path2, filenameOrOptions, options) {
+  const stats = await fs3.stat(path2);
+  return createFileFromPath(path2, stats, filenameOrOptions, options);
 }
 var import_node_domexception, __classPrivateFieldSet4, __classPrivateFieldGet5, _FileFromPath_path, _FileFromPath_start, MESSAGE, FileFromPath;
 var init_fileFromPath = __esm({
@@ -23985,7 +23985,7 @@ var init_fileFromPath = __esm({
         });
       }
       async *stream() {
-        const { mtimeMs } = await fs2.stat(__classPrivateFieldGet5(this, _FileFromPath_path, "f"));
+        const { mtimeMs } = await fs3.stat(__classPrivateFieldGet5(this, _FileFromPath_path, "f"));
         if (mtimeMs > this.lastModified) {
           throw new import_node_domexception.default(MESSAGE, "NotReadableError");
         }
@@ -24481,8 +24481,8 @@ function getErrorMap() {
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path, errorMaps, issueData } = params;
-  const fullPath = [...path, ...issueData.path || []];
+  const { data, path: path2, errorMaps, issueData } = params;
+  const fullPath = [...path2, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -24598,11 +24598,11 @@ var errorUtil;
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path, key) {
+  constructor(parent, value, path2, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path;
+    this._path = path2;
     this._key = key;
   }
   get path() {
@@ -28239,10 +28239,10 @@ function assignProp(target, prop, value) {
     configurable: true
   });
 }
-function getElementAtPath(obj, path) {
-  if (!path)
+function getElementAtPath(obj, path2) {
+  if (!path2)
     return obj;
-  return path.reduce((acc, key) => acc?.[key], obj);
+  return path2.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -28562,11 +28562,11 @@ function aborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path, issues) {
+function prefixIssues(path2, issues) {
   return issues.map((iss) => {
     var _a2;
     (_a2 = iss).path ?? (_a2.path = []);
-    iss.path.unshift(path);
+    iss.path.unshift(path2);
     return iss;
   });
 }
@@ -36709,32 +36709,131 @@ var OxigraphAdapter = class {
 };
 
 // ../predicate-mcp/src/config.ts
-import { existsSync } from "node:fs";
-import { dirname, join as join2, parse as parse3, resolve } from "node:path";
-var MARKER_DIR = ".predicate";
-function userStorePath() {
-  const xdg = process.env.XDG_DATA_HOME;
-  const home = process.env.HOME ?? "";
-  return xdg ? join2(xdg, "predicate", "store") : join2(home, MARKER_DIR, "store");
+import { createHash } from "node:crypto";
+import { homedir } from "node:os";
+import { dirname, join as join3, parse as parse3, resolve } from "node:path";
+
+// ../predicate-mcp/src/project-dir.ts
+import * as fs2 from "node:fs";
+import * as path from "node:path";
+var WORKSPACE_ENV_VARS = [
+  "CLAUDE_PROJECT_DIR",
+  "GEMINI_PROJECT_DIR",
+  "OPENCODE_PROJECT_DIR",
+  "VSCODE_CWD",
+  "CURSOR_CWD",
+  "PI_PROJECT_DIR",
+  "PREDICATE_PROJECT_DIR"
+];
+function isPluginInstallPath(p2) {
+  if (!p2) return false;
+  return /[/\\]\.claude[/\\]plugins[/\\](cache|marketplaces)[/\\]/.test(p2);
 }
-function findMarkerStore(startDir) {
-  let dir = resolve(startDir);
-  const root = parse3(dir).root;
-  for (; ; ) {
-    if (existsSync(join2(dir, MARKER_DIR))) return join2(dir, MARKER_DIR, "store");
-    if (dir === root) return void 0;
-    dir = dirname(dir);
+function resolveProjectDirFromTranscript(opts) {
+  if (!fs2.existsSync(opts.projectsRoot)) return void 0;
+  let bestPath;
+  let bestMtime = 0;
+  try {
+    for (const dir of fs2.readdirSync(opts.projectsRoot)) {
+      const dirPath = path.join(opts.projectsRoot, dir);
+      let stat;
+      try {
+        stat = fs2.statSync(dirPath);
+      } catch {
+        continue;
+      }
+      if (!stat.isDirectory()) continue;
+      let files;
+      try {
+        files = fs2.readdirSync(dirPath);
+      } catch {
+        continue;
+      }
+      for (const f2 of files) {
+        if (!f2.endsWith(".jsonl")) continue;
+        const fp = path.join(dirPath, f2);
+        try {
+          const m2 = fs2.statSync(fp).mtimeMs;
+          if (m2 > bestMtime) {
+            bestMtime = m2;
+            bestPath = fp;
+          }
+        } catch {
+        }
+      }
+    }
+  } catch {
+    return void 0;
   }
+  if (!bestPath) return void 0;
+  if (typeof opts.maxAgeMs === "number") {
+    const nowMs = opts.nowMs ?? Date.now();
+    if (nowMs - bestMtime > opts.maxAgeMs) return void 0;
+  }
+  try {
+    const fd = fs2.openSync(bestPath, "r");
+    try {
+      const buf = Buffer.alloc(8192);
+      const bytes = fs2.readSync(fd, buf, 0, buf.length, 0);
+      const text = buf.subarray(0, bytes).toString("utf-8");
+      for (const line of text.split("\n").slice(0, 10)) {
+        if (!line.trim()) continue;
+        try {
+          const obj = JSON.parse(line);
+          if (typeof obj.cwd === "string" && obj.cwd.length > 0) return obj.cwd;
+        } catch {
+        }
+      }
+    } finally {
+      fs2.closeSync(fd);
+    }
+  } catch {
+  }
+  return void 0;
+}
+function resolveProjectDir(opts) {
+  for (const name of WORKSPACE_ENV_VARS) {
+    const v2 = opts.env[name];
+    if (v2 && !isPluginInstallPath(v2)) return v2;
+  }
+  if (opts.transcriptsRoot) {
+    const fromTx = resolveProjectDirFromTranscript({
+      projectsRoot: opts.transcriptsRoot,
+      maxAgeMs: opts.transcriptMaxAgeMs,
+      nowMs: opts.nowMs
+    });
+    if (fromTx && !isPluginInstallPath(fromTx)) return fromTx;
+  }
+  if (opts.pwd && !isPluginInstallPath(opts.pwd)) return opts.pwd;
+  return opts.cwd;
+}
+
+// ../predicate-mcp/src/config.ts
+var MARKER_DIR = ".predicate";
+function homeRoot() {
+  const xdg = process.env.XDG_DATA_HOME;
+  if (xdg) return join3(xdg, "predicate");
+  const home = process.env.HOME ?? homedir();
+  return join3(home, MARKER_DIR);
+}
+function projectStorePath(projectDir) {
+  const key = createHash("sha256").update(resolve(projectDir)).digest("hex").slice(0, 16);
+  return join3(homeRoot(), "projects", key, "store");
+}
+function currentProjectDir() {
+  return resolveProjectDir({
+    env: process.env,
+    cwd: process.cwd(),
+    pwd: process.env.PWD,
+    transcriptsRoot: join3(process.env.HOME ?? homedir(), ".claude", "projects"),
+    // Only trust a transcript touched within the last day as a project signal.
+    transcriptMaxAgeMs: 24 * 60 * 60 * 1e3
+  });
 }
 function resolveStorePath() {
   const override = process.env.PREDICATE_STORE_PATH;
   if (override) return override;
-  const baseDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
-  const marker = findMarkerStore(baseDir);
-  if (marker) return marker;
-  const userStore = userStorePath();
-  if (existsSync(userStore)) return userStore;
-  return join2(resolve(baseDir), MARKER_DIR, "store");
+  return projectStorePath(currentProjectDir());
 }
 function loadConfig() {
   const raw = process.env.FUSEKI_URL ?? "http://localhost:3030";
@@ -41184,12 +41283,12 @@ function extractPropertyPath(pathNode, ns2, allowNamedNodeInList) {
     const first = pathNode.out(ns2.rdf.first).term;
     if (first) {
       const paths = [...pathNode.list()];
-      return paths.map((path) => extractPropertyPath(path, ns2, allowNamedNodeInList));
+      return paths.map((path2) => extractPropertyPath(path2, ns2, allowNamedNodeInList));
     }
     const alternativePath = pathNode.out(ns2.sh.alternativePath);
     if (alternativePath.term) {
       const paths = [...alternativePath.list()];
-      return { or: paths.map((path) => extractPropertyPath(path, ns2, allowNamedNodeInList)) };
+      return { or: paths.map((path2) => extractPropertyPath(path2, ns2, allowNamedNodeInList)) };
     }
     const zeroOrMorePath = pathNode.out(ns2.sh.zeroOrMorePath);
     if (zeroOrMorePath.term) {
@@ -41211,66 +41310,66 @@ function extractPropertyPath(pathNode, ns2, allowNamedNodeInList) {
   }
   throw new Error(`Unsupported SHACL path: ${pathNode.term.value}`);
 }
-function getPathObjects(graph, subject, path) {
-  return [...getPathObjectsSet(graph, subject, path)];
+function getPathObjects(graph, subject, path2) {
+  return [...getPathObjectsSet(graph, subject, path2)];
 }
-function getPathObjectsSet(graph, subject, path) {
-  if ("termType" in path && path.termType === "NamedNode") {
-    return getNamedNodePathObjects(graph, subject, path);
-  } else if (Array.isArray(path)) {
-    return getSequencePathObjects(graph, subject, path);
-  } else if ("or" in path) {
-    return getOrPathObjects(graph, subject, path);
-  } else if ("inverse" in path) {
-    return getInversePathObjects(graph, subject, path);
-  } else if ("zeroOrOne" in path) {
-    return getZeroOrOnePathObjects(graph, subject, path);
-  } else if ("zeroOrMore" in path) {
-    return getZeroOrMorePathObjects(graph, subject, path);
-  } else if ("oneOrMore" in path) {
-    return getOneOrMorePathObjects(graph, subject, path);
+function getPathObjectsSet(graph, subject, path2) {
+  if ("termType" in path2 && path2.termType === "NamedNode") {
+    return getNamedNodePathObjects(graph, subject, path2);
+  } else if (Array.isArray(path2)) {
+    return getSequencePathObjects(graph, subject, path2);
+  } else if ("or" in path2) {
+    return getOrPathObjects(graph, subject, path2);
+  } else if ("inverse" in path2) {
+    return getInversePathObjects(graph, subject, path2);
+  } else if ("zeroOrOne" in path2) {
+    return getZeroOrOnePathObjects(graph, subject, path2);
+  } else if ("zeroOrMore" in path2) {
+    return getZeroOrMorePathObjects(graph, subject, path2);
+  } else if ("oneOrMore" in path2) {
+    return getOneOrMorePathObjects(graph, subject, path2);
   } else {
-    throw new Error(`Unsupported path object: ${path}`);
+    throw new Error(`Unsupported path object: ${path2}`);
   }
 }
-function getNamedNodePathObjects(graph, subject, path) {
-  return new node_set_default(graph.node(subject).out(path).terms);
+function getNamedNodePathObjects(graph, subject, path2) {
+  return new node_set_default(graph.node(subject).out(path2).terms);
 }
-function getSequencePathObjects(graph, subject, path) {
+function getSequencePathObjects(graph, subject, path2) {
   let subjects = new node_set_default([subject]);
-  for (const pathItem of path) {
+  for (const pathItem of path2) {
     subjects = new node_set_default(flatMap(subjects, (subjectItem) => getPathObjects(graph, subjectItem, pathItem)));
   }
   return subjects;
 }
-function getOrPathObjects(graph, subject, path) {
-  return new node_set_default(flatMap(path.or, (pathItem) => getPathObjects(graph, subject, pathItem)));
+function getOrPathObjects(graph, subject, path2) {
+  return new node_set_default(flatMap(path2.or, (pathItem) => getPathObjects(graph, subject, pathItem)));
 }
-function getInversePathObjects(graph, subject, path) {
-  if (!("termType" in path.inverse) || path.inverse.termType !== "NamedNode") {
+function getInversePathObjects(graph, subject, path2) {
+  if (!("termType" in path2.inverse) || path2.inverse.termType !== "NamedNode") {
     throw new Error("Unsupported: Inverse paths only work for named nodes");
   }
-  return new node_set_default(graph.node(subject).in(path.inverse).terms);
+  return new node_set_default(graph.node(subject).in(path2.inverse).terms);
 }
-function getZeroOrOnePathObjects(graph, subject, path) {
-  const pathObjects = getPathObjectsSet(graph, subject, path.zeroOrOne);
+function getZeroOrOnePathObjects(graph, subject, path2) {
+  const pathObjects = getPathObjectsSet(graph, subject, path2.zeroOrOne);
   pathObjects.add(subject);
   return pathObjects;
 }
-function getZeroOrMorePathObjects(graph, subject, path) {
-  const pathObjects = walkPath(graph, subject, path.zeroOrMore);
+function getZeroOrMorePathObjects(graph, subject, path2) {
+  const pathObjects = walkPath(graph, subject, path2.zeroOrMore);
   pathObjects.add(subject);
   return pathObjects;
 }
-function getOneOrMorePathObjects(graph, subject, path) {
-  return walkPath(graph, subject, path.oneOrMore);
+function getOneOrMorePathObjects(graph, subject, path2) {
+  return walkPath(graph, subject, path2.oneOrMore);
 }
-function walkPath(graph, subject, path, visited = new node_set_default()) {
+function walkPath(graph, subject, path2, visited = new node_set_default()) {
   visited.add(subject);
-  const pathValues = getPathObjectsSet(graph, subject, path);
+  const pathValues = getPathObjectsSet(graph, subject, path2);
   const deeperValues = flatMap(pathValues, (pathValue) => {
     if (!visited.has(pathValue)) {
-      return [...walkPath(graph, pathValue, path, visited)];
+      return [...walkPath(graph, pathValue, path2, visited)];
     } else {
       return [];
     }
@@ -41395,10 +41494,10 @@ var validateDisjoint = function(context, focusNode, valueNode, constraint) {
 };
 var validateEqualsProperty = function(context, focusNode, valueNode, constraint) {
   const { sh } = context.ns;
-  const path = constraint.shape.pathObject;
+  const path2 = constraint.shape.pathObject;
   const equalsNode = constraint.getParameterValue(sh.equals);
   const results = [];
-  getPathObjects(context.$data, focusNode, path).forEach((value) => {
+  getPathObjects(context.$data, focusNode, path2).forEach((value) => {
     if (context.$data.dataset.match(focusNode, equalsNode, value).size === 0) {
       results.push({ value });
     }
@@ -41406,7 +41505,7 @@ var validateEqualsProperty = function(context, focusNode, valueNode, constraint)
   const equalsQuads = [...context.$data.dataset.match(focusNode, equalsNode, null)];
   equalsQuads.forEach(({ object: object3 }) => {
     const value = object3;
-    if (!getPathObjects(context.$data, focusNode, path).some((pathValue) => pathValue.equals(value))) {
+    if (!getPathObjects(context.$data, focusNode, path2).some((pathValue) => pathValue.equals(value))) {
       results.push({ value });
     }
   });
@@ -41435,9 +41534,9 @@ var validateHasValueNode = function(context, focusNode, valueNode, constraint) {
 };
 var validateHasValueProperty = function(context, focusNode, valueNode, constraint) {
   const { sh } = context.ns;
-  const path = constraint.shape.pathObject;
+  const path2 = constraint.shape.pathObject;
   const hasValueNode = constraint.getParameterValue(sh.hasValue);
-  return getPathObjects(context.$data, focusNode, path).some((value) => value.equals(hasValueNode));
+  return getPathObjects(context.$data, focusNode, path2).some((value) => value.equals(hasValueNode));
 };
 var validateIn = function(context, focusNode, valueNode, constraint) {
   return constraint.nodeSet.has(valueNode);
@@ -41491,8 +41590,8 @@ var validateLessThanOrEqualsProperty = function(context, focusNode, valueNode, c
 };
 var validateMaxCountProperty = function(context, focusNode, valueNode, constraint) {
   const { sh } = context.ns;
-  const path = constraint.shape.pathObject;
-  const count = getPathObjects(context.$data, focusNode, path).length;
+  const path2 = constraint.shape.pathObject;
+  const count = getPathObjects(context.$data, focusNode, path2).length;
   const maxCountNode = constraint.getParameterValue(sh.maxCount);
   return maxCountNode && count <= Number(maxCountNode.value);
 };
@@ -41518,8 +41617,8 @@ var validateMaxLength = function(context, focusNode, valueNode, constraint) {
 };
 var validateMinCountProperty = function(context, focusNode, valueNode, constraint) {
   const { sh } = context.ns;
-  const path = constraint.pathObject;
-  const count = getPathObjects(context.$data, focusNode, path).length;
+  const path2 = constraint.pathObject;
+  const count = getPathObjects(context.$data, focusNode, path2).length;
   const minCountNode = constraint.getParameterValue(sh.minCount);
   return count >= Number(minCountNode.value);
 };
@@ -41603,8 +41702,8 @@ function validateQualifiedHelper(context, focusNode, constraint) {
     const qualifiedSiblingShapes = context.$shapes.node(currentShapeNode).in(sh.property).out(sh.property).out(sh.qualifiedValueShape).filter(({ term: term2 }) => !term2.equals(qualifiedValueShapeNode)).terms;
     siblingShapes.addAll(qualifiedSiblingShapes);
   }
-  const path = constraint.shape.pathObject;
-  return getPathObjects(context.$data, focusNode, path).filter((value) => context.nodeConformsToShape(value, qualifiedValueShapeNode) && !validateQualifiedConformsToASibling(context, value, [...siblingShapes])).length;
+  const path2 = constraint.shape.pathObject;
+  return getPathObjects(context.$data, focusNode, path2).filter((value) => context.nodeConformsToShape(value, qualifiedValueShapeNode) && !validateQualifiedConformsToASibling(context, value, [...siblingShapes])).length;
 }
 function validateQualifiedConformsToASibling(context, value, siblingShapes) {
   for (let i2 = 0; i2 < siblingShapes.length; i2++) {
@@ -41621,9 +41720,9 @@ var validateUniqueLangProperty = function(context, focusNode, valueNode, constra
   if (!trueTerm.equals(uniqueLangNode)) {
     return;
   }
-  const path = constraint.shape.pathObject;
+  const path2 = constraint.shape.pathObject;
   const map = {};
-  getPathObjects(context.$data, focusNode, path).forEach((value) => {
+  getPathObjects(context.$data, focusNode, path2).forEach((value) => {
     if (value.termType === "Literal" && value.language && value.language !== "") {
       const old = map[value.language];
       if (!old) {
@@ -41989,13 +42088,13 @@ var ConstraintComponent = class {
     const trueTerm = factory3.literal("true", xsd2.boolean);
     this.nodePointer.out(sh.parameter).forEach((parameterCf) => {
       const parameter = parameterCf.term;
-      parameterCf.out(sh.path).forEach(({ term: path }) => {
-        this.parameters.push(path);
+      parameterCf.out(sh.path).forEach(({ term: path2 }) => {
+        this.parameters.push(path2);
         this.parameterNodes.push(parameter);
         if (shaclVocabulary.dataset.match(parameter, sh.optional, trueTerm).size > 0) {
-          this.optionals[path.value] = true;
+          this.optionals[path2.value] = true;
         } else {
-          this.requiredParameters.push(path);
+          this.requiredParameters.push(path2);
         }
       });
     });
@@ -42050,9 +42149,9 @@ var Shape = class _Shape {
     this.severity = this.shapeNodePointer.out(sh.severity).term || sh.Violation;
     this.deactivated = this.shapeNodePointer.out(sh.deactivated).value === "true";
     this.pathObject = null;
-    const path = this.shapeNodePointer.out(sh.path);
-    if (path.term) {
-      this.path = path;
+    const path2 = this.shapeNodePointer.out(sh.path);
+    if (path2.term) {
+      this.path = path2;
       this.pathObject = extractPropertyPath(this.path, ns2, allowNamedNodeSequencePaths);
     }
     this.constraints = [];
@@ -42074,9 +42173,9 @@ var Shape = class _Shape {
   get isPropertyShape() {
     return this.pathObject != null;
   }
-  overridePath(path) {
+  overridePath(path2) {
     const shape = new _Shape(this.context, this.shapeNode);
-    shape.pathObject = path;
+    shape.pathObject = path2;
     return shape;
   }
   getTargetNodes(dataGraph) {
@@ -43359,13 +43458,13 @@ var MultipartBody = class {
 // ../../node_modules/.pnpm/@anthropic-ai+sdk@0.40.1/node_modules/@anthropic-ai/sdk/_shims/node-runtime.mjs
 import { ReadableStream as ReadableStream3 } from "node:stream/web";
 var fileFromPathWarned = false;
-async function fileFromPath3(path, ...args) {
+async function fileFromPath3(path2, ...args) {
   const { fileFromPath: _fileFromPath } = await Promise.resolve().then(() => (init_fileFromPath(), fileFromPath_exports));
   if (!fileFromPathWarned) {
-    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path)}) instead`);
+    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path2)}) instead`);
     fileFromPathWarned = true;
   }
-  return await _fileFromPath(path, ...args);
+  return await _fileFromPath(path2, ...args);
 }
 var defaultHttpAgent = new import_agentkeepalive.default({ keepAlive: true, timeout: 5 * 60 * 1e3 });
 var defaultHttpsAgent = new import_agentkeepalive.default.HttpsAgent({ keepAlive: true, timeout: 5 * 60 * 1e3 });
@@ -44094,29 +44193,29 @@ var APIClient = class {
   defaultIdempotencyKey() {
     return `stainless-node-retry-${uuid4()}`;
   }
-  get(path, opts) {
-    return this.methodRequest("get", path, opts);
+  get(path2, opts) {
+    return this.methodRequest("get", path2, opts);
   }
-  post(path, opts) {
-    return this.methodRequest("post", path, opts);
+  post(path2, opts) {
+    return this.methodRequest("post", path2, opts);
   }
-  patch(path, opts) {
-    return this.methodRequest("patch", path, opts);
+  patch(path2, opts) {
+    return this.methodRequest("patch", path2, opts);
   }
-  put(path, opts) {
-    return this.methodRequest("put", path, opts);
+  put(path2, opts) {
+    return this.methodRequest("put", path2, opts);
   }
-  delete(path, opts) {
-    return this.methodRequest("delete", path, opts);
+  delete(path2, opts) {
+    return this.methodRequest("delete", path2, opts);
   }
-  methodRequest(method, path, opts) {
+  methodRequest(method, path2, opts) {
     return this.request(Promise.resolve(opts).then(async (opts2) => {
       const body = opts2 && isBlobLike(opts2?.body) ? new DataView(await opts2.body.arrayBuffer()) : opts2?.body instanceof DataView ? opts2.body : opts2?.body instanceof ArrayBuffer ? new DataView(opts2.body) : opts2 && ArrayBuffer.isView(opts2?.body) ? new DataView(opts2.body.buffer) : opts2?.body;
-      return { method, path, ...opts2, body };
+      return { method, path: path2, ...opts2, body };
     }));
   }
-  getAPIList(path, Page2, opts) {
-    return this.requestAPIList(Page2, { method: "get", path, ...opts });
+  getAPIList(path2, Page2, opts) {
+    return this.requestAPIList(Page2, { method: "get", path: path2, ...opts });
   }
   calculateContentLength(body) {
     if (typeof body === "string") {
@@ -44135,10 +44234,10 @@ var APIClient = class {
   }
   buildRequest(inputOptions, { retryCount = 0 } = {}) {
     const options = { ...inputOptions };
-    const { method, path, query, headers = {} } = options;
+    const { method, path: path2, query, headers = {} } = options;
     const body = ArrayBuffer.isView(options.body) || options.__binaryRequest && typeof options.body === "string" ? options.body : isMultipartBody(options.body) ? options.body.body : options.body ? JSON.stringify(options.body, null, 2) : null;
     const contentLength = this.calculateContentLength(body);
-    const url = this.buildURL(path, query);
+    const url = this.buildURL(path2, query);
     if ("timeout" in options)
       validatePositiveInteger("timeout", options.timeout);
     options.timeout = options.timeout ?? this.timeout;
@@ -44262,8 +44361,8 @@ var APIClient = class {
     const request = this.makeRequest(options, null);
     return new PagePromise(this, request, Page2);
   }
-  buildURL(path, query) {
-    const url = isAbsoluteURL(path) ? new URL(path) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path.startsWith("/") ? path.slice(1) : path));
+  buildURL(path2, query) {
+    const url = isAbsoluteURL(path2) ? new URL(path2) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path2.startsWith("/") ? path2.slice(1) : path2));
     const defaultQuery = this.defaultQuery();
     if (!isEmptyObj(defaultQuery)) {
       query = { ...defaultQuery, ...query };
@@ -46836,8 +46935,8 @@ async function assertCandidate(client, c2) {
 }
 
 // ../predicate-agent/src/research-source.ts
-import { readFileSync, readdirSync, statSync as statSync2 } from "node:fs";
-import { join as join3, extname } from "node:path";
+import { readFileSync, readdirSync as readdirSync2, statSync as statSync3 } from "node:fs";
+import { join as join4, extname } from "node:path";
 var DocsResearchSource = class {
   name = "docs";
   root;
@@ -46852,9 +46951,9 @@ var DocsResearchSource = class {
     return out;
   }
   walk(dir, out) {
-    for (const entry of readdirSync(dir)) {
-      const full = join3(dir, entry);
-      const st2 = statSync2(full);
+    for (const entry of readdirSync2(dir)) {
+      const full = join4(dir, entry);
+      const st2 = statSync3(full);
       if (st2.isDirectory()) {
         this.walk(full, out);
         continue;
@@ -46876,8 +46975,8 @@ import { basename as basename2 } from "node:path";
 var C3 = "https://predicate.dev/codebase";
 var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fileIri(uri) {
-  const path = uri.replace(/^file:\/\//, "");
-  const name = basename2(path);
+  const path2 = uri.replace(/^file:\/\//, "");
+  const name = basename2(path2);
   return { iri: `${C3}/${name}`, basename: name };
 }
 function fnIri(fileUri, sym) {
@@ -47426,10 +47525,10 @@ var PromotionSweeper = class {
 };
 
 // ../predicate-agent/src/generalizer.ts
-import { createHash } from "node:crypto";
+import { createHash as createHash2 } from "node:crypto";
 var RDF_TYPE3 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fingerprintHash(fingerprint) {
-  return createHash("sha1").update(fingerprint.join("|")).digest("hex").slice(0, 12);
+  return createHash2("sha1").update(fingerprint.join("|")).digest("hex").slice(0, 12);
 }
 var Generalizer = class {
   constructor(client, opts = {}) {

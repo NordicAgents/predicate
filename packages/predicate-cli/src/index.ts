@@ -29,10 +29,11 @@ function help(): void {
 
 Commands:
   up                Open the Oxigraph store and load the seed TBox.
-                    --scope local|project|user   where the store lives (default: auto)
-                       local   = ./.predicate/store (current dir)
-                       project = <git-root>/.predicate/store
-                       user    = ~/.predicate/store
+                    --scope local|project|user   which store to use (default: per-project)
+                       local   = per-project store keyed by the current dir
+                       project = per-project store keyed by the git root
+                       user    = the global ~/.predicate/store (shared)
+                    Per-project stores live at ~/.predicate/projects/<hash>/store.
                     --if-needed                  no-op if the graph is already initialised
   init              Initialize kg:tbox with a community ontology, an uploaded file, or empty.
   down              Stop Fuseki, preserve the data volume.
