@@ -13,6 +13,7 @@ import { recall } from './commands/recall.js';
 import { dashboard } from './commands/dashboard.js';
 import { init } from './commands/init.js';
 import { schema } from './commands/schema.js';
+import { config } from './commands/config.js';
 import { migrate } from './commands/migrate.js';
 
 // Injected at bundle time from predicate-skill's package.json (see
@@ -46,6 +47,7 @@ Commands:
   recall            Substring search over session history (files + commands).
   dashboard         Serve a localhost web view of session-history + reasoning output.
   schema            List / approve / reject pending kg:tbox-staging proposals.
+  config            Get/set runtime config (schema-learning toggle, init keys).
   migrate           Migrate data: --from fuseki --to oxigraph.
   --version         Print the predicate version.
   --help            This message.
@@ -83,6 +85,7 @@ async function main(): Promise<number> {
     case 'recall':          return recall(process.argv.slice(3));
     case 'dashboard':       return dashboard(process.argv.slice(3));
     case 'schema':          return schema(process.argv.slice(3));
+    case 'config':          return config(process.argv.slice(3));
     case 'init':            return init(process.argv.slice(3));
     case 'migrate':         return migrate(process.argv.slice(3));
     case '--version':
