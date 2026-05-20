@@ -8,3 +8,5 @@ packages/predicate-server/fuseki-data/
 *.log
 .DS_Store
 .claude/settings.json
+.claude/settings.local.json
+.claude/worktrees/
