@@ -19,7 +19,10 @@ import { init } from './commands/init.js';
 import { schema } from './commands/schema.js';
 import { migrate } from './commands/migrate.js';
 
-const VERSION = '1.0.0';
+// Injected at bundle time from predicate-skill's package.json (see
+// scripts/bundle.mjs). Falls back to '0.0.0-dev' when run unbundled.
+declare const __PREDICATE_VERSION__: string | undefined;
+const VERSION = typeof __PREDICATE_VERSION__ === 'string' ? __PREDICATE_VERSION__ : '0.0.0-dev';
 
 function help(): void {
   console.log(`predicate <command>
