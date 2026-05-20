@@ -1,0 +1,90 @@
+@prefix j:    <https://predicate.dev/judgment#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Core classes ---
+j:Judgment a owl:Class ;
+    rdfs:label "Judgment" ;
+    rdfs:comment "A reconciled conclusion the agent reached. No live source; exists only because the agent did the reasoning." .
+
+j:Decision a owl:Class ; rdfs:subClassOf j:Judgment ;
+    rdfs:label "Decision" ;
+    rdfs:comment "A chosen option, with rejected alternatives recorded." .
+j:Preference a owl:Class ; rdfs:subClassOf j:Judgment ;
+    rdfs:label "Preference" ;
+    rdfs:comment "A standing preference inferred from repeated observation." .
+j:Reconciliation a owl:Class ; rdfs:subClassOf j:Judgment ;
+    rdfs:label "Reconciliation" ;
+    rdfs:comment "A judgment that settled a conflict between two or more sources." .
+j:Assessment a owl:Class ; rdfs:subClassOf j:Judgment ;
+    rdfs:label "Assessment" ;
+    rdfs:comment "A qualitative call about an entity, e.g. 'this dependency is fragile'." .
+
+# --- Derive-only classes (materialized into kg:inferred) ---
+j:Current a owl:Class ;
+    rdfs:label "Current" ;
+    rdfs:comment "Derive-only (r20). A judgment with no j:supersededBy. Queries for the settled answer filter to j:Current." .
+j:UnresolvedConflict a owl:Class ; rdfs:subClassOf j:Judgment ;
+    rdfs:label "UnresolvedConflict" ;
+    rdfs:comment "Derive-only (r21). Two current judgments disagree on a ConflictFunctionalProperty value; neither supersedes the other." .
+
+# --- Conflict marker (drives r21; deliberately NOT owl:FunctionalProperty) ---
+j:ConflictFunctionalProperty a owl:Class ;
+    rdfs:label "ConflictFunctionalProperty" ;
+    rdfs:comment "A property that must hold a single settled value per judgment-subject. NOT owl:FunctionalProperty: that would make r08 infer the conflicting values are owl:sameAs and merge distinct entities. r21 keys off this marker to surface a soft, queryable conflict instead." .
+
+# --- Properties ---
+j:about a owl:ObjectProperty ;
+    rdfs:domain j:Judgment ;
+    rdfs:label "about" ;
+    rdfs:comment "The entity this judgment concerns." .
+
+j:basedOn a owl:ObjectProperty ;
+    rdfs:domain j:Judgment ;
+    rdfs:label "basedOn" ;
+    rdfs:comment "An input the judgment rests on. If it disappears or changes, the judgment is a retraction candidate (PRD 9.4)." .
+j:reconciledFrom a owl:ObjectProperty ; rdfs:subPropertyOf j:basedOn ;
+    rdfs:domain j:Reconciliation ;
+    rdfs:label "reconciledFrom" ;
+    rdfs:comment "A conflicting source this judgment settled. The losing source stays cited at lower confidence." .
+
+j:rationale a owl:DatatypeProperty ;
+    rdfs:domain j:Judgment ; rdfs:range xsd:string ;
+    rdfs:label "rationale" ;
+    rdfs:comment "The why, in the agent's own words." .
+
+j:assertedFor a owl:ObjectProperty ;
+    rdfs:domain j:Judgment ;
+    rdfs:label "assertedFor" ;
+    rdfs:comment "The goal (in kg:goals) that motivated this judgment." .
+
+j:supersedes a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:domain j:Judgment ; rdfs:range j:Judgment ;
+    owl:inverseOf j:supersededBy ;
+    rdfs:label "supersedes" .
+j:supersededBy a owl:ObjectProperty ;
+    rdfs:label "supersededBy" .
+
+j:settledAs a owl:ObjectProperty , j:ConflictFunctionalProperty ;
+    rdfs:domain j:Decision ;
+    rdfs:label "settledAs" ;
+    rdfs:comment "The chosen option. Conflict-functional: two different settled values for the same subject is an unresolved conflict (r21), not a silent overwrite." .
+j:rejected a owl:ObjectProperty ;
+    rdfs:domain j:Decision ;
+    rdfs:label "rejected" ;
+    rdfs:comment "An alternative considered and not chosen." .
+
+j:prefers a owl:ObjectProperty , j:ConflictFunctionalProperty ;
+    rdfs:domain j:Preference ;
+    rdfs:label "prefers" ;
+    rdfs:comment "Conflict-functional per choice-context: conflicting preferences on the same subject fire r21." .
+j:over a owl:ObjectProperty ;
+    rdfs:domain j:Preference ;
+    rdfs:label "over" ;
+    rdfs:comment "The dominated option in a preference." .
+
+j:conflictsWith a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:label "conflictsWith" ;
+    rdfs:comment "Derive-only (r21). Links two judgments the reasoner found in unresolved conflict." .
