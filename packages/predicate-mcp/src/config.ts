@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import { dirname, join, parse, resolve } from 'node:path';
@@ -67,11 +67,21 @@ export function gitRoot(start: string): string | undefined {
  * its store path, or undefined. Lets a subdirectory (or a later session) reuse
  * the store an ancestor already established instead of forking a new one.
  */
+/** realpath if it resolves, else a normalized path — for symlink-safe compares. */
+function canonical(p: string): string {
+  try { return realpathSync(p); } catch { return resolve(p); }
+}
+
 export function findExistingStoreUpward(startDir: string): string | undefined {
+  const global = canonical(userStorePath());
   let dir = resolve(startDir);
   const root = parse(dir).root;
   for (;;) {
-    if (existsSync(join(dir, MARKER_DIR, 'store'))) return join(dir, MARKER_DIR, 'store');
+    const candidate = join(dir, MARKER_DIR, 'store');
+    // Never treat the global ~/.predicate/store as a project store, even
+    // though home is an ancestor of most projects. Compare via realpath so a
+    // symlinked path (e.g. /tmp → /private/tmp) can't slip past the check.
+    if (existsSync(candidate) && canonical(candidate) !== global) return candidate;
     if (dir === root) return undefined;
     dir = dirname(dir);
   }

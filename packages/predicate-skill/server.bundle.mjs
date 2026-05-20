@@ -36709,7 +36709,7 @@ var OxigraphAdapter = class {
 };
 
 // ../predicate-mcp/src/config.ts
-import { existsSync as existsSync2, readFileSync, writeFileSync } from "node:fs";
+import { existsSync as existsSync2, readFileSync, writeFileSync, realpathSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { homedir } from "node:os";
 import { dirname, join as join3, parse as parse3, resolve } from "node:path";
@@ -36797,6 +36797,7 @@ function resolveProjectDir(opts) {
     const v2 = opts.env[name];
     if (v2 && !isPluginInstallPath(v2)) return v2;
   }
+  if (opts.cwd && !isPluginInstallPath(opts.cwd)) return opts.cwd;
   if (opts.transcriptsRoot) {
     const fromTx = resolveProjectDirFromTranscript({
       projectsRoot: opts.transcriptsRoot,
@@ -36817,6 +36818,9 @@ function homeRoot() {
   const home = process.env.HOME ?? homedir();
   return join3(home, MARKER_DIR);
 }
+function userStorePath() {
+  return join3(homeRoot(), "store");
+}
 function projectStorePath(projectDir) {
   const key = createHash("sha256").update(resolve(projectDir)).digest("hex").slice(0, 16);
   return join3(homeRoot(), "projects", key, "store");
@@ -36833,11 +36837,20 @@ function gitRoot(start) {
     dir = dirname(dir);
   }
 }
+function canonical(p2) {
+  try {
+    return realpathSync(p2);
+  } catch {
+    return resolve(p2);
+  }
+}
 function findExistingStoreUpward(startDir) {
+  const global2 = canonical(userStorePath());
   let dir = resolve(startDir);
   const root = parse3(dir).root;
   for (; ; ) {
-    if (existsSync2(join3(dir, MARKER_DIR, "store"))) return join3(dir, MARKER_DIR, "store");
+    const candidate = join3(dir, MARKER_DIR, "store");
+    if (existsSync2(candidate) && canonical(candidate) !== global2) return candidate;
     if (dir === root) return void 0;
     dir = dirname(dir);
   }

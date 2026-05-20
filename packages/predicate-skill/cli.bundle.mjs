@@ -115,6 +115,7 @@ function resolveProjectDir(opts) {
     const v2 = opts.env[name];
     if (v2 && !isPluginInstallPath(v2)) return v2;
   }
+  if (opts.cwd && !isPluginInstallPath(opts.cwd)) return opts.cwd;
   if (opts.transcriptsRoot) {
     const fromTx = resolveProjectDirFromTranscript({
       projectsRoot: opts.transcriptsRoot,
@@ -158,7 +159,7 @@ __export(config_exports, {
   scopeStorePath: () => scopeStorePath,
   userStorePath: () => userStorePath
 });
-import { existsSync as existsSync3, readFileSync, writeFileSync } from "node:fs";
+import { existsSync as existsSync3, readFileSync, writeFileSync, realpathSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { homedir as homedir2 } from "node:os";
 import { dirname as dirname2, join as join3, parse, resolve as resolve2 } from "node:path";
@@ -187,11 +188,20 @@ function gitRoot(start) {
     dir = dirname2(dir);
   }
 }
+function canonical(p2) {
+  try {
+    return realpathSync(p2);
+  } catch {
+    return resolve2(p2);
+  }
+}
 function findExistingStoreUpward(startDir) {
+  const global2 = canonical(userStorePath());
   let dir = resolve2(startDir);
   const root = parse(dir).root;
   for (; ; ) {
-    if (existsSync3(join3(dir, MARKER_DIR, "store"))) return join3(dir, MARKER_DIR, "store");
+    const candidate = join3(dir, MARKER_DIR, "store");
+    if (existsSync3(candidate) && canonical(candidate) !== global2) return candidate;
     if (dir === root) return void 0;
     dir = dirname2(dir);
   }
@@ -18151,7 +18161,7 @@ function parseScope(args) {
   throw new Error(`invalid --scope '${raw}' (expected local|project|user)`);
 }
 async function up(args = []) {
-  const { loadConfig: loadConfig2, scopeStorePath: scopeStorePath2, resolveStorePath: resolveStorePath2, currentProjectDir: currentProjectDir2, ensureGitignoreForStore: ensureGitignoreForStore2 } = await Promise.resolve().then(() => (init_config(), config_exports));
+  const { loadConfig: loadConfig2, scopeStorePath: scopeStorePath2, resolveStorePath: resolveStorePath2, ensureGitignoreForStore: ensureGitignoreForStore2 } = await Promise.resolve().then(() => (init_config(), config_exports));
   let scope;
   try {
     scope = parseScope(args);
@@ -18160,8 +18170,7 @@ async function up(args = []) {
     return 2;
   }
   const ifNeeded = args.includes("--if-needed");
-  const baseDir = currentProjectDir2();
-  const storePath = scope ? scopeStorePath2(scope, baseDir) : resolveStorePath2();
+  const storePath = scope ? scopeStorePath2(scope, process.cwd()) : resolveStorePath2();
   process.env.PREDICATE_STORE_PATH = storePath;
   ensureGitignoreForStore2(storePath);
   const cfg = loadConfig2();
@@ -30339,7 +30348,7 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.0.11" : "0.0.0-dev";
+var VERSION2 = true ? "2.0.12" : "0.0.0-dev";
 function help13() {
   console.log(`predicate <command>
 

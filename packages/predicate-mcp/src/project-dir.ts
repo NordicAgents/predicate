@@ -99,9 +99,13 @@ export function resolveProjectDirFromTranscript(opts: {
 /**
  * Pure resolver. Resolution order:
  *   1. workspace env vars — first non-empty AND non-plugin-path wins
- *   2. Claude Code transcript `cwd` (when transcriptsRoot is given)
- *   3. PWD (shell-set, survives process.chdir into the plugin dir)
- *   4. cwd (last resort; may be a plugin path — caller tolerates it)
+ *   2. cwd, when it is a real (non-plugin) directory — a human-run CLI must
+ *      use its own terminal cwd, NOT an unrelated active Claude session's
+ *      transcript. This step is skipped only when cwd is the plugin cache
+ *      (the MCP-server respawn case), which is what makes 3–4 necessary.
+ *   3. Claude Code transcript `cwd` (when transcriptsRoot is given)
+ *   4. PWD (shell-set, survives process.chdir into the plugin dir)
+ *   5. cwd (last resort; may be a plugin path — caller tolerates it)
  */
 export function resolveProjectDir(opts: {
   env: Record<string, string | undefined>;
@@ -115,6 +119,7 @@ export function resolveProjectDir(opts: {
     const v = opts.env[name];
     if (v && !isPluginInstallPath(v)) return v;
   }
+  if (opts.cwd && !isPluginInstallPath(opts.cwd)) return opts.cwd;
   if (opts.transcriptsRoot) {
     const fromTx = resolveProjectDirFromTranscript({
       projectsRoot: opts.transcriptsRoot,

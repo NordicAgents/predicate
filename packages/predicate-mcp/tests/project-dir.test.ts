@@ -23,27 +23,37 @@ describe('isPluginInstallPath', () => {
 });
 
 describe('resolveProjectDir', () => {
-  const base = { cwd: '/fallback/cwd', pwd: undefined, transcriptsRoot: undefined };
+  const PLUGIN = '/Users/x/.claude/plugins/cache/predicate/predicate/2.0.9';
 
   it('prefers a workspace env var', () => {
-    expect(resolveProjectDir({ ...base, env: { CLAUDE_PROJECT_DIR: '/proj/a' } })).toBe('/proj/a');
+    expect(resolveProjectDir({ env: { CLAUDE_PROJECT_DIR: '/proj/a' }, cwd: '/some/cwd', pwd: undefined }))
+      .toBe('/proj/a');
   });
 
-  it('rejects an env var that points inside the plugin cache, falling through to PWD', () => {
-    const env = { CLAUDE_PROJECT_DIR: '/Users/x/.claude/plugins/cache/predicate/predicate/2.0.9' };
-    expect(resolveProjectDir({ ...base, env, pwd: '/proj/real' })).toBe('/proj/real');
+  it('trusts a real (non-plugin) cwd over the transcript and PWD', () => {
+    // A human running the CLI in their terminal: cwd is authoritative, and
+    // must beat any active Claude session transcript or stale PWD.
+    expect(resolveProjectDir({ env: {}, cwd: '/proj/terminal', pwd: '/proj/pwd' }))
+      .toBe('/proj/terminal');
   });
 
-  it('uses PWD when no env var is set', () => {
-    expect(resolveProjectDir({ ...base, env: {}, pwd: '/proj/pwd' })).toBe('/proj/pwd');
+  it('falls through to PWD when cwd is a plugin-cache path', () => {
+    // The MCP-server case: Claude spawns it with cwd = plugin cache.
+    expect(resolveProjectDir({ env: {}, cwd: PLUGIN, pwd: '/proj/real' })).toBe('/proj/real');
   });
 
-  it('falls back to cwd as a last resort', () => {
-    expect(resolveProjectDir({ ...base, env: {} })).toBe('/fallback/cwd');
+  it('rejects an env var inside the plugin cache, using cwd instead', () => {
+    expect(resolveProjectDir({ env: { CLAUDE_PROJECT_DIR: PLUGIN }, cwd: '/proj/cwd', pwd: undefined }))
+      .toBe('/proj/cwd');
+  });
+
+  it('returns cwd even as a last resort when nothing else is usable', () => {
+    expect(resolveProjectDir({ env: {}, cwd: '/fallback/cwd', pwd: undefined })).toBe('/fallback/cwd');
   });
 
   it('honours the PREDICATE_PROJECT_DIR escape hatch', () => {
-    expect(resolveProjectDir({ ...base, env: { PREDICATE_PROJECT_DIR: '/proj/escape' } })).toBe('/proj/escape');
+    expect(resolveProjectDir({ env: { PREDICATE_PROJECT_DIR: '/proj/escape' }, cwd: '/some/cwd', pwd: undefined }))
+      .toBe('/proj/escape');
   });
 });
 

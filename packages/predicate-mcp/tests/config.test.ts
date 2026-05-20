@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtempSync, mkdirSync, rmSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -104,6 +104,17 @@ describe('loadConfig store-path resolution', () => {
     expect(loadConfig().oxigraphStorePath).toBe(inRepoStorePath(repo));
   });
 
+  it('does NOT reuse the global ~/.predicate/store as a parent store (git repo under home)', () => {
+    // Repro of the reported bug: home is an ancestor of every project, and the
+    // global store lives at <home>/.predicate/store — the walk-up must ignore
+    // it so a git repo still gets its own in-repo store.
+    mkdirSync(join(tmp, 'home', '.predicate', 'store'), { recursive: true });
+    const repo = join(tmp, 'home', 'work', 'myrepo');
+    mkdirSync(join(repo, '.git'), { recursive: true });
+    process.env.CLAUDE_PROJECT_DIR = repo;
+    expect(loadConfig().oxigraphStorePath).toBe(inRepoStorePath(repo));
+  });
+
   it('falls back to the home-keyed store for a non-git dir', () => {
     const dir = join(tmp, 'loose');
     mkdirSync(dir, { recursive: true });
@@ -111,12 +122,18 @@ describe('loadConfig store-path resolution', () => {
     expect(loadConfig().oxigraphStorePath).toBe(projectStorePath(dir));
   });
 
-  it('rejects a plugin-cache project dir and resolves via PWD', () => {
+  it('rejects a plugin-cache cwd and resolves via PWD (the MCP-server case)', () => {
     const repo = join(tmp, 'realrepo');
     mkdirSync(join(repo, '.git'), { recursive: true });
-    process.env.CLAUDE_PROJECT_DIR = join(tmp, 'home', '.claude', 'plugins', 'cache', 'predicate', 'predicate', '2.0.10');
     process.env.PWD = repo;
-    expect(loadConfig().oxigraphStorePath).toBe(inRepoStorePath(repo));
+    // Simulate the Claude-spawned MCP server: cwd is the plugin cache.
+    const pluginCwd = join(tmp, 'home', '.claude', 'plugins', 'cache', 'predicate', 'predicate', '2.0.11');
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(pluginCwd);
+    try {
+      expect(loadConfig().oxigraphStorePath).toBe(inRepoStorePath(repo));
+    } finally {
+      cwdSpy.mockRestore();
+    }
   });
 });
 
