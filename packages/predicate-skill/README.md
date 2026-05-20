@@ -8,262 +8,179 @@
 [![GitHub stars](https://img.shields.io/github/stars/NordicAgents/predicate?style=flat&color=yellow)](https://github.com/NordicAgents/predicate/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/NordicAgents/predicate?color=green)](https://github.com/NordicAgents/predicate/commits)
 
-## The Problem
+## Quick start
+
+**Prerequisite: Node 20+.** No Docker, no database to run.
+
+```bash
+npm install -g predicate-skill
+predicate up        # creates the local store + the 9 named graphs
+predicate doctor    # all checks green
+```
+
+Your knowledge graph lives at `~/.predicate/store/` (in-process Oxigraph,
+file-backed). Done.
+
+## What it is
 
 An AI coding or research agent loses continuity across sessions, and what
-it does remember it cannot defend. There is no schema separating durable
-concepts from disposable facts, no logical entailment producing answers
-the user can audit, no per-fact provenance, and no mechanism to keep the
-store from rotting as it accumulates.
+it does remember it cannot defend. Predicate is an MCP skill that gives the
+agent a real reasoning graph instead of a flat memory:
 
-### How Predicate solves it
-
-Predicate is an MCP skill that gives the agent a real reasoning graph.
-What that buys you over a flat memory: every derived claim comes with an
-explanation path cited back to source; contradictions surface via
-disjointness and functional-property axioms instead of averaging out;
-the schema only becomes durable after real queries reference it.
-
-1. **RDF/OWL with logical entailment.** Facts are stored as triples in Apache Jena
-   Fuseki. A curated OWL 2 RL ruleset materializes entailments through
-   SPARQL `CONSTRUCT` rules; SHACL covers closed-world validation. The
-   model formulates SPARQL against a freshly read schema — pre-baked
-   queries are forbidden — and reads logically entailed answers, never
+1. **RDF/OWL with logical entailment.** Facts are stored as triples in a
+   local RDF store (Oxigraph by default; Fuseki opt-in). A curated OWL 2 RL
+   ruleset materializes entailments through SPARQL `CONSTRUCT` rules; SHACL
+   covers closed-world validation. The model formulates SPARQL against a
+   freshly read schema and reads logically entailed answers — never
    hand-derived ones.
 2. **Provenance per triple.** Every fact carries source, time, confidence,
    and extraction method via RDF-star. Low-confidence triples stay visible
    to queries but are excluded from the inference closure so they cannot
-   poison entailment. `kg_explain` returns the backward-chained derivation
-   for any claim with citations.
-3. **Schema as code, with a use-gated promotion loop.** The TBox lives in
-   git as Turtle. The agent never edits it directly — it proposes deltas
-   to `kg:tbox-staging`. The reasoner validates each proposal; only after
-   N successful queries inside a TTL is a delta promoted into `kg:tbox`.
-   Unused proposals expire quietly. The graph cannot thrash because the
-   gate, not the goal source, is the safety mechanism.
-4. **Goal-conditioned growth.** Concepts enter because a goal needed
-   them, not because a document mentioned them. `kg_research_goal`
-   decomposes a goal, detects schema or data gaps, and runs research only
-   where the existing graph cannot answer. Periodic generalization and a
+   poison entailment. `kg_explain` returns the cited derivation for any claim.
+3. **Schema as code, with a use-gated promotion loop.** The agent never
+   edits the schema directly — it proposes deltas to `kg:tbox-staging`. A
+   delta is promoted into `kg:tbox` only after N successful queries inside a
+   TTL. Unused proposals expire quietly, so the graph cannot thrash.
+4. **Goal-conditioned growth.** Concepts enter because a goal needed them,
+   not because a document mentioned them. Periodic generalization and a
    reaper sweep keep size bounded.
-5. **Cross-session continuity.** A Stop hook on each platform extracts
-   typed triples from the turn — files modified, commands that succeeded
-   or failed, decisions reached — and asserts them into `kg:abox`. The
-   reasoner derives `Hotspot`, `FlakyCommand`, and `ActiveFile` from
-   action data so `kg_ask` can answer "what is unstable here?" without
-   re-reading the repo next session.
+5. **Cross-session continuity.** A Stop hook extracts typed triples from
+   each turn — files modified, commands that passed or failed — into
+   `kg:abox`. The reasoner derives `Hotspot`, `FlakyCommand`, and
+   `ActiveFile` so `kg_ask` can answer "what is unstable here?" next session
+   without re-reading the repo.
 
-## Install
-
-**Prerequisites: Node 20+.** That is all the default install needs. Docker is only required if you opt into the Fuseki backend (see "Alternative backends" below).
+## Use it in your agent
 
 <details open>
-<summary><strong>Claude Code</strong> — plugin marketplace, fully automatic</summary>
-
-**Install:**
+<summary><strong>Claude Code</strong> — one-command marketplace install</summary>
 
 ```bash
 /plugin marketplace add NordicAgents/predicate
 /plugin install predicate@predicate
 ```
 
-Restart Claude Code (or `/reload-plugins`). Then start the graph:
+Restart Claude Code (or `/reload-plugins`), then:
 
 ```bash
 predicate up
-```
-
-**Verify:**
-
-```bash
 predicate doctor
 ```
 
-All checks should show OK. The doctor reports the active backend and
-validates whatever it needs — store directory writable (Oxigraph) or
-Docker + Fuseki reachable (opt-in) — plus the named graphs, the
-reasoner, and plugin registration.
+`doctor` reports the active backend and checks what that backend needs —
+store directory writable (Oxigraph) or Docker + Fuseki reachable (opt-in) —
+plus the named graphs, the reasoner, and plugin registration.
 
 **Slash commands:**
 
 | Command | What it does |
 |---|---|
-| `/predicate:up` | Open the active backend (Oxigraph store or Fuseki container) and bootstrap the 9 named graphs. |
-| `/predicate:down` | Flush + close the backend (no daemon to stop on Oxigraph; `docker compose down` on Fuseki). |
-| `/predicate:doctor` | Health check; backend-aware (skips Docker on the default Oxigraph backend). |
-| `/predicate:stats` | Triples, ABox, inferred, TBox counts; inferred ratio; unused-concept ratio. |
+| `/predicate:up` | Open the backend and bootstrap the 9 named graphs. |
+| `/predicate:down` | Close the backend (no daemon on Oxigraph; `docker compose down` on Fuseki). |
+| `/predicate:doctor` | Backend-aware health check. |
+| `/predicate:stats` | Triple / ABox / inferred / TBox counts and ratios. |
 | `/predicate:ask <question>` | Free-form question routed through `kg_ask`. |
 
-**Routing:** Automatic. The SessionStart hook injects a one-line KG
-status banner. PreToolUse, PostToolUse, and Stop hooks capture tool
-calls and extract typed session triples — no file is written to your
-project.
+**Routing:** Automatic. SessionStart injects a one-line status banner;
+PreToolUse / PostToolUse / Stop hooks capture tool calls and extract typed
+session triples — no file is written to your project.
 
 <details>
-<summary>Alternative — MCP-only install (no hooks or slash commands)</summary>
+<summary>Alternative — MCP-only (no hooks or slash commands)</summary>
 
 ```bash
 claude mcp add predicate -- npx -y predicate-skill
 ```
 
-This gives you all `kg_*` tools without lifecycle hooks. Good for a quick
-trial before installing the full plugin.
+All `kg_*` tools, no lifecycle hooks. Good for a quick trial.
 
 </details>
 
 </details>
 
 <details>
-<summary><strong>Any MCP-capable client</strong> — npm install</summary>
+<summary><strong>Cursor</strong></summary>
 
 ```bash
 npm install -g predicate-skill
 predicate up
-predicate doctor
+cp "$(npm root -g)/predicate-skill/hooks/cursor/mcp.json.template" ~/.cursor/mcp.json
 ```
 
-The bundled MCP server lives at the package's `bin` entry. Point any
-MCP-over-stdio client at `predicate-skill` (or
-`node /path/to/predicate-skill/server.bundle.mjs`) with env
-`FUSEKI_URL=http://localhost:3030` and `PREDICATE_DATASET=predicate`.
+Edit `~/.cursor/mcp.json`, replacing `__PLUGIN_DIR__` with
+`$(npm root -g)/predicate-skill`. Reload MCP servers (Cmd-Shift-P →
+"Reload MCP servers"), then type `predicate stats` in agent chat to verify.
+
+Cursor has no native session events; the SessionStart / PreCompact / Stop
+maintenance scripts under `hooks/cursor/` can be wired via cron or a shell
+alias — see `hooks/cursor/README.md`.
 
 </details>
 
 <details>
-<summary><strong>Cursor</strong> — MCP + maintenance scripts</summary>
+<summary><strong>Gemini CLI</strong></summary>
 
-**Install:**
+```bash
+npm install -g predicate-skill
+predicate up
+```
 
-1. Install context-mode globally and start Fuseki:
-
-   ```bash
-   npm install -g predicate-skill
-   predicate up
-   ```
-
-2. Copy the MCP config template to `~/.cursor/mcp.json` and replace
-   `__PLUGIN_DIR__` with the absolute path to the installed
-   `predicate-skill` directory:
-
-   ```bash
-   cp $(npm root -g)/predicate-skill/hooks/cursor/mcp.json.template ~/.cursor/mcp.json
-   ```
-
-3. Reload MCP servers (Cmd-Shift-P → "Reload MCP servers").
-
-**Verify:** Open Cursor Settings → MCP and confirm "predicate" is
-connected. In agent chat, type `predicate stats`.
-
-**Routing:** Cursor has no native SessionStart / Stop events. The
-SessionStart, PreCompact, and Stop maintenance scripts under
-`hooks/cursor/` can be wired via cron or a shell alias — see
-`hooks/cursor/README.md`.
+Merge `$(npm root -g)/predicate-skill/hooks/gemini-cli/settings.json.template`
+into `~/.gemini/settings.json`, replacing `__PLUGIN_DIR__`. Restart Gemini
+CLI; `/mcp list` should show `predicate: ... Connected`. The Stop hook pipes
+each transcript through `predicate extract` so session triples land in
+`kg:abox` after every turn.
 
 </details>
 
 <details>
-<summary><strong>Gemini CLI</strong> — MCP + sessionStart + preCompress + stop hooks</summary>
+<summary><strong>OpenCode</strong></summary>
 
-**Install:**
+```bash
+npm install -g predicate-skill
+predicate up
+```
 
-1. Install and start Fuseki:
-
-   ```bash
-   npm install -g predicate-skill
-   predicate up
-   ```
-
-2. Merge the template into `~/.gemini/settings.json`, replacing
-   `__PLUGIN_DIR__` with the absolute path to the installed
-   `predicate-skill` directory:
-
-   ```bash
-   cat $(npm root -g)/predicate-skill/hooks/gemini-cli/settings.json.template
-   ```
-
-3. Restart Gemini CLI.
-
-**Verify:** `/mcp list` should show `predicate: ... Connected`.
-
-**Routing:** Automatic via the three hook events. The Stop hook pipes
-the transcript through `predicate extract --from-stdin --platform gemini`
-so session triples land in `kg:abox` after every turn.
+Merge `$(npm root -g)/predicate-skill/hooks/opencode/opencode.json.template`
+into `~/.config/opencode/opencode.json`, replacing `__PLUGIN_DIR__`. Restart
+OpenCode; type `predicate stats` to verify. The session.stopped hook runs
+`predicate extract` automatically.
 
 </details>
 
 <details>
-<summary><strong>VS Code Copilot</strong> — MCP via settings.json</summary>
+<summary><strong>VS Code Copilot</strong></summary>
 
-**Install:**
+```bash
+npm install -g predicate-skill
+predicate up
+```
 
-1. Install and start Fuseki:
-
-   ```bash
-   npm install -g predicate-skill
-   predicate up
-   ```
-
-2. Merge `hooks/vscode-copilot/settings.json.template` into your VS Code
-   `settings.json`, replacing `__PLUGIN_DIR__`. Restart VS Code.
-
-**Verify:** Open Copilot Chat and type `predicate stats`.
-
-**Routing:** VS Code Copilot does not yet expose SessionStart / PreCompact
-/ Stop events. See `hooks/vscode-copilot/README.md` for manual and
-VS Code-task wiring of the maintenance scripts.
+Merge `$(npm root -g)/predicate-skill/hooks/vscode-copilot/settings.json.template`
+into your VS Code `settings.json`, replacing `__PLUGIN_DIR__`. Restart VS
+Code; type `predicate stats` in Copilot Chat to verify. VS Code exposes no
+lifecycle events yet — see `hooks/vscode-copilot/README.md` for manual / task
+wiring of the maintenance scripts.
 
 </details>
 
 <details>
-<summary><strong>OpenCode</strong> — MCP + session.started + session.compacted + session.stopped hooks</summary>
+<summary><strong>Codex CLI</strong></summary>
 
-**Install:**
+```bash
+npm install -g predicate-skill
+predicate up
+```
 
-1. Install and start Fuseki:
-
-   ```bash
-   npm install -g predicate-skill
-   predicate up
-   ```
-
-2. Merge `hooks/opencode/opencode.json.template` into
-   `~/.config/opencode/opencode.json`, replacing `__PLUGIN_DIR__`.
-
-3. Restart OpenCode.
-
-**Verify:** In the OpenCode session, type `predicate stats`.
-
-**Routing:** Automatic via the three lifecycle events. The
-session.stopped hook pipes the transcript through
-`predicate extract --from-stdin --platform opencode`.
+Merge `$(npm root -g)/predicate-skill/hooks/codex-cli/config.toml.template`
+into `~/.codex/config.toml`, replacing `__PLUGIN_DIR__`. Launch `codex` and
+type `predicate stats` to verify. No lifecycle events yet — see
+`hooks/codex-cli/README.md` for shell-alias wiring.
 
 </details>
 
 <details>
-<summary><strong>Codex CLI</strong> — MCP via config.toml</summary>
-
-**Install:**
-
-1. Install and start Fuseki:
-
-   ```bash
-   npm install -g predicate-skill
-   predicate up
-   ```
-
-2. Merge `hooks/codex-cli/config.toml.template` into
-   `~/.codex/config.toml`, replacing `__PLUGIN_DIR__`.
-
-**Verify:** Launch `codex` and type `predicate stats`.
-
-**Routing:** Codex CLI has no lifecycle events yet. See
-`hooks/codex-cli/README.md` for shell-alias wiring of the maintenance
-scripts.
-
-</details>
-
-<details>
-<summary><strong>Continue.dev</strong> — MCP via config.yaml</summary>
+<summary><strong>Continue.dev</strong></summary>
 
 In `~/.continue/config.yaml`:
 
@@ -271,43 +188,41 @@ In `~/.continue/config.yaml`:
 mcpServers:
   - name: predicate
     command: predicate-skill
-    env:
-      FUSEKI_URL: http://localhost:3030
-      PREDICATE_DATASET: predicate
 ```
 
 Then `predicate up` and restart Continue.
 
 </details>
 
-## Alternative backends
+## Storage backends
 
-Predicate ships two storage adapters:
+- **Oxigraph (default).** In-process, file-backed at `~/.predicate/store/`
+  (one N-Quads file per named graph). No Docker, no daemon, sub-second
+  start. You get this unless you opt out.
+- **Fuseki (opt-in).** Apache Jena Fuseki / TDB2 in Docker. Set
+  `PREDICATE_BACKEND=fuseki`. Requires Docker.
 
-- **Oxigraph (default).** In-process, on-disk store at `~/.predicate/store/` (one N-Quads file per named graph, loaded on `predicate up`, flushed on writes). No Docker, no daemon, sub-second cold start. This is what you get unless you set the env var below.
-- **Fuseki (opt-in).** Apache Jena Fuseki in Docker — same as previous releases. Set `PREDICATE_BACKEND=fuseki`. Requires Docker.
-
-To migrate an existing Fuseki install to Oxigraph in place:
+Migrate an existing Fuseki store to Oxigraph in place:
 
 ```bash
 predicate migrate --from fuseki --to oxigraph
-unset PREDICATE_BACKEND   # or remove it from your shell rc
-predicate down            # stop the Fuseki container, your data is in Oxigraph now
+unset PREDICATE_BACKEND
+predicate down            # stop the Fuseki container; data is now in Oxigraph
 ```
 
 ## Bootstrap modes
 
-On first `predicate up`, choose how to seed the schema:
+On first `predicate up`:
 
-- **Community ontology** — install a bundled vocabulary (`top`,
-  `codebase`, `foaf`, `schema-org-lite`, `fhir-core`) from the catalog
-  in `packages/predicate-ontology/catalog/`.
+- **Community ontology** — install a bundled vocabulary (`top`, `codebase`,
+  `foaf`, `schema-org-lite`, `fhir-core`).
 - **Bring your own** — upload a Turtle file as the initial TBox.
-- **Empty** — start with no schema; let the agent grow vocabulary through
-  the propose → validate → 3-uses-in-7-days promotion gate.
+- **Empty** — start with no schema; the agent grows vocabulary through the
+  propose → validate → 3-uses-in-7-days promotion gate.
 
-Schema-learning is toggleable at runtime via `kg_config_set` /
-`kg_config_get`.
+Non-interactive: `predicate init --mode community --ontology codebase`
+(or `--mode empty`). Schema-learning toggles at runtime via
+`kg_config_set` / `kg_config_get`.
 
 ## MCP tools
 
@@ -316,41 +231,38 @@ The bundled server exposes 11 tools over stdio:
 | Tool | What it does |
 |---|---|
 | `kg_explore_schema` | Returns the TBox slice for a concept so the model uses real predicates. |
-| `kg_ask` | Executes a caller-drafted SPARQL query against asserted + inferred graphs. Logs to `kg:usage`, truncates results, supports `includeRemote: true` for peer-federated queries. |
+| `kg_ask` | Runs a caller-drafted SPARQL query against asserted + inferred graphs; supports `includeRemote: true` for peer-federated queries. |
 | `kg_assert` | Writes a triple to `kg:abox` with RDF-star provenance. Rejects undeclared predicates. |
 | `kg_explain` | Returns the backward-chained derivation for a claim, with cited provenance. |
 | `kg_propose_schema` | Stages a `SchemaDelta` proposal in `kg:tbox-staging`. |
 | `kg_research_goal` | Decompose a goal → gap-detect → optionally execute research → return a plan. |
-| `kg_stats` | Triples, ABox, inferred, TBox counts; inferred ratio; unused-concept ratio. |
+| `kg_stats` | Triple / ABox / inferred / TBox counts and ratios. |
 | `kg_maintain` | Runs reaper, generalizer, and promotion sweeper, then re-materializes inferred. |
-| `kg_capture` | Records a tool invocation (toolName, input, output, sessionId, phase) into `kg:usage`. Used by PreToolUse / PostToolUse hooks. |
-| `kg_config_get` / `kg_config_set` | Read or update runtime config (e.g. schema-learning toggle). |
+| `kg_capture` | Records a tool invocation into `kg:usage`. Used by the lifecycle hooks. |
+| `kg_config_get` / `kg_config_set` | Read or update runtime config. |
 
 ## CLI
 
 ```
-predicate up                # docker compose up + bootstrap the 9 named graphs
-predicate init              # initialize kg:tbox (community / upload / empty)
-predicate down              # stop Fuseki, keep the volume
-predicate doctor            # health checks (docker, fuseki, tbox, tools)
+predicate up                # open the store (Oxigraph default) + bootstrap the 9 graphs
+predicate init              # seed kg:tbox (community / upload / empty)
+predicate down              # close the store (or stop the Fuseki container)
+predicate doctor            # backend-aware health checks
 predicate stats             # current kg_stats output
-predicate sessionstart      # one-line KG status banner (used by hook scripts)
+predicate migrate --from fuseki --to oxigraph   # move an existing Fuseki store to Oxigraph
 predicate maintain          # reaper + generalizer + promotion sweeper
-predicate capture           # record a tool call in kg:usage (opt-in: PREDICATE_RAW_CAPTURE=1)
 predicate extract           # read a Stop-hook payload and assert typed triples to kg:abox
-predicate sessions          # list recent extracted sessions (modifiedFiles / ok / fail)
-predicate captures          # list raw kg:usage ToolCall captures
-predicate recall <query>    # substring search over session history (files + commands)
-predicate dashboard         # serve a localhost web view of session history + reasoning output
+predicate sessions          # list recent extracted sessions
+predicate recall <query>    # substring search over session history
+predicate dashboard         # localhost web view of session history + reasoning output
 
-predicate peer add <name> <sparql-endpoint>   # register a teammate's Fuseki
+predicate peer add <name> <sparql-endpoint>     # register a teammate's endpoint
 predicate peer list | peer remove
 predicate export-sessions [--since DATE] [--user NAME]
 predicate import-sessions <file.trig>
 
 predicate ld init           # register DBpedia + Wikidata as external LD peers
-predicate ld list
-predicate ld ask <query>    # one-shot SPARQL across all registered LD endpoints
+predicate ld ask <query>    # one-shot SPARQL across registered LD endpoints
 
 predicate --version
 predicate --help
@@ -360,53 +272,39 @@ predicate --help
 
 | Var | Default | What it controls |
 |---|---|---|
-| `FUSEKI_URL` | `http://localhost:3030` | Where the MCP server reaches Fuseki. |
-| `PREDICATE_DATASET` | `predicate` | Fuseki dataset name. |
-| `PREDICATE_CAPTURE_SKIP` | *(empty)* | Comma-separated tool names suppressed by `kg_capture`. |
+| `PREDICATE_BACKEND` | `oxigraph` | Storage backend: `oxigraph` (in-process) or `fuseki` (Docker, opt-in). |
+| `PREDICATE_STORE_PATH` | `~/.predicate/store` | Oxigraph store directory (respects `XDG_DATA_HOME`). |
+| `FUSEKI_URL` | `http://localhost:3030` | Fuseki endpoint — only used when `PREDICATE_BACKEND=fuseki`. |
+| `PREDICATE_DATASET` | `predicate` | Fuseki dataset name — only used with the Fuseki backend. |
 | `PREDICATE_CAPTURE_TRUNCATE` | `500` | Max chars per captured input/output field. |
 | `PREDICATE_RAW_CAPTURE` | unset | When `1`, raw PreToolUse/PostToolUse captures are persisted to `kg:usage`. |
 | `ANTHROPIC_API_KEY` | unset | Enables the LLM-augmented decomposer fallback in `kg_research_goal`. |
 
-## What's in this directory
+## What's in this package
 
 | Path | Purpose |
 |---|---|
 | `.claude-plugin/plugin.json` | MCP + skills + hooks registration for the Claude Code marketplace. |
-| `server.bundle.mjs` | Bundled MCP server — runs without `node_modules` at runtime. |
-| `cli.bundle.mjs` | Bundled `predicate` CLI, surfaced via this package's `bin` entry. |
-| `skills/predicate/SKILL.md` | Host-agent contract: triggers, workflow, HARD-GATE anti-patterns, worked examples. |
-| `skills/predicate-doctor/`, `skills/predicate-stats/` | Operator skills. |
+| `server.bundle.mjs` | Bundled MCP server (`oxigraph` loaded from `node_modules` at runtime). |
+| `cli.bundle.mjs` | Bundled `predicate` CLI, surfaced via this package's `bin`. |
+| `skills/predicate/SKILL.md` | Host-agent contract: triggers, workflow, anti-patterns, worked examples. |
 | `commands/{up,down,doctor,stats,ask}.md` | Slash-command definitions for `/predicate:*`. |
-| `hooks/hooks.json` | Claude Code hook registration (SessionStart, PreToolUse, PostToolUse, Stop). |
-| `hooks/{session-start,pre-tool-use,post-tool-use,stop}.sh` | Claude Code lifecycle hooks — each delegates to a `predicate` CLI subcommand. |
-| `hooks/{cursor,gemini-cli,vscode-copilot,opencode,codex-cli}/` | Per-platform hook scripts + config templates + per-platform README. |
-| `compose/docker-compose.yml`, `compose/fuseki/config.ttl` | Fuseki + TDB2 config launched by `predicate up`. |
+| `hooks/` | Claude Code lifecycle hooks + per-platform templates (cursor, gemini-cli, vscode-copilot, opencode, codex-cli). |
+| `compose/` | Fuseki + TDB2 docker-compose config — only used by the opt-in Fuseki backend. |
+| `catalog/`, `meta/` | Bundled ontology catalog + meta vocabulary for `predicate init`. |
 
 ## Rebuilding the bundles
 
-The bundles are committed so the marketplace install path works without
-`pnpm install`. To rebuild after a source change:
+The bundles are committed so the marketplace install path works without a
+build step. To rebuild after a source change:
 
 ```bash
 pnpm --filter predicate-skill bundle
 ```
 
-Or rebuild everything (all workspace packages plus the bundles):
-
-```bash
-pnpm build
-```
-
-## Tests
-
-The full workspace test suite runs against the active backend (default
-Oxigraph in-process). To run it against Fuseki, set
-`PREDICATE_BACKEND=fuseki` and start the container first:
-
-```bash
-predicate up      # opens Oxigraph store, or boots Fuseki under PREDICATE_BACKEND=fuseki
-pnpm test
-```
+`oxigraph` is kept external (it ships a native `.wasm` asset that can't be
+inlined) and is declared in `dependencies`, so `npm install -g predicate-skill`
+fetches it automatically.
 
 ## License
 
