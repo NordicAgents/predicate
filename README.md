@@ -2,7 +2,7 @@
 
 **Reasoning memory for AI agents — a self-improving knowledge graph that grows with use.**
 
-Predicate gives an AI coding or research agent a structured graph it can
+Predicate gives an AI agent a structured graph it can
 query, reason over, and grow with use. Facts are stored as RDF triples
 with per-triple provenance and confidence. An OWL 2 RL reasoner
 materializes entailments deterministically and produces an explanation
