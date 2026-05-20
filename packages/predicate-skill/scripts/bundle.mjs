@@ -36,7 +36,7 @@ await build({
   },
   minify: false,
   sourcemap: false,
-  external: ['better-sqlite3'],
+  external: ['better-sqlite3', 'oxigraph'],
   plugins: [
     {
       name: 'strip-shebang',
@@ -73,7 +73,7 @@ await build({
   },
   minify: false,
   sourcemap: false,
-  external: ['better-sqlite3'],
+  external: ['better-sqlite3', 'oxigraph'],
   plugins: [
     {
       name: 'strip-shebang',
