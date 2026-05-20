@@ -80,19 +80,17 @@ export function buildTools(client: StorageAdapter, options: BuildToolsOptions = 
     },
     {
       name: 'kg_ask',
-      description: 'Execute a caller-drafted SPARQL SELECT/ASK against the live graph; logs usage. Read-only. Set includeRemote=true to also query every registered federation peer and union the results (each row gains a ?peer column).',
+      description: 'Execute a caller-drafted SPARQL SELECT/ASK against the live graph; logs usage. Read-only.',
       inputSchema: z.object({
         question: z.string(),
         sparql: z.string(),
         maxRows: z.number().int().positive().optional(),
-        includeRemote: z.boolean().optional(),
       }),
       handler: async (raw): Promise<unknown> => {
         const args = z.object({
           question: z.string(),
           sparql: z.string(),
           maxRows: z.number().int().positive().optional(),
-          includeRemote: z.boolean().optional(),
         }).parse(raw);
         return kgAsk(client, args);
       },

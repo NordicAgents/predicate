@@ -215,55 +215,6 @@ kg_propose_schema(
 # This goes to kg:tbox-staging. The promotion gate requires 3 successful uses in 7 days.
 ```
 
-## Federation
-
-If teammates also use Predicate, they can share session-history:
-
-```bash
-# On Alice's machine:
-predicate export-sessions --user alice > alice.trig
-# Send to Bob (Slack, scp, etc.)
-
-# On Bob's machine:
-predicate import-sessions alice.trig
-predicate peer add alice http://alice.local:3030/predicate/query  # optional, for live queries
-
-# Then kg_ask can union local + remote:
-kg_ask --include-remote ...
-```
-
-This MVP is offline-friendly: no realtime sync, no auth. Each user's data
-lives in a separate named graph so there are no merge conflicts. Same-IRI
-collisions (e.g. `file:///work/auth.ts` from two users) are treated as
-the same resource by RDF — use `owl:sameAs` if you want them merged, or
-namespace your files per-user if you want them separate.
-
-## External Linked Data
-
-For canonical public knowledge (Wikidata, DBpedia), call `predicate ld
-ask` instead of trying to recall from training data. Examples:
-
-```bash
-predicate ld init  # one-time
-
-predicate ld ask 'SELECT ?label WHERE {
-  <http://dbpedia.org/resource/JSON> rdfs:label ?label .
-  FILTER (LANG(?label) = "en")
-} LIMIT 1'
-```
-
-Use cases:
-- "Is library X deprecated?" → check Wikidata for last-release metadata
-- "Who maintains project Y?" → DBpedia abstract
-- "What's the canonical URI for concept Z?" → both
-
-`predicate ld init` registers `dbpedia` and `wikidata` as peers in
-`kg:peers` with `pred:peerKind "external-ld"`. The marker keeps them
-distinct from team peers — `predicate peer list` shows everything
-side-by-side with a `kind` column; `predicate ld list` filters to just
-the LD endpoints. Results from `ld ask` are NOT written back to local
-`kg:abox` — each call re-fetches, so don't run this in tight loops.
-
 ## Goal decomposition
 
 The default `kg_research_goal` uses a pattern-based decomposer

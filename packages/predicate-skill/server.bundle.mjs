@@ -36918,8 +36918,7 @@ var GRAPH = {
   provenance: "kg:provenance",
   goals: "kg:goals",
   usage: "kg:usage",
-  meta: "kg:meta",
-  peers: "kg:peers"
+  meta: "kg:meta"
 };
 
 // ../predicate-mcp/src/sparql/escape.ts
@@ -37020,19 +37019,6 @@ async function kgAsk(client, input) {
   }
   const maxRows = input.maxRows ?? DEFAULT_MAX;
   const t0 = Date.now();
-  if (input.includeRemote) {
-    const result = await askWithRemote(client, input.sparql);
-    const elapsedMs2 = Date.now() - t0;
-    await logUsage(client, input.question, input.sparql, result.bindings.length, elapsedMs2);
-    const truncated2 = result.bindings.length > maxRows;
-    const bindings2 = truncated2 ? result.bindings.slice(0, maxRows) : result.bindings;
-    return {
-      vars: result.vars,
-      bindings: bindings2,
-      truncated: truncated2,
-      rowCount: result.bindings.length
-    };
-  }
   const r2 = await client.select(input.sparql);
   const elapsedMs = Date.now() - t0;
   await logUsage(client, input.question, input.sparql, r2.results.bindings.length, elapsedMs);
@@ -37044,62 +37030,6 @@ async function kgAsk(client, input) {
     truncated,
     rowCount: r2.results.bindings.length
   };
-}
-async function listPeers(client) {
-  const META8 = "https://predicate.dev/meta#";
-  const r2 = await client.select(
-    `PREFIX pred: <${META8}>
-     SELECT ?name ?endpoint WHERE {
-       GRAPH <${GRAPH.peers}> {
-         ?p a pred:Peer ;
-            pred:peerName ?name ;
-            pred:peerEndpoint ?endpoint .
-       }
-     }`
-  );
-  return r2.results.bindings.map((b2) => ({
-    name: b2["name"].value,
-    endpoint: b2["endpoint"].value
-  }));
-}
-async function askWithRemote(client, sparql) {
-  let peers = [];
-  try {
-    peers = await listPeers(client);
-  } catch {
-    peers = [];
-  }
-  const local = await client.select(sparql);
-  const vars = [...local.head.vars];
-  if (!vars.includes("peer")) vars.push("peer");
-  const merged = local.results.bindings.map((row) => ({
-    ...row,
-    peer: { type: "literal", value: "local" }
-  }));
-  for (const p2 of peers) {
-    try {
-      const remote = await fetch(p2.endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Accept": "application/sparql-results+json"
-        },
-        body: "query=" + encodeURIComponent(sparql)
-      });
-      if (remote.ok) {
-        const json = await remote.json();
-        const peerBindings = json.results?.bindings ?? [];
-        for (const row of peerBindings) {
-          merged.push({ ...row, peer: { type: "literal", value: p2.name } });
-        }
-      } else {
-        console.error(`kg_ask: peer "${p2.name}" returned ${remote.status}; skipping`);
-      }
-    } catch (err2) {
-      console.error(`kg_ask: peer "${p2.name}" unreachable (${err2.message}); skipping`);
-    }
-  }
-  return { vars, bindings: merged };
 }
 async function logUsage(client, question, sparql, rowCount, elapsedMs) {
   const usage = escapeIRI(GRAPH.usage);
@@ -48077,19 +48007,17 @@ function buildTools(client, options = {}) {
     },
     {
       name: "kg_ask",
-      description: "Execute a caller-drafted SPARQL SELECT/ASK against the live graph; logs usage. Read-only. Set includeRemote=true to also query every registered federation peer and union the results (each row gains a ?peer column).",
+      description: "Execute a caller-drafted SPARQL SELECT/ASK against the live graph; logs usage. Read-only.",
       inputSchema: external_exports.object({
         question: external_exports.string(),
         sparql: external_exports.string(),
-        maxRows: external_exports.number().int().positive().optional(),
-        includeRemote: external_exports.boolean().optional()
+        maxRows: external_exports.number().int().positive().optional()
       }),
       handler: async (raw) => {
         const args = external_exports.object({
           question: external_exports.string(),
           sparql: external_exports.string(),
-          maxRows: external_exports.number().int().positive().optional(),
-          includeRemote: external_exports.boolean().optional()
+          maxRows: external_exports.number().int().positive().optional()
         }).parse(raw);
         return kgAsk(client, args);
       }

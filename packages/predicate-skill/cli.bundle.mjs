@@ -662,8 +662,7 @@ var init_graphs = __esm({
       provenance: "kg:provenance",
       goals: "kg:goals",
       usage: "kg:usage",
-      meta: "kg:meta",
-      peers: "kg:peers"
+      meta: "kg:meta"
     };
   }
 });
@@ -17521,12 +17520,12 @@ var require_supports_color = __commonJS({
     "use strict";
     var os = __require("os");
     var tty = __require("tty");
-    var hasFlag9 = require_has_flag();
+    var hasFlag8 = require_has_flag();
     var { env } = process;
     var forceColor;
-    if (hasFlag9("no-color") || hasFlag9("no-colors") || hasFlag9("color=false") || hasFlag9("color=never")) {
+    if (hasFlag8("no-color") || hasFlag8("no-colors") || hasFlag8("color=false") || hasFlag8("color=never")) {
       forceColor = 0;
-    } else if (hasFlag9("color") || hasFlag9("colors") || hasFlag9("color=true") || hasFlag9("color=always")) {
+    } else if (hasFlag8("color") || hasFlag8("colors") || hasFlag8("color=true") || hasFlag8("color=always")) {
       forceColor = 1;
     }
     if ("FORCE_COLOR" in env) {
@@ -17553,10 +17552,10 @@ var require_supports_color = __commonJS({
       if (forceColor === 0) {
         return 0;
       }
-      if (hasFlag9("color=16m") || hasFlag9("color=full") || hasFlag9("color=truecolor")) {
+      if (hasFlag8("color=16m") || hasFlag8("color=full") || hasFlag8("color=truecolor")) {
         return 3;
       }
-      if (hasFlag9("color=256")) {
+      if (hasFlag8("color=256")) {
         return 2;
       }
       if (haveStream && !streamIsTTY && forceColor === void 0) {
@@ -29135,10 +29134,10 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META13 = "https://predicate.dev/meta#";
+  const META11 = "https://predicate.dev/meta#";
   const CB2 = "https://predicate.dev/codebase#";
   const rows = await client.select(
-    `PREFIX pred: <${META13}>
+    `PREFIX pred: <${META11}>
      PREFIX cb:   <${CB2}>
      SELECT ?s ?sid ?at
             (COUNT(DISTINCT ?f) AS ?files)
@@ -29229,10 +29228,10 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META13 = "https://predicate.dev/meta#";
+  const META11 = "https://predicate.dev/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
-    `PREFIX pred: <${META13}>
+    `PREFIX pred: <${META11}>
      SELECT ?c ?at ?tool ?phase ?session WHERE {
        GRAPH <kg:usage> {
          ?c a pred:ToolCall ;
@@ -29331,10 +29330,10 @@ function escapeSparqlLiteral(s2) {
 }
 async function searchFiles(client, query, limit) {
   const CB2 = "https://predicate.dev/codebase#";
-  const META13 = "https://predicate.dev/meta#";
+  const META11 = "https://predicate.dev/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
-     PREFIX pred: <${META13}>
+     PREFIX pred: <${META11}>
      SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
      WHERE {
        GRAPH <kg:abox> {
@@ -29739,442 +29738,11 @@ async function dashboard(args) {
   return 0;
 }
 
-// ../predicate-cli/src/commands/peer.ts
-init_storage();
-var META10 = "https://predicate.dev/meta#";
-var PEERS_GRAPH = "kg:peers";
-function help8() {
-  console.log(`predicate peer <subcommand> [args]
-
-Manage the federation peer registry stored in kg:peers.
-
-Subcommands:
-  add <name> <sparql-endpoint>    Register a peer.
-  remove <name>                   Unregister a peer.
-  list [--json]                   List registered peers.
-  --help                          Print this message.
-
-Example:
-  predicate peer add alice http://alice.local:3030/predicate/query
-  predicate peer list
-  kg_ask --include-remote ...     (see kg_ask docs)
-`);
-}
-async function addPeer(client, name, endpoint) {
-  const uri2 = `urn:predicate:peer:${encodeURIComponent(name)}`;
-  const now = (/* @__PURE__ */ new Date()).toISOString();
-  await client.update(`
-    PREFIX pred: <${META10}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    DELETE { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
-    WHERE  { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
-  `);
-  await client.update(`
-    PREFIX pred: <${META10}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    INSERT DATA { GRAPH <${PEERS_GRAPH}> {
-      ${escapeIRI(uri2)} a pred:Peer ;
-        pred:peerName ${escapeLiteral(name)} ;
-        pred:peerEndpoint "${endpoint}"^^xsd:anyURI ;
-        pred:peerAddedAt  "${now}"^^xsd:dateTime .
-    } }
-  `);
-  console.log(`peer "${name}" registered \u2192 ${endpoint}`);
-  return 0;
-}
-async function removePeer(client, name) {
-  const uri2 = `urn:predicate:peer:${encodeURIComponent(name)}`;
-  await client.update(`
-    DELETE { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
-    WHERE  { GRAPH <${PEERS_GRAPH}> { ${escapeIRI(uri2)} ?p ?o } }
-  `);
-  console.log(`peer "${name}" removed`);
-  return 0;
-}
-async function listPeers(client) {
-  const r2 = await client.select(
-    `PREFIX pred: <${META10}>
-     SELECT ?uri ?name ?endpoint ?addedAt ?kind
-     WHERE {
-       GRAPH <${PEERS_GRAPH}> {
-         ?uri a pred:Peer ;
-              pred:peerName ?name ;
-              pred:peerEndpoint ?endpoint ;
-              pred:peerAddedAt ?addedAt .
-         OPTIONAL { ?uri pred:peerKind ?kind }
-       }
-     }
-     ORDER BY ?name`
-  );
-  return r2.results.bindings.map((b2) => ({
-    uri: b2["uri"].value,
-    name: b2["name"].value,
-    endpoint: b2["endpoint"].value,
-    addedAt: b2["addedAt"].value,
-    kind: b2["kind"]?.value ?? "team"
-  }));
-}
-async function peer(args) {
-  if (args.length === 0 || args[0] === "--help") {
-    help8();
-    return args.length === 0 ? 2 : 0;
-  }
-  const sub = args[0];
-  const client = getAdapter();
-  await client.update(`CREATE SILENT GRAPH <${PEERS_GRAPH}>`);
-  try {
-    if (sub === "add") {
-      const name = args[1];
-      const endpoint = args[2];
-      if (!name || !endpoint) {
-        console.error("predicate peer add: usage: predicate peer add <name> <endpoint>");
-        return 2;
-      }
-      return await addPeer(client, name, endpoint);
-    }
-    if (sub === "remove") {
-      const name = args[1];
-      if (!name) {
-        console.error("predicate peer remove: usage: predicate peer remove <name>");
-        return 2;
-      }
-      return await removePeer(client, name);
-    }
-    if (sub === "list") {
-      const peers = await listPeers(client);
-      if (args.includes("--json")) console.log(JSON.stringify(peers, null, 2));
-      else if (peers.length === 0) console.log("(no peers registered \u2014 `predicate peer add <name> <endpoint>`)");
-      else {
-        const widths = [
-          Math.max(4, ...peers.map((p2) => p2.name.length)),
-          Math.max(4, ...peers.map((p2) => p2.kind.length)),
-          Math.max(8, ...peers.map((p2) => p2.endpoint.length))
-        ];
-        console.log(["name".padEnd(widths[0]), "kind".padEnd(widths[1]), "endpoint".padEnd(widths[2]), "addedAt"].join("  "));
-        for (const p2 of peers) console.log([p2.name.padEnd(widths[0]), p2.kind.padEnd(widths[1]), p2.endpoint.padEnd(widths[2]), p2.addedAt].join("  "));
-      }
-      return 0;
-    }
-    console.error(`predicate peer: unknown subcommand "${sub}"`);
-    help8();
-    return 2;
-  } catch (err2) {
-    console.error(`predicate peer failed: ${err2.message}`);
-    return 1;
-  }
-}
-
-// ../predicate-cli/src/commands/export-sessions.ts
-init_config();
-function parseFlag8(args, name) {
-  const i2 = args.indexOf(name);
-  return i2 < 0 || i2 + 1 >= args.length ? void 0 : args[i2 + 1];
-}
-function hasFlag8(args, name) {
-  return args.includes(name);
-}
-function help9() {
-  console.log(`predicate export-sessions [--since DATE] [--user NAME] > out.trig
-
-Export local kg:abox session-history triples as TriG (one named graph
-containing all triples for sessions started after --since).
-
-Options:
-  --since DATE   ISO 8601 datetime cutoff (default: 7 days ago).
-  --user NAME    Tag the export graph name with this user identifier
-                 (default: $USER env var).
-  --help         Print this message.
-
-Example:
-  predicate export-sessions --since 2026-05-10 --user alice > alice.trig
-  # send alice.trig to teammate; they run:
-  predicate import-sessions alice.trig
-`);
-}
-function authHeader2() {
-  const user = process.env["PREDICATE_ADMIN_USER"] ?? "admin";
-  const pass = process.env["PREDICATE_ADMIN_PASSWORD"] ?? "changeme";
-  return "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
-}
-async function exportSessions(args) {
-  if (hasFlag8(args, "--help")) {
-    help9();
-    return 0;
-  }
-  const cfg = loadConfig();
-  const since = parseFlag8(args, "--since") ?? new Date(Date.now() - 7 * 864e5).toISOString();
-  const user = parseFlag8(args, "--user") ?? process.env["USER"] ?? "anonymous";
-  const exportGraph = `urn:predicate:export:${encodeURIComponent(user)}:${(/* @__PURE__ */ new Date()).toISOString()}`;
-  const query = `
-    PREFIX pred: <https://predicate.dev/meta#>
-    CONSTRUCT { ?s ?p ?o }
-    WHERE {
-      GRAPH <kg:abox> {
-        ?session a pred:Session ; pred:at ?at .
-        FILTER (?at >= "${since}"^^<http://www.w3.org/2001/XMLSchema#dateTime>)
-        ?s ?p ?o .
-        FILTER (?s = ?session ||
-                EXISTS { ?s ?_p1 ?session } ||
-                EXISTS { ?session ?_p2 ?s })
-      }
-    }
-  `;
-  try {
-    const r2 = await fetch(`${cfg.fusekiUrl}/${cfg.dataset}/query`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept": "application/n-triples",
-        "Authorization": authHeader2()
-      },
-      body: "query=" + encodeURIComponent(query)
-    });
-    if (!r2.ok) {
-      console.error(`predicate export-sessions: SPARQL error ${r2.status}`);
-      return 1;
-    }
-    const ntriples = await r2.text();
-    console.log(`<${exportGraph}> {`);
-    const body = ntriples.split("\n").filter((l2) => l2.trim()).map((l2) => "  " + l2).join("\n");
-    if (body) console.log(body);
-    console.log("}");
-    return 0;
-  } catch (err2) {
-    console.error(`predicate export-sessions failed: ${err2.message}`);
-    return 1;
-  }
-}
-
-// ../predicate-cli/src/commands/import-sessions.ts
-init_config();
-import { readFileSync as readFileSync5 } from "node:fs";
-function help10() {
-  console.log(`predicate import-sessions <file.trig>
-
-Load a TriG-formatted peer export into local Fuseki. Each named graph
-in the TriG is created in the local store as-is (it does NOT overwrite
-kg:abox). Use \`kg_ask --include-remote\` to query unioned data
-across local + imported peer graphs.
-
-Options:
-  --help    Print this message.
-`);
-}
-function authHeader3() {
-  const user = process.env["PREDICATE_ADMIN_USER"] ?? "admin";
-  const pass = process.env["PREDICATE_ADMIN_PASSWORD"] ?? "changeme";
-  return "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
-}
-async function importSessions(args) {
-  if (args.length === 0 || args[0] === "--help") {
-    help10();
-    return args.length === 0 ? 2 : 0;
-  }
-  const file = args[0];
-  let trig;
-  try {
-    trig = readFileSync5(file, "utf8");
-  } catch (err2) {
-    console.error(`predicate import-sessions: failed to read ${file}: ${err2.message}`);
-    return 1;
-  }
-  const cfg = loadConfig();
-  try {
-    const r2 = await fetch(`${cfg.fusekiUrl}/${cfg.dataset}/data`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/trig",
-        "Authorization": authHeader3()
-      },
-      body: trig
-    });
-    if (!r2.ok) {
-      console.error(`predicate import-sessions: Fuseki rejected (${r2.status}): ${await r2.text()}`);
-      return 1;
-    }
-    console.log(`predicate import-sessions: loaded ${trig.length} bytes from ${file}`);
-    return 0;
-  } catch (err2) {
-    console.error(`predicate import-sessions failed: ${err2.message}`);
-    return 1;
-  }
-}
-
-// ../predicate-cli/src/commands/ld.ts
-init_storage();
-var META11 = "https://predicate.dev/meta#";
-var PEERS_GRAPH2 = "kg:peers";
-var WELL_KNOWN = [
-  { name: "dbpedia", endpoint: "https://dbpedia.org/sparql", description: "DBpedia \u2014 structured Wikipedia data" },
-  { name: "wikidata", endpoint: "https://query.wikidata.org/sparql", description: "Wikidata \u2014 collaborative knowledge base" }
-];
-function help11() {
-  console.log(`predicate ld <subcommand> [args]
-
-Linked-Data federation: query well-known public SPARQL endpoints
-(DBpedia, Wikidata) without polluting local kg:abox.
-
-Subcommands:
-  init            Register the well-known LD endpoints as peers
-                  (tagged with pred:peerKind "external-ld"). Idempotent.
-  ask <query>     Run SPARQL against ALL registered external-ld peers
-                  and merge the results. Prints \`?peer\` column to
-                  indicate which endpoint each row came from.
-  list [--json]   List registered external-ld peers.
-  --help          Print this message.
-
-Examples:
-  predicate ld init
-  predicate ld ask "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT ?label WHERE { ?s wdt:P31 wd:Q5 . ?s rdfs:label ?label } LIMIT 1"
-`);
-}
-async function initLd(client) {
-  let added = 0, kept = 0;
-  for (const ep of WELL_KNOWN) {
-    const uri2 = `urn:predicate:peer:${ep.name}`;
-    const existing = await client.ask(
-      `PREFIX pred: <${META11}>
-         ASK { GRAPH <${PEERS_GRAPH2}> {
-           ?p a pred:Peer ; pred:peerName ${escapeLiteral(ep.name)} .
-         } }`
-    ).catch(() => false);
-    if (existing) {
-      kept++;
-      continue;
-    }
-    const now = (/* @__PURE__ */ new Date()).toISOString();
-    await client.update(`
-      PREFIX pred: <${META11}>
-      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-      INSERT DATA { GRAPH <${PEERS_GRAPH2}> {
-        ${escapeIRI(uri2)} a pred:Peer ;
-          pred:peerName     ${escapeLiteral(ep.name)} ;
-          pred:peerEndpoint "${ep.endpoint}"^^xsd:anyURI ;
-          pred:peerKind     ${escapeLiteral("external-ld")} ;
-          pred:peerAddedAt  "${now}"^^xsd:dateTime .
-      } }
-    `);
-    added++;
-  }
-  console.log(`predicate ld init: ${added} added, ${kept} already present (${WELL_KNOWN.length} total well-known endpoints).`);
-  return 0;
-}
-async function listLd(client, json) {
-  const r2 = await client.select(
-    `PREFIX pred: <${META11}>
-     SELECT ?name ?endpoint WHERE {
-       GRAPH <${PEERS_GRAPH2}> {
-         ?p a pred:Peer ;
-            pred:peerName ?name ;
-            pred:peerEndpoint ?endpoint ;
-            pred:peerKind "external-ld" .
-       }
-     } ORDER BY ?name`
-  );
-  const rows = r2.results.bindings.map((b2) => ({
-    name: b2["name"].value,
-    endpoint: b2["endpoint"].value
-  }));
-  if (json) console.log(JSON.stringify(rows, null, 2));
-  else if (rows.length === 0) console.log("(no external-ld peers \u2014 run `predicate ld init`)");
-  else {
-    const w2 = Math.max(4, ...rows.map((r3) => r3.name.length));
-    console.log(["name".padEnd(w2), "endpoint"].join("  "));
-    for (const r3 of rows) console.log([r3.name.padEnd(w2), r3.endpoint].join("  "));
-  }
-  return 0;
-}
-async function askLd(client, query, json) {
-  const peers = await client.select(
-    `PREFIX pred: <${META11}>
-     SELECT ?name ?endpoint WHERE {
-       GRAPH <${PEERS_GRAPH2}> {
-         ?p a pred:Peer ;
-            pred:peerName ?name ;
-            pred:peerEndpoint ?endpoint ;
-            pred:peerKind "external-ld" .
-       }
-     }`
-  );
-  if (peers.results.bindings.length === 0) {
-    console.error("predicate ld ask: no external-ld peers registered. Run `predicate ld init` first.");
-    return 2;
-  }
-  const allRows = [];
-  for (const p2 of peers.results.bindings) {
-    const name = p2["name"].value;
-    const endpoint = p2["endpoint"].value;
-    try {
-      const r2 = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Accept": "application/sparql-results+json",
-          "User-Agent": "predicate-skill (https://github.com/NordicAgents/predicate)"
-        },
-        body: "query=" + encodeURIComponent(query)
-      });
-      if (!r2.ok) {
-        console.error(`predicate ld ask: ${name} returned ${r2.status}`);
-        continue;
-      }
-      const data = await r2.json();
-      for (const b2 of data.results.bindings) allRows.push({ peer: name, binding: b2 });
-    } catch (err2) {
-      console.error(`predicate ld ask: ${name} failed: ${err2.message}`);
-    }
-  }
-  if (json) console.log(JSON.stringify(allRows, null, 2));
-  else if (allRows.length === 0) console.log("(no results from any external-ld peer)");
-  else {
-    const cols = Object.keys(allRows[0].binding);
-    const header = ["peer", ...cols];
-    const widths = header.map((h2, i2) => {
-      if (i2 === 0) return Math.max(4, ...allRows.map((r2) => r2.peer.length));
-      const k2 = cols[i2 - 1];
-      return Math.max(h2.length, ...allRows.map((r2) => (r2.binding[k2]?.value ?? "").length));
-    });
-    console.log(header.map((h2, i2) => h2.padEnd(widths[i2])).join("  "));
-    for (const r2 of allRows) {
-      const cells = [r2.peer, ...cols.map((c2) => r2.binding[c2]?.value ?? "")];
-      console.log(cells.map((c2, i2) => c2.padEnd(widths[i2])).join("  "));
-    }
-  }
-  return 0;
-}
-async function ld(args) {
-  if (args.length === 0 || args[0] === "--help") {
-    help11();
-    return args.length === 0 ? 2 : 0;
-  }
-  const sub = args[0];
-  const client = getAdapter();
-  await client.update(`CREATE SILENT GRAPH <${PEERS_GRAPH2}>`);
-  try {
-    if (sub === "init") return await initLd(client);
-    if (sub === "list") return await listLd(client, args.includes("--json"));
-    if (sub === "ask") {
-      const query = args.slice(1).filter((a2) => a2 !== "--json").join(" ").trim();
-      if (!query) {
-        console.error("predicate ld ask: query argument required");
-        return 2;
-      }
-      return await askLd(client, query, args.includes("--json"));
-    }
-    console.error(`predicate ld: unknown subcommand "${sub}"`);
-    help11();
-    return 2;
-  } catch (err2) {
-    console.error(`predicate ld failed: ${err2.message}`);
-    return 1;
-  }
-}
-
 // ../predicate-cli/src/commands/schema.ts
 init_storage();
-var META12 = "https://predicate.dev/meta#";
+var META10 = "https://predicate.dev/meta#";
 var PROPOSAL_IRI2 = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
-function help12() {
+function help8() {
   console.log(`predicate schema <verb> [args]
 
 Verbs:
@@ -30187,7 +29755,7 @@ async function listProposals() {
   try {
     const client = getAdapter();
     const r2 = await client.select(`
-    PREFIX pred: <${META12}>
+    PREFIX pred: <${META10}>
     SELECT ?id ?kind ?justification ?motivatingGoal ?proposedAt ?expiresAt ?useCount
     WHERE {
       GRAPH <kg:tbox-staging> {
@@ -30264,7 +29832,7 @@ async function schema(args) {
     case "approve": {
       const id = args[1];
       if (!id) {
-        help12();
+        help8();
         return 2;
       }
       return approveProposal(id);
@@ -30272,7 +29840,7 @@ async function schema(args) {
     case "reject": {
       const id = args[1];
       if (!id) {
-        help12();
+        help8();
         return 2;
       }
       return rejectProposal(id);
@@ -30280,11 +29848,11 @@ async function schema(args) {
     case void 0:
     case "--help":
     case "help":
-      help12();
+      help8();
       return 0;
     default:
       console.error(`predicate schema: unknown verb: ${verb}`);
-      help12();
+      help8();
       return 2;
   }
 }
@@ -30294,13 +29862,13 @@ init_fuseki();
 init_oxigraph();
 init_config();
 init_graphs();
-function parseFlag9(args, name) {
+function parseFlag8(args, name) {
   const i2 = args.indexOf(name);
   return i2 < 0 || i2 + 1 >= args.length ? void 0 : args[i2 + 1];
 }
 async function migrate(args) {
-  const from = parseFlag9(args, "--from");
-  const to = parseFlag9(args, "--to");
+  const from = parseFlag8(args, "--from");
+  const to = parseFlag8(args, "--to");
   if (from !== "fuseki" || to !== "oxigraph") {
     console.error("predicate migrate: only --from fuseki --to oxigraph is supported.");
     return 2;
@@ -30349,7 +29917,7 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 
 // ../predicate-cli/src/index.ts
 var VERSION2 = true ? "2.0.12" : "0.0.0-dev";
-function help13() {
+function help9() {
   console.log(`predicate <command>
 
 Commands:
@@ -30375,10 +29943,6 @@ Commands:
   recall            Substring search over session history (files + commands).
   dashboard         Serve a localhost web view of session-history + reasoning output.
   schema            List / approve / reject pending kg:tbox-staging proposals.
-  peer              Manage federation peers (add / list / remove).
-  export-sessions   Export local session-history triples as TriG to stdout.
-  import-sessions   Import a teammate's TriG export into local Fuseki.
-  ld                Linked-Data federation (DBpedia / Wikidata): init / list / ask.
   migrate           Migrate data: --from fuseki --to oxigraph.
   --version         Print the predicate version.
   --help            This message.
@@ -30428,14 +29992,6 @@ async function main() {
       return dashboard(process.argv.slice(3));
     case "schema":
       return schema(process.argv.slice(3));
-    case "peer":
-      return peer(process.argv.slice(3));
-    case "export-sessions":
-      return exportSessions(process.argv.slice(3));
-    case "import-sessions":
-      return importSessions(process.argv.slice(3));
-    case "ld":
-      return ld(process.argv.slice(3));
     case "init":
       return init(process.argv.slice(3));
     case "migrate":
@@ -30447,11 +30003,11 @@ async function main() {
     case void 0:
     case "--help":
     case "help":
-      help13();
+      help9();
       return 0;
     default:
       console.error(`unknown command: ${cmd}`);
-      help13();
+      help9();
       return 2;
   }
 }

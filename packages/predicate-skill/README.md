@@ -14,7 +14,7 @@
 
 ```bash
 npm install -g predicate-skill
-predicate up        # creates the local store + the 9 named graphs
+predicate up        # creates the local store + the 8 named graphs
 predicate doctor    # all checks green
 ```
 
@@ -75,7 +75,7 @@ plus the named graphs, the reasoner, and plugin registration.
 
 | Command | What it does |
 |---|---|
-| `/predicate:up` | Open the backend and bootstrap the 9 named graphs. |
+| `/predicate:up` | Open the backend and bootstrap the 8 named graphs. |
 | `/predicate:down` | Close the backend (no daemon on Oxigraph; `docker compose down` on Fuseki). |
 | `/predicate:doctor` | Backend-aware health check. |
 | `/predicate:stats` | Triple / ABox / inferred / TBox counts and ratios. |
@@ -231,7 +231,7 @@ The bundled server exposes 11 tools over stdio:
 | Tool | What it does |
 |---|---|
 | `kg_explore_schema` | Returns the TBox slice for a concept so the model uses real predicates. |
-| `kg_ask` | Runs a caller-drafted SPARQL query against asserted + inferred graphs; supports `includeRemote: true` for peer-federated queries. |
+| `kg_ask` | Runs a caller-drafted SPARQL query against asserted + inferred graphs. |
 | `kg_assert` | Writes a triple to `kg:abox` with RDF-star provenance. Rejects undeclared predicates. |
 | `kg_explain` | Returns the backward-chained derivation for a claim, with cited provenance. |
 | `kg_propose_schema` | Stages a `SchemaDelta` proposal in `kg:tbox-staging`. |
@@ -244,7 +244,7 @@ The bundled server exposes 11 tools over stdio:
 ## CLI
 
 ```
-predicate up                # open the store (Oxigraph default) + bootstrap the 9 graphs
+predicate up                # open the store (Oxigraph default) + bootstrap the 8 graphs
 predicate init              # seed kg:tbox (community / upload / empty)
 predicate down              # close the store (or stop the Fuseki container)
 predicate doctor            # backend-aware health checks
@@ -255,14 +255,6 @@ predicate extract           # read a Stop-hook payload and assert typed triples 
 predicate sessions          # list recent extracted sessions
 predicate recall <query>    # substring search over session history
 predicate dashboard         # localhost web view of session history + reasoning output
-
-predicate peer add <name> <sparql-endpoint>     # register a teammate's endpoint
-predicate peer list | peer remove
-predicate export-sessions [--since DATE] [--user NAME]
-predicate import-sessions <file.trig>
-
-predicate ld init           # register DBpedia + Wikidata as external LD peers
-predicate ld ask <query>    # one-shot SPARQL across registered LD endpoints
 
 predicate --version
 predicate --help

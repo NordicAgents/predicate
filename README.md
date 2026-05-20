@@ -31,7 +31,7 @@ See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the full product brief.
 
 ```bash
 npm install -g predicate-skill
-predicate up        # creates the local store + the 9 named graphs
+predicate up        # creates the local store + the 8 named graphs
 predicate doctor    # all checks green
 ```
 
@@ -183,11 +183,11 @@ predicate down              # stop the Fuseki container; your data is now in Oxi
 
 ## How it works
 
-- **Storage.** 9 named graphs separate slow-changing schema (`kg:tbox`)
+- **Storage.** 8 named graphs separate slow-changing schema (`kg:tbox`)
   from fast-flowing facts (`kg:abox`), materialized entailments
   (`kg:inferred`), per-triple metadata (`kg:provenance`), goals
   (`kg:goals`), usage logs (`kg:usage`), staging (`kg:tbox-staging`),
-  version history (`kg:meta`), and the peer registry (`kg:peers`).
+  and version history (`kg:meta`).
 - **Reasoning.** A curated OWL 2 RL rule set runs as SPARQL `CONSTRUCT`
   rules to a fixpoint, plus SHACL shapes for closed-world validation.
   Logical entailment is the engine's job; the model formulates queries
@@ -223,7 +223,7 @@ Run non-interactively with `predicate init --mode community --ontology codebase`
 | Tool | What it does |
 |---|---|
 | `kg_explore_schema` | Returns the TBox slice for a concept so the model uses real predicates. |
-| `kg_ask` | Runs a caller-drafted SPARQL query against asserted + inferred graphs. Supports `includeRemote: true` to merge results from registered peers. |
+| `kg_ask` | Runs a caller-drafted SPARQL query against asserted + inferred graphs. |
 | `kg_assert` | Writes a triple to `kg:abox` with RDF-star provenance. Rejects undeclared predicates. |
 | `kg_explain` | Returns the backward-chained derivation for a claim, with cited provenance. |
 | `kg_propose_schema` | Stages a `SchemaDelta` proposal in `kg:tbox-staging`. |
@@ -236,7 +236,7 @@ Run non-interactively with `predicate init --mode community --ontology codebase`
 ## CLI
 
 ```
-predicate up                # open the store (Oxigraph default) + bootstrap the 9 graphs
+predicate up                # open the store (Oxigraph default) + bootstrap the 8 graphs
 predicate init              # seed kg:tbox (community / upload / empty)
 predicate down              # close the store (or stop the Fuseki container)
 predicate doctor            # backend-aware health checks
@@ -245,14 +245,6 @@ predicate migrate --from fuseki --to oxigraph   # move an existing Fuseki store 
 predicate maintain          # reaper + generalizer + promotion sweeper
 predicate recall <query>    # substring search over session history (files + commands)
 predicate dashboard         # localhost web view of session history + reasoning output
-
-predicate peer add <name> <sparql-endpoint>     # register a teammate's endpoint
-predicate peer list | peer remove
-predicate export-sessions [--since DATE] [--user NAME]
-predicate import-sessions <file.trig>
-
-predicate ld init           # register DBpedia + Wikidata as external LD peers
-predicate ld ask <query>    # one-shot SPARQL across registered LD endpoints
 
 predicate --version
 predicate --help
@@ -268,25 +260,6 @@ Serves a read-only localhost view at `http://127.0.0.1:4040` — recent
 sessions, hotspots (files modified in ≥3 sessions), flaky commands
 (failed in ≥2 sessions), active files, and a stats snapshot. Auto-refreshes
 every 30s. `--port N` to override; `--no-open` to skip the browser.
-
-## Federation
-
-Predicate is single-user by default but can share session history across a
-team without merging stores.
-
-- `predicate peer add <name> <endpoint>` registers a teammate's endpoint in
-  `kg:peers`.
-- `predicate export-sessions` dumps the local session-history slice as a
-  TriG file wrapped in a per-export named graph, so a receiving instance can
-  hold multiple peers' data side by side without collision.
-- `predicate import-sessions <file.trig>` loads such a file; each named
-  graph is preserved as-is and never mixed into local `kg:abox`.
-- `kg_ask` with `includeRemote: true` runs the query locally and against
-  every registered peer, tagging results with a `?peer` column. A dead peer
-  never crashes the query.
-
-A thin Linked-Data layer reuses the same registry to query public endpoints
-(`predicate ld ask`) without writing remote results back to `kg:abox`.
 
 ## Derived classes
 
