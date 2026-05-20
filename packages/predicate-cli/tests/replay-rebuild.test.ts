@@ -14,6 +14,10 @@ async function aboxCount(): Promise<number> {
   const r = await client.select('SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }');
   return parseInt(r.results.bindings[0]!.n!.value, 10);
 }
+async function provCount(): Promise<number> {
+  const r = await client.select('SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:provenance> { ?x ?y ?z } }');
+  return parseInt(r.results.bindings[0]!.n!.value, 10);
+}
 
 beforeEach(async () => {
   await reset('kg:tbox'); await reset('kg:abox'); await reset('kg:provenance');
@@ -33,6 +37,7 @@ describe('deleteExtractedSlice', () => {
     expect(await aboxCount()).toBe(1);
     await deleteExtractedSlice(client, 'S1');
     expect(await aboxCount()).toBe(0);
+    expect(await provCount()).toBe(0); // provenance fully cleaned, no orphans
   });
 
   it('preserves a triple that also has a non-session source (shared triple)', async () => {
