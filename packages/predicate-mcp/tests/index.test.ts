@@ -7,14 +7,11 @@ describe('tool registry', () => {
   const tools = buildTools(getAdapter());
   const names = tools.map((t) => t.name);
 
-  it('exposes all 11 tools', () => {
+  it('exposes exactly the 8 agent-facing tools', () => {
     expect(names.sort()).toEqual(
       [
         'kg_ask',
         'kg_assert',
-        'kg_capture',
-        'kg_config_get',
-        'kg_config_set',
         'kg_explain',
         'kg_explore_schema',
         'kg_maintain',
@@ -25,11 +22,9 @@ describe('tool registry', () => {
     );
   });
 
-  it('no remaining stubs — all 11 tools are implemented', () => {
-    expect(names).toEqual(expect.arrayContaining([
-      'kg_explore_schema', 'kg_ask', 'kg_assert', 'kg_explain',
-      'kg_propose_schema', 'kg_research_goal', 'kg_stats', 'kg_maintain',
-      'kg_capture', 'kg_config_get', 'kg_config_set',
-    ]));
+  it('no longer exposes capture/config tools (moved to CLI)', () => {
+    expect(names).not.toContain('kg_capture');
+    expect(names).not.toContain('kg_config_get');
+    expect(names).not.toContain('kg_config_set');
   });
 });
