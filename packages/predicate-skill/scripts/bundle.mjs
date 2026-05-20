@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 import { build } from 'esbuild';
-import { chmodSync, cpSync, rmSync } from 'node:fs';
+import { chmodSync, cpSync, rmSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 const repoRoot = resolve(root, '..', '..');
+
+// The version users actually installed = predicate-skill's package.json.
+// Injected into the CLI bundle so `predicate --version` reports it.
+const pkgVersion = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).version;
+const versionDefine = { __PREDICATE_VERSION__: JSON.stringify(pkgVersion) };
 
 // Copy the ontology catalog + meta into predicate-skill so that
 // `predicate init --mode community` works when the package is installed
@@ -36,6 +41,7 @@ await build({
   },
   minify: false,
   sourcemap: false,
+  define: versionDefine,
   external: ['better-sqlite3', 'oxigraph'],
   plugins: [
     {
@@ -73,6 +79,7 @@ await build({
   },
   minify: false,
   sourcemap: false,
+  define: versionDefine,
   external: ['better-sqlite3', 'oxigraph'],
   plugins: [
     {
