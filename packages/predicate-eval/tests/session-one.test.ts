@@ -51,18 +51,20 @@ describe('session-one eval (PRD leading indicator)', () => {
     expect(merged).toBe(false);
   });
 
-  it('E5: blast radius — transitive dependsOn returns checkout + dunning', async () => {
+  it('E5: blast radius — TRANSITIVE dependsOn reaches ledger via r03', async () => {
+    // checkout -> billingEvents -> ledger and dunning -> billingEvents -> ledger.
+    // Reaching ledger requires r03 transitivity; there is no direct edge to ledger.
     const r = await client.select(`
       PREFIX top: <${TOP}>
       SELECT ?dep WHERE {
-        { GRAPH <kg:abox> { ?dep top:dependsOn <${ops}billingEvents> } }
+        { GRAPH <kg:abox> { ?dep top:dependsOn <${ops}ledger> } }
         UNION
-        { GRAPH <kg:inferred> { ?dep top:dependsOn <${ops}billingEvents> } }
+        { GRAPH <kg:inferred> { ?dep top:dependsOn <${ops}ledger> } }
       }
     `);
     const deps = r.results.bindings.map((b) => b.dep!.value);
-    expect(deps).toContain(`${ops}checkout`);
-    expect(deps).toContain(`${ops}dunning`);
+    expect(deps).toContain(`${ops}checkout`);  // only via checkout->billingEvents->ledger
+    expect(deps).toContain(`${ops}dunning`);   // only via dunning->billingEvents->ledger
   });
 
   it('E6: dunning owner — settled owner returned; losing source kept at low confidence', async () => {
