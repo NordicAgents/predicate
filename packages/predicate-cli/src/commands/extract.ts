@@ -80,6 +80,50 @@ Env:
 `);
 }
 
+export interface ExtractTranscriptResult {
+  deterministic: number;
+  semantic: number;
+  asserted: number;
+  rejected: number;
+}
+
+export async function extractTranscript(
+  client: StorageAdapter,
+  opts: { sessionId: string; transcriptPath: string; platform: Platform },
+): Promise<ExtractTranscriptResult> {
+  const lines = readFileSync(opts.transcriptPath, 'utf8')
+    .split('\n')
+    .filter((l) => l.trim().length > 0);
+  const events = lines.map((l) => JSON.parse(l) as Record<string, unknown>);
+
+  const adapted = adapterFor(opts.platform)(events);
+  const transcript: Transcript = { sessionId: opts.sessionId, events: adapted };
+  const deterministic = extractDeterministic(transcript);
+
+  let semantic: { triples: SemanticTriple[]; skipped: string[] } = { triples: [], skipped: [] };
+  if (process.env['ANTHROPIC_API_KEY']) {
+    const tboxSlice = await buildTBoxSlice(client);
+    semantic = await extractSemantic({
+      sessionId: opts.sessionId,
+      finalMessage: lastAssistantText(adapted),
+      toolSummary: summarizeToolCalls(adapted),
+      tboxSlice,
+    });
+  }
+
+  let asserted = 0;
+  let rejected = 0;
+  for (const t of [...deterministic.triples, ...semantic.triples] as Array<ExtractedTriple | SemanticTriple>) {
+    try { await kgAssert(client, t); asserted++; } catch { rejected++; }
+  }
+  return {
+    deterministic: deterministic.triples.length,
+    semantic: semantic.triples.length,
+    asserted,
+    rejected,
+  };
+}
+
 async function buildTBoxSlice(client: StorageAdapter): Promise<string> {
   // Naive slice: list every declared predicate. Good enough for v1.5;
   // future versions can scope by concept.
@@ -127,44 +171,16 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
     return 2;
   }
 
-  let events: Array<Record<string, unknown>>;
+  let result: ExtractTranscriptResult;
   try {
-    const lines = readFileSync(transcriptPath, 'utf8').split('\n').filter((l) => l.trim().length > 0);
-    events = lines.map((l) => JSON.parse(l) as Record<string, unknown>);
+    result = await extractTranscript(getAdapter(), { sessionId, transcriptPath, platform });
   } catch (err) {
-    console.error(`predicate extract: failed to read transcript: ${(err as Error).message}`);
+    console.error(`predicate extract: failed to process transcript: ${(err as Error).message}`);
     return 1;
   }
 
-  const adapted = adapterFor(platform)(events);
-  const transcript: Transcript = { sessionId, events: adapted };
-  const deterministic = extractDeterministic(transcript);
-
-  let semantic: { triples: SemanticTriple[]; skipped: string[] } = { triples: [], skipped: [] };
-  const client = getAdapter();
-  if (process.env['ANTHROPIC_API_KEY']) {
-    const tboxSlice = await buildTBoxSlice(client);
-    semantic = await extractSemantic({
-      sessionId,
-      finalMessage: lastAssistantText(adapted),
-      toolSummary: summarizeToolCalls(adapted),
-      tboxSlice,
-    });
-  }
-
-  let asserted = 0;
-  let rejected = 0;
-  for (const t of [...deterministic.triples, ...semantic.triples] as Array<ExtractedTriple | SemanticTriple>) {
-    try {
-      await kgAssert(client, t);
-      asserted++;
-    } catch {
-      rejected++;
-    }
-  }
-
   console.log(
-    `predicate extract: session=${sessionId} deterministic=${deterministic.triples.length} semantic=${semantic.triples.length} asserted=${asserted} rejected=${rejected}`,
+    `predicate extract: session=${sessionId} deterministic=${result.deterministic} semantic=${result.semantic} asserted=${result.asserted} rejected=${result.rejected}`,
   );
   return 0;
 }
