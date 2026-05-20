@@ -159,13 +159,15 @@ async function replay(pathArg: string, platform: Platform): Promise<number> {
     }
   }
 
-  await client.update('DROP SILENT GRAPH <kg:inferred>');
-  await new FusekiConstructAdapter(client).materialize({
-    tboxGraph: 'kg:tbox',
-    aboxGraphs: ['kg:abox'],
-    targetGraph: 'kg:inferred',
-    closureCutoff: 0.5,
-  });
+  if (sessions > 0) {
+    await client.update('DROP SILENT GRAPH <kg:inferred>');
+    await new FusekiConstructAdapter(client).materialize({
+      tboxGraph: 'kg:tbox',
+      aboxGraphs: ['kg:abox'],
+      targetGraph: 'kg:inferred',
+      closureCutoff: 0.5,
+    });
+  }
 
   console.log(
     `predicate extract --replay: replayed ${sessions} sessions, asserted ${asserted}, rejected ${rejected}, errors ${errors}`,

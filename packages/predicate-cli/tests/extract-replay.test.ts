@@ -93,4 +93,21 @@ describe('predicate extract --replay', () => {
     err.mockRestore();
     rmSync(dir, { recursive: true, force: true });
   });
+
+  it('all-malformed dir returns 1 and does not wipe existing kg:inferred', async () => {
+    // seed kg:inferred with a sentinel triple
+    await client.update('INSERT DATA { GRAPH <kg:inferred> { <urn:x:s> <urn:x:p> <urn:x:o> } }');
+    // a transcript file with an unparseable JSON line
+    writeFileSync(join(dir, 'broken.jsonl'), '{ this is not json');
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    expect(await extract(['--replay', dir])).toBe(1); // sessions===0 && errors>0
+
+    const r = await client.select('SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:inferred> { ?s ?p ?o } }');
+    expect(parseInt(r.results.bindings[0]!.n!.value, 10)).toBe(1); // sentinel NOT wiped
+
+    err.mockRestore(); log.mockRestore();
+    rmSync(dir, { recursive: true, force: true });
+  });
 });
