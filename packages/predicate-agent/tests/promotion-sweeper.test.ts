@@ -1,13 +1,21 @@
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
-import { rmSync, existsSync } from 'node:fs';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest';
+import { mkdtempSync, rmSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { SchemaProposer } from '../src/schema-proposer.js';
 import { PromotionSweeper } from '../src/promotion-sweeper.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const C = 'https://predicate.dev/codebase';
+
+let promotedDir: string;
+
+beforeAll(() => {
+  promotedDir = mkdtempSync(join(tmpdir(), 'predicate-promoted-'));
+  process.env['PREDICATE_PROMOTED_DIR'] = promotedDir;
+});
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);
@@ -39,6 +47,8 @@ afterAll(async () => {
   for (const g of ['kg:tbox-staging', 'kg:meta', 'kg:usage', 'kg:inferred']) {
     await reset(g);
   }
+  delete process.env['PREDICATE_PROMOTED_DIR'];
+  rmSync(promotedDir, { recursive: true, force: true });
 });
 
 describe('PromotionSweeper', () => {

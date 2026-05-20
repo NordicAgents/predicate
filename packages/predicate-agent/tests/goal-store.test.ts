@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { GoalStore } from '../src/goal-store.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const store = new GoalStore(client);
 
 async function reset(g: string): Promise<void> {

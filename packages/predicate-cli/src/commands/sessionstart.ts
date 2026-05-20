@@ -1,12 +1,10 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 
 const META = 'https://predicate.dev/meta#';
 const OWL = 'http://www.w3.org/2002/07/owl#';
 
 export async function sessionstart(): Promise<number> {
-  const cfg = loadConfig();
-  const client = new SparqlClient(cfg);
+  const client = getAdapter();
 
   try {
     const goalsRes = await client.select(

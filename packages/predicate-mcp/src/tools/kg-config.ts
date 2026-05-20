@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { escapeLiteral } from '../sparql/escape.js';
 
 const META = 'https://predicate.dev/meta#';
@@ -38,7 +38,7 @@ function literalFor(value: string | boolean, type: 'boolean' | 'string'): string
 }
 
 export async function kgConfigSet(
-  client: SparqlClient,
+  client: StorageAdapter,
   input: KgConfigSetInput,
 ): Promise<KgConfigSetResult> {
   const meta = KEY_TO_PROP[input.key];
@@ -66,7 +66,7 @@ export async function kgConfigSet(
 }
 
 export async function kgConfigGet(
-  client: SparqlClient,
+  client: StorageAdapter,
   input: KgConfigGetInput,
 ): Promise<KgConfigGetResult> {
   if (input.key) {

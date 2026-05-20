@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { GRAPH } from '../graphs.js';
 import { escapeIRI, escapeLiteral } from '../sparql/escape.js';
 
@@ -24,7 +24,7 @@ export interface SchemaSlice {
   properties: PropertySlice[];
 }
 
-async function resolveConcept(client: SparqlClient, raw: string): Promise<string | null> {
+async function resolveConcept(client: StorageAdapter, raw: string): Promise<string | null> {
   if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
   const r = await client.select(`
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -38,7 +38,7 @@ async function resolveConcept(client: SparqlClient, raw: string): Promise<string
 }
 
 export async function kgExploreSchema(
-  client: SparqlClient,
+  client: StorageAdapter,
   conceptInput: string,
 ): Promise<SchemaSlice> {
   const concept = (await resolveConcept(client, conceptInput)) ?? conceptInput;

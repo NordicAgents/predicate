@@ -1,9 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+
 import { exportSessions } from '../src/commands/export-sessions.js';
 
-const client = new SparqlClient(loadConfig());
+// export-sessions uses Fuseki's HTTP SPARQL endpoint directly (not via the storage adapter).
+// Skip these tests when running against the Oxigraph in-memory backend.
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
+const client = getAdapter();
 
 async function reset(): Promise<void> {
   await client.update(`DROP SILENT GRAPH <kg:abox>`);
@@ -29,7 +33,7 @@ describe('predicate export-sessions', () => {
   });
   afterEach(() => { logSpy.mockRestore(); errSpy.mockRestore(); });
 
-  it('exports recent session triples wrapped in TriG graph syntax', async () => {
+  it.skipIf(!isFuseki)('exports recent session triples wrapped in TriG graph syntax', async () => {
     const at = new Date(Date.now() - 86400_000).toISOString(); // yesterday
     await seedSession('ses-export-a', at);
 

@@ -1,12 +1,11 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { SparqlClient } from '../../src/sparql/client.js';
-import { loadConfig } from '../../src/config.js';
+import { getAdapter } from '../../src/storage/index.js';
+
 import { kgExploreSchema } from '../../src/tools/kg-explore-schema.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const cfg = loadConfig();
-const client = new SparqlClient(cfg);
+const client = getAdapter();
 
 beforeAll(async () => {
   await client.update('DROP SILENT GRAPH <kg:tbox>');
@@ -15,16 +14,7 @@ beforeAll(async () => {
     resolve(import.meta.dirname, '../../../predicate-ontology/catalog/codebase.ttl'),
     'utf8',
   );
-  const auth =
-    'Basic ' +
-    Buffer.from(
-      `${process.env.PREDICATE_ADMIN_USER ?? 'admin'}:${process.env.PREDICATE_ADMIN_PASSWORD ?? 'changeme'}`,
-    ).toString('base64');
-  await fetch(`${cfg.dataEndpoint}?graph=kg:tbox`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/turtle', Authorization: auth },
-    body: tbox,
-  });
+  await client.loadTurtle(tbox, 'kg:tbox');
 });
 
 describe('kg_explore_schema', () => {

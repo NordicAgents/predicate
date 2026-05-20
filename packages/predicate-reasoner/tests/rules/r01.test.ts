@@ -1,10 +1,8 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { r01 } from '../../src/rules/r01-subclassof-transitivity.js';
 
-const cfg = loadConfig();
-const client = new SparqlClient(cfg);
+const client = getAdapter();
 
 const ruleCfg = {
   tboxGraph: 'kg:tbox-test-r01',

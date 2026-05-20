@@ -1,5 +1,4 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAsk } from 'predicate-mcp/src/tools/kg-ask.js';
 
 const C = 'https://predicate.dev/codebase#';
@@ -36,7 +35,7 @@ const questions: { q: string; sparql: string }[] = [
 ];
 
 async function main(): Promise<void> {
-  const client = new SparqlClient(loadConfig());
+  const client = getAdapter();
   for (const { q, sparql } of questions) {
     const r = await kgAsk(client, { question: q, sparql });
     console.log(`\nQ: ${q}\n   rows=${r.rowCount} truncated=${r.truncated}`);

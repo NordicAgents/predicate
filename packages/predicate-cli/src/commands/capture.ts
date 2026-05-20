@@ -1,6 +1,5 @@
 import type { Readable } from 'node:stream';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgCapture } from 'predicate-mcp/src/tools/kg-capture.js';
 
 function parseFlag(args: string[], name: string): string | undefined {
@@ -104,7 +103,7 @@ export async function capture(args: string[], stdin: Readable = process.stdin): 
   if (shouldSkip(toolName)) return 0;
 
   try {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     await kgCapture(client, { toolName, input: toolInput, output: toolOutput, sessionId, phase });
     return 0;
   } catch (err) {

@@ -2,11 +2,15 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+
 import { importSessions } from '../src/commands/import-sessions.js';
 
-const client = new SparqlClient(loadConfig());
+// import-sessions uses Fuseki's HTTP data-upload endpoint directly (not via the storage adapter).
+// Skip these tests when running against the Oxigraph in-memory backend.
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
+const client = getAdapter();
 const IMPORT_GRAPH = 'urn:predicate:import:test-peer';
 
 async function dropImportGraph(): Promise<void> {
@@ -27,7 +31,7 @@ describe('predicate import-sessions', () => {
     await dropImportGraph();
   });
 
-  it('loads a TriG file into Fuseki preserving the named graph', async () => {
+  it.skipIf(!isFuseki)('loads a TriG file into Fuseki preserving the named graph', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'predicate-import-'));
     const file = join(dir, 'peer.trig');
     const trig = `<${IMPORT_GRAPH}> {

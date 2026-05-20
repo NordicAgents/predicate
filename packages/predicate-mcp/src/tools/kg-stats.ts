@@ -1,14 +1,14 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import type { KgStats } from 'predicate-agent/src/index.js';
 
-async function countGraph(client: SparqlClient, graph: string): Promise<number> {
+async function countGraph(client: StorageAdapter, graph: string): Promise<number> {
   const r = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${graph}> { ?s ?p ?o } }`,
   );
   return parseInt(r.results.bindings[0]!.n!.value, 10);
 }
 
-async function countClasses(client: SparqlClient): Promise<number> {
+async function countClasses(client: StorageAdapter): Promise<number> {
   const r = await client.select(`
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     SELECT (COUNT(DISTINCT ?c) AS ?n) WHERE {
@@ -19,7 +19,7 @@ async function countClasses(client: SparqlClient): Promise<number> {
 }
 
 async function unusedConceptRatio(
-  client: SparqlClient, classCount: number,
+  client: StorageAdapter, classCount: number,
 ): Promise<number> {
   if (classCount === 0) return 0;
   const r = await client.select(`
@@ -38,7 +38,7 @@ async function unusedConceptRatio(
   return unused / classCount;
 }
 
-async function materializationLatencyP95(client: SparqlClient): Promise<number> {
+async function materializationLatencyP95(client: StorageAdapter): Promise<number> {
   // Select payload strings and parse elapsedMs in JS to avoid heavy SPARQL regex escaping
   const r = await client.select(`
     PREFIX pred: <https://predicate.dev/meta#>
@@ -62,7 +62,7 @@ async function materializationLatencyP95(client: SparqlClient): Promise<number> 
   return values[Math.max(idx, 0)]!;
 }
 
-export async function kgStats(client: SparqlClient): Promise<KgStats> {
+export async function kgStats(client: StorageAdapter): Promise<KgStats> {
   const [abox, inferred, tbox] = await Promise.all([
     countGraph(client, 'kg:abox'),
     countGraph(client, 'kg:inferred'),

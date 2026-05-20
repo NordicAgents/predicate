@@ -1,7 +1,7 @@
 import type { Readable } from 'node:stream';
 import { readFileSync } from 'node:fs';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 import {
   extractDeterministic,
@@ -80,7 +80,7 @@ Env:
 `);
 }
 
-async function buildTBoxSlice(client: SparqlClient): Promise<string> {
+async function buildTBoxSlice(client: StorageAdapter): Promise<string> {
   // Naive slice: list every declared predicate. Good enough for v1.5;
   // future versions can scope by concept.
   const r = await client.select(
@@ -141,7 +141,7 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
   const deterministic = extractDeterministic(transcript);
 
   let semantic: { triples: SemanticTriple[]; skipped: string[] } = { triples: [], skipped: [] };
-  const client = new SparqlClient(loadConfig());
+  const client = getAdapter();
   if (process.env['ANTHROPIC_API_KEY']) {
     const tboxSlice = await buildTBoxSlice(client);
     semantic = await extractSemantic({

@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
-import { SparqlClient } from '../../src/sparql/client.js';
-import { loadConfig } from '../../src/config.js';
+import { getAdapter } from '../../src/storage/index.js';
+
 import { kgStats } from '../../src/tools/kg-stats.js';
 import { withCodebaseTBox } from '../fixtures/with-codebase.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);

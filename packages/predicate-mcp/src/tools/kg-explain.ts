@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
 import type { Quad } from 'predicate-reasoner/src/types.js';
 
@@ -8,7 +8,7 @@ export interface ExplainInput {
   object: { type: 'uri' | 'literal'; value: string };
 }
 
-export async function kgExplain(client: SparqlClient, input: ExplainInput): Promise<unknown> {
+export async function kgExplain(client: StorageAdapter, input: ExplainInput): Promise<unknown> {
   const adapter = new FusekiConstructAdapter(client);
   const claim: Quad = {
     s: input.subject, p: input.predicate,

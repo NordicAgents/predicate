@@ -1,4 +1,4 @@
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAssert, type Triple } from 'predicate-mcp/src/tools/kg-assert.js';
 import { GoalStore } from './goal-store.js';
 import { Decomposer } from './decomposer.js';
@@ -20,7 +20,7 @@ export interface ResearchGoalInput {
 }
 
 export async function researchGoal(
-  client: SparqlClient,
+  client: StorageAdapter,
   input: ResearchGoalInput,
 ): Promise<GoalPlan | GoalPlanWithStats> {
   const store = new GoalStore(client);
@@ -83,7 +83,7 @@ export async function researchGoal(
   return { ...base, stats };
 }
 
-async function assertCandidate(client: SparqlClient, c: CandidateTriple): Promise<void> {
+async function assertCandidate(client: StorageAdapter, c: CandidateTriple): Promise<void> {
   const t: Triple = {
     subject: c.subject,
     predicate: c.predicate,

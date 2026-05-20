@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import { GRAPH } from '../graphs.js';
 import { escapeIRI, escapeLiteral } from '../sparql/escape.js';
 import { buildProvenanceMeta } from '../provenance.js';
@@ -7,7 +7,7 @@ const ALWAYS_ALLOWED_PREDICATES = new Set<string>([
   'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
 ]);
 
-async function predicateIsDeclared(client: SparqlClient, p: string): Promise<boolean> {
+async function predicateIsDeclared(client: StorageAdapter, p: string): Promise<boolean> {
   return client.ask(`
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -36,7 +36,7 @@ function renderObject(obj: Triple['object']): string {
   return escapeLiteral(obj.value);
 }
 
-export async function kgAssert(client: SparqlClient, t: Triple): Promise<void> {
+export async function kgAssert(client: StorageAdapter, t: Triple): Promise<void> {
   if (t.confidence < 0 || t.confidence > 1) {
     throw new Error(`confidence must be in [0,1], got ${t.confidence}`);
   }

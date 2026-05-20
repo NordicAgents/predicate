@@ -1,12 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { GapDetector } from '../src/gap-detector.js';
 import type { SubQuestion } from '../src/types.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const detector = new GapDetector(client);
 
 async function reset(g: string): Promise<void> {
@@ -16,15 +15,7 @@ async function reset(g: string): Promise<void> {
 
 async function loadTbox(file: string): Promise<void> {
   const ttl = readFileSync(resolve(import.meta.dirname, '../../', file), 'utf8');
-  const cfg = loadConfig();
-  const auth = 'Basic ' + Buffer.from(
-    `${process.env.PREDICATE_ADMIN_USER ?? 'admin'}:${process.env.PREDICATE_ADMIN_PASSWORD ?? 'changeme'}`,
-  ).toString('base64');
-  await fetch(`${cfg.dataEndpoint}?graph=kg:tbox`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/turtle', Authorization: auth },
-    body: ttl,
-  });
+  await client.loadTurtle(ttl, 'kg:tbox');
 }
 
 beforeAll(async () => {

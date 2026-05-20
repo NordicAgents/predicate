@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SparqlClient } from '../../src/sparql/client.js';
-import { loadConfig } from '../../src/config.js';
+import { getAdapter } from '../../src/storage/index.js';
+
 import { kgConfigGet, kgConfigSet } from '../../src/tools/kg-config.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 
 async function reset(): Promise<void> {
   await client.update(`DROP SILENT GRAPH <kg:meta>`);

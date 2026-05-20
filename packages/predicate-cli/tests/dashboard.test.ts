@@ -2,15 +2,19 @@ import { describe, it, expect, afterEach, beforeAll } from 'vitest';
 import { startDashboardServer, type DashboardServerHandle } from '../src/commands/dashboard.js';
 import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 
+// The dashboard proxies SPARQL to Fuseki; under Oxigraph there is no
+// HTTP endpoint for it to proxy to.
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
 let handle: DashboardServerHandle | undefined;
 
-beforeAll(async () => { await withCodebaseTBox(); });
+beforeAll(async () => { if (isFuseki) await withCodebaseTBox(); });
 
 afterEach(async () => {
   if (handle) { await handle.close(); handle = undefined; }
 });
 
-describe('predicate dashboard server', () => {
+describe.skipIf(!isFuseki)('predicate dashboard server', () => {
   it('serves the dashboard HTML on GET /', async () => {
     handle = await startDashboardServer(0);  // port 0 = OS-assigned
     const r = await fetch(handle.url + '/');

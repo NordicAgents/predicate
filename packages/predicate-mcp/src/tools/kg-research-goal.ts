@@ -1,4 +1,4 @@
-import { SparqlClient } from '../sparql/client.js';
+import type { StorageAdapter } from '../storage/index.js';
 import {
   researchGoal,
   DocsResearchSource,
@@ -37,7 +37,7 @@ export interface ResearchGoalToolDeps {
   extraCompletionProviders?: CompletionProvider[];
 }
 
-async function buildTBoxSlice(client: SparqlClient): Promise<string> {
+async function buildTBoxSlice(client: StorageAdapter): Promise<string> {
   // Naive slice: list every declared predicate. Mirrors buildTBoxSlice
   // in packages/predicate-cli/src/commands/extract.ts.
   const r = await client.select(
@@ -53,7 +53,7 @@ async function buildTBoxSlice(client: SparqlClient): Promise<string> {
 }
 
 export async function kgResearchGoal(
-  client: SparqlClient,
+  client: StorageAdapter,
   input: ResearchGoalToolInput,
   deps: ResearchGoalToolDeps = {},
 ): Promise<ResearchGoalToolResult> {

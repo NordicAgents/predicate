@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { doctor } from '../src/commands/doctor.js';
 import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 
+const isFuseki = (process.env['PREDICATE_BACKEND'] ?? 'fuseki') === 'fuseki';
+
 describe('doctor', () => {
   beforeAll(async () => { await withCodebaseTBox(); });
   it('returns 0 when fuseki is up and tbox is loaded', async () => {
@@ -11,7 +13,7 @@ describe('doctor', () => {
     expect(code).toBe(0);
   });
 
-  it('returns 1 when fuseki is unreachable', async () => {
+  it.skipIf(!isFuseki)('returns 1 when fuseki is unreachable', async () => {
     const original = process.env.FUSEKI_URL;
     process.env.FUSEKI_URL = 'http://localhost:65535';
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});

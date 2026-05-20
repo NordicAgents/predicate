@@ -1,23 +1,37 @@
 # Predicate
 
-**Reasoning memory for AI agents — a knowledge graph that compounds with use.**
+**Reasoning memory for AI agents — a self-improving knowledge graph that grows with use.**
 
-Predicate gives an AI coding or research agent a structured graph it can query,
-reason over, and grow with use. Facts are stored as RDF triples with
-per-triple provenance and confidence. An OWL 2 RL reasoner materializes
-entailments deterministically. The schema is versioned like code and evolves
-under a propose → validate → use-gated promotion loop. Everything runs locally
-on a bundled Apache Jena Fuseki; nothing leaves the machine.
+Predicate gives an AI coding or research agent a structured graph it can
+query, reason over, and grow with use. Facts are stored as RDF triples
+with per-triple provenance and confidence. An OWL 2 RL reasoner
+materializes entailments deterministically and produces an explanation
+path for every derived claim. The schema is versioned like code and
+evolves under a propose → validate → use-gated promotion loop.
+Everything runs locally — no daemon, no Docker by default — and nothing
+leaves the machine.
 
-The wedge: where RAG returns documents containing the word *login*, Predicate
-traverses `auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production`,
-explains the chain with citations, and remembers it next session.
+What that buys an agent that a flat memory doesn't:
+
+- **Auditable answers.** `kg_explain` returns the chain of triples and
+  rules that produced a claim, each step cited back to its source and
+  confidence. Useful when the agent's output drives a change you have to
+  defend.
+- **Contradictions surface instead of averaging out.** When two sources
+  disagree about a fact the schema marks as functional or disjoint, the
+  reasoner flags the conflict rather than silently picking one.
+- **The graph remembers, and the schema earns its keep.** Facts persist
+  across sessions with provenance. New schema only becomes durable after
+  three real queries reference it within a week — proposals nothing
+  references expire from staging on their own.
 
 See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the full product brief.
 
 ## How it works
 
-- **Storage.** Apache Jena Fuseki / TDB2 in Docker, with 9 named graphs that
+- **Storage.** In-process Oxigraph by default (file-backed N-Quads in
+  `~/.predicate/store/`); Apache Jena Fuseki / TDB2 as an opt-in backend via
+  `PREDICATE_BACKEND=fuseki`. Either way the layout is 9 named graphs that
   separate slow-changing schema (`kg:tbox`) from fast-flowing facts
   (`kg:abox`), materialized entailments (`kg:inferred`), per-triple metadata
   (`kg:provenance`), goals (`kg:goals`), usage logs (`kg:usage`), staging
@@ -42,7 +56,7 @@ See [`docs/predicate-prd.md`](docs/predicate-prd.md) for the full product brief.
 
 ## Install
 
-Prerequisites: **Docker** (for Fuseki) and **Node 20+**.
+**Prerequisites: Node 20+.** That is all the default install needs. Docker is only required if you opt into the Fuseki backend (see "Alternative backends" below).
 
 <details open>
 <summary><strong>Claude Code</strong> — marketplace install (SKILL.md + hooks + slash commands)</summary>
@@ -187,6 +201,21 @@ claude mcp add predicate -- npx -y predicate-skill
 
 </details>
 
+## Alternative backends
+
+Predicate ships two storage adapters:
+
+- **Oxigraph (default).** In-process, on-disk store at `~/.predicate/store/` (one N-Quads file per named graph, loaded on `predicate up`, flushed on writes). No Docker, no daemon, sub-second cold start. This is what you get unless you set the env var below.
+- **Fuseki (opt-in).** Apache Jena Fuseki in Docker — same as previous releases. Set `PREDICATE_BACKEND=fuseki`. Requires Docker.
+
+To migrate an existing Fuseki install to Oxigraph in place:
+
+```bash
+predicate migrate --from fuseki --to oxigraph
+unset PREDICATE_BACKEND   # or remove it from your shell rc
+predicate down            # stop the Fuseki container, your data is in Oxigraph now
+```
+
 ## Bootstrap modes
 
 On first `predicate up`, choose how to seed the schema:
@@ -309,8 +338,8 @@ git clone https://github.com/NordicAgents/predicate
 cd predicate
 pnpm install
 pnpm build            # builds all packages + the plugin bundle
-pnpm test             # full test suite against a live Fuseki
-pnpm fuseki:up        # dev alias; `predicate up` is the user-facing command
+pnpm test             # runs against the active backend (default Oxigraph in-process)
+                      # set PREDICATE_BACKEND=fuseki and `predicate up` first to test against Fuseki
 ```
 
 ## License

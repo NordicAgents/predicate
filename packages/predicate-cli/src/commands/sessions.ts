@@ -1,5 +1,5 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 
 interface SessionRow {
   sessionUri: string;
@@ -35,7 +35,7 @@ Options:
 `);
 }
 
-async function fetchSessions(client: SparqlClient, limit: number): Promise<SessionRow[]> {
+async function fetchSessions(client: StorageAdapter, limit: number): Promise<SessionRow[]> {
   const META = 'https://predicate.dev/meta#';
   const CB   = 'https://predicate.dev/codebase#';
   const rows = await client.select(
@@ -95,7 +95,7 @@ export async function sessions(args: string[]): Promise<number> {
   }
 
   try {
-    const client = new SparqlClient(loadConfig());
+    const client = getAdapter();
     const rows = await fetchSessions(client, limit);
     if (hasFlag(args, '--json')) console.log(JSON.stringify(rows, null, 2));
     else console.log(renderTable(rows));

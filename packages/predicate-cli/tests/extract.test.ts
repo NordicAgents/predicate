@@ -3,8 +3,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { Readable } from 'node:stream';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 
 vi.mock('@anthropic-ai/sdk', () => ({
@@ -15,7 +14,7 @@ vi.mock('@anthropic-ai/sdk', () => ({
 
 import { extract } from '../src/commands/extract.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 
 async function reset(): Promise<void> {
   await client.update(`DROP SILENT GRAPH <kg:abox>`);

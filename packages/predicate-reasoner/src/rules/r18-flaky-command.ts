@@ -16,7 +16,7 @@ export const r18: Rule = {
           SELECT ?cmd (COUNT(DISTINCT ?session) AS ?n)
           WHERE { GRAPH <${abox}> { ?cmd cb:failedIn ?session } }
           GROUP BY ?cmd
-          HAVING (?n >= ${FLAKY_THRESHOLD})
+          HAVING (COUNT(DISTINCT ?session) >= ${FLAKY_THRESHOLD})
         }
         FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?cmd rdf:type cb:FlakyCommand } }
       }

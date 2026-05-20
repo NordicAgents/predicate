@@ -2,9 +2,22 @@
   "name": "predicate-server",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
+  "main": "dist/src/index.js",
   "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
     "docker:up": "docker compose up -d && ./scripts/wait-for-fuseki.sh && ./scripts/bootstrap-graphs.sh",
     "docker:down": "docker compose down",
     "docker:nuke": "docker compose down -v"
+  },
+  "dependencies": {
+    "predicate-mcp": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
   }
 }

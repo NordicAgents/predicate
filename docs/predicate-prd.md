@@ -10,11 +10,11 @@
 
 Predicate is a local-first MCP skill that gives an AI agent a knowledge graph it can reason over and that improves itself with use. Instead of retrieving text chunks, the agent reads a structured graph, runs SPARQL against it, gets logically entailed answers from an OWL reasoner, and grows the schema toward whatever the user is trying to do. Every fact carries provenance and confidence. The schema is versioned like code. Nothing leaves the machine.
 
-The bet: agents lose most of their value to two failures — they forget across sessions, and they can only answer shallow lookups. Retrieval tools fix neither well. A reasoning graph that compounds fixes both, and the value gap widens the longer it runs.
+The bet: agents lose most of their value to two failures — they forget across sessions, and they can only answer shallow lookups. A reasoning graph that compounds fixes both, and the value gap widens the longer it runs.
 
 ## 2. Problem
 
-An AI coding or research agent today re-explains context every session and answers single-hop questions. Ask "why did login break" and a RAG system returns documents containing the word "login." It can't traverse `auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production → commit abc123`. It can't tell you the blast radius of a rename, the services downstream of a failing dependency, or which of two documents contradicts the other.
+An AI coding or research agent today re-explains context every session and answers single-hop questions. Ask "why did login break" and the agent cannot traverse `auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production → commit abc123`. It can't tell you the blast radius of a rename, the services downstream of a failing dependency, or which of two documents contradicts the other.
 
 The "agent memory" category has noticed the forgetting half of this. It has mostly not solved the reasoning half. Most products in the space store text or vectors with light graph structure and call it a knowledge graph. They do not separate schema from data, do not run a reasoner, do not track provenance per triple, and grow without bound until the operator has to clean up by hand.
 
@@ -22,7 +22,7 @@ The "agent memory" category has noticed the forgetting half of this. It has most
 
 Give AI coding and research agents a local, self-improving knowledge graph that reasons over relationships, so the agent's understanding of a domain compounds with use instead of resetting every session.
 
-The one-line pitch: *RAG remembers text. Predicate understands your world, and gets smarter every time you use it.*
+The one-line pitch: *Predicate understands your world, and gets smarter every time you use it.*
 
 ## 4. Users and jobs
 
@@ -169,12 +169,12 @@ Goals are first-class nodes in `kg:goals` with status (active, dormant, done). E
 
 - Not a general-purpose triple store competing with GraphDB or Stardog. It is an agent skill, not infrastructure.
 - Not cloud SaaS. Local-first, privacy by default.
-- Not a replacement for vector search on fuzzy semantic recall. Predicate owns structured, relational, inferable knowledge and is honest about that boundary.
+- Not aimed at fuzzy semantic recall over unstructured text. Predicate owns structured, relational, inferable knowledge and is honest about that boundary.
 - Not an attempt to model every domain perfectly on day one. It starts narrow and earns breadth.
 
 ## 12. Success metrics
 
-**Capability.** The agent reliably answers multi-hop questions a RAG baseline cannot: transitive dependencies, contradictions, blast radius. Track a fixed eval set of such questions and measure correct-answer rate against a RAG control.
+**Capability.** The agent reliably answers multi-hop questions: transitive dependencies, contradictions, blast radius. Track a fixed eval set of such questions and measure correct-answer rate over time.
 
 **Boundedness.** Active graph size stays within a target band as usage grows; pruning and generalization demonstrably fire. Track triple count, unused-concept ratio, and materialization latency over time.
 

@@ -1,24 +1,16 @@
 import { readFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
 
-async function loadTtl(_client: SparqlClient, path: string, graph: string): Promise<void> {
+async function loadTtl(client: StorageAdapter, path: string, graph: string): Promise<void> {
   const ttl = readFileSync(path, 'utf8');
-  const cfg = loadConfig();
-  const auth = 'Basic ' + Buffer.from(
-    `${process.env.PREDICATE_ADMIN_USER ?? 'admin'}:${process.env.PREDICATE_ADMIN_PASSWORD ?? 'changeme'}`,
-  ).toString('base64');
-  await fetch(`${cfg.dataEndpoint}?graph=${encodeURIComponent(graph)}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/turtle', Authorization: auth },
-    body: ttl,
-  });
+  await client.loadTurtle(ttl, graph);
 }
 
 async function main(): Promise<void> {
-  const client = new SparqlClient(loadConfig());
+  const client = getAdapter();
   const adapter = new FusekiConstructAdapter(client);
 
   for (const g of ['kg:tbox-staging', 'kg:abox-ci-sample']) {
@@ -27,9 +19,9 @@ async function main(): Promise<void> {
   }
 
   const root = resolve(import.meta.dirname, '..', '..', 'predicate-ontology');
-  await loadTtl(client, join(root, 'tbox', 'codebase.ttl'),         'kg:tbox-staging');
-  await loadTtl(client, join(root, 'meta', 'predicate-meta.ttl'),   'kg:tbox-staging');
-  await loadTtl(client, join(root, 'shapes', 'codebase.shacl.ttl'), 'kg:tbox-staging');
+  await loadTtl(client, join(root, 'catalog', 'codebase.ttl'),        'kg:tbox-staging');
+  await loadTtl(client, join(root, 'meta',    'predicate-meta.ttl'),  'kg:tbox-staging');
+  await loadTtl(client, join(root, 'catalog', 'codebase.shacl.ttl'),  'kg:tbox-staging');
 
   // Minimal sample so validation isn't a no-op
   await client.update(`

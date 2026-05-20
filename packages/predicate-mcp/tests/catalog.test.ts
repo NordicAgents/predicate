@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { SparqlClient } from '../src/sparql/client.js';
-import { loadConfig } from '../src/config.js';
+import { getAdapter } from '../src/storage/index.js';
+
 
 const CATALOG_DIR = join(__dirname, '..', '..', 'predicate-ontology', 'catalog');
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 
 interface CatalogEntry { name: string; files: string[]; shapes?: string }
 interface Catalog { ontologies: CatalogEntry[] }
@@ -19,17 +19,7 @@ async function resetTbox(): Promise<void> {
 
 async function loadTtl(path: string): Promise<void> {
   const turtle = readFileSync(path, 'utf8');
-  const cfg = loadConfig();
-  const auth = 'Basic ' + Buffer.from(`admin:${process.env['PREDICATE_ADMIN_PASSWORD'] ?? 'changeme'}`).toString('base64');
-  const r = await fetch(`${cfg.fusekiUrl}/${cfg.dataset}/data?graph=kg:tbox`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/turtle',
-      'Authorization': auth,
-    },
-    body: turtle,
-  });
-  if (!r.ok) throw new Error(`Failed to load ${path}: ${r.status} ${await r.text()}`);
+  await client.loadTurtle(turtle, 'kg:tbox');
 }
 
 describe('catalog.json', () => {

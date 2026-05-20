@@ -1,5 +1,5 @@
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
 const META = 'https://predicate.dev/meta#';
@@ -33,7 +33,7 @@ Examples:
 `);
 }
 
-async function initLd(client: SparqlClient): Promise<number> {
+async function initLd(client: StorageAdapter): Promise<number> {
   let added = 0, kept = 0;
   for (const ep of WELL_KNOWN) {
     const uri = `urn:predicate:peer:${ep.name}`;
@@ -66,7 +66,7 @@ async function initLd(client: SparqlClient): Promise<number> {
   return 0;
 }
 
-async function listLd(client: SparqlClient, json: boolean): Promise<number> {
+async function listLd(client: StorageAdapter, json: boolean): Promise<number> {
   const r = await client.select(
     `PREFIX pred: <${META}>
      SELECT ?name ?endpoint WHERE {
@@ -94,7 +94,7 @@ async function listLd(client: SparqlClient, json: boolean): Promise<number> {
 
 interface LdRow { peer: string; binding: Record<string, { value: string; type: string }>; }
 
-async function askLd(client: SparqlClient, query: string, json: boolean): Promise<number> {
+async function askLd(client: StorageAdapter, query: string, json: boolean): Promise<number> {
   const peers = await client.select(
     `PREFIX pred: <${META}>
      SELECT ?name ?endpoint WHERE {
@@ -157,7 +157,7 @@ async function askLd(client: SparqlClient, query: string, json: boolean): Promis
 export async function ld(args: string[]): Promise<number> {
   if (args.length === 0 || args[0] === '--help') { help(); return args.length === 0 ? 2 : 0; }
   const sub = args[0];
-  const client = new SparqlClient(loadConfig());
+  const client = getAdapter();
   await client.update(`CREATE SILENT GRAPH <${PEERS_GRAPH}>`);
   try {
     if (sub === 'init') return await initLd(client);

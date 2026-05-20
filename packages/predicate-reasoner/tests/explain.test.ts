@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
-import { loadConfig } from 'predicate-mcp/src/config.js';
+import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { FusekiConstructAdapter } from '../src/index.js';
 
-const client = new SparqlClient(loadConfig());
+const client = getAdapter();
 const adapter = new FusekiConstructAdapter(client);
 
 beforeAll(async () => {
@@ -34,21 +33,13 @@ beforeAll(async () => {
 afterAll(async () => {
   await client.update(`DROP SILENT GRAPH <kg:tbox>`);
   await client.update(`CREATE SILENT GRAPH <kg:tbox>`);
-  const cfg2 = loadConfig();
-  const auth = 'Basic ' + Buffer.from(
-    `${process.env.PREDICATE_ADMIN_USER ?? 'admin'}:${process.env.PREDICATE_ADMIN_PASSWORD ?? 'changeme'}`,
-  ).toString('base64');
   for (const path of [
     '../../predicate-ontology/catalog/codebase.ttl',
     '../../predicate-ontology/meta/predicate-meta.ttl',
     '../../predicate-ontology/catalog/codebase.shacl.ttl',
   ]) {
     const ttl = readFileSync(resolve(import.meta.dirname, path), 'utf8');
-    await fetch(`${cfg2.dataEndpoint}?graph=kg:tbox`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/turtle', Authorization: auth },
-      body: ttl,
-    });
+    await client.loadTurtle(ttl, 'kg:tbox');
   }
 });
 

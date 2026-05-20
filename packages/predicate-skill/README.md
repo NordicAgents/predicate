@@ -1,6 +1,6 @@
 # Predicate
 
-**Reasoning memory for AI agents — a knowledge graph that compounds with use.**
+**Reasoning memory for AI agents — a self-improving knowledge graph that grows with use.**
 
 [![npm](https://img.shields.io/npm/v/predicate-skill?label=npm&color=blue)](https://www.npmjs.com/package/predicate-skill)
 [![marketplace](https://img.shields.io/badge/Claude%20Code-Marketplace-blue)](https://github.com/NordicAgents/predicate)
@@ -10,23 +10,21 @@
 
 ## The Problem
 
-An AI coding or research agent loses most of its value to two failures: it
-forgets across sessions, and it can only answer single-hop lookups. Ask
-*"why did login break?"* and a RAG system returns documents containing the
-word *login*. It cannot traverse
-`auth.ts → validateToken → jwt.verify → JWT_SECRET → .env.production`,
-cannot tell you the blast radius of a rename, and cannot say which of two
-documents contradicts the other. The "agent memory" category mostly stores
-text or vectors with light graph structure on top — it does not separate
-schema from data, does not run a reasoner, does not track provenance per
-fact, and grows without bound until the operator cleans up by hand.
+An AI coding or research agent loses continuity across sessions, and what
+it does remember it cannot defend. There is no schema separating durable
+concepts from disposable facts, no logical entailment producing answers
+the user can audit, no per-fact provenance, and no mechanism to keep the
+store from rotting as it accumulates.
 
 ### How Predicate solves it
 
-Predicate is an MCP skill that gives the agent a real reasoning graph,
-not a search index.
+Predicate is an MCP skill that gives the agent a real reasoning graph.
+What that buys you over a flat memory: every derived claim comes with an
+explanation path cited back to source; contradictions surface via
+disjointness and functional-property axioms instead of averaging out;
+the schema only becomes durable after real queries reference it.
 
-1. **RDF/OWL, not retrieval.** Facts are stored as triples in Apache Jena
+1. **RDF/OWL with logical entailment.** Facts are stored as triples in Apache Jena
    Fuseki. A curated OWL 2 RL ruleset materializes entailments through
    SPARQL `CONSTRUCT` rules; SHACL covers closed-world validation. The
    model formulates SPARQL against a freshly read schema — pre-baked
@@ -57,7 +55,7 @@ not a search index.
 
 ## Install
 
-Prerequisites everywhere: **Docker** (for Fuseki) and **Node 20+**.
+**Prerequisites: Node 20+.** That is all the default install needs. Docker is only required if you opt into the Fuseki backend (see "Alternative backends" below).
 
 <details open>
 <summary><strong>Claude Code</strong> — plugin marketplace, fully automatic</summary>
@@ -81,16 +79,18 @@ predicate up
 predicate doctor
 ```
 
-All checks should show OK. The doctor validates Docker, Fuseki, the named
-graphs, the reasoner, and plugin registration.
+All checks should show OK. The doctor reports the active backend and
+validates whatever it needs — store directory writable (Oxigraph) or
+Docker + Fuseki reachable (opt-in) — plus the named graphs, the
+reasoner, and plugin registration.
 
 **Slash commands:**
 
 | Command | What it does |
 |---|---|
-| `/predicate:up` | Start Fuseki and bootstrap the 9 named graphs. |
-| `/predicate:down` | Stop Fuseki, keep the volume. |
-| `/predicate:doctor` | Health check across Docker, Fuseki, TBox, tools. |
+| `/predicate:up` | Open the active backend (Oxigraph store or Fuseki container) and bootstrap the 9 named graphs. |
+| `/predicate:down` | Flush + close the backend (no daemon to stop on Oxigraph; `docker compose down` on Fuseki). |
+| `/predicate:doctor` | Health check; backend-aware (skips Docker on the default Oxigraph backend). |
 | `/predicate:stats` | Triples, ABox, inferred, TBox counts; inferred ratio; unused-concept ratio. |
 | `/predicate:ask <question>` | Free-form question routed through `kg_ask`. |
 
@@ -280,6 +280,21 @@ Then `predicate up` and restart Continue.
 
 </details>
 
+## Alternative backends
+
+Predicate ships two storage adapters:
+
+- **Oxigraph (default).** In-process, on-disk store at `~/.predicate/store/` (one N-Quads file per named graph, loaded on `predicate up`, flushed on writes). No Docker, no daemon, sub-second cold start. This is what you get unless you set the env var below.
+- **Fuseki (opt-in).** Apache Jena Fuseki in Docker — same as previous releases. Set `PREDICATE_BACKEND=fuseki`. Requires Docker.
+
+To migrate an existing Fuseki install to Oxigraph in place:
+
+```bash
+predicate migrate --from fuseki --to oxigraph
+unset PREDICATE_BACKEND   # or remove it from your shell rc
+predicate down            # stop the Fuseki container, your data is in Oxigraph now
+```
+
 ## Bootstrap modes
 
 On first `predicate up`, choose how to seed the schema:
@@ -384,10 +399,12 @@ pnpm build
 
 ## Tests
 
-The full workspace test suite runs against a live Fuseki:
+The full workspace test suite runs against the active backend (default
+Oxigraph in-process). To run it against Fuseki, set
+`PREDICATE_BACKEND=fuseki` and start the container first:
 
 ```bash
-predicate up
+predicate up      # opens Oxigraph store, or boots Fuseki under PREDICATE_BACKEND=fuseki
 pnpm test
 ```
 

@@ -16,6 +16,8 @@ import { exportSessions } from './commands/export-sessions.js';
 import { importSessions } from './commands/import-sessions.js';
 import { ld } from './commands/ld.js';
 import { init } from './commands/init.js';
+import { schema } from './commands/schema.js';
+import { migrate } from './commands/migrate.js';
 
 const VERSION = '1.0.0';
 
@@ -36,10 +38,12 @@ Commands:
   captures          List raw kg:usage ToolCall captures (opt-in raw-capture path).
   recall            Substring search over session history (files + commands).
   dashboard         Serve a localhost web view of session-history + reasoning output.
+  schema            List / approve / reject pending kg:tbox-staging proposals.
   peer              Manage federation peers (add / list / remove).
   export-sessions   Export local session-history triples as TriG to stdout.
   import-sessions   Import a teammate's TriG export into local Fuseki.
   ld                Linked-Data federation (DBpedia / Wikidata): init / list / ask.
+  migrate           Migrate data: --from fuseki --to oxigraph.
   --version         Print the predicate version.
   --help            This message.
 
@@ -52,6 +56,9 @@ Env:
   PREDICATE_RAW_CAPTURE     "1" enables raw kg_capture writes (default off)
   PREDICATE_CAPTURE_SKIP    when raw capture is on, comma list of tools to skip
   PREDICATE_CAPTURE_TRUNCATE  max chars per captured input/output (default 500)
+  PREDICATE_CLI_BIN         override the binary spawned by \`predicate dashboard\` actions
+  PREDICATE_CLI_ARGS        extra leading args for that binary (space-separated)
+  PREDICATE_PROMOTED_DIR    override the path PromotionSweeper writes promoted TBox Turtle into
 `);
 }
 
@@ -70,11 +77,13 @@ async function main(): Promise<number> {
     case 'captures':        return captures(process.argv.slice(3));
     case 'recall':          return recall(process.argv.slice(3));
     case 'dashboard':       return dashboard(process.argv.slice(3));
+    case 'schema':          return schema(process.argv.slice(3));
     case 'peer':            return peer(process.argv.slice(3));
     case 'export-sessions': return exportSessions(process.argv.slice(3));
     case 'import-sessions': return importSessions(process.argv.slice(3));
     case 'ld':              return ld(process.argv.slice(3));
     case 'init':            return init(process.argv.slice(3));
+    case 'migrate':         return migrate(process.argv.slice(3));
     case '--version':
     case 'version':      console.log(VERSION); return 0;
     case undefined:
@@ -87,7 +96,24 @@ async function main(): Promise<number> {
   }
 }
 
-main().then((code) => process.exit(code)).catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Flush any in-flight debounced writes (e.g. OxigraphAdapter's 300ms timer)
+// before the process exits. We only close if an adapter was actually opened
+// during this run; getCachedAdapter() never constructs one.
+async function flushAdapter(): Promise<void> {
+  const { getCachedAdapter } = await import('predicate-mcp/src/storage/factory.js');
+  const adapter = getCachedAdapter();
+  if (adapter) {
+    try { await adapter.close(); } catch { /* best effort */ }
+  }
+}
+
+main()
+  .then(async (code) => {
+    await flushAdapter();
+    process.exit(code);
+  })
+  .catch(async (err) => {
+    console.error(err);
+    await flushAdapter();
+    process.exit(1);
+  });

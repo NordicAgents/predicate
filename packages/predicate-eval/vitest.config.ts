@@ -6,5 +6,8 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     testTimeout: 30_000,
     fileParallelism: false,
+    env: {
+      PREDICATE_BACKEND: process.env.PREDICATE_BACKEND ?? 'fuseki',
+    },
   },
 });

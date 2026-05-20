@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { SparqlClient } from '../../src/sparql/client.js';
-import { loadConfig } from '../../src/config.js';
-import { kgAssert } from '../../src/tools/kg-assert.js';
+import { getAdapter } from '../../src/storage/index.js';
 
-const cfg = loadConfig();
-const client = new SparqlClient(cfg);
+import { kgAssert } from '../../src/tools/kg-assert.js';
+import { withCodebaseTBox } from '../fixtures/with-codebase.js';
+
+const client = getAdapter();
 
 beforeAll(async () => {
+  await withCodebaseTBox(client);
   await client.update('CREATE SILENT GRAPH <kg:abox>');
   await client.update('CREATE SILENT GRAPH <kg:provenance>');
 });

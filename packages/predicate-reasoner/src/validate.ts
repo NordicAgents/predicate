@@ -1,11 +1,11 @@
-import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
+import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import type {
   ValidateInput, ValidationResult,
 } from './types.js';
 import { runShacl } from './shacl.js';
 import { FusekiConstructAdapter } from './index.js';
 
-async function fetchTurtle(client: SparqlClient, graph: string): Promise<string> {
+async function fetchTurtle(client: StorageAdapter, graph: string): Promise<string> {
   const r = await client.select(`
     SELECT ?s ?p ?o WHERE { GRAPH <${graph}> { ?s ?p ?o } } LIMIT 100000
   `);
@@ -24,7 +24,7 @@ async function fetchTurtle(client: SparqlClient, graph: string): Promise<string>
 }
 
 export async function runValidation(
-  client: SparqlClient,
+  client: StorageAdapter,
   input: ValidateInput,
 ): Promise<ValidationResult> {
   const sandboxInferred = `kg:inferred-validate-${Date.now()}`;
@@ -71,7 +71,7 @@ export async function runValidation(
 }
 
 async function unsatisfiableClasses(
-  client: SparqlClient,
+  client: StorageAdapter,
   tboxView: string,
   inferred: string,
 ): Promise<string[]> {
