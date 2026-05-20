@@ -43,8 +43,8 @@ describe('kg_config', () => {
     await kgConfigSet(client, { key: 'init-ontology', value: 'codebase' });
     const r = await kgConfigGet(client, {});
     expect(r.config).toEqual({
-      schemaLearningEnabled: true,
-      initOntology: 'codebase',
+      'schema-learning': true,
+      'init-ontology': 'codebase',
     });
   });
 

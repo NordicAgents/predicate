@@ -26,16 +26,15 @@ export async function config(args: string[]): Promise<number> {
   if (sub === '--help') { help(); return 0; }
   if (sub === undefined) { help(); return 2; }
 
-  const client = getAdapter();
-
   if (sub === 'get') {
+    const client = getAdapter();
     const key = args[1];
     if (key !== undefined && !isKey(key)) {
       console.error(`predicate config get: unknown key '${key}'. Valid: ${KEYS.join(', ')}`);
       return 2;
     }
     const r = await kgConfigGet(client, isKey(key) ? { key } : {});
-    console.log(JSON.stringify(isKey(key) ? { [r.key!]: r.value } : (r.config ?? {}), null, 2));
+    console.log(JSON.stringify(isKey(key) ? { [key]: r.value } : (r.config ?? {}), null, 2));
     return 0;
   }
 
@@ -58,6 +57,7 @@ export async function config(args: string[]): Promise<number> {
       }
       value = valueRaw === 'true';
     }
+    const client = getAdapter();
     const res = await kgConfigSet(client, { key, value });
     if (!res.ok) { console.error(`predicate config set: ${res.error}`); return 2; }
     console.log(`predicate config set: ${res.key}=${res.value}`);

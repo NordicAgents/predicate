@@ -93,8 +93,8 @@ export async function kgConfigGet(
     const propLocal = propIri.slice(META.length);
     const externalKey = Object.entries(KEY_TO_PROP).find(([, v]) => v.prop === propLocal);
     if (!externalKey) continue;
-    const [, kmeta] = externalKey;
-    config[kmeta.prop] = kmeta.type === 'boolean' ? b['o']!.value === 'true' : b['o']!.value;
+    const [extKey, kmeta] = externalKey;
+    config[extKey] = kmeta.type === 'boolean' ? b['o']!.value === 'true' : b['o']!.value;
   }
   return { config };
 }

@@ -38,4 +38,20 @@ describe('predicate config', () => {
     expect(log.mock.calls.flat().join(' ')).toContain('predicate config');
     log.mockRestore();
   });
+
+  it('get with no key returns the full config using kebab keys', async () => {
+    expect(await config(['set', 'schema-learning', 'true'])).toBe(0);
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    expect(await config(['get'])).toBe(0);
+    const out = log.mock.calls.flat().join(' ');
+    expect(out).toContain('schema-learning');
+    expect(out).not.toContain('schemaLearningEnabled');
+    log.mockRestore();
+  });
+
+  it('get with an unknown key exits 2', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(await config(['get', 'bogus'])).toBe(2);
+    err.mockRestore();
+  });
 });
