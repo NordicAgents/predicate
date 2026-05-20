@@ -1,8 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadConfig, scopeStorePath, projectStorePath, userStorePath } from '../src/config.js';
+import {
+  loadConfig,
+  scopeStorePath,
+  projectStorePath,
+  userStorePath,
+  inRepoStorePath,
+  ensureGitignoreForStore,
+} from '../src/config.js';
 
 describe('loadConfig', () => {
   const original = { ...process.env };
@@ -58,32 +65,58 @@ describe('projectStorePath', () => {
 
 describe('loadConfig store-path resolution', () => {
   const original = { ...process.env };
+  let tmp: string;
 
   beforeEach(() => {
     process.env = { ...original };
+    tmp = mkdtempSync(join(tmpdir(), 'predicate-res-'));
     delete process.env.PREDICATE_STORE_PATH;
     delete process.env.XDG_DATA_HOME;
     delete process.env.CLAUDE_PROJECT_DIR;
     delete process.env.PWD;
-    process.env.HOME = '/home/u';
+    process.env.HOME = join(tmp, 'home');
   });
-  afterEach(() => { process.env = original; });
+  afterEach(() => {
+    process.env = original;
+    rmSync(tmp, { recursive: true, force: true });
+  });
 
   it('honours an explicit PREDICATE_STORE_PATH override above all else', () => {
     process.env.PREDICATE_STORE_PATH = '/explicit/store';
-    process.env.CLAUDE_PROJECT_DIR = '/proj';
+    process.env.CLAUDE_PROJECT_DIR = join(tmp, 'proj');
     expect(loadConfig().oxigraphStorePath).toBe('/explicit/store');
   });
 
-  it('keys the store by the resolved project dir (CLAUDE_PROJECT_DIR)', () => {
-    process.env.CLAUDE_PROJECT_DIR = '/proj/x';
-    expect(loadConfig().oxigraphStorePath).toBe(projectStorePath('/proj/x'));
+  it('uses <git-root>/.predicate/store inside a git repo', () => {
+    const repo = join(tmp, 'repo');
+    mkdirSync(join(repo, '.git'), { recursive: true });
+    process.env.CLAUDE_PROJECT_DIR = repo;
+    expect(loadConfig().oxigraphStorePath).toBe(inRepoStorePath(repo));
   });
 
-  it('rejects a plugin-cache project dir and keys by PWD instead', () => {
-    process.env.CLAUDE_PROJECT_DIR = '/home/u/.claude/plugins/cache/predicate/predicate/2.0.9';
-    process.env.PWD = '/proj/real';
-    expect(loadConfig().oxigraphStorePath).toBe(projectStorePath('/proj/real'));
+  it('reuses an existing .predicate/store from a parent dir (subdir work)', () => {
+    const repo = join(tmp, 'repo');
+    mkdirSync(join(repo, '.git'), { recursive: true });
+    mkdirSync(join(repo, '.predicate', 'store'), { recursive: true });
+    const sub = join(repo, 'packages', 'x');
+    mkdirSync(sub, { recursive: true });
+    process.env.CLAUDE_PROJECT_DIR = sub;
+    expect(loadConfig().oxigraphStorePath).toBe(inRepoStorePath(repo));
+  });
+
+  it('falls back to the home-keyed store for a non-git dir', () => {
+    const dir = join(tmp, 'loose');
+    mkdirSync(dir, { recursive: true });
+    process.env.CLAUDE_PROJECT_DIR = dir;
+    expect(loadConfig().oxigraphStorePath).toBe(projectStorePath(dir));
+  });
+
+  it('rejects a plugin-cache project dir and resolves via PWD', () => {
+    const repo = join(tmp, 'realrepo');
+    mkdirSync(join(repo, '.git'), { recursive: true });
+    process.env.CLAUDE_PROJECT_DIR = join(tmp, 'home', '.claude', 'plugins', 'cache', 'predicate', 'predicate', '2.0.10');
+    process.env.PWD = repo;
+    expect(loadConfig().oxigraphStorePath).toBe(inRepoStorePath(repo));
   });
 });
 
@@ -103,24 +136,18 @@ describe('scopeStorePath', () => {
     rmSync(tmp, { recursive: true, force: true });
   });
 
-  it('maps "local" to the project-keyed store for baseDir', () => {
+  it('maps "local" to <baseDir>/.predicate/store', () => {
     const base = join(tmp, 'work', 'sub');
     mkdirSync(base, { recursive: true });
-    expect(scopeStorePath('local', base)).toBe(projectStorePath(base));
+    expect(scopeStorePath('local', base)).toBe(inRepoStorePath(base));
   });
 
-  it('maps "project" to the project-keyed store for the git root', () => {
+  it('maps "project" to the git-root .predicate/store', () => {
     const root = join(tmp, 'repo');
     const sub = join(root, 'a', 'b');
     mkdirSync(join(root, '.git'), { recursive: true });
     mkdirSync(sub, { recursive: true });
-    expect(scopeStorePath('project', sub)).toBe(projectStorePath(root));
-  });
-
-  it('maps "project" to baseDir when no git root is found', () => {
-    const base = join(tmp, 'loose');
-    mkdirSync(base, { recursive: true });
-    expect(scopeStorePath('project', base)).toBe(projectStorePath(base));
+    expect(scopeStorePath('project', sub)).toBe(inRepoStorePath(root));
   });
 
   it('maps "user" to ~/.predicate/store regardless of baseDir', () => {
@@ -128,5 +155,34 @@ describe('scopeStorePath', () => {
     mkdirSync(base, { recursive: true });
     expect(scopeStorePath('user', base)).toBe(userStorePath());
     expect(scopeStorePath('user', base)).toBe(join(tmp, 'home', '.predicate', 'store'));
+  });
+});
+
+describe('ensureGitignoreForStore', () => {
+  let tmp: string;
+  beforeEach(() => { tmp = mkdtempSync(join(tmpdir(), 'predicate-gi-')); });
+  afterEach(() => { rmSync(tmp, { recursive: true, force: true }); });
+
+  it('adds .predicate/ to the repo .gitignore for an in-repo store', () => {
+    const repo = join(tmp, 'repo');
+    mkdirSync(join(repo, '.git'), { recursive: true });
+    ensureGitignoreForStore(inRepoStorePath(repo));
+    expect(readFileSync(join(repo, '.gitignore'), 'utf8')).toContain('.predicate/');
+  });
+
+  it('is idempotent', () => {
+    const repo = join(tmp, 'repo');
+    mkdirSync(join(repo, '.git'), { recursive: true });
+    ensureGitignoreForStore(inRepoStorePath(repo));
+    ensureGitignoreForStore(inRepoStorePath(repo));
+    const body = readFileSync(join(repo, '.gitignore'), 'utf8');
+    expect(body.match(/\.predicate\//g)?.length).toBe(1);
+  });
+
+  it('does nothing outside a git repo', () => {
+    const dir = join(tmp, 'plain');
+    mkdirSync(dir, { recursive: true });
+    ensureGitignoreForStore(inRepoStorePath(dir));
+    expect(existsSync(join(dir, '.gitignore'))).toBe(false);
   });
 });

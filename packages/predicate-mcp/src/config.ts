@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import { dirname, join, parse, resolve } from 'node:path';
@@ -35,13 +35,18 @@ export function userStorePath(): string {
 }
 
 /**
- * Per-project store, keyed by a hash of the absolute project dir. Lives under
- * `<homeRoot>/projects/<hash>/store` so projects never share state and nothing
- * is written inside the repo (no .gitignore needed). This is the default.
+ * Home-keyed per-project store for directories that are NOT git repos:
+ * `<homeRoot>/projects/<hash>/store`. Keyed by a hash of the absolute dir so
+ * non-repo projects never share state and nothing is written into the folder.
  */
 export function projectStorePath(projectDir: string): string {
   const key = createHash('sha256').update(resolve(projectDir)).digest('hex').slice(0, 16);
   return join(homeRoot(), 'projects', key, 'store');
+}
+
+/** In-repo store path for a given root: `<dir>/.predicate/store`. */
+export function inRepoStorePath(dir: string): string {
+  return join(resolve(dir), MARKER_DIR, 'store');
 }
 
 export type StoreScope = 'local' | 'project' | 'user';
@@ -52,6 +57,21 @@ export function gitRoot(start: string): string | undefined {
   const root = parse(dir).root;
   for (;;) {
     if (existsSync(join(dir, '.git'))) return dir;
+    if (dir === root) return undefined;
+    dir = dirname(dir);
+  }
+}
+
+/**
+ * Walk up from `startDir` looking for an existing `.predicate/` store; return
+ * its store path, or undefined. Lets a subdirectory (or a later session) reuse
+ * the store an ancestor already established instead of forking a new one.
+ */
+export function findExistingStoreUpward(startDir: string): string | undefined {
+  let dir = resolve(startDir);
+  const root = parse(dir).root;
+  for (;;) {
+    if (existsSync(join(dir, MARKER_DIR, 'store'))) return join(dir, MARKER_DIR, 'store');
     if (dir === root) return undefined;
     dir = dirname(dir);
   }
@@ -71,20 +91,30 @@ export function currentProjectDir(): string {
 
 /**
  * Resolve the Oxigraph store path. Precedence:
- *   1. PREDICATE_STORE_PATH                    (explicit override)
- *   2. <homeRoot>/projects/<hash>/store        (per-project, keyed by the
- *                                               robustly-resolved project dir)
+ *   1. PREDICATE_STORE_PATH                  (explicit override)
+ *   2. existing .predicate/store walking up  (reuse an established store)
+ *   3. <git-root>/.predicate/store           (inside a git repo)
+ *   4. <homeRoot>/projects/<hash>/store       (non-repo dir, keyed by path)
  */
 export function resolveStorePath(): string {
   const override = process.env.PREDICATE_STORE_PATH;
   if (override) return override;
-  return projectStorePath(currentProjectDir());
+
+  const projectDir = currentProjectDir();
+
+  const existing = findExistingStoreUpward(projectDir);
+  if (existing) return existing;
+
+  const repo = gitRoot(projectDir);
+  if (repo) return inRepoStorePath(repo);
+
+  return projectStorePath(projectDir);
 }
 
 /**
- * Map a requested scope to a store path:
- *   - local   → per-project store keyed by baseDir
- *   - project → per-project store keyed by the git root (falls back to baseDir)
+ * Map an explicit scope to a store path:
+ *   - local   → <baseDir>/.predicate/store
+ *   - project → <git-root>/.predicate/store (falls back to baseDir if not a repo)
  *   - user    → the global ~/.predicate/store
  */
 export function scopeStorePath(scope: StoreScope, baseDir: string): string {
@@ -92,11 +122,34 @@ export function scopeStorePath(scope: StoreScope, baseDir: string): string {
     case 'user':
       return userStorePath();
     case 'project':
-      return projectStorePath(gitRoot(baseDir) ?? baseDir);
+      return inRepoStorePath(gitRoot(baseDir) ?? baseDir);
     case 'local':
     default:
-      return projectStorePath(baseDir);
+      return inRepoStorePath(baseDir);
   }
+}
+
+/**
+ * If `storePath` is an in-repo store (`<repo>/.predicate/store`) inside a git
+ * working tree, make sure that repo's `.gitignore` ignores `.predicate/`.
+ * No-op for home-keyed/global stores or non-git dirs. Best-effort.
+ */
+export function ensureGitignoreForStore(storePath: string): void {
+  const containing = dirname(dirname(resolve(storePath))); // dir holding `.predicate`
+  const repo = gitRoot(containing);
+  if (!repo) return;
+  const gitignore = join(repo, '.gitignore');
+  const entry = `${MARKER_DIR}/`;
+  let body = '';
+  try {
+    if (existsSync(gitignore)) body = readFileSync(gitignore, 'utf8');
+  } catch { return; }
+  const lines = body.split('\n').map((l) => l.trim());
+  if (lines.includes(entry) || lines.includes(MARKER_DIR)) return;
+  const prefix = body.length > 0 && !body.endsWith('\n') ? '\n' : '';
+  try {
+    writeFileSync(gitignore, `${body}${prefix}${entry}\n`);
+  } catch { /* best effort */ }
 }
 
 export function loadConfig(): Config {

@@ -147,15 +147,18 @@ var config_exports = {};
 __export(config_exports, {
   MARKER_DIR: () => MARKER_DIR,
   currentProjectDir: () => currentProjectDir,
+  ensureGitignoreForStore: () => ensureGitignoreForStore,
+  findExistingStoreUpward: () => findExistingStoreUpward,
   gitRoot: () => gitRoot,
   homeRoot: () => homeRoot,
+  inRepoStorePath: () => inRepoStorePath,
   loadConfig: () => loadConfig,
   projectStorePath: () => projectStorePath,
   resolveStorePath: () => resolveStorePath,
   scopeStorePath: () => scopeStorePath,
   userStorePath: () => userStorePath
 });
-import { existsSync as existsSync3 } from "node:fs";
+import { existsSync as existsSync3, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { homedir as homedir2 } from "node:os";
 import { dirname as dirname2, join as join3, parse, resolve as resolve2 } from "node:path";
@@ -172,11 +175,23 @@ function projectStorePath(projectDir) {
   const key = createHash("sha256").update(resolve2(projectDir)).digest("hex").slice(0, 16);
   return join3(homeRoot(), "projects", key, "store");
 }
+function inRepoStorePath(dir) {
+  return join3(resolve2(dir), MARKER_DIR, "store");
+}
 function gitRoot(start) {
   let dir = resolve2(start);
   const root = parse(dir).root;
   for (; ; ) {
     if (existsSync3(join3(dir, ".git"))) return dir;
+    if (dir === root) return void 0;
+    dir = dirname2(dir);
+  }
+}
+function findExistingStoreUpward(startDir) {
+  let dir = resolve2(startDir);
+  const root = parse(dir).root;
+  for (; ; ) {
+    if (existsSync3(join3(dir, MARKER_DIR, "store"))) return join3(dir, MARKER_DIR, "store");
     if (dir === root) return void 0;
     dir = dirname2(dir);
   }
@@ -194,17 +209,43 @@ function currentProjectDir() {
 function resolveStorePath() {
   const override = process.env.PREDICATE_STORE_PATH;
   if (override) return override;
-  return projectStorePath(currentProjectDir());
+  const projectDir = currentProjectDir();
+  const existing = findExistingStoreUpward(projectDir);
+  if (existing) return existing;
+  const repo = gitRoot(projectDir);
+  if (repo) return inRepoStorePath(repo);
+  return projectStorePath(projectDir);
 }
 function scopeStorePath(scope, baseDir) {
   switch (scope) {
     case "user":
       return userStorePath();
     case "project":
-      return projectStorePath(gitRoot(baseDir) ?? baseDir);
+      return inRepoStorePath(gitRoot(baseDir) ?? baseDir);
     case "local":
     default:
-      return projectStorePath(baseDir);
+      return inRepoStorePath(baseDir);
+  }
+}
+function ensureGitignoreForStore(storePath) {
+  const containing = dirname2(dirname2(resolve2(storePath)));
+  const repo = gitRoot(containing);
+  if (!repo) return;
+  const gitignore = join3(repo, ".gitignore");
+  const entry = `${MARKER_DIR}/`;
+  let body = "";
+  try {
+    if (existsSync3(gitignore)) body = readFileSync(gitignore, "utf8");
+  } catch {
+    return;
+  }
+  const lines = body.split("\n").map((l2) => l2.trim());
+  if (lines.includes(entry) || lines.includes(MARKER_DIR)) return;
+  const prefix = body.length > 0 && !body.endsWith("\n") ? "\n" : "";
+  try {
+    writeFileSync(gitignore, `${body}${prefix}${entry}
+`);
+  } catch {
   }
 }
 function loadConfig() {
@@ -17816,7 +17857,7 @@ function escapeLiteral(value) {
 
 // ../predicate-cli/src/commands/init.ts
 init_storage();
-import { readFileSync, existsSync as existsSync4, statSync as statSync2 } from "node:fs";
+import { readFileSync as readFileSync2, existsSync as existsSync4, statSync as statSync2 } from "node:fs";
 import { join as join5, dirname as dirname3, resolve as resolve3 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { createInterface } from "node:readline/promises";
@@ -17880,7 +17921,7 @@ async function checkConfigExists(client) {
   `);
 }
 async function loadTtlFile(client, path2) {
-  const turtle = readFileSync(path2, "utf8");
+  const turtle = readFileSync2(path2, "utf8");
   await client.loadTurtle(turtle, "kg:tbox");
 }
 async function wipeForInit(client, force) {
@@ -17911,7 +17952,7 @@ function validateUserUpload(turtle) {
 }
 async function buildPlanCommunity(ontology) {
   const catalogDir = findCatalogDir();
-  const catalog = JSON.parse(readFileSync(join5(catalogDir, "catalog.json"), "utf8"));
+  const catalog = JSON.parse(readFileSync2(join5(catalogDir, "catalog.json"), "utf8"));
   const entry = catalog.ontologies.find((o2) => o2.name === ontology);
   if (!entry) {
     console.error(`predicate init: unknown ontology '${ontology}'. Available: ${catalog.ontologies.map((o2) => o2.name).join(", ")}`);
@@ -17930,7 +17971,7 @@ async function buildPlanUpload(filePath) {
     console.error(`predicate init: file too large (${sz} bytes; max ${MAX_UPLOAD_BYTES})`);
     return { exitCode: 1 };
   }
-  const turtle = readFileSync(abs, "utf8");
+  const turtle = readFileSync2(abs, "utf8");
   const v2 = validateUserUpload(turtle);
   if (!v2.ok) {
     console.error(`predicate init: ${v2.error}`);
@@ -17986,7 +18027,7 @@ async function interactive(client, force) {
     let plan;
     if (choice === "1") {
       const catalogDir = findCatalogDir();
-      const catalog = JSON.parse(readFileSync(join5(catalogDir, "catalog.json"), "utf8"));
+      const catalog = JSON.parse(readFileSync2(join5(catalogDir, "catalog.json"), "utf8"));
       console.log("\nAvailable ontologies:");
       for (const o2 of catalog.ontologies) console.log(`  - ${o2.name.padEnd(18)} ${o2.description}`);
       const name = (await rl.question("\nWhich ontology? ")).trim();
@@ -18110,7 +18151,7 @@ function parseScope(args) {
   throw new Error(`invalid --scope '${raw}' (expected local|project|user)`);
 }
 async function up(args = []) {
-  const { loadConfig: loadConfig2, scopeStorePath: scopeStorePath2, resolveStorePath: resolveStorePath2, currentProjectDir: currentProjectDir2 } = await Promise.resolve().then(() => (init_config(), config_exports));
+  const { loadConfig: loadConfig2, scopeStorePath: scopeStorePath2, resolveStorePath: resolveStorePath2, currentProjectDir: currentProjectDir2, ensureGitignoreForStore: ensureGitignoreForStore2 } = await Promise.resolve().then(() => (init_config(), config_exports));
   let scope;
   try {
     scope = parseScope(args);
@@ -18122,6 +18163,7 @@ async function up(args = []) {
   const baseDir = currentProjectDir2();
   const storePath = scope ? scopeStorePath2(scope, baseDir) : resolveStorePath2();
   process.env.PREDICATE_STORE_PATH = storePath;
+  ensureGitignoreForStore2(storePath);
   const cfg = loadConfig2();
   if (cfg.backend === "fuseki") {
     if (!dockerAvailable()) {
@@ -22161,7 +22203,7 @@ var SchemaProposer = class {
 
 // ../predicate-agent/src/promotion-sweeper.ts
 init_storage();
-import { writeFileSync } from "node:fs";
+import { writeFileSync as writeFileSync2 } from "node:fs";
 import { resolve as resolve4 } from "node:path";
 
 // ../predicate-reasoner/src/rules/r01-subclassof-transitivity.ts
@@ -28212,7 +28254,7 @@ var PromotionSweeper = class {
     });
     const turtleFile = resolve4(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
     const turtle = quads.map(tripleTurtle).join("\n") + "\n";
-    writeFileSync(turtleFile, turtle, "utf8");
+    writeFileSync2(turtleFile, turtle, "utf8");
     const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
     const insertSparql = quads.map((q2) => tripleSparql2(q2) + " .").join("\n");
     const now = (/* @__PURE__ */ new Date()).toISOString();
@@ -28694,7 +28736,7 @@ async function capture(args, stdin = process.stdin) {
 
 // ../predicate-cli/src/commands/extract.ts
 init_storage();
-import { readFileSync as readFileSync2 } from "node:fs";
+import { readFileSync as readFileSync3 } from "node:fs";
 
 // ../predicate-agent/src/turn-extractor.ts
 import { createHash as createHash3 } from "node:crypto";
@@ -29023,7 +29065,7 @@ async function extract(args, stdin = process.stdin) {
   }
   let events;
   try {
-    const lines = readFileSync2(transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
+    const lines = readFileSync3(transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
     events = lines.map((l2) => JSON.parse(l2));
   } catch (err2) {
     console.error(`predicate extract: failed to read transcript: ${err2.message}`);
@@ -29394,7 +29436,7 @@ async function recall(args) {
 // ../predicate-cli/src/commands/dashboard.ts
 init_config();
 import { createServer } from "node:http";
-import { readFileSync as readFileSync3 } from "node:fs";
+import { readFileSync as readFileSync4 } from "node:fs";
 import { join as join6, dirname as dirname5 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 import { spawn } from "node:child_process";
@@ -29615,7 +29657,7 @@ function findDashboardHtml() {
   ];
   for (const p2 of candidates) {
     try {
-      readFileSync3(p2, "utf8");
+      readFileSync4(p2, "utf8");
       return p2;
     } catch {
     }
@@ -29625,7 +29667,7 @@ function findDashboardHtml() {
 async function startDashboardServer(port) {
   const cfg = loadConfig();
   const htmlPath = findDashboardHtml();
-  const html = readFileSync3(htmlPath, "utf8");
+  const html = readFileSync4(htmlPath, "utf8");
   const server = createServer((req, res) => {
     if (req.url === "/api/query" && req.method === "POST") {
       void proxyQuery(req, res, cfg.fusekiUrl, cfg.dataset);
@@ -29896,7 +29938,7 @@ async function exportSessions(args) {
 
 // ../predicate-cli/src/commands/import-sessions.ts
 init_config();
-import { readFileSync as readFileSync4 } from "node:fs";
+import { readFileSync as readFileSync5 } from "node:fs";
 function help10() {
   console.log(`predicate import-sessions <file.trig>
 
@@ -29922,7 +29964,7 @@ async function importSessions(args) {
   const file = args[0];
   let trig;
   try {
-    trig = readFileSync4(file, "utf8");
+    trig = readFileSync5(file, "utf8");
   } catch (err2) {
     console.error(`predicate import-sessions: failed to read ${file}: ${err2.message}`);
     return 1;
@@ -30297,17 +30339,19 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.0.10" : "0.0.0-dev";
+var VERSION2 = true ? "2.0.11" : "0.0.0-dev";
 function help13() {
   console.log(`predicate <command>
 
 Commands:
   up                Open the Oxigraph store and load the seed TBox.
-                    --scope local|project|user   which store to use (default: per-project)
-                       local   = per-project store keyed by the current dir
-                       project = per-project store keyed by the git root
+                    Default store: reuse an existing .predicate/store from a
+                    parent dir; else <git-root>/.predicate/store inside a repo
+                    (auto-gitignored); else ~/.predicate/projects/<hash>/store.
+                    --scope local|project|user   force a specific store
+                       local   = ./.predicate/store (current dir)
+                       project = <git-root>/.predicate/store
                        user    = the global ~/.predicate/store (shared)
-                    Per-project stores live at ~/.predicate/projects/<hash>/store.
                     --if-needed                  no-op if the graph is already initialised
   init              Initialize kg:tbox with a community ontology, an uploaded file, or empty.
   down              Stop Fuseki, preserve the data volume.

@@ -36709,6 +36709,7 @@ var OxigraphAdapter = class {
 };
 
 // ../predicate-mcp/src/config.ts
+import { existsSync as existsSync2, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { homedir } from "node:os";
 import { dirname, join as join3, parse as parse3, resolve } from "node:path";
@@ -36820,6 +36821,27 @@ function projectStorePath(projectDir) {
   const key = createHash("sha256").update(resolve(projectDir)).digest("hex").slice(0, 16);
   return join3(homeRoot(), "projects", key, "store");
 }
+function inRepoStorePath(dir) {
+  return join3(resolve(dir), MARKER_DIR, "store");
+}
+function gitRoot(start) {
+  let dir = resolve(start);
+  const root = parse3(dir).root;
+  for (; ; ) {
+    if (existsSync2(join3(dir, ".git"))) return dir;
+    if (dir === root) return void 0;
+    dir = dirname(dir);
+  }
+}
+function findExistingStoreUpward(startDir) {
+  let dir = resolve(startDir);
+  const root = parse3(dir).root;
+  for (; ; ) {
+    if (existsSync2(join3(dir, MARKER_DIR, "store"))) return join3(dir, MARKER_DIR, "store");
+    if (dir === root) return void 0;
+    dir = dirname(dir);
+  }
+}
 function currentProjectDir() {
   return resolveProjectDir({
     env: process.env,
@@ -36833,7 +36855,12 @@ function currentProjectDir() {
 function resolveStorePath() {
   const override = process.env.PREDICATE_STORE_PATH;
   if (override) return override;
-  return projectStorePath(currentProjectDir());
+  const projectDir = currentProjectDir();
+  const existing = findExistingStoreUpward(projectDir);
+  if (existing) return existing;
+  const repo = gitRoot(projectDir);
+  if (repo) return inRepoStorePath(repo);
+  return projectStorePath(projectDir);
 }
 function loadConfig() {
   const raw = process.env.FUSEKI_URL ?? "http://localhost:3030";
@@ -46935,7 +46962,7 @@ async function assertCandidate(client, c2) {
 }
 
 // ../predicate-agent/src/research-source.ts
-import { readFileSync, readdirSync as readdirSync2, statSync as statSync3 } from "node:fs";
+import { readFileSync as readFileSync2, readdirSync as readdirSync2, statSync as statSync3 } from "node:fs";
 import { join as join4, extname } from "node:path";
 var DocsResearchSource = class {
   name = "docs";
@@ -46959,7 +46986,7 @@ var DocsResearchSource = class {
         continue;
       }
       if (!this.extensions.has(extname(entry))) continue;
-      const content = readFileSync(full, "utf8");
+      const content = readFileSync2(full, "utf8");
       out.push({
         source: this.name,
         uri: `file://${full}`,
@@ -47168,7 +47195,7 @@ var SchemaProposer = class {
 };
 
 // ../predicate-agent/src/promotion-sweeper.ts
-import { writeFileSync } from "node:fs";
+import { writeFileSync as writeFileSync2 } from "node:fs";
 import { resolve as resolve2 } from "node:path";
 var META4 = "https://predicate.dev/meta#";
 function newEventId3(kind2) {
@@ -47484,7 +47511,7 @@ var PromotionSweeper = class {
     });
     const turtleFile = resolve2(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
     const turtle = quads.map(tripleTurtle).join("\n") + "\n";
-    writeFileSync(turtleFile, turtle, "utf8");
+    writeFileSync2(turtleFile, turtle, "utf8");
     const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
     const insertSparql = quads.map((q2) => tripleSparql2(q2) + " .").join("\n");
     const now = (/* @__PURE__ */ new Date()).toISOString();

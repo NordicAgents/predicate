@@ -71,7 +71,7 @@ function parseScope(args: string[]): StoreScope | undefined {
 }
 
 export async function up(args: string[] = []): Promise<number> {
-  const { loadConfig, scopeStorePath, resolveStorePath, currentProjectDir } =
+  const { loadConfig, scopeStorePath, resolveStorePath, currentProjectDir, ensureGitignoreForStore } =
     await import('predicate-mcp/src/config.js');
 
   let scope: StoreScope | undefined;
@@ -88,6 +88,8 @@ export async function up(args: string[] = []): Promise<number> {
   const baseDir = currentProjectDir();
   const storePath = scope ? scopeStorePath(scope, baseDir) : resolveStorePath();
   process.env.PREDICATE_STORE_PATH = storePath;
+  // When the store lives inside a git repo, keep it out of version control.
+  ensureGitignoreForStore(storePath);
 
   const cfg = loadConfig();
 
