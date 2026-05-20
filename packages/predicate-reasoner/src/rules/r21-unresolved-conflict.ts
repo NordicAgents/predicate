@@ -6,7 +6,6 @@ const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 const UNRESOLVED = `${J}UnresolvedConflict`;
 const ABOUT = `${J}about`;
 const BASED_ON = `${J}basedOn`;
-const CONFLICTS_WITH = `${J}conflictsWith`;
 
 export const r21: Rule = {
   id: 'r21-unresolved-conflict',
@@ -56,7 +55,6 @@ export const r21: Rule = {
       { s: q.s, p: BASED_ON, o: binding.ba! },
       { s: binding.b!, p: ABOUT, o: binding.s! },
       { s: binding.b!, p: BASED_ON, o: binding.bb! },
-      { s: q.s, p: CONFLICTS_WITH, o: binding.b! },
     ],
   },
 };
