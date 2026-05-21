@@ -118,6 +118,9 @@ export class OxigraphAdapter implements StorageAdapter {
 
   async close(): Promise<void> {
     if (!this.isPersisted) return;
+    // Ensure any in-flight initial load completes before we flush, so we never
+    // write partial state over the persisted .nq files.
+    await this.ready();
 
     if (this.flushTimer !== null) {
       clearTimeout(this.flushTimer);

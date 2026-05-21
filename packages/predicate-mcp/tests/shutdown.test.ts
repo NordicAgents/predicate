@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { makeShutdown } from '../src/shutdown.js';
 import type { StorageAdapter } from '../src/storage/index.js';
+import { OxigraphAdapter } from '../src/storage/index.js';
 
 describe('makeShutdown', () => {
   it('closes the adapter exactly once even if invoked twice', async () => {
@@ -23,6 +24,13 @@ describe('makeShutdown', () => {
 
     await shutdown('SIGTERM');
 
+    expect(exits).toEqual([0]);
+  });
+
+  it('flushes a real in-memory adapter without throwing', async () => {
+    const exits: number[] = [];
+    const shutdown = makeShutdown(new OxigraphAdapter({ storePath: ':memory:' }), (c) => { exits.push(c); });
+    await shutdown('SIGTERM');
     expect(exits).toEqual([0]);
   });
 });
