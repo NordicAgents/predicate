@@ -2,6 +2,7 @@ import type { StorageAdapter } from '../storage/index.js';
 import { GRAPH } from '../graphs.js';
 import { escapeIRI, escapeLiteral } from '../sparql/escape.js';
 import { buildProvenanceMeta } from '../provenance.js';
+import { markAboxDirty } from '../materialize.js';
 
 const ALWAYS_ALLOWED_PREDICATES = new Set<string>([
   'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
@@ -94,4 +95,5 @@ export async function kgAssert(client: StorageAdapter, t: Triple): Promise<void>
       }
     }
   `);
+  await markAboxDirty(client);
 }

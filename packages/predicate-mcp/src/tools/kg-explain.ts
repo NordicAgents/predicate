@@ -1,6 +1,7 @@
 import type { StorageAdapter } from '../storage/index.js';
 import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
 import type { Quad } from 'predicate-reasoner/src/types.js';
+import { materializeIfDirty } from '../materialize.js';
 
 export interface ExplainInput {
   subject: string;
@@ -9,6 +10,7 @@ export interface ExplainInput {
 }
 
 export async function kgExplain(client: StorageAdapter, input: ExplainInput): Promise<unknown> {
+  await materializeIfDirty(client);
   const adapter = new FusekiConstructAdapter(client);
   const claim: Quad = {
     s: input.subject, p: input.predicate,

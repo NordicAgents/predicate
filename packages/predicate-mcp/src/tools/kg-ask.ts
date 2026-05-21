@@ -2,6 +2,7 @@ import type { StorageAdapter } from '../storage/index.js';
 import { GRAPH } from '../graphs.js';
 import { escapeIRI, escapeLiteral } from '../sparql/escape.js';
 import type { Binding } from '../sparql/types.js';
+import { materializeIfDirty } from '../materialize.js';
 
 export interface AskInput {
   question: string;
@@ -23,6 +24,7 @@ export async function kgAsk(client: StorageAdapter, input: AskInput): Promise<As
   if (FORBIDDEN.test(input.sparql)) {
     throw new Error('kg_ask is read-only; got update keyword in SPARQL');
   }
+  await materializeIfDirty(client);
   const maxRows = input.maxRows ?? DEFAULT_MAX;
   const t0 = Date.now();
 

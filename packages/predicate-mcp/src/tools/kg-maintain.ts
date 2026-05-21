@@ -6,6 +6,7 @@ import {
 } from 'predicate-agent/src/index.js';
 import { runFixpoint } from 'predicate-reasoner/src/fixpoint.js';
 import { RULES } from 'predicate-reasoner/src/rules/index.js';
+import { clearAboxDirty } from '../materialize.js';
 
 const META = 'https://predicate.dev/meta#';
 
@@ -115,6 +116,8 @@ export async function kgMaintain(
         }))} .
     } }
   `);
+
+  await clearAboxDirty(client);
 
   return {
     archivedCount,
