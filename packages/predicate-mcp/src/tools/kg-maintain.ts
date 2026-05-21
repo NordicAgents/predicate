@@ -72,12 +72,14 @@ export async function kgMaintain(
     useThreshold: input.useThreshold ?? 3,
   }).run();
 
+  const tFix = Date.now();
   const fixpoint = await runFixpoint(client, RULES, {
     tboxGraph: 'kg:tbox',
     aboxGraphs: ['kg:abox'],
     inferredGraph: 'kg:inferred',
     closureCutoff: 0.5,
   });
+  const fixpointMs = Date.now() - tFix;
 
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
@@ -94,6 +96,22 @@ export async function kgMaintain(
           generalizerProposals: generalizer.proposals.length,
           fixpointIterations: fixpoint.iterations,
           fixpointInferred: fixpoint.inferredCount,
+        }))} .
+    } }
+  `);
+
+  const matEventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  await client.update(`
+    PREFIX pred: <${META}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA { GRAPH <kg:meta> {
+      <${matEventId}> a pred:MaterializationCompleted ;
+        pred:at      "${new Date().toISOString()}"^^xsd:dateTime ;
+        pred:actor   "kg_maintain" ;
+        pred:payload ${escapeLiteral(JSON.stringify({
+          elapsedMs: fixpointMs,
+          iterations: fixpoint.iterations,
+          inferredCount: fixpoint.inferredCount,
         }))} .
     } }
   `);

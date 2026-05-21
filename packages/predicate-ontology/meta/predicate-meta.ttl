@@ -22,6 +22,7 @@ pred:GoalStatusChanged a owl:Class ; rdfs:subClassOf pred:Event .
 
 pred:InconsistencyDetected a owl:Class ; rdfs:subClassOf pred:Event .
 pred:MaintenanceRun        a owl:Class ; rdfs:subClassOf pred:Event .
+pred:MaterializationCompleted a owl:Class ; rdfs:subClassOf pred:Event .
 
 # --- Common event properties -------------------------------------
 
