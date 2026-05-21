@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { OxigraphAdapter } from '../src/storage/index.js';
 import { markAboxDirty, isAboxDirty, clearAboxDirty, materializeIfDirty } from '../src/materialize.js';
+import { kgAssert } from '../src/tools/kg-assert.js';
 
 const TBOX = `
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -31,8 +32,11 @@ describe('materializeIfDirty', () => {
     await client.loadTurtle(TBOX, 'kg:tbox');
     const F = 'https://predicate.dev/codebase/x#';
     const C = 'https://predicate.dev/codebase#calls';
-    await client.update(`INSERT DATA { GRAPH <kg:abox> {
-      <${F}a> <${C}> <${F}b> . <${F}b> <${C}> <${F}c> . } }`);
+    const assert = (s: string, o: string) =>
+      kgAssert(client, { subject: s, predicate: C, object: { type: 'uri', value: o },
+        source: 't', confidence: 0.95, method: 'm' });
+    await assert(`${F}a`, `${F}b`);
+    await assert(`${F}b`, `${F}c`);
     await markAboxDirty(client);
 
     const ranFirst = await materializeIfDirty(client);
