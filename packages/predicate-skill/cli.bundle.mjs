@@ -481,6 +481,7 @@ var init_oxigraph = __esm({
       }
       async close() {
         if (!this.isPersisted) return;
+        await this.ready();
         if (this.flushTimer !== null) {
           clearTimeout(this.flushTimer);
           this.flushTimer = null;
@@ -18303,8 +18304,31 @@ async function down() {
 init_config();
 init_storage();
 init_graphs();
-import { existsSync as existsSync5, accessSync, constants } from "node:fs";
-import { dirname as dirname4 } from "node:path";
+import { existsSync as existsSync5, accessSync, constants, rmSync } from "node:fs";
+import { dirname as dirname4, join as join6 } from "node:path";
+async function roundTripSelfTest(storePath) {
+  const S2 = "urn:predicate:selftest:s";
+  const P2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+  const O2 = "urn:predicate:selftest:Probe";
+  const w2 = new OxigraphAdapter({ storePath });
+  try {
+    await w2.ready();
+    await w2.update(`INSERT DATA { GRAPH <kg:abox> { <${S2}> <${P2}> <${O2}> } }`);
+  } finally {
+    await w2.close().catch(() => {
+    });
+  }
+  const r2 = new OxigraphAdapter({ storePath });
+  let survived;
+  try {
+    await r2.ready();
+    survived = await r2.ask(`ASK { GRAPH <kg:abox> { <${S2}> <${P2}> <${O2}> } }`);
+  } finally {
+    await r2.close().catch(() => {
+    });
+  }
+  return survived ? { persisted: true, detail: "assert \u2192 flush \u2192 reopen \u2192 read OK" } : { persisted: false, detail: "triple lost across reopen \u2014 flush-on-close is broken" };
+}
 async function doctor() {
   const cfg = loadConfig();
   const checks = [];
@@ -18334,6 +18358,19 @@ async function doctor() {
       ok: writable,
       detail: writable ? cfg.oxigraphStorePath : `cannot write to ${cfg.oxigraphStorePath}`
     });
+    if (writable) {
+      const selftestDir = join6(dirname4(cfg.oxigraphStorePath), "doctor-selftest");
+      const rt2 = await roundTripSelfTest(selftestDir).catch((err2) => ({ persisted: false, detail: err2.message }));
+      checks.push({
+        name: "round-trip (assert\u2192flush\u2192reopen\u2192read)",
+        ok: rt2.persisted,
+        detail: rt2.detail
+      });
+      try {
+        rmSync(selftestDir, { recursive: true, force: true });
+      } catch {
+      }
+    }
     const fusekiPing = await fetch(`${cfg.fusekiUrl}/$/ping`).catch(() => null);
     if (fusekiPing?.ok) {
       checks.push({
@@ -22165,6 +22202,12 @@ async function kgAssert(client, t2) {
   if (t2.confidence < 0 || t2.confidence > 1) {
     throw new Error(`confidence must be in [0,1], got ${t2.confidence}`);
   }
+  const o0 = t2.object;
+  if (o0 === null || typeof o0 !== "object" || typeof o0.value !== "string" || o0.type !== "uri" && o0.type !== "literal") {
+    throw new Error(
+      `kg_assert: object must be {type:"uri"|"literal", value:string, datatype?:string}, got ${JSON.stringify(t2.object)}`
+    );
+  }
   if (!ALWAYS_ALLOWED_PREDICATES.has(t2.predicate)) {
     if (!await predicateIsDeclared(client, t2.predicate)) {
       throw new Error(
@@ -22274,7 +22317,7 @@ var SchemaProposer = class {
 
 // ../predicate-agent/src/promotion-sweeper.ts
 init_storage();
-import { writeFileSync as writeFileSync2 } from "node:fs";
+import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
 import { resolve as resolve4 } from "node:path";
 
 // ../predicate-reasoner/src/rules/r01-subclassof-transitivity.ts
@@ -28112,14 +28155,7 @@ var PromotionSweeper = class {
   constructor(client, opts = {}) {
     this.client = client;
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? resolve4(
-      import.meta.dirname ?? process.cwd(),
-      "..",
-      "..",
-      "predicate-ontology",
-      "tbox",
-      "promoted"
-    );
+    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? (process.env["PREDICATE_STORE_PATH"] ? resolve4(process.env["PREDICATE_STORE_PATH"], "promoted") : resolve4(process.cwd(), ".predicate", "promoted"));
     this.reasoner = new FusekiConstructAdapter(client);
   }
   client;
@@ -28387,6 +28423,9 @@ var PromotionSweeper = class {
       }
     `);
   }
+  ensurePromotedDir() {
+    mkdirSync(this.promotedDir, { recursive: true });
+  }
   async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
       PREFIX pred: <${META6}>
@@ -28407,6 +28446,7 @@ var PromotionSweeper = class {
     });
     const turtleFile = resolve4(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
     const turtle = quads.map(tripleTurtle).join("\n") + "\n";
+    this.ensurePromotedDir();
     writeFileSync2(turtleFile, turtle, "utf8");
     const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
     const insertSparql = quads.map((q2) => tripleSparql2(q2) + " .").join("\n");
@@ -28675,12 +28715,14 @@ async function kgMaintain(client, input = {}) {
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3
   }).run();
+  const tFix = Date.now();
   const fixpoint = await runFixpoint(client, RULES, {
     tboxGraph: "kg:tbox",
     aboxGraphs: ["kg:abox"],
     inferredGraph: "kg:inferred",
     closureCutoff: 0.5
   });
+  const fixpointMs = Date.now() - tFix;
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
@@ -28699,6 +28741,21 @@ async function kgMaintain(client, input = {}) {
     generalizerProposals: generalizer.proposals.length,
     fixpointIterations: fixpoint.iterations,
     fixpointInferred: fixpoint.inferredCount
+  }))} .
+    } }
+  `);
+  const matEventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  await client.update(`
+    PREFIX pred: <${META7}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA { GRAPH <kg:meta> {
+      <${matEventId}> a pred:MaterializationCompleted ;
+        pred:at      "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
+        pred:actor   "kg_maintain" ;
+        pred:payload ${escapeLiteral(JSON.stringify({
+    elapsedMs: fixpointMs,
+    iterations: fixpoint.iterations,
+    inferredCount: fixpoint.inferredCount
   }))} .
     } }
   `);
@@ -28890,7 +28947,7 @@ async function capture(args, stdin = process.stdin) {
 // ../predicate-cli/src/commands/extract.ts
 init_storage();
 import { readFileSync as readFileSync3, readdirSync as readdirSync2, statSync as statSync4 } from "node:fs";
-import { basename as basename2, join as join6 } from "node:path";
+import { basename as basename2, join as join7 } from "node:path";
 
 // ../predicate-cli/src/commands/replay-rebuild.ts
 init_storage();
@@ -29226,6 +29283,8 @@ Options:
                     a directory of <session-id>.jsonl files (re-materializes inferred).
   --platform <name>    One of: claude-code (default), gemini, opencode.
                        Selects the transcript adapter for the platform.
+  --strict             Exit non-zero if any triple is rejected (default: exit 0
+                       for Stop-hook safety).
   --help               Print this message.
 
 Env:
@@ -29250,27 +29309,28 @@ async function extractTranscript(client, opts) {
     });
   }
   let asserted = 0;
-  let rejected = 0;
+  const rejections = [];
   for (const t2 of [...deterministic.triples, ...semantic.triples]) {
     try {
       await kgAssert(client, t2);
       asserted++;
-    } catch {
-      rejected++;
+    } catch (err2) {
+      rejections.push({ subject: t2.subject, predicate: t2.predicate, reason: err2.message });
     }
   }
   return {
     deterministic: deterministic.triples.length,
     semantic: semantic.triples.length,
     asserted,
-    rejected
+    rejected: rejections.length,
+    rejections
   };
 }
 async function replay(pathArg, platform) {
   let files;
   try {
     const st2 = statSync4(pathArg);
-    files = st2.isDirectory() ? readdirSync2(pathArg).filter((f2) => f2.endsWith(".jsonl")).map((f2) => join6(pathArg, f2)) : [pathArg];
+    files = st2.isDirectory() ? readdirSync2(pathArg).filter((f2) => f2.endsWith(".jsonl")).map((f2) => join7(pathArg, f2)) : [pathArg];
   } catch (err2) {
     console.error(`predicate extract --replay: cannot read ${pathArg}: ${err2.message}`);
     return 2;
@@ -29365,7 +29425,15 @@ async function extract(args, stdin = process.stdin) {
   console.log(
     `predicate extract: session=${sessionId} deterministic=${result.deterministic} semantic=${result.semantic} asserted=${result.asserted} rejected=${result.rejected}`
   );
-  return 0;
+  if (result.rejected > 0) {
+    console.error(
+      `predicate extract: WARNING \u2014 ${result.rejected} triple(s) were rejected and NOT stored. The store is likely missing required vocabulary (run 'predicate doctor'). First reasons:`
+    );
+    for (const r2 of result.rejections.slice(0, 5)) {
+      console.error(`  - ${r2.predicate} (subject ${r2.subject}): ${r2.reason}`);
+    }
+  }
+  return hasFlag3(args, "--strict") && result.rejected > 0 ? 1 : 0;
 }
 
 // ../predicate-cli/src/commands/sessions.ts
@@ -29704,7 +29772,7 @@ async function recall(args) {
 init_config();
 import { createServer } from "node:http";
 import { readFileSync as readFileSync4 } from "node:fs";
-import { join as join7, dirname as dirname5 } from "node:path";
+import { join as join8, dirname as dirname5 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 import { spawn } from "node:child_process";
 function parseFlag7(args, name) {
@@ -29916,11 +29984,11 @@ async function handleEvents(req, res, fusekiUrl, dataset2) {
 function findDashboardHtml() {
   const here = dirname5(fileURLToPath3(import.meta.url));
   const candidates = [
-    join7(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
-    join7(here, "dashboard", "index.html"),
+    join8(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
+    join8(here, "dashboard", "index.html"),
     // bundled cli.bundle.mjs sits next to dashboard/
-    join7(here, "..", "dashboard", "index.html"),
-    join7(here, "..", "..", "dashboard", "index.html")
+    join8(here, "..", "dashboard", "index.html"),
+    join8(here, "..", "..", "dashboard", "index.html")
   ];
   for (const p2 of candidates) {
     try {

@@ -36589,6 +36589,7 @@ var OxigraphAdapter = class {
   }
   async close() {
     if (!this.isPersisted) return;
+    await this.ready();
     if (this.flushTimer !== null) {
       clearTimeout(this.flushTimer);
       this.flushTimer = null;
@@ -36984,7 +36985,7 @@ function escapeLiteral(value) {
 // ../predicate-mcp/src/tools/kg-explore-schema.ts
 async function resolveConcept(client, raw) {
   if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
-  const r2 = await client.select(`
+  const byLabel = await client.select(`
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?iri WHERE {
       GRAPH ${escapeIRI(GRAPH.tbox)} {
@@ -36992,10 +36993,22 @@ async function resolveConcept(client, raw) {
       }
     } LIMIT 1
   `);
-  return r2.results.bindings[0]?.iri?.value ?? null;
+  const labelHit = byLabel.results.bindings[0]?.iri?.value;
+  if (labelHit) return labelHit;
+  const byLocal = await client.select(`
+    SELECT ?iri WHERE {
+      GRAPH ${escapeIRI(GRAPH.tbox)} { ?iri ?p ?o }
+      FILTER(REPLACE(STR(?iri), "^.*[#/]", "") = ${escapeLiteral(raw)})
+    } LIMIT 1
+  `);
+  return byLocal.results.bindings[0]?.iri?.value ?? null;
 }
 async function kgExploreSchema(client, conceptInput) {
-  const concept = await resolveConcept(client, conceptInput) ?? conceptInput;
+  const resolved = await resolveConcept(client, conceptInput);
+  if (resolved === null) {
+    return { concept: conceptInput, classes: [], properties: [] };
+  }
+  const concept = resolved;
   const cIri = escapeIRI(concept);
   const tbox = escapeIRI(GRAPH.tbox);
   const classQ = await client.select(`
@@ -37035,7 +37048,7 @@ async function kgExploreSchema(client, conceptInput) {
         OPTIONAL { ?p a ?char .
                    FILTER(?char IN (owl:TransitiveProperty, owl:SymmetricProperty,
                                     owl:FunctionalProperty, owl:InverseFunctionalProperty)) }
-        FILTER(?dom = ${cIri} || ?rng = ${cIri})
+        FILTER(?dom = ${cIri} || ?rng = ${cIri} || ?p = ${cIri})
       }
     }
   `);
@@ -37126,6 +37139,12 @@ function renderObject(obj) {
 async function kgAssert(client, t2) {
   if (t2.confidence < 0 || t2.confidence > 1) {
     throw new Error(`confidence must be in [0,1], got ${t2.confidence}`);
+  }
+  const o0 = t2.object;
+  if (o0 === null || typeof o0 !== "object" || typeof o0.value !== "string" || o0.type !== "uri" && o0.type !== "literal") {
+    throw new Error(
+      `kg_assert: object must be {type:"uri"|"literal", value:string, datatype?:string}, got ${JSON.stringify(t2.object)}`
+    );
   }
   if (!ALWAYS_ALLOWED_PREDICATES.has(t2.predicate)) {
     if (!await predicateIsDeclared(client, t2.predicate)) {
@@ -47267,7 +47286,7 @@ var SchemaProposer = class {
 };
 
 // ../predicate-agent/src/promotion-sweeper.ts
-import { writeFileSync as writeFileSync2 } from "node:fs";
+import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
 import { resolve as resolve2 } from "node:path";
 var META4 = "https://predicate.dev/meta#";
 function newEventId3(kind2) {
@@ -47288,14 +47307,7 @@ var PromotionSweeper = class {
   constructor(client, opts = {}) {
     this.client = client;
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? resolve2(
-      import.meta.dirname ?? process.cwd(),
-      "..",
-      "..",
-      "predicate-ontology",
-      "tbox",
-      "promoted"
-    );
+    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? (process.env["PREDICATE_STORE_PATH"] ? resolve2(process.env["PREDICATE_STORE_PATH"], "promoted") : resolve2(process.cwd(), ".predicate", "promoted"));
     this.reasoner = new FusekiConstructAdapter(client);
   }
   client;
@@ -47563,6 +47575,9 @@ var PromotionSweeper = class {
       }
     `);
   }
+  ensurePromotedDir() {
+    mkdirSync(this.promotedDir, { recursive: true });
+  }
   async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
       PREFIX pred: <${META4}>
@@ -47583,6 +47598,7 @@ var PromotionSweeper = class {
     });
     const turtleFile = resolve2(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
     const turtle = quads.map(tripleTurtle).join("\n") + "\n";
+    this.ensurePromotedDir();
     writeFileSync2(turtleFile, turtle, "utf8");
     const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
     const insertSparql = quads.map((q2) => tripleSparql2(q2) + " .").join("\n");
@@ -47758,12 +47774,14 @@ async function kgMaintain(client, input = {}) {
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3
   }).run();
+  const tFix = Date.now();
   const fixpoint = await runFixpoint(client, RULES, {
     tboxGraph: "kg:tbox",
     aboxGraphs: ["kg:abox"],
     inferredGraph: "kg:inferred",
     closureCutoff: 0.5
   });
+  const fixpointMs = Date.now() - tFix;
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
@@ -47782,6 +47800,21 @@ async function kgMaintain(client, input = {}) {
     generalizerProposals: generalizer.proposals.length,
     fixpointIterations: fixpoint.iterations,
     fixpointInferred: fixpoint.inferredCount
+  }))} .
+    } }
+  `);
+  const matEventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  await client.update(`
+    PREFIX pred: <${META5}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA { GRAPH <kg:meta> {
+      <${matEventId}> a pred:MaterializationCompleted ;
+        pred:at      "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
+        pred:actor   "kg_maintain" ;
+        pred:payload ${escapeLiteral(JSON.stringify({
+    elapsedMs: fixpointMs,
+    iterations: fixpoint.iterations,
+    inferredCount: fixpoint.inferredCount
   }))} .
     } }
   `);
@@ -48306,9 +48339,31 @@ Return the JSON.` }
   }
 };
 
+// ../predicate-mcp/src/shutdown.ts
+function makeShutdown(adapter, exit = (c2) => process.exit(c2)) {
+  let closed = false;
+  return async (signal) => {
+    if (closed) return;
+    closed = true;
+    try {
+      await adapter.close();
+    } catch (err2) {
+      console.error(`predicate-mcp: flush on ${signal} failed:`, err2);
+    }
+    exit(0);
+  };
+}
+
 // ../predicate-mcp/src/index.ts
 async function main() {
   const client = getAdapter();
+  const shutdown = makeShutdown(client);
+  process.on("SIGTERM", () => {
+    void shutdown("SIGTERM");
+  });
+  process.on("SIGINT", () => {
+    void shutdown("SIGINT");
+  });
   const server = new Server(
     { name: "predicate-mcp", version: "0.1.0" },
     { capabilities: { tools: {} } }
