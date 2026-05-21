@@ -5,7 +5,7 @@ import type { Binding } from '../sparql/types.js';
 import { materializeIfDirty } from '../materialize.js';
 
 export interface AskInput {
-  question: string;
+  question?: string;
   sparql: string;
   maxRows?: number;
 }
@@ -31,7 +31,7 @@ export async function kgAsk(client: StorageAdapter, input: AskInput): Promise<As
   const r = await client.select(input.sparql);
   const elapsedMs = Date.now() - t0;
 
-  await logUsage(client, input.question, input.sparql, r.results.bindings.length, elapsedMs);
+  await logUsage(client, input.question ?? '', input.sparql, r.results.bindings.length, elapsedMs);
 
   const truncated = r.results.bindings.length > maxRows;
   const bindings = truncated ? r.results.bindings.slice(0, maxRows) : r.results.bindings;

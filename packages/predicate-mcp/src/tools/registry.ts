@@ -79,15 +79,15 @@ export function buildTools(client: StorageAdapter, options: BuildToolsOptions = 
     },
     {
       name: 'kg_ask',
-      description: 'Execute a caller-drafted SPARQL SELECT/ASK against the live graph; logs usage. Read-only.',
+      description: 'Execute a caller-drafted SPARQL SELECT/ASK against the live graph; logs usage. Read-only. "question" is an optional human-readable label.',
       inputSchema: z.object({
-        question: z.string(),
+        question: z.string().optional(),
         sparql: z.string(),
         maxRows: z.number().int().positive().optional(),
       }),
       handler: async (raw): Promise<unknown> => {
         const args = z.object({
-          question: z.string(),
+          question: z.string().optional(),
           sparql: z.string(),
           maxRows: z.number().int().positive().optional(),
         }).parse(raw);
