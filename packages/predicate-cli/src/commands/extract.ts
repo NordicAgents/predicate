@@ -77,6 +77,8 @@ Options:
                     a directory of <session-id>.jsonl files (re-materializes inferred).
   --platform <name>    One of: claude-code (default), gemini, opencode.
                        Selects the transcript adapter for the platform.
+  --strict             Exit non-zero if any triple is rejected (default: exit 0
+                       for Stop-hook safety).
   --help               Print this message.
 
 Env:
@@ -85,11 +87,18 @@ Env:
 `);
 }
 
+export interface ExtractRejection {
+  subject: string;
+  predicate: string;
+  reason: string;
+}
+
 export interface ExtractTranscriptResult {
   deterministic: number;
   semantic: number;
   asserted: number;
   rejected: number;
+  rejections: ExtractRejection[];
 }
 
 export async function extractTranscript(
@@ -117,15 +126,21 @@ export async function extractTranscript(
   }
 
   let asserted = 0;
-  let rejected = 0;
+  const rejections: ExtractRejection[] = [];
   for (const t of [...deterministic.triples, ...semantic.triples] as Array<ExtractedTriple | SemanticTriple>) {
-    try { await kgAssert(client, t); asserted++; } catch { rejected++; }
+    try {
+      await kgAssert(client, t);
+      asserted++;
+    } catch (err) {
+      rejections.push({ subject: t.subject, predicate: t.predicate, reason: (err as Error).message });
+    }
   }
   return {
     deterministic: deterministic.triples.length,
     semantic: semantic.triples.length,
     asserted,
-    rejected,
+    rejected: rejections.length,
+    rejections,
   };
 }
 
@@ -239,5 +254,14 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
   console.log(
     `predicate extract: session=${sessionId} deterministic=${result.deterministic} semantic=${result.semantic} asserted=${result.asserted} rejected=${result.rejected}`,
   );
-  return 0;
+  if (result.rejected > 0) {
+    console.error(
+      `predicate extract: WARNING — ${result.rejected} triple(s) were rejected and NOT stored. ` +
+      `The store is likely missing required vocabulary (run 'predicate doctor'). First reasons:`,
+    );
+    for (const r of result.rejections.slice(0, 5)) {
+      console.error(`  - ${r.predicate} (subject ${r.subject}): ${r.reason}`);
+    }
+  }
+  return hasFlag(args, '--strict') && result.rejected > 0 ? 1 : 0;
 }
