@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { CompletionProvider } from 'predicate-agent/src/index.js';
 import type { StorageAdapter } from '../storage/index.js';
+import { parseInput } from './parse-input.js';
 import { kgExploreSchema } from './kg-explore-schema.js';
 import { kgAsk } from './kg-ask.js';
 import { kgAssert, type Triple } from './kg-assert.js';
@@ -73,7 +74,7 @@ export function buildTools(client: StorageAdapter, options: BuildToolsOptions = 
       description: 'Return the TBox slice (classes, sub/super, properties, characteristics) for a concept.',
       inputSchema: z.object({ concept: z.string().min(1) }),
       handler: async (raw): Promise<unknown> => {
-        const { concept } = z.object({ concept: z.string() }).parse(raw);
+        const { concept } = parseInput(z.object({ concept: z.string().min(1) }), raw, 'kg_explore_schema');
         return kgExploreSchema(client, concept);
       },
     },
@@ -158,14 +159,14 @@ export function buildTools(client: StorageAdapter, options: BuildToolsOptions = 
         useLlmDecomposer: z.boolean().optional(),
       }),
       handler: async (raw): Promise<unknown> => {
-        const args = z.object({
-          goal: z.string(),
+        const args = parseInput(z.object({
+          goal: z.string().min(1),
           source: z.enum(['user', 'inferred']).optional(),
           parentGoal: z.string().optional(),
           executeResearch: z.boolean().optional(),
           corpusRoot: z.string().optional(),
           useLlmDecomposer: z.boolean().optional(),
-        }).parse(raw);
+        }), raw, 'kg_research_goal');
         return kgResearchGoal(client, args, { extraCompletionProviders });
       },
     },
@@ -179,12 +180,12 @@ export function buildTools(client: StorageAdapter, options: BuildToolsOptions = 
         ttlDays: z.number().int().positive().optional(),
       }),
       handler: async (raw): Promise<unknown> => {
-        const args = z.object({
+        const args = parseInput(z.object({
           delta: schemaDeltaSchema,
           justification: z.string().min(1),
           motivatingGoal: z.string().optional(),
           ttlDays: z.number().int().positive().optional(),
-        }).parse(raw);
+        }), raw, 'kg_propose_schema');
         return kgProposeSchema(client, args);
       },
     },
@@ -202,10 +203,10 @@ export function buildTools(client: StorageAdapter, options: BuildToolsOptions = 
         sessionId: z.string().optional(),
       }),
       handler: async (raw): Promise<unknown> => {
-        const args = z.object({
+        const args = parseInput(z.object({
           touchedEntities: z.array(z.string()).optional(),
           sessionId: z.string().optional(),
-        }).parse(raw);
+        }), raw, 'kg_extract_judgments');
         return kgExtractJudgments(client, args);
       },
     },
