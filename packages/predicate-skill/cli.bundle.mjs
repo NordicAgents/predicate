@@ -22199,8 +22199,16 @@ function renderObject(obj) {
   return escapeLiteral(obj.value);
 }
 async function kgAssert(client, t2) {
-  if (t2.confidence < 0 || t2.confidence > 1) {
-    throw new Error(`confidence must be in [0,1], got ${t2.confidence}`);
+  for (const field of ["subject", "predicate", "source", "method"]) {
+    const v2 = t2[field];
+    if (typeof v2 !== "string" || v2.length === 0) {
+      throw new Error(
+        `kg_assert: "${field}" must be a non-empty string, got ${JSON.stringify(v2)}`
+      );
+    }
+  }
+  if (typeof t2.confidence !== "number" || Number.isNaN(t2.confidence) || t2.confidence < 0 || t2.confidence > 1) {
+    throw new Error(`kg_assert: "confidence" must be a number in [0,1], got ${JSON.stringify(t2.confidence)}`);
   }
   const o0 = t2.object;
   if (o0 === null || typeof o0 !== "object" || typeof o0.value !== "string" || o0.type !== "uri" && o0.type !== "literal") {
@@ -30385,7 +30393,7 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.3.0" : "0.0.0-dev";
+var VERSION2 = true ? "2.4.0" : "0.0.0-dev";
 function help10() {
   console.log(`predicate <command>
 

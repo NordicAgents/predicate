@@ -13,6 +13,49 @@ describe('kgAssert object-shape guard', () => {
     await expect(kgAssert(client, bad)).rejects.toThrow(/object must be \{type:/);
   });
 
+  it('throws a teaching error naming the field when method is missing', async () => {
+    const client = new OxigraphAdapter({ storePath: ':memory:' });
+    const bad = {
+      subject: 'urn:s', predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: { type: 'uri', value: 'urn:o' },
+      source: 'test', confidence: 0.9,
+      // method missing
+    } as unknown as Parameters<typeof kgAssert>[1];
+    await expect(kgAssert(client, bad)).rejects.toThrow(/"method"/);
+  });
+
+  it('throws a teaching error naming the field when source is missing', async () => {
+    const client = new OxigraphAdapter({ storePath: ':memory:' });
+    const bad = {
+      subject: 'urn:s', predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: { type: 'uri', value: 'urn:o' },
+      confidence: 0.9, method: 'manual',
+      // source missing
+    } as unknown as Parameters<typeof kgAssert>[1];
+    await expect(kgAssert(client, bad)).rejects.toThrow(/"source"/);
+  });
+
+  it('throws a teaching error when subject is not a non-empty string', async () => {
+    const client = new OxigraphAdapter({ storePath: ':memory:' });
+    const bad = {
+      subject: '', predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: { type: 'uri', value: 'urn:o' },
+      source: 'test', confidence: 0.9, method: 'manual',
+    } as unknown as Parameters<typeof kgAssert>[1];
+    await expect(kgAssert(client, bad)).rejects.toThrow(/"subject"/);
+  });
+
+  it('throws a teaching error when confidence is missing (not a number)', async () => {
+    const client = new OxigraphAdapter({ storePath: ':memory:' });
+    const bad = {
+      subject: 'urn:s', predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: { type: 'uri', value: 'urn:o' },
+      source: 'test', method: 'manual',
+      // confidence missing
+    } as unknown as Parameters<typeof kgAssert>[1];
+    await expect(kgAssert(client, bad)).rejects.toThrow(/confidence/);
+  });
+
   it('passes a valid {type:"uri"} object through the guard', async () => {
     const client = new OxigraphAdapter({ storePath: ':memory:' });
     await expect(kgAssert(client, {

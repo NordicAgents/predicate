@@ -37,8 +37,16 @@ function renderObject(obj: Triple['object']): string {
 }
 
 export async function kgAssert(client: StorageAdapter, t: Triple): Promise<void> {
-  if (t.confidence < 0 || t.confidence > 1) {
-    throw new Error(`confidence must be in [0,1], got ${t.confidence}`);
+  for (const field of ['subject', 'predicate', 'source', 'method'] as const) {
+    const v = (t as unknown as Record<string, unknown>)[field];
+    if (typeof v !== 'string' || v.length === 0) {
+      throw new Error(
+        `kg_assert: "${field}" must be a non-empty string, got ${JSON.stringify(v)}`,
+      );
+    }
+  }
+  if (typeof t.confidence !== 'number' || Number.isNaN(t.confidence) || t.confidence < 0 || t.confidence > 1) {
+    throw new Error(`kg_assert: "confidence" must be a number in [0,1], got ${JSON.stringify(t.confidence)}`);
   }
   const o0 = t.object as unknown;
   if (
