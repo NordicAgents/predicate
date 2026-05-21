@@ -2,8 +2,10 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { StorageAdapter } from '../../src/storage/adapter.js';
 
 // Set by the caller before importing. We pick the adapter via env so this same
-// file runs under both BACKEND=fuseki and BACKEND=oxigraph in CI.
-const BACKEND = process.env.BACKEND ?? 'fuseki';
+// file runs under both BACKEND=fuseki and BACKEND=oxigraph in CI. Defaults to
+// the same backend as the rest of the suite (Oxigraph, no Docker); the Fuseki
+// leg runs only when explicitly requested via BACKEND/PREDICATE_BACKEND.
+const BACKEND = process.env.BACKEND ?? process.env.PREDICATE_BACKEND ?? 'oxigraph';
 
 async function makeAdapter(): Promise<StorageAdapter> {
   if (BACKEND === 'fuseki') {

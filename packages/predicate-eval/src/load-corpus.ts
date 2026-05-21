@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
+import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 
 const C = 'https://predicate.dev/codebase#';
 const DOM = 'https://predicate.dev/codebase';
@@ -17,6 +18,11 @@ const fnRE = /export\s+function\s+(\w+)\s*\(/g;
 const envRE = /process\.env\.([A-Z0-9_]+)/g;
 
 export async function main(client: StorageAdapter = getAdapter()): Promise<void> {
+  // Seed the codebase schema so the asserts below have declared predicates.
+  // Idempotent: a no-op when the TBox is already loaded (e.g. after `predicate
+  // init` or in tests that seed it in beforeAll).
+  await withCodebaseTBox(client);
+
   const files = readdirSync(ROOT).filter((f) => f.endsWith('.ts'));
   for (const f of files) {
     const path = join(ROOT, f);

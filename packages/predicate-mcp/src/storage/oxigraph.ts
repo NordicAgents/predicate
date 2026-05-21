@@ -69,6 +69,7 @@ export class OxigraphAdapter implements StorageAdapter {
   private dirtyGraphs: Set<string> = new Set();
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private flushPromise: Promise<void> | null = null;
+  private loadPromise: Promise<void> | null = null;
 
   constructor(opts: OxigraphAdapterOptions) {
     // The 0.5.x npm binding does not accept a path in the constructor;
@@ -83,9 +84,19 @@ export class OxigraphAdapter implements StorageAdapter {
     return this.storePath !== ':memory:';
   }
 
+  // Idempotent: the persisted .nq files are loaded into the in-memory store
+  // exactly once, on the first call. Every data-access method awaits this, so
+  // callers that never call ready() explicitly (the MCP server boot, the read
+  // CLIs, the eval scripts) still see persisted data on their first query.
   async ready(): Promise<void> {
     if (!this.isPersisted) return;
+    if (this.loadPromise === null) {
+      this.loadPromise = this.loadFromDisk();
+    }
+    await this.loadPromise;
+  }
 
+  private async loadFromDisk(): Promise<void> {
     await fs.mkdir(this.storePath, { recursive: true });
 
     const entries = await fs.readdir(this.storePath);
@@ -179,6 +190,7 @@ export class OxigraphAdapter implements StorageAdapter {
   }
 
   async select(query: string): Promise<SelectResult> {
+    await this.ready();
     // query() returns Map<string, OxiTerm>[] for SELECT queries
     const raw = this.store.query(query);
     if (!Array.isArray(raw)) {
@@ -196,12 +208,14 @@ export class OxigraphAdapter implements StorageAdapter {
   }
 
   async ask(query: string): Promise<boolean> {
+    await this.ready();
     const result = this.store.query(query);
     if (typeof result === 'boolean') return result;
     throw new Error('ask() called with a non-ASK query');
   }
 
   async update(query: string): Promise<void> {
+    await this.ready();
     this.store.update(query);
     this.markDirty(extractDirtyGraphs(query));
   }
@@ -214,6 +228,7 @@ export class OxigraphAdapter implements StorageAdapter {
   }
 
   async loadTurtle(turtle: string, graph: string): Promise<void> {
+    await this.ready();
     this.store.load(turtle, {
       format: 'text/turtle',
       to_graph_name: namedNode(graph),
@@ -222,6 +237,7 @@ export class OxigraphAdapter implements StorageAdapter {
   }
 
   async serializeGraph(graph: string, format: TurtleFormat): Promise<string> {
+    await this.ready();
     const mime =
       format === 'turtle' ? 'text/turtle'
       : format === 'nt-star' ? 'application/n-triples-star'
@@ -263,6 +279,44 @@ export class OxigraphAdapter implements StorageAdapter {
       // (the annotation quad itself + the synthetic rdf:reifies quad).
       const bnodeQuads = [...this.store.match(bnode, null, null, graphNode)];
       for (const bq of bnodeQuads) {
+        this.store.delete(bq);
+      }
+    }
+
+    this.markDirty(new Set([graphIri]));
+  }
+
+  /**
+   * Delete all RDF-star provenance annotations (the reification bnode and every
+   * quad hanging off it) for each of the given base triples, inside a named graph.
+   *
+   * Like {@link deleteRdfStarAnnotationsForProposal}, this exists because Oxigraph
+   * 0.5.x cannot express `<<>>`-quoted triples in SPARQL Update. We enumerate the
+   * synthetic `rdf:reifies` quads (whose object is the quoted triple) via the quad
+   * API and match on the base triple's term values.
+   *
+   * @param graphIri  The named graph holding the provenance annotations (e.g. "kg:provenance")
+   * @param triples   The base triples whose annotations should be removed, as term-value strings
+   */
+  deleteRdfStarProvenanceForTriples(
+    graphIri: string,
+    triples: Array<{ s: string; p: string; o: string }>,
+  ): void {
+    if (triples.length === 0) return;
+    const RDF_REIFIES = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies';
+    const graphNode = namedNode(graphIri);
+    const SEP = ' ';
+    const targets = new Set(triples.map((t) => `${t.s}${SEP}${t.p}${SEP}${t.o}`));
+
+    const reifyQuads = [...this.store.match(null, namedNode(RDF_REIFIES), null, graphNode)];
+    for (const rq of reifyQuads) {
+      const qt = rq.object as { termType: string; subject?: { value: string }; predicate?: { value: string }; object?: { value: string } };
+      if (qt.subject === undefined || qt.predicate === undefined || qt.object === undefined) continue;
+      const key = `${qt.subject.value}${SEP}${qt.predicate.value}${SEP}${qt.object.value}`;
+      if (!targets.has(key)) continue;
+
+      const bnode = rq.subject;
+      for (const bq of this.store.match(bnode, null, null, graphNode)) {
         this.store.delete(bq);
       }
     }

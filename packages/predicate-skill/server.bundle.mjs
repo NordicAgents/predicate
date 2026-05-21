@@ -36552,6 +36552,7 @@ var OxigraphAdapter = class {
   dirtyGraphs = /* @__PURE__ */ new Set();
   flushTimer = null;
   flushPromise = null;
+  loadPromise = null;
   constructor(opts) {
     this.store = new Store();
     this.storePath = opts.storePath;
@@ -36559,8 +36560,18 @@ var OxigraphAdapter = class {
   get isPersisted() {
     return this.storePath !== ":memory:";
   }
+  // Idempotent: the persisted .nq files are loaded into the in-memory store
+  // exactly once, on the first call. Every data-access method awaits this, so
+  // callers that never call ready() explicitly (the MCP server boot, the read
+  // CLIs, the eval scripts) still see persisted data on their first query.
   async ready() {
     if (!this.isPersisted) return;
+    if (this.loadPromise === null) {
+      this.loadPromise = this.loadFromDisk();
+    }
+    await this.loadPromise;
+  }
+  async loadFromDisk() {
     await fs.mkdir(this.storePath, { recursive: true });
     const entries = await fs.readdir(this.storePath);
     for (const entry of entries) {
@@ -36635,6 +36646,7 @@ var OxigraphAdapter = class {
     this.scheduleDebouncedFlush();
   }
   async select(query) {
+    await this.ready();
     const raw = this.store.query(query);
     if (!Array.isArray(raw)) {
       throw new Error("select() called with a non-SELECT query");
@@ -36650,11 +36662,13 @@ var OxigraphAdapter = class {
     return { head: { vars }, results: { bindings } };
   }
   async ask(query) {
+    await this.ready();
     const result = this.store.query(query);
     if (typeof result === "boolean") return result;
     throw new Error("ask() called with a non-ASK query");
   }
   async update(query) {
+    await this.ready();
     this.store.update(query);
     this.markDirty(extractDirtyGraphs(query));
   }
@@ -36665,6 +36679,7 @@ var OxigraphAdapter = class {
     return r2.results.bindings.map((b2) => b2["g"].value);
   }
   async loadTurtle(turtle, graph) {
+    await this.ready();
     this.store.load(turtle, {
       format: "text/turtle",
       to_graph_name: namedNode(graph)
@@ -36672,6 +36687,7 @@ var OxigraphAdapter = class {
     this.markDirty(/* @__PURE__ */ new Set([graph]));
   }
   async serializeGraph(graph, format) {
+    await this.ready();
     const mime = format === "turtle" ? "text/turtle" : format === "nt-star" ? "application/n-triples-star" : "application/n-triples";
     return this.store.dump({ format: mime, from_graph_name: namedNode(graph) });
   }
@@ -36701,6 +36717,37 @@ var OxigraphAdapter = class {
       const bnode = aq.subject;
       const bnodeQuads = [...this.store.match(bnode, null, null, graphNode)];
       for (const bq of bnodeQuads) {
+        this.store.delete(bq);
+      }
+    }
+    this.markDirty(/* @__PURE__ */ new Set([graphIri]));
+  }
+  /**
+   * Delete all RDF-star provenance annotations (the reification bnode and every
+   * quad hanging off it) for each of the given base triples, inside a named graph.
+   *
+   * Like {@link deleteRdfStarAnnotationsForProposal}, this exists because Oxigraph
+   * 0.5.x cannot express `<<>>`-quoted triples in SPARQL Update. We enumerate the
+   * synthetic `rdf:reifies` quads (whose object is the quoted triple) via the quad
+   * API and match on the base triple's term values.
+   *
+   * @param graphIri  The named graph holding the provenance annotations (e.g. "kg:provenance")
+   * @param triples   The base triples whose annotations should be removed, as term-value strings
+   */
+  deleteRdfStarProvenanceForTriples(graphIri, triples) {
+    if (triples.length === 0) return;
+    const RDF_REIFIES = "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies";
+    const graphNode = namedNode(graphIri);
+    const SEP = "\0";
+    const targets = new Set(triples.map((t2) => `${t2.s}${SEP}${t2.p}${SEP}${t2.o}`));
+    const reifyQuads = [...this.store.match(null, namedNode(RDF_REIFIES), null, graphNode)];
+    for (const rq of reifyQuads) {
+      const qt2 = rq.object;
+      if (qt2.subject === void 0 || qt2.predicate === void 0 || qt2.object === void 0) continue;
+      const key = `${qt2.subject.value}${SEP}${qt2.predicate.value}${SEP}${qt2.object.value}`;
+      if (!targets.has(key)) continue;
+      const bnode = rq.subject;
+      for (const bq of this.store.match(bnode, null, null, graphNode)) {
         this.store.delete(bq);
       }
     }
@@ -36879,7 +36926,7 @@ function loadConfig() {
   const raw = process.env.FUSEKI_URL ?? "http://localhost:3030";
   const fusekiUrl = raw.replace(/\/+$/, "");
   const dataset2 = process.env.PREDICATE_DATASET ?? "predicate";
-  const backend = process.env.PREDICATE_BACKEND ?? "oxigraph";
+  const backend = process.env.PREDICATE_BACKEND?.trim() || "oxigraph";
   const oxigraphStorePath = resolveStorePath();
   return {
     backend,

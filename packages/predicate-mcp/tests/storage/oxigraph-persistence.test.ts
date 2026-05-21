@@ -42,6 +42,33 @@ describe('OxigraphAdapter file-backed persistence', () => {
     await b.close();
   });
 
+  it('reloads persisted data on first query even when ready() is never called', async () => {
+    const a = new OxigraphAdapter({ storePath: dir });
+    await a.ready();
+    await a.update(`INSERT DATA { GRAPH <kg:abox> { <urn:x> <urn:p> "persisted" } }`);
+    await a.close();
+
+    // Production code (MCP server boot, read CLIs) never calls ready().
+    // A fresh adapter must still surface persisted data lazily.
+    const b = new OxigraphAdapter({ storePath: dir });
+    const r = await b.select(`SELECT ?o WHERE { GRAPH <kg:abox> { <urn:x> <urn:p> ?o } }`);
+    expect(r.results.bindings.map((x) => x['o']!.value)).toEqual(['persisted']);
+    await b.close();
+  });
+
+  it('lazy-loads the same data only once across multiple queries', async () => {
+    const a = new OxigraphAdapter({ storePath: dir });
+    await a.ready();
+    await a.update(`INSERT DATA { GRAPH <kg:abox> { <urn:x> <urn:p> "v" } }`);
+    await a.close();
+
+    const b = new OxigraphAdapter({ storePath: dir });
+    await b.select(`SELECT * WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`);
+    const r = await b.select(`SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`);
+    expect(r.results.bindings[0]!['n']!.value).toBe('1');
+    await b.close();
+  });
+
   it(':memory: writes no files', async () => {
     const a = new OxigraphAdapter({ storePath: ':memory:' });
     await a.ready();

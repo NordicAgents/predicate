@@ -10,7 +10,7 @@ const client = getAdapter();
 const { J, TOP, cb, ops, per } = CORPUS_IRIS;
 const adapter = new FusekiConstructAdapter(client);
 
-async function materialize() {
+function materialize(): ReturnType<typeof adapter.materialize> {
   return adapter.materialize({ tboxGraph: 'kg:tbox', aboxGraphs: ['kg:abox'], targetGraph: 'kg:inferred', closureCutoff: 0.5 });
 }
 

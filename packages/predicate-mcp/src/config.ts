@@ -140,6 +140,24 @@ export function scopeStorePath(scope: StoreScope, baseDir: string): string {
 }
 
 /**
+ * Resolve the store path for a CLI command that accepts `--scope`, keeping it
+ * consistent with the long-running server and every other command:
+ *   1. An explicit PREDICATE_STORE_PATH always wins (documented override #1),
+ *      even over `--scope`, so `up --scope X` opens the same store the server
+ *      and read-CLIs will later resolve via `resolveStorePath()`.
+ *   2. Otherwise an explicit `--scope` maps to its scope path.
+ *   3. Otherwise fall back to the shared auto-resolver.
+ */
+export function resolveStorePathForScope(
+  scope: StoreScope | undefined,
+  baseDir: string,
+): string {
+  const override = process.env.PREDICATE_STORE_PATH?.trim();
+  if (override) return override;
+  return scope ? scopeStorePath(scope, baseDir) : resolveStorePath();
+}
+
+/**
  * If `storePath` is an in-repo store (`<repo>/.predicate/store`) inside a git
  * working tree, make sure that repo's `.gitignore` ignores `.predicate/`.
  * No-op for home-keyed/global stores or non-git dirs. Best-effort.
@@ -166,7 +184,10 @@ export function loadConfig(): Config {
   const raw = process.env.FUSEKI_URL ?? 'http://localhost:3030';
   const fusekiUrl = raw.replace(/\/+$/, '');
   const dataset = process.env.PREDICATE_DATASET ?? 'predicate';
-  const backend = (process.env.PREDICATE_BACKEND ?? 'oxigraph') as BackendName;
+  // Use `||` (not `??`) and trim so that an empty or whitespace-only
+  // PREDICATE_BACKEND (e.g. `export PREDICATE_BACKEND=` in a shell rc) falls
+  // back to the default instead of becoming an invalid `''` backend.
+  const backend = (process.env.PREDICATE_BACKEND?.trim() || 'oxigraph') as BackendName;
   const oxigraphStorePath = resolveStorePath();
   return {
     backend,

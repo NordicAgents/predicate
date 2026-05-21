@@ -71,7 +71,7 @@ function parseScope(args: string[]): StoreScope | undefined {
 }
 
 export async function up(args: string[] = []): Promise<number> {
-  const { loadConfig, scopeStorePath, resolveStorePath, ensureGitignoreForStore } =
+  const { loadConfig, resolveStorePathForScope, ensureGitignoreForStore } =
     await import('predicate-mcp/src/config.js');
 
   let scope: StoreScope | undefined;
@@ -84,9 +84,15 @@ export async function up(args: string[] = []): Promise<number> {
   const ifNeeded = args.includes('--if-needed');
 
   // Explicit --scope is unambiguous "here" → use the real cwd. Auto uses the
-  // robust resolver (which the MCP server shares), then we pin the path via
-  // PREDICATE_STORE_PATH so the CLI and the server agree exactly.
-  const storePath = scope ? scopeStorePath(scope, process.cwd()) : resolveStorePath();
+  // robust resolver (which the MCP server shares). An explicit
+  // PREDICATE_STORE_PATH still wins over --scope so the CLI and the server
+  // never diverge onto two different stores; we then pin the resolved path.
+  if (scope && process.env.PREDICATE_STORE_PATH?.trim()) {
+    console.error(
+      `predicate up: PREDICATE_STORE_PATH is set; honoring it over --scope ${scope}.`,
+    );
+  }
+  const storePath = resolveStorePathForScope(scope, process.cwd());
   process.env.PREDICATE_STORE_PATH = storePath;
   // When the store lives inside a git repo, keep it out of version control.
   ensureGitignoreForStore(storePath);

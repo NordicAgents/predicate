@@ -156,6 +156,7 @@ __export(config_exports, {
   loadConfig: () => loadConfig,
   projectStorePath: () => projectStorePath,
   resolveStorePath: () => resolveStorePath,
+  resolveStorePathForScope: () => resolveStorePathForScope,
   scopeStorePath: () => scopeStorePath,
   userStorePath: () => userStorePath
 });
@@ -237,6 +238,11 @@ function scopeStorePath(scope, baseDir) {
       return inRepoStorePath(baseDir);
   }
 }
+function resolveStorePathForScope(scope, baseDir) {
+  const override = process.env.PREDICATE_STORE_PATH?.trim();
+  if (override) return override;
+  return scope ? scopeStorePath(scope, baseDir) : resolveStorePath();
+}
 function ensureGitignoreForStore(storePath) {
   const containing = dirname2(dirname2(resolve2(storePath)));
   const repo = gitRoot(containing);
@@ -262,7 +268,7 @@ function loadConfig() {
   const raw = process.env.FUSEKI_URL ?? "http://localhost:3030";
   const fusekiUrl = raw.replace(/\/+$/, "");
   const dataset2 = process.env.PREDICATE_DATASET ?? "predicate";
-  const backend = process.env.PREDICATE_BACKEND ?? "oxigraph";
+  const backend = process.env.PREDICATE_BACKEND?.trim() || "oxigraph";
   const oxigraphStorePath = resolveStorePath();
   return {
     backend,
@@ -438,6 +444,7 @@ var init_oxigraph = __esm({
       dirtyGraphs = /* @__PURE__ */ new Set();
       flushTimer = null;
       flushPromise = null;
+      loadPromise = null;
       constructor(opts) {
         this.store = new Store();
         this.storePath = opts.storePath;
@@ -445,8 +452,18 @@ var init_oxigraph = __esm({
       get isPersisted() {
         return this.storePath !== ":memory:";
       }
+      // Idempotent: the persisted .nq files are loaded into the in-memory store
+      // exactly once, on the first call. Every data-access method awaits this, so
+      // callers that never call ready() explicitly (the MCP server boot, the read
+      // CLIs, the eval scripts) still see persisted data on their first query.
       async ready() {
         if (!this.isPersisted) return;
+        if (this.loadPromise === null) {
+          this.loadPromise = this.loadFromDisk();
+        }
+        await this.loadPromise;
+      }
+      async loadFromDisk() {
         await fs2.mkdir(this.storePath, { recursive: true });
         const entries = await fs2.readdir(this.storePath);
         for (const entry of entries) {
@@ -521,6 +538,7 @@ var init_oxigraph = __esm({
         this.scheduleDebouncedFlush();
       }
       async select(query) {
+        await this.ready();
         const raw = this.store.query(query);
         if (!Array.isArray(raw)) {
           throw new Error("select() called with a non-SELECT query");
@@ -536,11 +554,13 @@ var init_oxigraph = __esm({
         return { head: { vars }, results: { bindings } };
       }
       async ask(query) {
+        await this.ready();
         const result = this.store.query(query);
         if (typeof result === "boolean") return result;
         throw new Error("ask() called with a non-ASK query");
       }
       async update(query) {
+        await this.ready();
         this.store.update(query);
         this.markDirty(extractDirtyGraphs(query));
       }
@@ -551,6 +571,7 @@ var init_oxigraph = __esm({
         return r2.results.bindings.map((b2) => b2["g"].value);
       }
       async loadTurtle(turtle, graph) {
+        await this.ready();
         this.store.load(turtle, {
           format: "text/turtle",
           to_graph_name: namedNode(graph)
@@ -558,6 +579,7 @@ var init_oxigraph = __esm({
         this.markDirty(/* @__PURE__ */ new Set([graph]));
       }
       async serializeGraph(graph, format) {
+        await this.ready();
         const mime = format === "turtle" ? "text/turtle" : format === "nt-star" ? "application/n-triples-star" : "application/n-triples";
         return this.store.dump({ format: mime, from_graph_name: namedNode(graph) });
       }
@@ -587,6 +609,37 @@ var init_oxigraph = __esm({
           const bnode = aq.subject;
           const bnodeQuads = [...this.store.match(bnode, null, null, graphNode)];
           for (const bq of bnodeQuads) {
+            this.store.delete(bq);
+          }
+        }
+        this.markDirty(/* @__PURE__ */ new Set([graphIri]));
+      }
+      /**
+       * Delete all RDF-star provenance annotations (the reification bnode and every
+       * quad hanging off it) for each of the given base triples, inside a named graph.
+       *
+       * Like {@link deleteRdfStarAnnotationsForProposal}, this exists because Oxigraph
+       * 0.5.x cannot express `<<>>`-quoted triples in SPARQL Update. We enumerate the
+       * synthetic `rdf:reifies` quads (whose object is the quoted triple) via the quad
+       * API and match on the base triple's term values.
+       *
+       * @param graphIri  The named graph holding the provenance annotations (e.g. "kg:provenance")
+       * @param triples   The base triples whose annotations should be removed, as term-value strings
+       */
+      deleteRdfStarProvenanceForTriples(graphIri, triples) {
+        if (triples.length === 0) return;
+        const RDF_REIFIES = "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies";
+        const graphNode = namedNode(graphIri);
+        const SEP = "\0";
+        const targets = new Set(triples.map((t2) => `${t2.s}${SEP}${t2.p}${SEP}${t2.o}`));
+        const reifyQuads = [...this.store.match(null, namedNode(RDF_REIFIES), null, graphNode)];
+        for (const rq of reifyQuads) {
+          const qt2 = rq.object;
+          if (qt2.subject === void 0 || qt2.predicate === void 0 || qt2.object === void 0) continue;
+          const key = `${qt2.subject.value}${SEP}${qt2.predicate.value}${SEP}${qt2.object.value}`;
+          if (!targets.has(key)) continue;
+          const bnode = rq.subject;
+          for (const bq of this.store.match(bnode, null, null, graphNode)) {
             this.store.delete(bq);
           }
         }
@@ -18165,7 +18218,7 @@ function parseScope(args) {
   throw new Error(`invalid --scope '${raw}' (expected local|project|user)`);
 }
 async function up(args = []) {
-  const { loadConfig: loadConfig2, scopeStorePath: scopeStorePath2, resolveStorePath: resolveStorePath2, ensureGitignoreForStore: ensureGitignoreForStore2 } = await Promise.resolve().then(() => (init_config(), config_exports));
+  const { loadConfig: loadConfig2, resolveStorePathForScope: resolveStorePathForScope2, ensureGitignoreForStore: ensureGitignoreForStore2 } = await Promise.resolve().then(() => (init_config(), config_exports));
   let scope;
   try {
     scope = parseScope(args);
@@ -18174,7 +18227,12 @@ async function up(args = []) {
     return 2;
   }
   const ifNeeded = args.includes("--if-needed");
-  const storePath = scope ? scopeStorePath2(scope, process.cwd()) : resolveStorePath2();
+  if (scope && process.env.PREDICATE_STORE_PATH?.trim()) {
+    console.error(
+      `predicate up: PREDICATE_STORE_PATH is set; honoring it over --scope ${scope}.`
+    );
+  }
+  const storePath = resolveStorePathForScope2(scope, process.cwd());
   process.env.PREDICATE_STORE_PATH = storePath;
   ensureGitignoreForStore2(storePath);
   const cfg = loadConfig2();
@@ -28835,9 +28893,41 @@ import { readFileSync as readFileSync3, readdirSync as readdirSync2, statSync as
 import { basename as basename2, join as join6 } from "node:path";
 
 // ../predicate-cli/src/commands/replay-rebuild.ts
+init_storage();
 var META9 = "https://predicate.dev/meta#";
+function renderObject2(o2) {
+  if (o2.type === "uri") return escapeIRI(o2.value);
+  return o2.datatype ? `${escapeLiteral(o2.value)}^^${escapeIRI(o2.datatype)}` : escapeLiteral(o2.value);
+}
 async function deleteExtractedSlice(client, sessionId) {
   const source = escapeLiteral(`urn:predicate:session:${sessionId}`);
+  if (client instanceof OxigraphAdapter) {
+    const matches = await client.select(`
+      PREFIX pred: <${META9}>
+      SELECT ?s ?p ?o WHERE {
+        GRAPH <kg:provenance> { << ?s ?p ?o >> pred:source ${source} . }
+        FILTER NOT EXISTS {
+          GRAPH <kg:provenance> {
+            << ?s ?p ?o >> pred:source ?other .
+            FILTER (?other != ${source})
+          }
+        }
+      }
+    `);
+    const triples = matches.results.bindings.map((b2) => ({
+      s: b2["s"].value,
+      p: b2["p"].value,
+      o: b2["o"].value
+    }));
+    for (const b2 of matches.results.bindings) {
+      const s2 = escapeIRI(b2["s"].value);
+      const p2 = escapeIRI(b2["p"].value);
+      const o2 = renderObject2(b2["o"]);
+      await client.update(`DELETE DATA { GRAPH <kg:abox> { ${s2} ${p2} ${o2} } }`);
+    }
+    client.deleteRdfStarProvenanceForTriples("kg:provenance", triples);
+    return;
+  }
   await client.update(`
     PREFIX pred: <${META9}>
     DELETE {

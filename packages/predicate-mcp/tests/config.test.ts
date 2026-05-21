@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import {
   loadConfig,
   scopeStorePath,
+  resolveStorePathForScope,
   projectStorePath,
   userStorePath,
   inRepoStorePath,
@@ -32,6 +33,23 @@ describe('loadConfig', () => {
   it('strips trailing slash from FUSEKI_URL', () => {
     process.env.FUSEKI_URL = 'http://x:3030/';
     expect(loadConfig().fusekiUrl).toBe('http://x:3030');
+  });
+
+  it('defaults backend to oxigraph when PREDICATE_BACKEND is unset', () => {
+    delete process.env.PREDICATE_BACKEND;
+    expect(loadConfig().backend).toBe('oxigraph');
+  });
+
+  it('defaults backend to oxigraph when PREDICATE_BACKEND is empty or whitespace', () => {
+    process.env.PREDICATE_BACKEND = '';
+    expect(loadConfig().backend).toBe('oxigraph');
+    process.env.PREDICATE_BACKEND = '   ';
+    expect(loadConfig().backend).toBe('oxigraph');
+  });
+
+  it('honors an explicit PREDICATE_BACKEND', () => {
+    process.env.PREDICATE_BACKEND = 'fuseki';
+    expect(loadConfig().backend).toBe('fuseki');
   });
 });
 
@@ -85,6 +103,17 @@ describe('loadConfig store-path resolution', () => {
     process.env.PREDICATE_STORE_PATH = '/explicit/store';
     process.env.CLAUDE_PROJECT_DIR = join(tmp, 'proj');
     expect(loadConfig().oxigraphStorePath).toBe('/explicit/store');
+  });
+
+  it('resolveStorePathForScope: an explicit --scope maps to its path when no env override', () => {
+    expect(resolveStorePathForScope('local', '/work/proj')).toBe(scopeStorePath('local', '/work/proj'));
+  });
+
+  it('resolveStorePathForScope: PREDICATE_STORE_PATH wins even when --scope is given', () => {
+    process.env.PREDICATE_STORE_PATH = '/explicit/store';
+    // Without this, `up --scope local` opens ./.predicate/store while the
+    // server/CLI read PREDICATE_STORE_PATH — two divergent stores.
+    expect(resolveStorePathForScope('local', '/work/proj')).toBe('/explicit/store');
   });
 
   it('uses <git-root>/.predicate/store inside a git repo', () => {
