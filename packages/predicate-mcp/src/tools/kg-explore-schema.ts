@@ -26,7 +26,9 @@ export interface SchemaSlice {
 
 async function resolveConcept(client: StorageAdapter, raw: string): Promise<string | null> {
   if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
-  const r = await client.select(`
+
+  // 1. Exact rdfs:label match.
+  const byLabel = await client.select(`
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?iri WHERE {
       GRAPH ${escapeIRI(GRAPH.tbox)} {
@@ -34,14 +36,30 @@ async function resolveConcept(client: StorageAdapter, raw: string): Promise<stri
       }
     } LIMIT 1
   `);
-  return r.results.bindings[0]?.iri?.value ?? null;
+  const labelHit = byLabel.results.bindings[0]?.iri?.value;
+  if (labelHit) return labelHit;
+
+  // 2. Local-name match (token after the last '#' or '/'). This is how an agent
+  //    naturally names a predicate/class ("reads", "dependsOn", "Command"),
+  //    whose human label is often a phrase.
+  const byLocal = await client.select(`
+    SELECT ?iri WHERE {
+      GRAPH ${escapeIRI(GRAPH.tbox)} { ?iri ?p ?o }
+      FILTER(REPLACE(STR(?iri), "^.*[#/]", "") = ${escapeLiteral(raw)})
+    } LIMIT 1
+  `);
+  return byLocal.results.bindings[0]?.iri?.value ?? null;
 }
 
 export async function kgExploreSchema(
   client: StorageAdapter,
   conceptInput: string,
 ): Promise<SchemaSlice> {
-  const concept = (await resolveConcept(client, conceptInput)) ?? conceptInput;
+  const resolved = await resolveConcept(client, conceptInput);
+  if (resolved === null) {
+    return { concept: conceptInput, classes: [], properties: [] };
+  }
+  const concept = resolved;
   const cIri = escapeIRI(concept);
   const tbox = escapeIRI(GRAPH.tbox);
 
@@ -86,7 +104,7 @@ export async function kgExploreSchema(
         OPTIONAL { ?p a ?char .
                    FILTER(?char IN (owl:TransitiveProperty, owl:SymmetricProperty,
                                     owl:FunctionalProperty, owl:InverseFunctionalProperty)) }
-        FILTER(?dom = ${cIri} || ?rng = ${cIri})
+        FILTER(?dom = ${cIri} || ?rng = ${cIri} || ?p = ${cIri})
       }
     }
   `);
