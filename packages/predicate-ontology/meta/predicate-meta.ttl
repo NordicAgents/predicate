@@ -3,6 +3,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix cb:   <https://predicate.dev/codebase#> .
 
 # --- Event class hierarchy ---------------------------------------
 
@@ -84,3 +85,25 @@ pred:schemaLearningEnabled a owl:DatatypeProperty , owl:FunctionalProperty ;
                       rdfs:comment "When false, Generalizer skips auto-proposal generation (Sweeper still promotes existing staging)" .
 pred:initializedAt    a owl:DatatypeProperty , owl:FunctionalProperty ;
                       rdfs:domain pred:Config ; rdfs:range xsd:dateTime .
+
+# --- Session-history vocabulary (Stop-hook extractor; loaded in every mode) ---
+# These codebase: terms are emitted by the deterministic turn-extractor. They
+# live here, in the always-loaded meta vocab, so "what did I modify last
+# session" works regardless of which community ontology (if any) is installed.
+# codebase.ttl re-declares the same terms; loading both is idempotent.
+
+cb:File    a owl:Class ; rdfs:label "Source file" .
+cb:Command a owl:Class ; rdfs:label "Shell command invocation" .
+
+cb:modifiedIn  a owl:ObjectProperty ;
+               rdfs:domain cb:File ; rdfs:range pred:Session ;
+               rdfs:label "modified in session" .
+cb:succeededIn a owl:ObjectProperty ;
+               rdfs:domain cb:Command ; rdfs:range pred:Session ;
+               rdfs:label "succeeded in session" .
+cb:failedIn    a owl:ObjectProperty ;
+               rdfs:domain cb:Command ; rdfs:range pred:Session ;
+               rdfs:label "failed in session" .
+cb:commandText a owl:DatatypeProperty ;
+               rdfs:domain cb:Command ; rdfs:range xsd:string ;
+               rdfs:label "command text" .

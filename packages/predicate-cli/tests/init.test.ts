@@ -114,10 +114,13 @@ describe('predicate init', () => {
     const code = await init(['--mode', 'empty']);
     expect(code).toBe(0);
 
+    // Probe cb:Function: unlike cb:File (now declared in the always-loaded meta
+    // vocab as session-history vocabulary), cb:Function lives only in codebase.ttl,
+    // so it is the true indicator that stale residue survived the wipe.
     const stillHasCodebase = await client.ask(
       `PREFIX cb:  <https://predicate.dev/codebase#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-       ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
+       ASK { GRAPH <kg:tbox> { cb:Function a owl:Class } }`,
     );
     expect(stillHasCodebase).toBe(false);
 
