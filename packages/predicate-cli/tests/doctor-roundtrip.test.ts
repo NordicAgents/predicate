@@ -15,4 +15,14 @@ describe('doctor round-trip self-test', () => {
       rmSync(store, { recursive: true, force: true });
     }
   });
+
+  it('releases the store so a second run reopens cleanly', async () => {
+    const store = mkdtempSync(join(tmpdir(), 'pred-rt2-'));
+    try {
+      expect((await roundTripSelfTest(store)).persisted).toBe(true);
+      expect((await roundTripSelfTest(store)).persisted).toBe(true);
+    } finally {
+      rmSync(store, { recursive: true, force: true });
+    }
+  });
 });

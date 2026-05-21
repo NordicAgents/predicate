@@ -23,14 +23,21 @@ export async function roundTripSelfTest(storePath: string): Promise<RoundTripRes
   const O = 'urn:predicate:selftest:Probe';
 
   const w = new OxigraphAdapter({ storePath });
-  await w.ready();
-  await w.update(`INSERT DATA { GRAPH <kg:abox> { <${S}> <${P}> <${O}> } }`);
-  await w.close(); // force flush to disk
+  try {
+    await w.ready();
+    await w.update(`INSERT DATA { GRAPH <kg:abox> { <${S}> <${P}> <${O}> } }`);
+  } finally {
+    await w.close().catch(() => {}); // flush + release; swallow close errors
+  }
 
   const r = new OxigraphAdapter({ storePath });
-  await r.ready();
-  const survived = await r.ask(`ASK { GRAPH <kg:abox> { <${S}> <${P}> <${O}> } }`);
-  await r.close();
+  let survived: boolean;
+  try {
+    await r.ready();
+    survived = await r.ask(`ASK { GRAPH <kg:abox> { <${S}> <${P}> <${O}> } }`);
+  } finally {
+    await r.close().catch(() => {}); // release; swallow close errors
+  }
 
   return survived
     ? { persisted: true, detail: 'assert → flush → reopen → read OK' }
