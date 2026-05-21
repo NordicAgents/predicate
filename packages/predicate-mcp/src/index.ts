@@ -8,11 +8,15 @@ import {
 import { getAdapter } from './storage/index.js';
 import { buildTools } from './tools/registry.js';
 import { SamplingProvider } from './sampling-provider.js';
+import { makeShutdown } from './shutdown.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { z } from 'zod';
 
 async function main(): Promise<void> {
   const client = getAdapter();
+  const shutdown = makeShutdown(client);
+  process.on('SIGTERM', () => { void shutdown('SIGTERM'); });
+  process.on('SIGINT', () => { void shutdown('SIGINT'); });
 
   const server = new Server(
     { name: 'predicate-mcp', version: '0.1.0' },
