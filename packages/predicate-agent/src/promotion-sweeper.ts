@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { OxigraphAdapter } from 'predicate-mcp/src/storage/index.js';
@@ -52,10 +52,9 @@ export class PromotionSweeper {
     this.useThreshold = opts.useThreshold ?? 3;
     this.promotedDir = opts.promotedDir
       ?? process.env['PREDICATE_PROMOTED_DIR']
-      ?? resolve(
-        import.meta.dirname ?? process.cwd(),
-        '..', '..', 'predicate-ontology', 'tbox', 'promoted',
-      );
+      ?? (process.env['PREDICATE_STORE_PATH']
+            ? resolve(process.env['PREDICATE_STORE_PATH'], 'promoted')
+            : resolve(process.cwd(), '.predicate', 'promoted'));
     this.reasoner = new FusekiConstructAdapter(client);
   }
 
@@ -352,6 +351,10 @@ export class PromotionSweeper {
     `);
   }
 
+  private ensurePromotedDir(): void {
+    mkdirSync(this.promotedDir, { recursive: true });
+  }
+
   private async promote(p: ProposalRow, actor: string = 'PromotionSweeper'): Promise<{ turtleFile: string; tboxVersion: string }> {
     const r = await this.client.select(`
       PREFIX pred: <${META}>
@@ -377,6 +380,7 @@ export class PromotionSweeper {
 
     const turtleFile = resolve(this.promotedDir, `${p.id.replace(/[^A-Za-z0-9-]/g, '_')}.ttl`);
     const turtle = quads.map(tripleTurtle).join('\n') + '\n';
+    this.ensurePromotedDir();
     writeFileSync(turtleFile, turtle, 'utf8');
 
     const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
