@@ -40,6 +40,16 @@ export async function kgAssert(client: StorageAdapter, t: Triple): Promise<void>
   if (t.confidence < 0 || t.confidence > 1) {
     throw new Error(`confidence must be in [0,1], got ${t.confidence}`);
   }
+  const o0 = t.object as unknown;
+  if (
+    o0 === null || typeof o0 !== 'object' ||
+    typeof (o0 as { value?: unknown }).value !== 'string' ||
+    ((o0 as { type?: unknown }).type !== 'uri' && (o0 as { type?: unknown }).type !== 'literal')
+  ) {
+    throw new Error(
+      `kg_assert: object must be {type:"uri"|"literal", value:string, datatype?:string}, got ${JSON.stringify(t.object)}`,
+    );
+  }
   if (!ALWAYS_ALLOWED_PREDICATES.has(t.predicate)) {
     if (!(await predicateIsDeclared(client, t.predicate))) {
       throw new Error(
