@@ -22176,157 +22176,27 @@ function buildProvenanceMeta(partial) {
   return { ...partial, timestamp: (/* @__PURE__ */ new Date()).toISOString() };
 }
 
-// ../predicate-mcp/src/tools/kg-assert.ts
-var ALWAYS_ALLOWED_PREDICATES = /* @__PURE__ */ new Set([
-  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-]);
-async function predicateIsDeclared(client, p2) {
-  return client.ask(`
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    ASK {
-      { GRAPH ${escapeIRI(GRAPH.tbox)}         { ${escapeIRI(p2)} a ?t } }
-      UNION
-      { GRAPH ${escapeIRI(GRAPH.tboxStaging)}  { ${escapeIRI(p2)} a ?t } }
-      FILTER (?t IN (owl:ObjectProperty, owl:DatatypeProperty,
-                     owl:AnnotationProperty, rdf:Property))
+// ../predicate-reasoner/src/fixpoint.ts
+var MAX_ITERATIONS = 10;
+async function runFixpoint(client, rules, cfg) {
+  await client.update(`DROP SILENT GRAPH <${cfg.inferredGraph}>`);
+  await client.update(`CREATE SILENT GRAPH <${cfg.inferredGraph}>`);
+  let lastCount = -1;
+  for (let i2 = 1; i2 <= MAX_ITERATIONS; i2++) {
+    for (const rule of rules) {
+      await client.update(rule.insertWhere(cfg));
     }
-  `);
-}
-function renderObject(obj) {
-  if (obj.type === "uri") return escapeIRI(obj.value);
-  if (obj.datatype) return `${escapeLiteral(obj.value)}^^${escapeIRI(obj.datatype)}`;
-  return escapeLiteral(obj.value);
-}
-async function kgAssert(client, t2) {
-  for (const field of ["subject", "predicate", "source", "method"]) {
-    const v2 = t2[field];
-    if (typeof v2 !== "string" || v2.length === 0) {
-      throw new Error(
-        `kg_assert: "${field}" must be a non-empty string, got ${JSON.stringify(v2)}`
-      );
-    }
-  }
-  if (typeof t2.confidence !== "number" || Number.isNaN(t2.confidence) || t2.confidence < 0 || t2.confidence > 1) {
-    throw new Error(`kg_assert: "confidence" must be a number in [0,1], got ${JSON.stringify(t2.confidence)}`);
-  }
-  const o0 = t2.object;
-  if (o0 === null || typeof o0 !== "object" || typeof o0.value !== "string" || o0.type !== "uri" && o0.type !== "literal") {
-    throw new Error(
-      `kg_assert: object must be {type:"uri"|"literal", value:string, datatype?:string}, got ${JSON.stringify(t2.object)}`
+    const r2 = await client.select(
+      `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${cfg.inferredGraph}> { ?s ?p ?o } }`
     );
+    const n2 = parseInt(r2.results.bindings[0].n.value, 10);
+    if (n2 === lastCount) return { iterations: i2, inferredCount: n2 };
+    lastCount = n2;
   }
-  if (!ALWAYS_ALLOWED_PREDICATES.has(t2.predicate)) {
-    if (!await predicateIsDeclared(client, t2.predicate)) {
-      throw new Error(
-        `Predicate ${t2.predicate} is not declared in kg:tbox or kg:tbox-staging. Call kg_explore_schema first, or kg_propose_schema if the predicate doesn't exist yet.`
-      );
-    }
-  }
-  const meta = buildProvenanceMeta({
-    source: t2.source,
-    confidence: t2.confidence,
-    method: t2.method
-  });
-  const s2 = escapeIRI(t2.subject);
-  const p2 = escapeIRI(t2.predicate);
-  const o2 = renderObject(t2.object);
-  const META_NS = "https://predicate.dev/meta#";
-  const aboxG = escapeIRI(GRAPH.abox);
-  const provG = escapeIRI(GRAPH.provenance);
-  const star = `<< ${s2} ${p2} ${o2} >>`;
-  await client.update(`
-    PREFIX pred: <${META_NS}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    INSERT DATA {
-      GRAPH ${aboxG} { ${s2} ${p2} ${o2} . }
-      GRAPH ${provG} {
-        ${star} pred:source     ${escapeLiteral(meta.source)} ;
-                pred:confidence "${meta.confidence}"^^xsd:decimal ;
-                pred:method     ${escapeLiteral(meta.method)} ;
-                pred:timestamp  "${meta.timestamp}"^^xsd:dateTime .
-      }
-    }
-  `);
+  throw new Error(
+    `Fixpoint did not converge in ${MAX_ITERATIONS} iterations (current inferred count: ${lastCount}). On the v1 OWL 2 RL rule subset this should be impossible \u2014 investigate for a divergent rule or an unbounded property-chain depth.`
+  );
 }
-
-// ../predicate-agent/src/schema-proposer.ts
-var META4 = "https://predicate.dev/meta#";
-var DEFAULT_TTL_DAYS = 7;
-function newProposalId() {
-  const ts = Date.now().toString(36);
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `urn:predicate:proposal:P-${ts}-${rand}`;
-}
-function newEventId(kind2) {
-  return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
-function renderTerm(t2) {
-  if (t2.type === "uri") return escapeIRI(t2.value);
-  if (t2.datatype) return `${escapeLiteral(t2.value)}^^${escapeIRI(t2.datatype)}`;
-  return escapeLiteral(t2.value);
-}
-function tripleSparql(q2) {
-  return `${escapeIRI(q2.s)} ${escapeIRI(q2.p)} ${renderTerm(q2.o)}`;
-}
-var SchemaProposer = class {
-  constructor(client) {
-    this.client = client;
-  }
-  client;
-  async propose(delta, meta) {
-    const id = newProposalId();
-    const proposedAt = (/* @__PURE__ */ new Date()).toISOString();
-    const expiresAt = new Date(
-      Date.now() + (meta.ttlDays ?? DEFAULT_TTL_DAYS) * 864e5
-    ).toISOString();
-    const triplesToTag = [...delta.add];
-    if (delta.shapes) triplesToTag.push(...delta.shapes);
-    const tagTripleStmts = triplesToTag.map((q2) => `
-      << ${tripleSparql(q2)} >>
-        pred:proposalId ${escapeIRI(id)} .
-      ${tripleSparql(q2)} .
-    `).join("\n");
-    const goalLine = meta.motivatingGoal ? `${escapeIRI(id)} pred:motivatingGoal ${escapeIRI(meta.motivatingGoal)} .` : "";
-    const parentLine = delta.kind === "refine-class" ? `${escapeIRI(id)} pred:parent ${escapeIRI(delta.parent)} .` : "";
-    const migrationLine = delta.kind === "breaking" ? `${escapeIRI(id)} pred:migration ${escapeLiteral(delta.migration)} .` : "";
-    await this.client.update(`
-      PREFIX pred: <${META4}>
-      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-      INSERT DATA {
-        GRAPH <kg:tbox-staging> {
-          ${tagTripleStmts}
-          ${escapeIRI(id)} a pred:Proposal ;
-            pred:kind          ${escapeLiteral(delta.kind)} ;
-            pred:justification ${escapeLiteral(meta.justification)} ;
-            pred:proposedAt    "${proposedAt}"^^xsd:dateTime ;
-            pred:expiresAt     "${expiresAt}"^^xsd:dateTime ;
-            pred:useCount      "0"^^xsd:integer .
-          ${goalLine}
-          ${parentLine}
-          ${migrationLine}
-        }
-        GRAPH <kg:meta> {
-          ${escapeIRI(newEventId("schema-proposed"))} a pred:SchemaProposed ;
-            pred:at    "${proposedAt}"^^xsd:dateTime ;
-            pred:actor "SchemaProposer" ;
-            pred:goal  ${escapeIRI(id)} ;
-            pred:payload ${escapeLiteral(JSON.stringify({
-      kind: delta.kind,
-      justification: meta.justification,
-      motivatingGoal: meta.motivatingGoal
-    }))} .
-        }
-      }
-    `);
-    return id;
-  }
-};
-
-// ../predicate-agent/src/promotion-sweeper.ts
-init_storage();
-import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
-import { resolve as resolve4 } from "node:path";
 
 // ../predicate-reasoner/src/rules/r01-subclassof-transitivity.ts
 var SUBCLASS_OF = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
@@ -23048,27 +22918,172 @@ var RULES = [
   r21
 ];
 
-// ../predicate-reasoner/src/fixpoint.ts
-var MAX_ITERATIONS = 10;
-async function runFixpoint(client, rules, cfg) {
-  await client.update(`DROP SILENT GRAPH <${cfg.inferredGraph}>`);
-  await client.update(`CREATE SILENT GRAPH <${cfg.inferredGraph}>`);
-  let lastCount = -1;
-  for (let i2 = 1; i2 <= MAX_ITERATIONS; i2++) {
-    for (const rule of rules) {
-      await client.update(rule.insertWhere(cfg));
-    }
-    const r2 = await client.select(
-      `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${cfg.inferredGraph}> { ?s ?p ?o } }`
-    );
-    const n2 = parseInt(r2.results.bindings[0].n.value, 10);
-    if (n2 === lastCount) return { iterations: i2, inferredCount: n2 };
-    lastCount = n2;
-  }
-  throw new Error(
-    `Fixpoint did not converge in ${MAX_ITERATIONS} iterations (current inferred count: ${lastCount}). On the v1 OWL 2 RL rule subset this should be impossible \u2014 investigate for a divergent rule or an unbounded property-chain depth.`
+// ../predicate-mcp/src/materialize.ts
+var STATE = "urn:predicate:materialization-state";
+var META4 = "https://predicate.dev/meta#";
+async function markAboxDirty(client) {
+  await client.update(
+    `PREFIX pred: <${META4}> INSERT DATA { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty true } }`
   );
 }
+async function clearAboxDirty(client) {
+  await client.update(
+    `PREFIX pred: <${META4}> DELETE WHERE { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty ?v } }`
+  );
+}
+
+// ../predicate-mcp/src/tools/kg-assert.ts
+var ALWAYS_ALLOWED_PREDICATES = /* @__PURE__ */ new Set([
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+]);
+async function predicateIsDeclared(client, p2) {
+  return client.ask(`
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    ASK {
+      { GRAPH ${escapeIRI(GRAPH.tbox)}         { ${escapeIRI(p2)} a ?t } }
+      UNION
+      { GRAPH ${escapeIRI(GRAPH.tboxStaging)}  { ${escapeIRI(p2)} a ?t } }
+      FILTER (?t IN (owl:ObjectProperty, owl:DatatypeProperty,
+                     owl:AnnotationProperty, rdf:Property))
+    }
+  `);
+}
+function renderObject(obj) {
+  if (obj.type === "uri") return escapeIRI(obj.value);
+  if (obj.datatype) return `${escapeLiteral(obj.value)}^^${escapeIRI(obj.datatype)}`;
+  return escapeLiteral(obj.value);
+}
+async function kgAssert(client, t2) {
+  for (const field of ["subject", "predicate", "source", "method"]) {
+    const v2 = t2[field];
+    if (typeof v2 !== "string" || v2.length === 0) {
+      throw new Error(
+        `kg_assert: "${field}" must be a non-empty string, got ${JSON.stringify(v2)}`
+      );
+    }
+  }
+  if (typeof t2.confidence !== "number" || Number.isNaN(t2.confidence) || t2.confidence < 0 || t2.confidence > 1) {
+    throw new Error(`kg_assert: "confidence" must be a number in [0,1], got ${JSON.stringify(t2.confidence)}`);
+  }
+  const o0 = t2.object;
+  if (o0 === null || typeof o0 !== "object" || typeof o0.value !== "string" || o0.type !== "uri" && o0.type !== "literal") {
+    throw new Error(
+      `kg_assert: object must be {type:"uri"|"literal", value:string, datatype?:string}, got ${JSON.stringify(t2.object)}`
+    );
+  }
+  if (!ALWAYS_ALLOWED_PREDICATES.has(t2.predicate)) {
+    if (!await predicateIsDeclared(client, t2.predicate)) {
+      throw new Error(
+        `Predicate ${t2.predicate} is not declared in kg:tbox or kg:tbox-staging. Call kg_explore_schema first, or kg_propose_schema if the predicate doesn't exist yet.`
+      );
+    }
+  }
+  const meta = buildProvenanceMeta({
+    source: t2.source,
+    confidence: t2.confidence,
+    method: t2.method
+  });
+  const s2 = escapeIRI(t2.subject);
+  const p2 = escapeIRI(t2.predicate);
+  const o2 = renderObject(t2.object);
+  const META_NS = "https://predicate.dev/meta#";
+  const aboxG = escapeIRI(GRAPH.abox);
+  const provG = escapeIRI(GRAPH.provenance);
+  const star = `<< ${s2} ${p2} ${o2} >>`;
+  await client.update(`
+    PREFIX pred: <${META_NS}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA {
+      GRAPH ${aboxG} { ${s2} ${p2} ${o2} . }
+      GRAPH ${provG} {
+        ${star} pred:source     ${escapeLiteral(meta.source)} ;
+                pred:confidence "${meta.confidence}"^^xsd:decimal ;
+                pred:method     ${escapeLiteral(meta.method)} ;
+                pred:timestamp  "${meta.timestamp}"^^xsd:dateTime .
+      }
+    }
+  `);
+  await markAboxDirty(client);
+}
+
+// ../predicate-agent/src/schema-proposer.ts
+var META5 = "https://predicate.dev/meta#";
+var DEFAULT_TTL_DAYS = 7;
+function newProposalId() {
+  const ts = Date.now().toString(36);
+  const rand = Math.random().toString(36).slice(2, 8);
+  return `urn:predicate:proposal:P-${ts}-${rand}`;
+}
+function newEventId(kind2) {
+  return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+function renderTerm(t2) {
+  if (t2.type === "uri") return escapeIRI(t2.value);
+  if (t2.datatype) return `${escapeLiteral(t2.value)}^^${escapeIRI(t2.datatype)}`;
+  return escapeLiteral(t2.value);
+}
+function tripleSparql(q2) {
+  return `${escapeIRI(q2.s)} ${escapeIRI(q2.p)} ${renderTerm(q2.o)}`;
+}
+var SchemaProposer = class {
+  constructor(client) {
+    this.client = client;
+  }
+  client;
+  async propose(delta, meta) {
+    const id = newProposalId();
+    const proposedAt = (/* @__PURE__ */ new Date()).toISOString();
+    const expiresAt = new Date(
+      Date.now() + (meta.ttlDays ?? DEFAULT_TTL_DAYS) * 864e5
+    ).toISOString();
+    const triplesToTag = [...delta.add];
+    if (delta.shapes) triplesToTag.push(...delta.shapes);
+    const tagTripleStmts = triplesToTag.map((q2) => `
+      << ${tripleSparql(q2)} >>
+        pred:proposalId ${escapeIRI(id)} .
+      ${tripleSparql(q2)} .
+    `).join("\n");
+    const goalLine = meta.motivatingGoal ? `${escapeIRI(id)} pred:motivatingGoal ${escapeIRI(meta.motivatingGoal)} .` : "";
+    const parentLine = delta.kind === "refine-class" ? `${escapeIRI(id)} pred:parent ${escapeIRI(delta.parent)} .` : "";
+    const migrationLine = delta.kind === "breaking" ? `${escapeIRI(id)} pred:migration ${escapeLiteral(delta.migration)} .` : "";
+    await this.client.update(`
+      PREFIX pred: <${META5}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA {
+        GRAPH <kg:tbox-staging> {
+          ${tagTripleStmts}
+          ${escapeIRI(id)} a pred:Proposal ;
+            pred:kind          ${escapeLiteral(delta.kind)} ;
+            pred:justification ${escapeLiteral(meta.justification)} ;
+            pred:proposedAt    "${proposedAt}"^^xsd:dateTime ;
+            pred:expiresAt     "${expiresAt}"^^xsd:dateTime ;
+            pred:useCount      "0"^^xsd:integer .
+          ${goalLine}
+          ${parentLine}
+          ${migrationLine}
+        }
+        GRAPH <kg:meta> {
+          ${escapeIRI(newEventId("schema-proposed"))} a pred:SchemaProposed ;
+            pred:at    "${proposedAt}"^^xsd:dateTime ;
+            pred:actor "SchemaProposer" ;
+            pred:goal  ${escapeIRI(id)} ;
+            pred:payload ${escapeLiteral(JSON.stringify({
+      kind: delta.kind,
+      justification: meta.justification,
+      motivatingGoal: meta.motivatingGoal
+    }))} .
+        }
+      }
+    `);
+    return id;
+  }
+};
+
+// ../predicate-agent/src/promotion-sweeper.ts
+init_storage();
+import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
+import { resolve as resolve4 } from "node:path";
 
 // ../predicate-reasoner/src/shacl.ts
 var import_n3 = __toESM(require_lib3(), 1);
@@ -28029,7 +28044,7 @@ async function unsatisfiableClasses(client, tboxView, inferred) {
 }
 
 // ../predicate-reasoner/src/explain.ts
-var META5 = "https://predicate.dev/meta#";
+var META6 = "https://predicate.dev/meta#";
 var MAX_DEPTH = 8;
 function quadKey(q2) {
   const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
@@ -28050,7 +28065,7 @@ async function isAsserted(client, q2) {
 async function getProvenance(client, q2) {
   const o2 = typeof q2.o === "string" ? `<${q2.o}>` : `"${q2.o.value}"`;
   const r2 = await client.select(`
-    PREFIX pred: <${META5}>
+    PREFIX pred: <${META6}>
     SELECT ?src ?conf ?method ?ts WHERE {
       GRAPH <kg:provenance> {
         << <${q2.s}> <${q2.p}> ${o2} >> pred:source ?src ;
@@ -28144,7 +28159,7 @@ var FusekiConstructAdapter = class {
 };
 
 // ../predicate-agent/src/promotion-sweeper.ts
-var META6 = "https://predicate.dev/meta#";
+var META7 = "https://predicate.dev/meta#";
 function newEventId2(kind2) {
   return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -28211,7 +28226,7 @@ var PromotionSweeper = class {
   }
   async listProposals() {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       SELECT ?id ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ?id a pred:Proposal ;
@@ -28240,7 +28255,7 @@ var PromotionSweeper = class {
   }
   async loadProposalRow(id) {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       SELECT ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ${escapeIRI(id)} a pred:Proposal ;
@@ -28267,7 +28282,7 @@ var PromotionSweeper = class {
   }
   async countUses(proposalId) {
     const subjects = await this.client.select(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       SELECT DISTINCT ?s WHERE {
         GRAPH <kg:tbox-staging> {
           << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
@@ -28278,7 +28293,7 @@ var PromotionSweeper = class {
     if (iris.length === 0) return 0;
     const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
     const r2 = await this.client.select(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       SELECT (COUNT(*) AS ?n) WHERE {
         GRAPH <kg:usage> {
           ?q a pred:Query ; pred:sparql ?sparql .
@@ -28320,7 +28335,7 @@ var PromotionSweeper = class {
     await this.client.update(`CREATE SILENT GRAPH <${scratch}>`);
     try {
       await this.client.update(`
-        PREFIX pred: <${META6}>
+        PREFIX pred: <${META7}>
         INSERT { GRAPH <${scratch}> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -28359,7 +28374,7 @@ var PromotionSweeper = class {
   async deleteProposalFromStaging(proposalId) {
     if (this.client instanceof OxigraphAdapter) {
       const matches = await this.client.select(`
-        PREFIX pred: <${META6}>
+        PREFIX pred: <${META7}>
         SELECT ?s ?p ?o WHERE {
           GRAPH <kg:tbox-staging> {
             << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
@@ -28378,7 +28393,7 @@ var PromotionSweeper = class {
       this.client.deleteRdfStarAnnotationsForProposal("kg:tbox-staging", proposalId);
     } else {
       await this.client.update(`
-        PREFIX pred: <${META6}>
+        PREFIX pred: <${META7}>
         DELETE {
           GRAPH <kg:tbox-staging> {
             ?s ?p ?o .
@@ -28394,7 +28409,7 @@ var PromotionSweeper = class {
       `);
     }
     await this.client.update(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       DELETE WHERE {
         GRAPH <kg:tbox-staging> { ${escapeIRI(proposalId)} ?mp ?mo }
       }
@@ -28403,7 +28418,7 @@ var PromotionSweeper = class {
   async rejectExpired(p2, actor = "PromotionSweeper", reason = "expired") {
     await this.deleteProposalFromStaging(p2.id);
     await this.client.update(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -28418,7 +28433,7 @@ var PromotionSweeper = class {
   }
   async recordValidationFailed(p2, reason) {
     await this.client.update(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -28436,7 +28451,7 @@ var PromotionSweeper = class {
   }
   async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       SELECT ?s ?p ?o WHERE {
         GRAPH <kg:tbox-staging> {
           << ?s ?p ?o >> pred:proposalId ${escapeIRI(p2.id)} .
@@ -28470,7 +28485,7 @@ var PromotionSweeper = class {
     const payloadAdvanced = escapeLiteral(JSON.stringify({ proposalId: p2.id, turtleFile }));
     await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
     await this.client.update(`
-      PREFIX pred: <${META6}>
+      PREFIX pred: <${META7}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:tbox> {
@@ -28686,7 +28701,7 @@ function pickStr(o2, keys) {
 }
 
 // ../predicate-mcp/src/tools/kg-maintain.ts
-var META7 = "https://predicate.dev/meta#";
+var META8 = "https://predicate.dev/meta#";
 async function kgMaintain(client, input = {}) {
   const archiveCutoff = input.archiveCutoff ?? 0.6;
   const ageDays = input.ageDays ?? 30;
@@ -28698,7 +28713,7 @@ async function kgMaintain(client, input = {}) {
   );
   const beforeCount = parseInt(before.results.bindings[0].n.value, 10);
   await client.update(`
-    PREFIX pred: <${META7}>
+    PREFIX pred: <${META8}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
     INSERT { GRAPH <kg:abox-archive> { ?s ?p ?o } }
@@ -28734,7 +28749,7 @@ async function kgMaintain(client, input = {}) {
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
-    PREFIX pred: <${META7}>
+    PREFIX pred: <${META8}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${eventId}> a pred:MaintenanceRun ;
@@ -28754,7 +28769,7 @@ async function kgMaintain(client, input = {}) {
   `);
   const matEventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   await client.update(`
-    PREFIX pred: <${META7}>
+    PREFIX pred: <${META8}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${matEventId}> a pred:MaterializationCompleted ;
@@ -28767,6 +28782,7 @@ async function kgMaintain(client, input = {}) {
   }))} .
     } }
   `);
+  await clearAboxDirty(client);
   return {
     archivedCount,
     elapsedMs,
@@ -28802,7 +28818,7 @@ init_storage();
 
 // ../predicate-mcp/src/tools/kg-capture.ts
 init_graphs();
-var META8 = "https://predicate.dev/meta#";
+var META9 = "https://predicate.dev/meta#";
 function truncate(s2, max) {
   if (s2.length <= max) return s2;
   const extra = s2.length - max;
@@ -28829,14 +28845,14 @@ async function kgCapture(client, input) {
   const hasOutput = input.output !== void 0 && input.output !== null;
   const outputStr = hasOutput ? serialize(input.output, maxChars) : "";
   const lines = [
-    `${escapeIRI(captureId)} a <${META8}ToolCall> ;`,
-    `  <${META8}toolName>  ${escapeLiteral(input.toolName)} ;`,
-    `  <${META8}phase>     ${escapeLiteral(input.phase)} ;`,
-    `  <${META8}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
+    `${escapeIRI(captureId)} a <${META9}ToolCall> ;`,
+    `  <${META9}toolName>  ${escapeLiteral(input.toolName)} ;`,
+    `  <${META9}phase>     ${escapeLiteral(input.phase)} ;`,
+    `  <${META9}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
   ];
-  if (inputStr.length > 0) lines.push(`  ; <${META8}toolInput>  ${escapeLiteral(inputStr)}`);
-  if (hasOutput) lines.push(`  ; <${META8}toolOutput> ${escapeLiteral(outputStr)}`);
-  if (input.sessionId) lines.push(`  ; <${META8}sessionId>  ${escapeLiteral(input.sessionId)}`);
+  if (inputStr.length > 0) lines.push(`  ; <${META9}toolInput>  ${escapeLiteral(inputStr)}`);
+  if (hasOutput) lines.push(`  ; <${META9}toolOutput> ${escapeLiteral(outputStr)}`);
+  if (input.sessionId) lines.push(`  ; <${META9}sessionId>  ${escapeLiteral(input.sessionId)}`);
   lines.push("  .");
   await client.update(`
     INSERT DATA { GRAPH ${escapeIRI(GRAPH.usage)} {
@@ -28959,7 +28975,7 @@ import { basename as basename2, join as join7 } from "node:path";
 
 // ../predicate-cli/src/commands/replay-rebuild.ts
 init_storage();
-var META9 = "https://predicate.dev/meta#";
+var META10 = "https://predicate.dev/meta#";
 function renderObject2(o2) {
   if (o2.type === "uri") return escapeIRI(o2.value);
   return o2.datatype ? `${escapeLiteral(o2.value)}^^${escapeIRI(o2.datatype)}` : escapeLiteral(o2.value);
@@ -28968,7 +28984,7 @@ async function deleteExtractedSlice(client, sessionId) {
   const source = escapeLiteral(`urn:predicate:session:${sessionId}`);
   if (client instanceof OxigraphAdapter) {
     const matches = await client.select(`
-      PREFIX pred: <${META9}>
+      PREFIX pred: <${META10}>
       SELECT ?s ?p ?o WHERE {
         GRAPH <kg:provenance> { << ?s ?p ?o >> pred:source ${source} . }
         FILTER NOT EXISTS {
@@ -28994,7 +29010,7 @@ async function deleteExtractedSlice(client, sessionId) {
     return;
   }
   await client.update(`
-    PREFIX pred: <${META9}>
+    PREFIX pred: <${META10}>
     DELETE {
       GRAPH <kg:abox> { ?s ?p ?o }
       GRAPH <kg:provenance> { << ?s ?p ?o >> ?pp ?po }
@@ -29016,7 +29032,7 @@ async function deleteExtractedSlice(client, sessionId) {
 
 // ../predicate-agent/src/turn-extractor.ts
 import { createHash as createHash3 } from "node:crypto";
-var META10 = "https://predicate.dev/meta#";
+var META11 = "https://predicate.dev/meta#";
 var CB = "https://predicate.dev/codebase#";
 var RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 var XSD = "http://www.w3.org/2001/XMLSchema#";
@@ -29080,9 +29096,9 @@ function extractDeterministic(transcript) {
     triples.push(t2);
   }
   const base = { source: sessionUri, confidence: 0.95, method: "tool-parse" };
-  push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META10}Session`), ...base });
-  push({ subject: sessionUri, predicate: `${META10}sessionId`, object: literal3(transcript.sessionId), ...base });
-  push({ subject: sessionUri, predicate: `${META10}at`, object: literal3(now, `${XSD}dateTime`), ...base });
+  push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META11}Session`), ...base });
+  push({ subject: sessionUri, predicate: `${META11}sessionId`, object: literal3(transcript.sessionId), ...base });
+  push({ subject: sessionUri, predicate: `${META11}at`, object: literal3(now, `${XSD}dateTime`), ...base });
   const results = collectToolResults(transcript.events);
   const uses = collectToolUses(transcript.events);
   for (const use of uses) {
@@ -29302,7 +29318,16 @@ Env:
 }
 async function extractTranscript(client, opts) {
   const lines = readFileSync3(opts.transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
-  const events = lines.map((l2) => JSON.parse(l2));
+  const events = [];
+  let skippedLines = 0;
+  for (const l2 of lines) {
+    try {
+      events.push(JSON.parse(l2));
+    } catch {
+      skippedLines++;
+    }
+  }
+  const parsedLines = events.length;
   const adapted = adapterFor(opts.platform)(events);
   const transcript = { sessionId: opts.sessionId, events: adapted };
   const deterministic = extractDeterministic(transcript);
@@ -29331,7 +29356,9 @@ async function extractTranscript(client, opts) {
     semantic: semantic.triples.length,
     asserted,
     rejected: rejections.length,
-    rejections
+    rejections,
+    skippedLines,
+    parsedLines
   };
 }
 async function replay(pathArg, platform) {
@@ -29354,9 +29381,21 @@ async function replay(pathArg, platform) {
     try {
       await deleteExtractedSlice(client, sessionId);
       const r2 = await extractTranscript(client, { sessionId, transcriptPath: file, platform });
-      asserted += r2.asserted;
-      rejected += r2.rejected;
-      sessions2++;
+      if (r2.skippedLines > 0 && r2.parsedLines === 0) {
+        console.error(
+          `predicate extract --replay: session ${sessionId} skipped \u2014 all ${r2.skippedLines} line(s) were unparseable.`
+        );
+        errors++;
+      } else {
+        asserted += r2.asserted;
+        rejected += r2.rejected;
+        sessions2++;
+        if (r2.skippedLines > 0) {
+          console.error(
+            `predicate extract: WARNING \u2014 skipped ${r2.skippedLines} unparseable transcript line(s) in session ${sessionId}.`
+          );
+        }
+      }
     } catch (err2) {
       console.error(`predicate extract --replay: session ${sessionId} failed: ${err2.message}`);
       errors++;
@@ -29441,6 +29480,11 @@ async function extract(args, stdin = process.stdin) {
       console.error(`  - ${r2.predicate} (subject ${r2.subject}): ${r2.reason}`);
     }
   }
+  if (result.skippedLines > 0) {
+    console.error(
+      `predicate extract: WARNING \u2014 skipped ${result.skippedLines} unparseable transcript line(s).`
+    );
+  }
   return hasFlag3(args, "--strict") && result.rejected > 0 ? 1 : 0;
 }
 
@@ -29469,10 +29513,10 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META13 = "https://predicate.dev/meta#";
+  const META14 = "https://predicate.dev/meta#";
   const CB2 = "https://predicate.dev/codebase#";
   const rows = await client.select(
-    `PREFIX pred: <${META13}>
+    `PREFIX pred: <${META14}>
      PREFIX cb:   <${CB2}>
      SELECT ?s ?sid ?at
             (COUNT(DISTINCT ?f) AS ?files)
@@ -29563,10 +29607,10 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META13 = "https://predicate.dev/meta#";
+  const META14 = "https://predicate.dev/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
-    `PREFIX pred: <${META13}>
+    `PREFIX pred: <${META14}>
      SELECT ?c ?at ?tool ?phase ?session WHERE {
        GRAPH <kg:usage> {
          ?c a pred:ToolCall ;
@@ -29665,10 +29709,10 @@ function escapeSparqlLiteral(s2) {
 }
 async function searchFiles(client, query, limit) {
   const CB2 = "https://predicate.dev/codebase#";
-  const META13 = "https://predicate.dev/meta#";
+  const META14 = "https://predicate.dev/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
-     PREFIX pred: <${META13}>
+     PREFIX pred: <${META14}>
      SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
      WHERE {
        GRAPH <kg:abox> {
@@ -30075,7 +30119,7 @@ async function dashboard(args) {
 
 // ../predicate-cli/src/commands/schema.ts
 init_storage();
-var META11 = "https://predicate.dev/meta#";
+var META12 = "https://predicate.dev/meta#";
 var PROPOSAL_IRI2 = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
 function help8() {
   console.log(`predicate schema <verb> [args]
@@ -30090,7 +30134,7 @@ async function listProposals() {
   try {
     const client = getAdapter();
     const r2 = await client.select(`
-    PREFIX pred: <${META11}>
+    PREFIX pred: <${META12}>
     SELECT ?id ?kind ?justification ?motivatingGoal ?proposedAt ?expiresAt ?useCount
     WHERE {
       GRAPH <kg:tbox-staging> {
@@ -30196,7 +30240,7 @@ async function schema(args) {
 init_storage();
 
 // ../predicate-mcp/src/tools/kg-config.ts
-var META12 = "https://predicate.dev/meta#";
+var META13 = "https://predicate.dev/meta#";
 var CONFIG_URI3 = "urn:predicate:config";
 var KEY_TO_PROP = {
   "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
@@ -30220,15 +30264,15 @@ async function kgConfigSet(client, input) {
   if (meta.type === "string" && typeof input.value !== "string") {
     return { ok: false, error: `${input.key} expects string, got ${typeof input.value}` };
   }
-  const propIri = `<${META12}${meta.prop}>`;
+  const propIri = `<${META13}${meta.prop}>`;
   const lit = literalFor(input.value, meta.type);
   await client.update(`
-    PREFIX pred: <${META12}>
+    PREFIX pred: <${META13}>
     DELETE { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ?o } }
     WHERE  { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ?o } }
   `);
   await client.update(`
-    PREFIX pred: <${META12}>
+    PREFIX pred: <${META13}>
     INSERT DATA { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ${lit} } }
   `);
   return { ok: true, key: input.key, value: input.value };
@@ -30238,8 +30282,8 @@ async function kgConfigGet(client, input) {
     const meta = KEY_TO_PROP[input.key];
     if (!meta) return { key: input.key, value: null };
     const r3 = await client.select(`
-      PREFIX pred: <${META12}>
-      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> <${META12}${meta.prop}> ?o } }
+      PREFIX pred: <${META13}>
+      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> <${META13}${meta.prop}> ?o } }
     `);
     const b2 = r3.results.bindings[0];
     if (!b2) return { key: input.key, value: null };
@@ -30248,13 +30292,13 @@ async function kgConfigGet(client, input) {
     return { key: input.key, value };
   }
   const r2 = await client.select(`
-    PREFIX pred: <${META12}>
+    PREFIX pred: <${META13}>
     SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> ?p ?o } }
   `);
   const config2 = {};
   for (const b2 of r2.results.bindings) {
     const propIri = b2["p"].value;
-    const propLocal = propIri.slice(META12.length);
+    const propLocal = propIri.slice(META13.length);
     const externalKey = Object.entries(KEY_TO_PROP).find(([, v2]) => v2.prop === propLocal);
     if (!externalKey) continue;
     const [extKey, kmeta] = externalKey;

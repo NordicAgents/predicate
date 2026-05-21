@@ -36957,6 +36957,18 @@ function getAdapter() {
   }
 }
 
+// ../predicate-mcp/src/tools/parse-input.ts
+function parseInput(schema, raw, toolName) {
+  const result = schema.safeParse(raw);
+  if (!result.success) {
+    const issue2 = result.error.issues[0];
+    const path2 = issue2 && issue2.path.length > 0 ? issue2.path.join(".") : "(root)";
+    const message = issue2?.message ?? "invalid input";
+    throw new Error(`${toolName}: ${path2} ${message}`);
+  }
+  return result.data;
+}
+
 // ../predicate-mcp/src/graphs.ts
 var GRAPH = {
   tbox: "kg:tbox",
@@ -37070,122 +37082,26 @@ async function kgExploreSchema(client, conceptInput) {
   };
 }
 
-// ../predicate-mcp/src/tools/kg-ask.ts
-var FORBIDDEN = /\b(INSERT|DELETE|DROP|CREATE|CLEAR|LOAD)\b/i;
-var DEFAULT_MAX = 200;
-async function kgAsk(client, input) {
-  if (FORBIDDEN.test(input.sparql)) {
-    throw new Error("kg_ask is read-only; got update keyword in SPARQL");
-  }
-  const maxRows = input.maxRows ?? DEFAULT_MAX;
-  const t0 = Date.now();
-  const r2 = await client.select(input.sparql);
-  const elapsedMs = Date.now() - t0;
-  await logUsage(client, input.question, input.sparql, r2.results.bindings.length, elapsedMs);
-  const truncated = r2.results.bindings.length > maxRows;
-  const bindings = truncated ? r2.results.bindings.slice(0, maxRows) : r2.results.bindings;
-  return {
-    vars: r2.head.vars,
-    bindings,
-    truncated,
-    rowCount: r2.results.bindings.length
-  };
-}
-async function logUsage(client, question, sparql, rowCount, elapsedMs) {
-  const usage = escapeIRI(GRAPH.usage);
-  const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META6 = "https://predicate.dev/meta#";
-  await client.update(`
-    PREFIX pred: <${META6}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    INSERT DATA { GRAPH ${usage} {
-      <${id}> a pred:Query ;
-              pred:question ${escapeLiteral(question)} ;
-              pred:sparql   ${escapeLiteral(sparql)} ;
-              pred:rowCount "${rowCount}"^^xsd:integer ;
-              pred:elapsedMs "${elapsedMs}"^^xsd:integer ;
-              pred:at        "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime .
-    } }
-  `);
-}
-
-// ../predicate-mcp/src/provenance.ts
-function buildProvenanceMeta(partial2) {
-  return { ...partial2, timestamp: (/* @__PURE__ */ new Date()).toISOString() };
-}
-
-// ../predicate-mcp/src/tools/kg-assert.ts
-var ALWAYS_ALLOWED_PREDICATES = /* @__PURE__ */ new Set([
-  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-]);
-async function predicateIsDeclared(client, p2) {
-  return client.ask(`
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    ASK {
-      { GRAPH ${escapeIRI(GRAPH.tbox)}         { ${escapeIRI(p2)} a ?t } }
-      UNION
-      { GRAPH ${escapeIRI(GRAPH.tboxStaging)}  { ${escapeIRI(p2)} a ?t } }
-      FILTER (?t IN (owl:ObjectProperty, owl:DatatypeProperty,
-                     owl:AnnotationProperty, rdf:Property))
+// ../predicate-reasoner/src/fixpoint.ts
+var MAX_ITERATIONS = 10;
+async function runFixpoint(client, rules, cfg) {
+  await client.update(`DROP SILENT GRAPH <${cfg.inferredGraph}>`);
+  await client.update(`CREATE SILENT GRAPH <${cfg.inferredGraph}>`);
+  let lastCount = -1;
+  for (let i2 = 1; i2 <= MAX_ITERATIONS; i2++) {
+    for (const rule of rules) {
+      await client.update(rule.insertWhere(cfg));
     }
-  `);
-}
-function renderObject(obj) {
-  if (obj.type === "uri") return escapeIRI(obj.value);
-  if (obj.datatype) return `${escapeLiteral(obj.value)}^^${escapeIRI(obj.datatype)}`;
-  return escapeLiteral(obj.value);
-}
-async function kgAssert(client, t2) {
-  for (const field of ["subject", "predicate", "source", "method"]) {
-    const v2 = t2[field];
-    if (typeof v2 !== "string" || v2.length === 0) {
-      throw new Error(
-        `kg_assert: "${field}" must be a non-empty string, got ${JSON.stringify(v2)}`
-      );
-    }
-  }
-  if (typeof t2.confidence !== "number" || Number.isNaN(t2.confidence) || t2.confidence < 0 || t2.confidence > 1) {
-    throw new Error(`kg_assert: "confidence" must be a number in [0,1], got ${JSON.stringify(t2.confidence)}`);
-  }
-  const o0 = t2.object;
-  if (o0 === null || typeof o0 !== "object" || typeof o0.value !== "string" || o0.type !== "uri" && o0.type !== "literal") {
-    throw new Error(
-      `kg_assert: object must be {type:"uri"|"literal", value:string, datatype?:string}, got ${JSON.stringify(t2.object)}`
+    const r2 = await client.select(
+      `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${cfg.inferredGraph}> { ?s ?p ?o } }`
     );
+    const n2 = parseInt(r2.results.bindings[0].n.value, 10);
+    if (n2 === lastCount) return { iterations: i2, inferredCount: n2 };
+    lastCount = n2;
   }
-  if (!ALWAYS_ALLOWED_PREDICATES.has(t2.predicate)) {
-    if (!await predicateIsDeclared(client, t2.predicate)) {
-      throw new Error(
-        `Predicate ${t2.predicate} is not declared in kg:tbox or kg:tbox-staging. Call kg_explore_schema first, or kg_propose_schema if the predicate doesn't exist yet.`
-      );
-    }
-  }
-  const meta = buildProvenanceMeta({
-    source: t2.source,
-    confidence: t2.confidence,
-    method: t2.method
-  });
-  const s2 = escapeIRI(t2.subject);
-  const p2 = escapeIRI(t2.predicate);
-  const o2 = renderObject(t2.object);
-  const META_NS = "https://predicate.dev/meta#";
-  const aboxG = escapeIRI(GRAPH.abox);
-  const provG = escapeIRI(GRAPH.provenance);
-  const star = `<< ${s2} ${p2} ${o2} >>`;
-  await client.update(`
-    PREFIX pred: <${META_NS}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    INSERT DATA {
-      GRAPH ${aboxG} { ${s2} ${p2} ${o2} . }
-      GRAPH ${provG} {
-        ${star} pred:source     ${escapeLiteral(meta.source)} ;
-                pred:confidence "${meta.confidence}"^^xsd:decimal ;
-                pred:method     ${escapeLiteral(meta.method)} ;
-                pred:timestamp  "${meta.timestamp}"^^xsd:dateTime .
-      }
-    }
-  `);
+  throw new Error(
+    `Fixpoint did not converge in ${MAX_ITERATIONS} iterations (current inferred count: ${lastCount}). On the v1 OWL 2 RL rule subset this should be impossible \u2014 investigate for a divergent rule or an unbounded property-chain depth.`
+  );
 }
 
 // ../predicate-reasoner/src/rules/r01-subclassof-transitivity.ts
@@ -37908,26 +37824,154 @@ var RULES = [
   r21
 ];
 
-// ../predicate-reasoner/src/fixpoint.ts
-var MAX_ITERATIONS = 10;
-async function runFixpoint(client, rules, cfg) {
-  await client.update(`DROP SILENT GRAPH <${cfg.inferredGraph}>`);
-  await client.update(`CREATE SILENT GRAPH <${cfg.inferredGraph}>`);
-  let lastCount = -1;
-  for (let i2 = 1; i2 <= MAX_ITERATIONS; i2++) {
-    for (const rule of rules) {
-      await client.update(rule.insertWhere(cfg));
-    }
-    const r2 = await client.select(
-      `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${cfg.inferredGraph}> { ?s ?p ?o } }`
-    );
-    const n2 = parseInt(r2.results.bindings[0].n.value, 10);
-    if (n2 === lastCount) return { iterations: i2, inferredCount: n2 };
-    lastCount = n2;
-  }
-  throw new Error(
-    `Fixpoint did not converge in ${MAX_ITERATIONS} iterations (current inferred count: ${lastCount}). On the v1 OWL 2 RL rule subset this should be impossible \u2014 investigate for a divergent rule or an unbounded property-chain depth.`
+// ../predicate-mcp/src/materialize.ts
+var STATE = "urn:predicate:materialization-state";
+var META = "https://predicate.dev/meta#";
+async function markAboxDirty(client) {
+  await client.update(
+    `PREFIX pred: <${META}> INSERT DATA { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty true } }`
   );
+}
+async function isAboxDirty(client) {
+  return client.ask(
+    `PREFIX pred: <${META}> ASK { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty true } }`
+  );
+}
+async function clearAboxDirty(client) {
+  await client.update(
+    `PREFIX pred: <${META}> DELETE WHERE { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty ?v } }`
+  );
+}
+async function materializeIfDirty(client) {
+  if (!await isAboxDirty(client)) return false;
+  await runFixpoint(client, RULES, {
+    tboxGraph: "kg:tbox",
+    aboxGraphs: ["kg:abox"],
+    inferredGraph: "kg:inferred",
+    closureCutoff: 0.5
+  });
+  await clearAboxDirty(client);
+  return true;
+}
+
+// ../predicate-mcp/src/tools/kg-ask.ts
+var FORBIDDEN = /\b(INSERT|DELETE|DROP|CREATE|CLEAR|LOAD)\b/i;
+var DEFAULT_MAX = 200;
+async function kgAsk(client, input) {
+  if (FORBIDDEN.test(input.sparql)) {
+    throw new Error("kg_ask is read-only; got update keyword in SPARQL");
+  }
+  await materializeIfDirty(client);
+  const maxRows = input.maxRows ?? DEFAULT_MAX;
+  const t0 = Date.now();
+  const r2 = await client.select(input.sparql);
+  const elapsedMs = Date.now() - t0;
+  await logUsage(client, input.question ?? "", input.sparql, r2.results.bindings.length, elapsedMs);
+  const truncated = r2.results.bindings.length > maxRows;
+  const bindings = truncated ? r2.results.bindings.slice(0, maxRows) : r2.results.bindings;
+  return {
+    vars: r2.head.vars,
+    bindings,
+    truncated,
+    rowCount: r2.results.bindings.length
+  };
+}
+async function logUsage(client, question, sparql, rowCount, elapsedMs) {
+  const usage = escapeIRI(GRAPH.usage);
+  const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const META7 = "https://predicate.dev/meta#";
+  await client.update(`
+    PREFIX pred: <${META7}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA { GRAPH ${usage} {
+      <${id}> a pred:Query ;
+              pred:question ${escapeLiteral(question)} ;
+              pred:sparql   ${escapeLiteral(sparql)} ;
+              pred:rowCount "${rowCount}"^^xsd:integer ;
+              pred:elapsedMs "${elapsedMs}"^^xsd:integer ;
+              pred:at        "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime .
+    } }
+  `);
+}
+
+// ../predicate-mcp/src/provenance.ts
+function buildProvenanceMeta(partial2) {
+  return { ...partial2, timestamp: (/* @__PURE__ */ new Date()).toISOString() };
+}
+
+// ../predicate-mcp/src/tools/kg-assert.ts
+var ALWAYS_ALLOWED_PREDICATES = /* @__PURE__ */ new Set([
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+]);
+async function predicateIsDeclared(client, p2) {
+  return client.ask(`
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    ASK {
+      { GRAPH ${escapeIRI(GRAPH.tbox)}         { ${escapeIRI(p2)} a ?t } }
+      UNION
+      { GRAPH ${escapeIRI(GRAPH.tboxStaging)}  { ${escapeIRI(p2)} a ?t } }
+      FILTER (?t IN (owl:ObjectProperty, owl:DatatypeProperty,
+                     owl:AnnotationProperty, rdf:Property))
+    }
+  `);
+}
+function renderObject(obj) {
+  if (obj.type === "uri") return escapeIRI(obj.value);
+  if (obj.datatype) return `${escapeLiteral(obj.value)}^^${escapeIRI(obj.datatype)}`;
+  return escapeLiteral(obj.value);
+}
+async function kgAssert(client, t2) {
+  for (const field of ["subject", "predicate", "source", "method"]) {
+    const v2 = t2[field];
+    if (typeof v2 !== "string" || v2.length === 0) {
+      throw new Error(
+        `kg_assert: "${field}" must be a non-empty string, got ${JSON.stringify(v2)}`
+      );
+    }
+  }
+  if (typeof t2.confidence !== "number" || Number.isNaN(t2.confidence) || t2.confidence < 0 || t2.confidence > 1) {
+    throw new Error(`kg_assert: "confidence" must be a number in [0,1], got ${JSON.stringify(t2.confidence)}`);
+  }
+  const o0 = t2.object;
+  if (o0 === null || typeof o0 !== "object" || typeof o0.value !== "string" || o0.type !== "uri" && o0.type !== "literal") {
+    throw new Error(
+      `kg_assert: object must be {type:"uri"|"literal", value:string, datatype?:string}, got ${JSON.stringify(t2.object)}`
+    );
+  }
+  if (!ALWAYS_ALLOWED_PREDICATES.has(t2.predicate)) {
+    if (!await predicateIsDeclared(client, t2.predicate)) {
+      throw new Error(
+        `Predicate ${t2.predicate} is not declared in kg:tbox or kg:tbox-staging. Call kg_explore_schema first, or kg_propose_schema if the predicate doesn't exist yet.`
+      );
+    }
+  }
+  const meta = buildProvenanceMeta({
+    source: t2.source,
+    confidence: t2.confidence,
+    method: t2.method
+  });
+  const s2 = escapeIRI(t2.subject);
+  const p2 = escapeIRI(t2.predicate);
+  const o2 = renderObject(t2.object);
+  const META_NS = "https://predicate.dev/meta#";
+  const aboxG = escapeIRI(GRAPH.abox);
+  const provG = escapeIRI(GRAPH.provenance);
+  const star = `<< ${s2} ${p2} ${o2} >>`;
+  await client.update(`
+    PREFIX pred: <${META_NS}>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    INSERT DATA {
+      GRAPH ${aboxG} { ${s2} ${p2} ${o2} . }
+      GRAPH ${provG} {
+        ${star} pred:source     ${escapeLiteral(meta.source)} ;
+                pred:confidence "${meta.confidence}"^^xsd:decimal ;
+                pred:method     ${escapeLiteral(meta.method)} ;
+                pred:timestamp  "${meta.timestamp}"^^xsd:dateTime .
+      }
+    }
+  `);
+  await markAboxDirty(client);
 }
 
 // ../predicate-reasoner/src/shacl.ts
@@ -42889,7 +42933,7 @@ async function unsatisfiableClasses(client, tboxView, inferred) {
 }
 
 // ../predicate-reasoner/src/explain.ts
-var META = "https://predicate.dev/meta#";
+var META2 = "https://predicate.dev/meta#";
 var MAX_DEPTH = 8;
 function quadKey(q2) {
   const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
@@ -42910,7 +42954,7 @@ async function isAsserted(client, q2) {
 async function getProvenance(client, q2) {
   const o2 = typeof q2.o === "string" ? `<${q2.o}>` : `"${q2.o.value}"`;
   const r2 = await client.select(`
-    PREFIX pred: <${META}>
+    PREFIX pred: <${META2}>
     SELECT ?src ?conf ?method ?ts WHERE {
       GRAPH <kg:provenance> {
         << <${q2.s}> <${q2.p}> ${o2} >> pred:source ?src ;
@@ -43005,6 +43049,7 @@ var FusekiConstructAdapter = class {
 
 // ../predicate-mcp/src/tools/kg-explain.ts
 async function kgExplain(client, input) {
+  await materializeIfDirty(client);
   const adapter = new FusekiConstructAdapter(client);
   const claim = {
     s: input.subject,
@@ -43019,7 +43064,7 @@ async function kgExplain(client, input) {
 }
 
 // ../predicate-agent/src/goal-store.ts
-var META2 = "https://predicate.dev/meta#";
+var META3 = "https://predicate.dev/meta#";
 function newGoalId() {
   const ts = Date.now().toString(36);
   const rand = Math.random().toString(36).slice(2, 8);
@@ -43047,7 +43092,7 @@ var GoalStore = class {
     };
     const parentTriple = input.parentGoal ? `${escapeIRI(id)} pred:parentGoal ${escapeIRI(input.parentGoal)} .` : "";
     await this.client.update(`
-      PREFIX pred: <${META2}>
+      PREFIX pred: <${META3}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:goals> {
@@ -43072,7 +43117,7 @@ var GoalStore = class {
   }
   async get(id) {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META2}>
+      PREFIX pred: <${META3}>
       SELECT ?statement ?status ?createdAt ?updatedAt ?source ?parent WHERE {
         GRAPH <kg:goals> {
           ${escapeIRI(id)} pred:statement ?statement ;
@@ -43101,7 +43146,7 @@ var GoalStore = class {
     if (!existing) throw new Error(`Goal not found: ${id}`);
     const now = (/* @__PURE__ */ new Date()).toISOString();
     await this.client.update(`
-      PREFIX pred: <${META2}>
+      PREFIX pred: <${META3}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       DELETE { GRAPH <kg:goals> { ${escapeIRI(id)} pred:status ?old ; pred:updatedAt ?ts } }
       INSERT {
@@ -43122,7 +43167,7 @@ var GoalStore = class {
   }
   async listActive() {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META2}>
+      PREFIX pred: <${META3}>
       SELECT ?id WHERE {
         GRAPH <kg:goals> { ?id pred:status "active" }
       }
@@ -47221,7 +47266,7 @@ var EnvVarExtractor = class {
 };
 
 // ../predicate-agent/src/schema-proposer.ts
-var META3 = "https://predicate.dev/meta#";
+var META4 = "https://predicate.dev/meta#";
 var DEFAULT_TTL_DAYS = 7;
 function newProposalId() {
   const ts = Date.now().toString(36);
@@ -47261,7 +47306,7 @@ var SchemaProposer = class {
     const parentLine = delta.kind === "refine-class" ? `${escapeIRI(id)} pred:parent ${escapeIRI(delta.parent)} .` : "";
     const migrationLine = delta.kind === "breaking" ? `${escapeIRI(id)} pred:migration ${escapeLiteral(delta.migration)} .` : "";
     await this.client.update(`
-      PREFIX pred: <${META3}>
+      PREFIX pred: <${META4}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:tbox-staging> {
@@ -47296,7 +47341,7 @@ var SchemaProposer = class {
 // ../predicate-agent/src/promotion-sweeper.ts
 import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
 import { resolve as resolve2 } from "node:path";
-var META4 = "https://predicate.dev/meta#";
+var META5 = "https://predicate.dev/meta#";
 function newEventId3(kind2) {
   return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -47363,7 +47408,7 @@ var PromotionSweeper = class {
   }
   async listProposals() {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       SELECT ?id ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ?id a pred:Proposal ;
@@ -47392,7 +47437,7 @@ var PromotionSweeper = class {
   }
   async loadProposalRow(id) {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       SELECT ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ${escapeIRI(id)} a pred:Proposal ;
@@ -47419,7 +47464,7 @@ var PromotionSweeper = class {
   }
   async countUses(proposalId) {
     const subjects = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       SELECT DISTINCT ?s WHERE {
         GRAPH <kg:tbox-staging> {
           << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
@@ -47430,7 +47475,7 @@ var PromotionSweeper = class {
     if (iris.length === 0) return 0;
     const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
     const r2 = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       SELECT (COUNT(*) AS ?n) WHERE {
         GRAPH <kg:usage> {
           ?q a pred:Query ; pred:sparql ?sparql .
@@ -47472,7 +47517,7 @@ var PromotionSweeper = class {
     await this.client.update(`CREATE SILENT GRAPH <${scratch}>`);
     try {
       await this.client.update(`
-        PREFIX pred: <${META4}>
+        PREFIX pred: <${META5}>
         INSERT { GRAPH <${scratch}> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -47511,7 +47556,7 @@ var PromotionSweeper = class {
   async deleteProposalFromStaging(proposalId) {
     if (this.client instanceof OxigraphAdapter) {
       const matches = await this.client.select(`
-        PREFIX pred: <${META4}>
+        PREFIX pred: <${META5}>
         SELECT ?s ?p ?o WHERE {
           GRAPH <kg:tbox-staging> {
             << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
@@ -47530,7 +47575,7 @@ var PromotionSweeper = class {
       this.client.deleteRdfStarAnnotationsForProposal("kg:tbox-staging", proposalId);
     } else {
       await this.client.update(`
-        PREFIX pred: <${META4}>
+        PREFIX pred: <${META5}>
         DELETE {
           GRAPH <kg:tbox-staging> {
             ?s ?p ?o .
@@ -47546,7 +47591,7 @@ var PromotionSweeper = class {
       `);
     }
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       DELETE WHERE {
         GRAPH <kg:tbox-staging> { ${escapeIRI(proposalId)} ?mp ?mo }
       }
@@ -47555,7 +47600,7 @@ var PromotionSweeper = class {
   async rejectExpired(p2, actor = "PromotionSweeper", reason = "expired") {
     await this.deleteProposalFromStaging(p2.id);
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -47570,7 +47615,7 @@ var PromotionSweeper = class {
   }
   async recordValidationFailed(p2, reason) {
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -47588,7 +47633,7 @@ var PromotionSweeper = class {
   }
   async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       SELECT ?s ?p ?o WHERE {
         GRAPH <kg:tbox-staging> {
           << ?s ?p ?o >> pred:proposalId ${escapeIRI(p2.id)} .
@@ -47622,7 +47667,7 @@ var PromotionSweeper = class {
     const payloadAdvanced = escapeLiteral(JSON.stringify({ proposalId: p2.id, turtleFile }));
     await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
     await this.client.update(`
-      PREFIX pred: <${META4}>
+      PREFIX pred: <${META5}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:tbox> {
@@ -47745,7 +47790,7 @@ var Generalizer = class {
 };
 
 // ../predicate-mcp/src/tools/kg-maintain.ts
-var META5 = "https://predicate.dev/meta#";
+var META6 = "https://predicate.dev/meta#";
 async function kgMaintain(client, input = {}) {
   const archiveCutoff = input.archiveCutoff ?? 0.6;
   const ageDays = input.ageDays ?? 30;
@@ -47757,7 +47802,7 @@ async function kgMaintain(client, input = {}) {
   );
   const beforeCount = parseInt(before.results.bindings[0].n.value, 10);
   await client.update(`
-    PREFIX pred: <${META5}>
+    PREFIX pred: <${META6}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
     INSERT { GRAPH <kg:abox-archive> { ?s ?p ?o } }
@@ -47793,7 +47838,7 @@ async function kgMaintain(client, input = {}) {
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
-    PREFIX pred: <${META5}>
+    PREFIX pred: <${META6}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${eventId}> a pred:MaintenanceRun ;
@@ -47813,7 +47858,7 @@ async function kgMaintain(client, input = {}) {
   `);
   const matEventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   await client.update(`
-    PREFIX pred: <${META5}>
+    PREFIX pred: <${META6}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${matEventId}> a pred:MaterializationCompleted ;
@@ -47826,6 +47871,7 @@ async function kgMaintain(client, input = {}) {
   }))} .
     } }
   `);
+  await clearAboxDirty(client);
   return {
     archivedCount,
     elapsedMs,
@@ -48159,21 +48205,21 @@ function buildTools(client, options = {}) {
       description: "Return the TBox slice (classes, sub/super, properties, characteristics) for a concept.",
       inputSchema: external_exports.object({ concept: external_exports.string().min(1) }),
       handler: async (raw) => {
-        const { concept } = external_exports.object({ concept: external_exports.string() }).parse(raw);
+        const { concept } = parseInput(external_exports.object({ concept: external_exports.string().min(1) }), raw, "kg_explore_schema");
         return kgExploreSchema(client, concept);
       }
     },
     {
       name: "kg_ask",
-      description: "Execute a caller-drafted SPARQL SELECT/ASK against the live graph; logs usage. Read-only.",
+      description: 'Execute a caller-drafted SPARQL SELECT/ASK against the live graph; logs usage. Read-only. "question" is an optional human-readable label.',
       inputSchema: external_exports.object({
-        question: external_exports.string(),
+        question: external_exports.string().optional(),
         sparql: external_exports.string(),
         maxRows: external_exports.number().int().positive().optional()
       }),
       handler: async (raw) => {
         const args = external_exports.object({
-          question: external_exports.string(),
+          question: external_exports.string().optional(),
           sparql: external_exports.string(),
           maxRows: external_exports.number().int().positive().optional()
         }).parse(raw);
@@ -48244,14 +48290,14 @@ function buildTools(client, options = {}) {
         useLlmDecomposer: external_exports.boolean().optional()
       }),
       handler: async (raw) => {
-        const args = external_exports.object({
-          goal: external_exports.string(),
+        const args = parseInput(external_exports.object({
+          goal: external_exports.string().min(1),
           source: external_exports.enum(["user", "inferred"]).optional(),
           parentGoal: external_exports.string().optional(),
           executeResearch: external_exports.boolean().optional(),
           corpusRoot: external_exports.string().optional(),
           useLlmDecomposer: external_exports.boolean().optional()
-        }).parse(raw);
+        }), raw, "kg_research_goal");
         return kgResearchGoal(client, args, { extraCompletionProviders });
       }
     },
@@ -48265,12 +48311,12 @@ function buildTools(client, options = {}) {
         ttlDays: external_exports.number().int().positive().optional()
       }),
       handler: async (raw) => {
-        const args = external_exports.object({
+        const args = parseInput(external_exports.object({
           delta: schemaDeltaSchema,
           justification: external_exports.string().min(1),
           motivatingGoal: external_exports.string().optional(),
           ttlDays: external_exports.number().int().positive().optional()
-        }).parse(raw);
+        }), raw, "kg_propose_schema");
         return kgProposeSchema(client, args);
       }
     },
@@ -48288,10 +48334,10 @@ function buildTools(client, options = {}) {
         sessionId: external_exports.string().optional()
       }),
       handler: async (raw) => {
-        const args = external_exports.object({
+        const args = parseInput(external_exports.object({
           touchedEntities: external_exports.array(external_exports.string()).optional(),
           sessionId: external_exports.string().optional()
-        }).parse(raw);
+        }), raw, "kg_extract_judgments");
         return kgExtractJudgments(client, args);
       }
     },
