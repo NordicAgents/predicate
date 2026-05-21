@@ -99,6 +99,8 @@ export interface ExtractTranscriptResult {
   asserted: number;
   rejected: number;
   rejections: ExtractRejection[];
+  skippedLines: number;
+  parsedLines: number;
 }
 
 export async function extractTranscript(
@@ -108,7 +110,16 @@ export async function extractTranscript(
   const lines = readFileSync(opts.transcriptPath, 'utf8')
     .split('\n')
     .filter((l) => l.trim().length > 0);
-  const events = lines.map((l) => JSON.parse(l) as Record<string, unknown>);
+  const events: Array<Record<string, unknown>> = [];
+  let skippedLines = 0;
+  for (const l of lines) {
+    try {
+      events.push(JSON.parse(l) as Record<string, unknown>);
+    } catch {
+      skippedLines++;
+    }
+  }
+  const parsedLines = events.length;
 
   const adapted = adapterFor(opts.platform)(events);
   const transcript: Transcript = { sessionId: opts.sessionId, events: adapted };
@@ -141,6 +152,8 @@ export async function extractTranscript(
     asserted,
     rejected: rejections.length,
     rejections,
+    skippedLines,
+    parsedLines,
   };
 }
 
@@ -167,7 +180,19 @@ async function replay(pathArg: string, platform: Platform): Promise<number> {
     try {
       await deleteExtractedSlice(client, sessionId);
       const r = await extractTranscript(client, { sessionId, transcriptPath: file, platform });
-      asserted += r.asserted; rejected += r.rejected; sessions++;
+      if (r.skippedLines > 0 && r.parsedLines === 0) {
+        console.error(
+          `predicate extract --replay: session ${sessionId} skipped — all ${r.skippedLines} line(s) were unparseable.`,
+        );
+        errors++;
+      } else {
+        asserted += r.asserted; rejected += r.rejected; sessions++;
+        if (r.skippedLines > 0) {
+          console.error(
+            `predicate extract: WARNING — skipped ${r.skippedLines} unparseable transcript line(s) in session ${sessionId}.`,
+          );
+        }
+      }
     } catch (err) {
       console.error(`predicate extract --replay: session ${sessionId} failed: ${(err as Error).message}`);
       errors++;
@@ -262,6 +287,11 @@ export async function extract(args: string[], stdin: Readable = process.stdin): 
     for (const r of result.rejections.slice(0, 5)) {
       console.error(`  - ${r.predicate} (subject ${r.subject}): ${r.reason}`);
     }
+  }
+  if (result.skippedLines > 0) {
+    console.error(
+      `predicate extract: WARNING — skipped ${result.skippedLines} unparseable transcript line(s).`,
+    );
   }
   return hasFlag(args, '--strict') && result.rejected > 0 ? 1 : 0;
 }
