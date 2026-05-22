@@ -102,3 +102,21 @@ describe('adaptGeminiTranscript', () => {
   });
 });
 
+describe('adaptGeminiTranscript — AfterAgent turn', () => {
+  it('maps a tool_call/tool_result pair to canonical events', () => {
+    const events = [
+      {
+        type: 'tool_call',
+        toolUse: { toolCallId: 'g2', toolName: 'Bash', toolInput: { command: 'pnpm test' } },
+      },
+      {
+        type: 'tool_result',
+        toolResult: { toolCallId: 'g2', output: 'ok' },
+      },
+    ];
+    const out = adaptGeminiTranscript(events);
+    expect(out.length).toBeGreaterThan(0);
+    expect(JSON.stringify(out)).toContain('Bash');
+  });
+});
+

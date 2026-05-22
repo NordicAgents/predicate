@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Gemini CLI session-start adapter. Gemini reads stdout as additional context
-# when wired via the `hooks` block in ~/.gemini/settings.json (event: "sessionStart").
+# Gemini CLI SessionStart hook.
 set -euo pipefail
-predicate sessionstart 2>/dev/null || \
-  echo "Predicate: Fuseki not reachable; run \`predicate up\` first."
+export PREDICATE_PLUGIN_ROOT="${PREDICATE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+source "$(dirname "$0")/../lib/resolve-cli.sh"
+predicate_cli up --if-needed >/dev/null 2>&1 || true
+MSG="$(predicate_cli sessionstart 2>/dev/null || echo 'Predicate: run `predicate up` to initialise the store.')"
+jq -n --arg m "$MSG" '{ hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: $m } }'
