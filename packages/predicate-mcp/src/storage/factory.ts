@@ -12,9 +12,12 @@ export function getAdapter(): StorageAdapter {
     case 'fuseki':
       cached = new FusekiAdapter(cfg);
       return cached;
-    case 'oxigraph':
+    case 'oxigraph-wasm':
       cached = new OxigraphAdapter({ storePath: cfg.oxigraphStorePath });
       return cached;
+    case 'oxigraph':
+      // Native daemon with automatic WASM fallback — wired in a later task.
+      throw new Error('oxigraph (native) backend not yet wired');
     default:
       throw new Error(`unknown PREDICATE_BACKEND='${cfg.backend}'`);
   }

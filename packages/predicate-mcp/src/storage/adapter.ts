@@ -21,4 +21,4 @@ export interface StorageAdapter {
   close(): Promise<void>;
 }
 
-export type BackendName = 'oxigraph' | 'fuseki';
+export type BackendName = 'oxigraph' | 'oxigraph-wasm' | 'fuseki';
