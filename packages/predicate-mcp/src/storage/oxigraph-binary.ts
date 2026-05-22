@@ -48,7 +48,7 @@ export function binPath(asset = detectTarget()): string {
   return join(binDir(), asset.endsWith('.exe') ? 'oxigraph.exe' : 'oxigraph');
 }
 
-function downloadUrl(asset: string): string {
+export function downloadUrl(asset: string): string {
   return `https://github.com/oxigraph/oxigraph/releases/download/v${OXIGRAPH_VERSION}/${asset}`;
 }
 
@@ -86,10 +86,14 @@ export async function ensureBinary(
     throw new BackendUnavailable(`checksum mismatch for ${asset}: expected ${expected}, got ${got}`);
   }
 
-  await fs.mkdir(binDir(), { recursive: true });
-  const tmp = `${dest}.tmp`;
-  await fs.writeFile(tmp, bytes);
-  await fs.chmod(tmp, 0o755);
-  await fs.rename(tmp, dest);
+  try {
+    await fs.mkdir(binDir(), { recursive: true });
+    const tmp = `${dest}.tmp`;
+    await fs.writeFile(tmp, bytes);
+    await fs.chmod(tmp, 0o755);
+    await fs.rename(tmp, dest);
+  } catch (err) {
+    throw new BackendUnavailable(`failed to install oxigraph binary: ${(err as Error).message}`);
+  }
   return dest;
 }
