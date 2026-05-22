@@ -1,6 +1,7 @@
 import { loadConfig } from '../config.js';
 import { FusekiAdapter } from './fuseki.js';
 import { OxigraphAdapter } from './oxigraph.js';
+import { DefaultOxigraphAdapter } from './oxigraph-default.js';
 import type { StorageAdapter } from './adapter.js';
 
 let cached: StorageAdapter | undefined;
@@ -16,8 +17,8 @@ export function getAdapter(): StorageAdapter {
       cached = new OxigraphAdapter({ storePath: cfg.oxigraphStorePath });
       return cached;
     case 'oxigraph':
-      // Native daemon with automatic WASM fallback — wired in a later task.
-      throw new Error('oxigraph (native) backend not yet wired');
+      cached = new DefaultOxigraphAdapter({ storePath: cfg.oxigraphStorePath });
+      return cached;
     default:
       throw new Error(`unknown PREDICATE_BACKEND='${cfg.backend}'`);
   }

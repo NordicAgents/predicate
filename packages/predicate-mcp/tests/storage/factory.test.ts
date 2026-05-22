@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { getAdapter, _resetAdapterCache } from '../../src/storage/factory.js';
 import { FusekiAdapter } from '../../src/storage/fuseki.js';
+import { DefaultOxigraphAdapter } from '../../src/storage/oxigraph-default.js';
 
 describe('getAdapter', () => {
   beforeEach(() => {
@@ -19,14 +20,19 @@ describe('getAdapter', () => {
     expect(() => getAdapter()).toThrow(/unknown PREDICATE_BACKEND/);
   });
 
-  it('returns OxigraphAdapter by default (no env var set)', () => {
+  it('returns DefaultOxigraphAdapter by default (no env var set)', () => {
     // beforeEach already deletes PREDICATE_BACKEND.
     const a = getAdapter();
-    expect(a.constructor.name).toBe('OxigraphAdapter');
+    expect(a).toBeInstanceOf(DefaultOxigraphAdapter);
   });
 });
 
 describe('factory backend selection', () => {
+  beforeEach(() => {
+    _resetAdapterCache();
+    delete process.env.PREDICATE_BACKEND;
+    delete process.env.PREDICATE_STORE_PATH;
+  });
   afterEach(() => {
     _resetAdapterCache();
     delete process.env.PREDICATE_BACKEND;

@@ -70,6 +70,9 @@ async function fileExists(p: string): Promise<boolean> {
 export async function ensureBinary(
   fetchImpl: typeof fetch = fetch,
 ): Promise<string> {
+  if (process.env.PREDICATE_OXIGRAPH_FORCE_UNAVAILABLE === '1') {
+    throw new BackendUnavailable('forced unavailable (PREDICATE_OXIGRAPH_FORCE_UNAVAILABLE=1)');
+  }
   const asset = detectTarget();
   const dest = binPath(asset);
   if (await fileExists(dest)) return dest;
