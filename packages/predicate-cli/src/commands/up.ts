@@ -2,7 +2,7 @@ import { findComposeDir, dockerAvailable, compose } from '../docker.js';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
-import { init } from './init.js';
+import { init, loadCoreVocab } from './init.js';
 
 const META = 'https://predicate.dev/meta#';
 const CONFIG_URI = 'urn:predicate:config';
@@ -144,8 +144,13 @@ export async function up(args: string[] = []): Promise<number> {
   try {
     if (await checkConfigExists(client)) return 0;
     if (await detectLegacyCodebase(client)) {
+      // Legacy stores predate the config marker AND may predate the meta /
+      // judgment vocabulary. Ensure core vocab is present before declaring the
+      // store initialised, or the Stop-hook extractor's pred:sessionId / pred:at
+      // triples will be rejected as undeclared predicates on every session.
+      await loadCoreVocab(client);
       await writeLegacyConfig(client);
-      console.log(`predicate up: legacy codebase ontology detected — wrote 'community/codebase' config.`);
+      console.log(`predicate up: legacy codebase ontology detected — ensured core vocab + wrote 'community/codebase' config.`);
       return 0;
     }
     if (process.stdin.isTTY) return init([]);

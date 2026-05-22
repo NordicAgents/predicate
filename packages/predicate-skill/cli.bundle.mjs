@@ -18407,6 +18407,11 @@ async function loadJudgmentOverlay(client, catalogDir) {
   await loadTtlFile(client, join7(catalogDir, "judgment.ttl"));
   await loadTtlFile(client, join7(catalogDir, "judgment.shacl.ttl"));
 }
+async function loadCoreVocab(client) {
+  const catalogDir = findCatalogDir();
+  await loadTtlFile(client, findMetaTtl(catalogDir));
+  await loadJudgmentOverlay(client, catalogDir);
+}
 async function wipeForInit(client, force) {
   const tboxGraphs = ["kg:tbox", "kg:tbox-staging", "kg:meta"];
   const aboxGraphs = ["kg:abox", "kg:inferred", "kg:provenance", "kg:goals", "kg:usage"];
@@ -18690,8 +18695,9 @@ async function up(args = []) {
   try {
     if (await checkConfigExists2(client)) return 0;
     if (await detectLegacyCodebase(client)) {
+      await loadCoreVocab(client);
       await writeLegacyConfig(client);
-      console.log(`predicate up: legacy codebase ontology detected \u2014 wrote 'community/codebase' config.`);
+      console.log(`predicate up: legacy codebase ontology detected \u2014 ensured core vocab + wrote 'community/codebase' config.`);
       return 0;
     }
     if (process.stdin.isTTY) return init([]);
@@ -30903,7 +30909,7 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.6.0" : "0.0.0-dev";
+var VERSION2 = true ? "2.6.1" : "0.0.0-dev";
 function help10() {
   console.log(`predicate <command>
 
