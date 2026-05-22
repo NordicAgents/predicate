@@ -3,9 +3,33 @@ import { getAdapter, OxigraphAdapter } from 'predicate-mcp/src/storage/index.js'
 import { dockerAvailable } from '../docker.js';
 import { GRAPH } from 'predicate-mcp/src/graphs.js';
 import { existsSync, accessSync, constants, rmSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 interface Check { name: string; ok: boolean; detail?: string }
+
+export interface PlatformCheck { name: string; ok: boolean; detail?: string }
+
+const PLATFORM_HOOK_DIR: Record<string, string> = {
+  codex: 'hooks/codex-cli',
+  gemini: 'hooks/gemini-cli',
+};
+
+export function platformChecks(platform: string): PlatformCheck[] {
+  const dir = PLATFORM_HOOK_DIR[platform];
+  if (!dir) {
+    return [{ name: 'platform', ok: false, detail: `unknown platform '${platform}' (codex|gemini)` }];
+  }
+  // The bundled CLI sits at the predicate-skill package root; hooks/ is a sibling.
+  const root = dirname(fileURLToPath(import.meta.url));
+  const scripts = ['session-start.sh', 'stop.sh'];
+  const present = scripts.map((s) => existsSync(resolve(root, dir, s)));
+  return [{
+    name: 'hook scripts',
+    ok: present.every(Boolean),
+    detail: scripts.join(', '),
+  }];
+}
 
 export interface RoundTripResult {
   persisted: boolean;
@@ -44,7 +68,15 @@ export async function roundTripSelfTest(storePath: string): Promise<RoundTripRes
     : { persisted: false, detail: 'triple lost across reopen — flush-on-close is broken' };
 }
 
-export async function doctor(): Promise<number> {
+export async function doctor(args: string[] = []): Promise<number> {
+  const platform = args[0];
+  if (platform) {
+    const checks = platformChecks(platform);
+    for (const c of checks) {
+      console.log(`${c.ok ? 'ok  ' : 'FAIL'} ${c.name}${c.detail ? ' — ' + c.detail : ''}`);
+    }
+    return checks.every((c) => c.ok) ? 0 : 1;
+  }
   const cfg = loadConfig();
   const checks: Check[] = [];
 

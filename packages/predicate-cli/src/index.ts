@@ -77,7 +77,7 @@ async function main(): Promise<number> {
   switch (cmd) {
     case 'up':              return up(process.argv.slice(3));
     case 'down':            return down(process.argv.slice(3));
-    case 'doctor':          return doctor();
+    case 'doctor':          return doctor(process.argv.slice(3));
     case 'stats':           return stats();
     case 'sessionstart':    return sessionstart();
     case 'maintain':        return maintain();
