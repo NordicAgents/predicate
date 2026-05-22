@@ -1,0 +1,11 @@
+{
+  "name": "predicate",
+  "interface": { "displayName": "Predicate" },
+  "plugins": [
+    {
+      "source": { "path": "../../" },
+      "policy": { "installation": "manual", "authentication": "none" },
+      "category": "knowledge"
+    }
+  ]
+}
