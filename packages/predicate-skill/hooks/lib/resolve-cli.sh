@@ -5,10 +5,11 @@
 # then falls back to a global `predicate` on PATH, else a no-op that
 # returns non-zero so callers can fail-open.
 #
-# Platform plugin-root env vars, in priority order:
-#   CLAUDE_PLUGIN_ROOT  - Claude Code, and Codex (Codex sets it for compat)
-#   PLUGIN_ROOT         - Codex native
-#   PREDICATE_PLUGIN_ROOT - Gemini/manual: set in the hook command to ${extensionPath}
+# Platform plugin-root env vars, highest priority first (matches the loop below):
+#   PREDICATE_PLUGIN_ROOT - Gemini/manual: explicit override, set in the hook
+#                           command to ${extensionPath}; wins when present
+#   CLAUDE_PLUGIN_ROOT    - Claude Code, and Codex (Codex sets it for compat)
+#   PLUGIN_ROOT           - Codex native
 
 _predicate_bundled_cli() {
   local root
