@@ -47900,10 +47900,11 @@ var PromotionSweeper = class {
    * Delete all base triples tagged with a proposal ID, plus the RDF-star annotation
    * quads that reference those triples, plus the proposal metadata node.
    *
-   * Oxigraph 0.5.x rejects any SPARQL Update that contains quoted triples (`<<>>`)
-   * in template or pattern position.  When running against Oxigraph we therefore use
-   * the lower-level quad API exposed by `OxigraphAdapter.deleteRdfStarAnnotationsForProposal`.
-   * On Fuseki the original single-pass SPARQL DELETE is used.
+   * No backend accepts quoted triples (`<<>>`) in a DELETE *template*. The in-process
+   * WASM adapter uses the lower-level quad API (`deleteRdfStarAnnotationsForProposal`).
+   * Every other backend (native Oxigraph daemon, Fuseki) uses two SPARQL passes that
+   * keep `<<>>` out of DELETE templates: delete the base triples (matched via `<<>>`
+   * in WHERE), then delete the annotation quads via a plain `?qt` variable.
    */
   async deleteProposalFromStaging(proposalId) {
     if (this.client instanceof OxigraphAdapter) {
@@ -47928,16 +47929,21 @@ var PromotionSweeper = class {
     } else {
       await this.client.update(`
         PREFIX pred: <${META5}>
-        DELETE {
-          GRAPH <kg:tbox-staging> {
-            ?s ?p ?o .
-            << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
-          }
-        }
+        DELETE { GRAPH <kg:tbox-staging> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
             << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
             ?s ?p ?o .
+          }
+        }
+      `);
+      await this.client.update(`
+        PREFIX pred: <${META5}>
+        DELETE { GRAPH <kg:tbox-staging> { ?qt ?pp ?po } }
+        WHERE {
+          GRAPH <kg:tbox-staging> {
+            ?qt pred:proposalId ${escapeIRI(proposalId)} .
+            ?qt ?pp ?po .
           }
         }
       `);
