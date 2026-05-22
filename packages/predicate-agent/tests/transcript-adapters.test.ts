@@ -115,8 +115,20 @@ describe('adaptGeminiTranscript — AfterAgent turn', () => {
       },
     ];
     const out = adaptGeminiTranscript(events);
-    expect(out.length).toBeGreaterThan(0);
-    expect(JSON.stringify(out)).toContain('Bash');
+    expect(out[0]).toEqual({
+      type: 'assistant',
+      message: {
+        role: 'assistant',
+        content: [{ type: 'tool_use', id: 'g2', name: 'Bash', input: { command: 'pnpm test' } }],
+      },
+    });
+    expect(out[1]).toEqual({
+      type: 'user',
+      message: {
+        role: 'user',
+        content: [{ type: 'tool_result', tool_use_id: 'g2', is_error: false, content: 'ok' }],
+      },
+    });
   });
 });
 
