@@ -4,6 +4,7 @@ import { chmodSync, cpSync, rmSync, mkdirSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -91,6 +92,19 @@ const common = {
   external: ['better-sqlite3'],
   plugins: [vendorOxigraph, stripShebang],
 };
+
+// Regenerate per-platform adapters from canonical sources and fail if the
+// committed copies are stale (prevents the adapters from silently rotting).
+execFileSync('node', [resolve(here, 'gen-adapters.mjs')], { stdio: 'inherit' });
+const dirty = execFileSync('git', ['status', '--porcelain', '--',
+  'AGENTS.md', 'GEMINI.md', '.codex-plugin', '.mcp.json',
+  'gemini-extension.json', 'hooks/gemini-cli/hooks.json'],
+  { cwd: root, encoding: 'utf8' });
+if (dirty.trim()) {
+  console.error('Generated adapters are stale. Run gen-adapters.mjs and commit:\n' + dirty);
+  process.exit(1);
+}
+console.log('adapters regenerated + verified in sync');
 
 await build({
   ...common,

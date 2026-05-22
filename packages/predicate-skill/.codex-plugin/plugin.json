@@ -1,0 +1,20 @@
+{
+  "name": "predicate",
+  "version": "2.6.1",
+  "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — Claude Code plugin + MCP server + predicate CLI.",
+  "author": {
+    "name": "Nordic Agents Research",
+    "email": "midhunxavier@outlook.com"
+  },
+  "homepage": "https://github.com/NordicAgents/predicate#readme",
+  "license": "Elastic-2.0",
+  "keywords": [
+    "mcp",
+    "knowledge-graph",
+    "rdf",
+    "owl",
+    "sparql",
+    "reasoning"
+  ],
+  "skills": "./skills/"
+}
