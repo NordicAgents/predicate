@@ -97,99 +97,69 @@ All `kg_*` tools, no lifecycle hooks. Good for a quick trial.
 
 </details>
 
+> **Other platforms at a glance.** All run the same local Oxigraph-backed MCP
+> server (the 9 `kg_*` tools) and read the same reasoning guidance (`SKILL.md`
+> on Claude Code; generated `AGENTS.md` / `GEMINI.md` elsewhere). Capture =
+> automatic Stop-hook turn extraction.
+>
+> | Platform | Install | Capture |
+> |---|---|---|
+> | Claude Code | `/plugin marketplace add NordicAgents/predicate` | yes |
+> | Codex CLI | `codex plugin marketplace add NordicAgents/predicate` | yes |
+> | Gemini CLI | `gemini extensions install https://github.com/NordicAgents/predicate` | yes |
+> | VS Code Copilot | `npx predicate-skill install vscode` | no (tools only) |
+> | Cursor | `npx predicate-skill install cursor` | no (tools only) |
+
 <details>
-<summary><strong>Cursor</strong></summary>
+<summary><strong>Codex CLI</strong></summary>
+
+Codex (v0.117+) uses the Claude Code plugin model and honors
+`CLAUDE_PLUGIN_ROOT`, so Predicate installs as a native plugin — the bundled
+`skills/`, `hooks/hooks.json` (`SessionStart` / `Stop`), and generated
+`.mcp.json` are consumed directly.
 
 ```bash
-npm install -g predicate-skill
-predicate up
-cp "$(npm root -g)/predicate-skill/hooks/cursor/mcp.json.template" ~/.cursor/mcp.json
+codex plugin marketplace add NordicAgents/predicate
+# then enable "predicate" in the interactive plugin browser
 ```
 
-Edit `~/.cursor/mcp.json`, replacing `__PLUGIN_DIR__` with
-`$(npm root -g)/predicate-skill`. Reload MCP servers (Cmd-Shift-P →
-"Reload MCP servers"), then type `predicate stats` in agent chat to verify.
-
-Cursor has no native session events; the SessionStart / PreCompact / Stop
-maintenance scripts under `hooks/cursor/` can be wired via cron or a shell
-alias — see `hooks/cursor/README.md`.
+Two one-time gotchas: set `[features] plugin_hooks = true` in
+`~/.codex/config.toml`, and approve the hooks once via `/hooks`. See
+`hooks/codex-cli/README.md`.
 
 </details>
 
 <details>
 <summary><strong>Gemini CLI</strong></summary>
 
+Predicate installs as a self-contained Gemini **extension** (its own MCP
+server, `GEMINI.md` context, and `SessionStart` / `AfterAgent` / `PreCompress`
+hooks):
+
 ```bash
-npm install -g predicate-skill
-predicate up
+gemini extensions install https://github.com/NordicAgents/predicate
+# restart Gemini CLI
 ```
 
-Merge `$(npm root -g)/predicate-skill/hooks/gemini-cli/settings.json.template`
-into `~/.gemini/settings.json`, replacing `__PLUGIN_DIR__`. Restart Gemini
-CLI; `/mcp list` should show `predicate: ... Connected`. The Stop hook pipes
-each transcript through `predicate extract` so session triples land in
-`kg:abox` after every turn.
+Lighter MCP-only path (no capture):
+`gemini mcp add predicate -s user -- node /abs/path/server.bundle.mjs`.
+See `hooks/gemini-cli/README.md`.
 
 </details>
 
 <details>
-<summary><strong>OpenCode</strong></summary>
+<summary><strong>VS Code Copilot</strong> / <strong>Cursor</strong> (MCP-only)</summary>
+
+Neither exposes usable lifecycle hooks, so reasoning queries work but there is
+no automatic turn capture. From your project root:
 
 ```bash
-npm install -g predicate-skill
-predicate up
+npx predicate-skill install vscode    # writes .vscode/mcp.json + AGENTS.md
+npx predicate-skill install cursor    # writes .cursor/mcp.json + AGENTS.md
 ```
 
-Merge `$(npm root -g)/predicate-skill/hooks/opencode/opencode.json.template`
-into `~/.config/opencode/opencode.json`, replacing `__PLUGIN_DIR__`. Restart
-OpenCode; type `predicate stats` to verify. The session.stopped hook runs
-`predicate extract` automatically.
-
-</details>
-
-<details>
-<summary><strong>VS Code Copilot</strong></summary>
-
-```bash
-npm install -g predicate-skill
-predicate up
-```
-
-Merge `$(npm root -g)/predicate-skill/hooks/vscode-copilot/settings.json.template`
-into your VS Code `settings.json`, replacing `__PLUGIN_DIR__`. Restart VS
-Code; type `predicate stats` in Copilot Chat to verify. VS Code exposes no
-lifecycle events yet — see `hooks/vscode-copilot/README.md` for manual / task
-wiring of the maintenance scripts.
-
-</details>
-
-<details>
-<summary><strong>Codex CLI</strong></summary>
-
-```bash
-npm install -g predicate-skill
-predicate up
-```
-
-Merge `$(npm root -g)/predicate-skill/hooks/codex-cli/config.toml.template`
-into `~/.codex/config.toml`, replacing `__PLUGIN_DIR__`. Launch `codex` and
-type `predicate stats` to verify. No lifecycle events yet — see
-`hooks/codex-cli/README.md` for shell-alias wiring.
-
-</details>
-
-<details>
-<summary><strong>Continue.dev</strong></summary>
-
-In `~/.continue/config.yaml`:
-
-```yaml
-mcpServers:
-  - name: predicate
-    command: predicate-skill
-```
-
-Then `predicate up` and restart Continue.
+Restart the editor. See `hooks/vscode-copilot/README.md` and
+`hooks/cursor/README.md`.
 
 </details>
 
@@ -280,7 +250,10 @@ predicate --help
 | `cli.bundle.mjs` | Bundled `predicate` CLI, surfaced via this package's `bin`. |
 | `skills/predicate-reasoning/SKILL.md` | Host-agent contract: triggers, workflow, anti-patterns, worked examples. |
 | `commands/{up,down,status,ask}.md` | Slash-command definitions for `/predicate:*`. |
-| `hooks/` | Claude Code lifecycle hooks + per-platform templates (cursor, gemini-cli, vscode-copilot, opencode, codex-cli). |
+| `hooks/` | Shared CLI resolver + Claude Code lifecycle hooks + per-platform adapters (codex-cli, gemini-cli, cursor, vscode-copilot). |
+| `.codex-plugin/`, `.mcp.json` | Generated Codex plugin manifest + MCP registration (repo-root `.agents/plugins/marketplace.json` lists it). |
+| `gemini-extension/` | Generated self-contained Gemini CLI extension (own manifest, GEMINI.md, hooks, and bundled server/CLI). |
+| `AGENTS.md` | Generated from SKILL.md; reasoning guidance for Codex / Cursor / VS Code. |
 | `compose/` | Fuseki + TDB2 docker-compose config — only used by the opt-in Fuseki backend. |
 | `catalog/`, `meta/` | Bundled ontology catalog + meta vocabulary for `predicate init`. |
 

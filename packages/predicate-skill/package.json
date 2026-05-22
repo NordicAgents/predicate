@@ -15,8 +15,15 @@
   },
   "bugs": "https://github.com/NordicAgents/predicate/issues",
   "keywords": [
-    "mcp", "claude-code", "knowledge-graph", "rdf", "owl",
-    "sparql", "reasoning", "fuseki", "agent"
+    "mcp",
+    "claude-code",
+    "knowledge-graph",
+    "rdf",
+    "owl",
+    "sparql",
+    "reasoning",
+    "fuseki",
+    "agent"
   ],
   "type": "module",
   "bin": {
@@ -27,6 +34,9 @@
     "cli.bundle.mjs",
     "vendor",
     ".claude-plugin",
+    ".codex-plugin",
+    ".mcp.json",
+    "AGENTS.md",
     "skills",
     "commands",
     "hooks",
@@ -39,7 +49,8 @@
   ],
   "scripts": {
     "bundle": "node scripts/bundle.mjs",
-    "prepublishOnly": "node scripts/bundle.mjs && node -e \"const fs=require('fs');for(const f of ['server.bundle.mjs','cli.bundle.mjs','catalog/catalog.json','meta/predicate-meta.ttl','vendor/oxigraph/node.js','vendor/oxigraph/node_bg.wasm']){if(!fs.existsSync(f)){console.error('missing '+f);process.exit(1)}}\""
+    "prepublishOnly": "node scripts/bundle.mjs && node -e \"const fs=require('fs');for(const f of ['server.bundle.mjs','cli.bundle.mjs','catalog/catalog.json','meta/predicate-meta.ttl','vendor/oxigraph/node.js','vendor/oxigraph/node_bg.wasm']){if(!fs.existsSync(f)){console.error('missing '+f);process.exit(1)}}\"",
+    "test": "vitest run"
   },
   "engines": {
     "node": ">=20"
@@ -47,5 +58,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": false
+  "private": false,
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  }
 }

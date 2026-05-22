@@ -1,0 +1,12 @@
+{
+  "predicate": {
+    "command": "node",
+    "args": [
+      "${PLUGIN_ROOT}/server.bundle.mjs"
+    ],
+    "env": {
+      "PREDICATE_BACKEND": "oxigraph",
+      "PREDICATE_DATASET": "predicate"
+    }
+  }
+}

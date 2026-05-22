@@ -4,6 +4,7 @@ import { chmodSync, cpSync, rmSync, mkdirSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -92,6 +93,28 @@ const common = {
   plugins: [vendorOxigraph, stripShebang],
 };
 
+// Regenerate per-platform adapters from canonical sources and fail if the
+// committed copies are stale (prevents the adapters from silently rotting).
+// The drift check needs git + a working tree; when neither is available
+// (e.g. a tarball-extracted publish container) we regenerate but skip the
+// staleness check rather than crash the build.
+execFileSync('node', [resolve(here, 'gen-adapters.mjs')], { stdio: 'inherit' });
+let dirty = null;
+try {
+  dirty = execFileSync('git', ['status', '--porcelain', '--',
+    'AGENTS.md', '.codex-plugin', '.mcp.json',
+    'gemini-extension/gemini-extension.json', 'gemini-extension/GEMINI.md',
+    'gemini-extension/hooks/hooks.json'],
+    { cwd: root, encoding: 'utf8' });
+} catch {
+  console.warn('git unavailable — skipping adapter drift check');
+}
+if (dirty !== null && dirty.trim()) {
+  console.error('Generated adapters are stale. Run gen-adapters.mjs and commit:\n' + dirty);
+  process.exit(1);
+}
+if (dirty !== null) console.log('adapters regenerated + verified in sync');
+
 await build({
   ...common,
   entryPoints: [resolve(repoRoot, 'packages/predicate-mcp/src/index.ts')],
@@ -107,3 +130,21 @@ await build({
 });
 chmodSync(resolve(root, 'cli.bundle.mjs'), 0o755);
 console.log('built cli.bundle.mjs');
+
+// Stage the self-contained Gemini extension: Gemini copies the extension dir
+// on install, so it must carry its own server/CLI bundles, vendor wasm, and
+// hook scripts. Layout mirrors predicate-skill so the canonical scripts work
+// unchanged once copied.
+const gext = resolve(root, 'gemini-extension');
+for (const f of ['server.bundle.mjs', 'cli.bundle.mjs']) {
+  cpSync(resolve(root, f), resolve(gext, f));
+}
+rmSync(resolve(gext, 'vendor'), { recursive: true, force: true });
+cpSync(resolve(root, 'vendor'), resolve(gext, 'vendor'), { recursive: true });
+mkdirSync(resolve(gext, 'hooks/gemini-cli'), { recursive: true });
+for (const s of ['session-start.sh', 'stop.sh', 'pre-compact.sh']) {
+  cpSync(resolve(root, 'hooks/gemini-cli', s), resolve(gext, 'hooks/gemini-cli', s));
+}
+mkdirSync(resolve(gext, 'hooks/lib'), { recursive: true });
+cpSync(resolve(root, 'hooks/lib/resolve-cli.sh'), resolve(gext, 'hooks/lib/resolve-cli.sh'));
+console.log('staged self-contained gemini-extension/');
