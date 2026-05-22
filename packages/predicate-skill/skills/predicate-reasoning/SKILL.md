@@ -1,5 +1,5 @@
 ---
-name: predicate
+name: predicate-reasoning
 description: Local reasoning knowledge graph for "why", "what breaks if", and "what's connected to" questions. OWL-backed, provenance-tracked, schema-versioned. Use when the question is structural — about relations, transitive dependencies, contradictions, or prior-session state.
 ---
 

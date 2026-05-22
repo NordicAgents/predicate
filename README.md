@@ -57,8 +57,8 @@ predicate doctor
 ```
 
 Hooks, slash commands, and the `kg_*` tools are wired automatically.
-Slash commands: `/predicate:up`, `/predicate:down`, `/predicate:doctor`,
-`/predicate:stats`, `/predicate:ask <question>`.
+Slash commands: `/predicate:up`, `/predicate:down`, `/predicate:status`,
+`/predicate:ask <question>`.
 
 </details>
 
