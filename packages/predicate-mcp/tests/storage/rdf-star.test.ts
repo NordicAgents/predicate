@@ -11,7 +11,7 @@ async function makeAdapter(): Promise<StorageAdapter> {
     const { loadConfig } = await import('../../src/config.js');
     return new FusekiAdapter(loadConfig());
   }
-  if (BACKEND === 'oxigraph') {
+  if (BACKEND === 'oxigraph' || BACKEND === 'oxigraph-wasm') {
     const { OxigraphAdapter } = await import('../../src/storage/oxigraph.js');
     return new OxigraphAdapter({ storePath: ':memory:' });
   }

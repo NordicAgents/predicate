@@ -10,10 +10,13 @@ export default defineConfig({
     // Run them serially within this package to avoid cross-file races.
     fileParallelism: false,
     env: {
-      // Default to the zero-dependency Oxigraph backend so `pnpm test` is
-      // green with no Docker, matching the README. Opt into the Fuseki leg
-      // with PREDICATE_BACKEND=fuseki (requires a running Fuseki).
-      PREDICATE_BACKEND: process.env.PREDICATE_BACKEND ?? 'oxigraph',
+      // Default to the zero-dependency in-process WASM backend so `pnpm test`
+      // is green with no Docker and uses an isolated :memory: store — not the
+      // developer's on-disk daemon.  Opt into the native leg with
+      // PREDICATE_BACKEND=oxigraph or the Fuseki leg with
+      // PREDICATE_BACKEND=fuseki (requires those services running).
+      PREDICATE_BACKEND: process.env.PREDICATE_BACKEND ?? 'oxigraph-wasm',
+      PREDICATE_STORE_PATH: process.env.PREDICATE_STORE_PATH ?? ':memory:',
     },
   },
 });

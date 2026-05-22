@@ -25,7 +25,7 @@ async function makeAdapter(): Promise<StorageAdapter> {
     _oxigraphServerStorePath = storePath;
     return new OxigraphServerAdapter({ storePath });
   }
-  if (BACKEND === 'oxigraph') {
+  if (BACKEND === 'oxigraph' || BACKEND === 'oxigraph-wasm') {
     const { OxigraphAdapter } = await import('../../src/storage/oxigraph.js');
     return new OxigraphAdapter({ storePath: ':memory:' });
   }
