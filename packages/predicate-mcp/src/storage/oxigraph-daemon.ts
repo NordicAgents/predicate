@@ -79,8 +79,14 @@ export async function ensureUp(storePath: string): Promise<DaemonHandle> {
   }
 
   const bin = await ensureBinary();
-  await fs.mkdir(storePath, { recursive: true });
-  const port = await pickPort();
+
+  let port: number;
+  try {
+    await fs.mkdir(storePath, { recursive: true });
+    port = await pickPort();
+  } catch (err) {
+    throw new BackendUnavailable(`oxigraph daemon setup failed (mkdir/port): ${(err as Error).message}`);
+  }
 
   const child = spawn(bin, ['serve', '--location', storePath, '--bind', `127.0.0.1:${port}`], {
     detached: true,
@@ -98,7 +104,11 @@ export async function ensureUp(storePath: string): Promise<DaemonHandle> {
   }
 
   const handle: DaemonHandle = { host: '127.0.0.1', port, pid: child.pid!, version: OXIGRAPH_VERSION };
-  await fs.writeFile(handshakePath(storePath), JSON.stringify(handle), 'utf8');
+  try {
+    await fs.writeFile(handshakePath(storePath), JSON.stringify(handle), 'utf8');
+  } catch (err) {
+    throw new BackendUnavailable(`oxigraph daemon handshake write failed: ${(err as Error).message}`);
+  }
   return handle;
 }
 

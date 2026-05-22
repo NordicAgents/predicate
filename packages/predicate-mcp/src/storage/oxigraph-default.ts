@@ -22,7 +22,9 @@ export class DefaultOxigraphAdapter implements StorageAdapter {
   }
 
   async ready(): Promise<void> {
-    if (this.initPromise === null) this.initPromise = this.init();
+    if (this.initPromise === null) {
+      this.initPromise = this.init().catch((e) => { this.initPromise = null; throw e; });
+    }
     await this.initPromise;
   }
 
