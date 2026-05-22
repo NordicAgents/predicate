@@ -257,10 +257,11 @@ export class PromotionSweeper {
    * Delete all base triples tagged with a proposal ID, plus the RDF-star annotation
    * quads that reference those triples, plus the proposal metadata node.
    *
-   * Oxigraph 0.5.x rejects any SPARQL Update that contains quoted triples (`<<>>`)
-   * in template or pattern position.  When running against Oxigraph we therefore use
-   * the lower-level quad API exposed by `OxigraphAdapter.deleteRdfStarAnnotationsForProposal`.
-   * On Fuseki the original single-pass SPARQL DELETE is used.
+   * No backend accepts quoted triples (`<<>>`) in a DELETE *template*. The in-process
+   * WASM adapter uses the lower-level quad API (`deleteRdfStarAnnotationsForProposal`).
+   * Every other backend (native Oxigraph daemon, Fuseki) uses two SPARQL passes that
+   * keep `<<>>` out of DELETE templates: delete the base triples (matched via `<<>>`
+   * in WHERE), then delete the annotation quads via a plain `?qt` variable.
    */
   private async deleteProposalFromStaging(proposalId: string): Promise<void> {
     if (this.client instanceof OxigraphAdapter) {
@@ -292,19 +293,28 @@ export class PromotionSweeper {
       // Step 3: delete annotation quads via the quad-level API (bypasses SPARQL Update parser).
       this.client.deleteRdfStarAnnotationsForProposal('kg:tbox-staging', proposalId);
     } else {
-      // Fuseki path: original single-pass SPARQL DELETE.
+      // Native Oxigraph daemon / Fuseki: keep `<<>>` out of DELETE templates.
+      // Pass 1: delete the base triples, matching them via `<<>>` in WHERE (must run
+      // first, while the proposalId annotation still exists to bind ?s ?p ?o).
       await this.client.update(`
         PREFIX pred: <${META}>
-        DELETE {
-          GRAPH <kg:tbox-staging> {
-            ?s ?p ?o .
-            << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
-          }
-        }
+        DELETE { GRAPH <kg:tbox-staging> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
             << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
             ?s ?p ?o .
+          }
+        }
+      `);
+      // Pass 2: delete the annotation quads via a plain ?qt variable bound to the
+      // quoted triple — no `<<>>` in the DELETE template.
+      await this.client.update(`
+        PREFIX pred: <${META}>
+        DELETE { GRAPH <kg:tbox-staging> { ?qt ?pp ?po } }
+        WHERE {
+          GRAPH <kg:tbox-staging> {
+            ?qt pred:proposalId ${escapeIRI(proposalId)} .
+            ?qt ?pp ?po .
           }
         }
       `);
