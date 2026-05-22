@@ -290,9 +290,9 @@ var init_config = __esm({
 });
 
 // ../predicate-mcp/src/storage/fuseki.ts
-function err(status, body) {
-  const e2 = new Error(`SPARQL error ${status}: ${body}`);
-  e2.status = status;
+function err(status2, body) {
+  const e2 = new Error(`SPARQL error ${status2}: ${body}`);
+  e2.status = status2;
   e2.body = body;
   return e2;
 }
@@ -650,6 +650,406 @@ var init_oxigraph = __esm({
   }
 });
 
+// ../predicate-mcp/src/storage/oxigraph-binary.ts
+import { promises as fs3 } from "node:fs";
+import { join as join5 } from "node:path";
+import { createHash as createHash2 } from "node:crypto";
+function detectTarget(platform = process.platform, arch = process.arch) {
+  const key = `${platform}-${arch}`;
+  const asset = ASSET_BY_TARGET[key];
+  if (!asset) throw new BackendUnavailable(`no prebuilt oxigraph binary for ${key}`);
+  return asset;
+}
+function binDir() {
+  return join5(homeRoot(), "bin");
+}
+function binPath(asset = detectTarget()) {
+  return join5(binDir(), asset.endsWith(".exe") ? "oxigraph.exe" : "oxigraph");
+}
+function downloadUrl(asset) {
+  return `https://github.com/oxigraph/oxigraph/releases/download/v${OXIGRAPH_VERSION}/${asset}`;
+}
+function sha256(buf) {
+  return createHash2("sha256").update(buf).digest("hex");
+}
+async function fileExists(p2) {
+  try {
+    await fs3.access(p2);
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function ensureBinary(fetchImpl = fetch) {
+  if (process.env.PREDICATE_OXIGRAPH_FORCE_UNAVAILABLE === "1") {
+    throw new BackendUnavailable("forced unavailable (PREDICATE_OXIGRAPH_FORCE_UNAVAILABLE=1)");
+  }
+  const asset = detectTarget();
+  const dest = binPath(asset);
+  if (await fileExists(dest)) return dest;
+  const expected = SHA256_BY_ASSET[asset];
+  if (!expected) throw new BackendUnavailable(`no pinned checksum for ${asset}`);
+  let bytes;
+  try {
+    const res = await fetchImpl(downloadUrl(asset));
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    bytes = new Uint8Array(await res.arrayBuffer());
+  } catch (err3) {
+    throw new BackendUnavailable(`download failed for ${asset}: ${err3.message}`);
+  }
+  const got = sha256(bytes);
+  if (got !== expected) {
+    throw new BackendUnavailable(`checksum mismatch for ${asset}: expected ${expected}, got ${got}`);
+  }
+  try {
+    await fs3.mkdir(binDir(), { recursive: true });
+    const tmp = `${dest}.tmp`;
+    await fs3.writeFile(tmp, bytes);
+    await fs3.chmod(tmp, 493);
+    await fs3.rename(tmp, dest);
+  } catch (err3) {
+    throw new BackendUnavailable(`failed to install oxigraph binary: ${err3.message}`);
+  }
+  return dest;
+}
+var BackendUnavailable, OXIGRAPH_VERSION, ASSET_BY_TARGET, SHA256_BY_ASSET;
+var init_oxigraph_binary = __esm({
+  "../predicate-mcp/src/storage/oxigraph-binary.ts"() {
+    "use strict";
+    init_config();
+    BackendUnavailable = class extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "BackendUnavailable";
+      }
+    };
+    OXIGRAPH_VERSION = "0.5.8";
+    ASSET_BY_TARGET = {
+      "darwin-arm64": `oxigraph_v${OXIGRAPH_VERSION}_aarch64_apple`,
+      "darwin-x64": `oxigraph_v${OXIGRAPH_VERSION}_x86_64_apple`,
+      "linux-arm64": `oxigraph_v${OXIGRAPH_VERSION}_aarch64_linux_gnu`,
+      "linux-x64": `oxigraph_v${OXIGRAPH_VERSION}_x86_64_linux_gnu`,
+      "win32-arm64": `oxigraph_v${OXIGRAPH_VERSION}_aarch64_windows_msvc.exe`,
+      "win32-x64": `oxigraph_v${OXIGRAPH_VERSION}_x86_64_windows_msvc.exe`
+    };
+    SHA256_BY_ASSET = {
+      "oxigraph_v0.5.8_aarch64_apple": "8ea2c129395b6ff5e98b754f868eefef2eb6bf0d93c64d3f281c0aa1e7fe7dbf",
+      "oxigraph_v0.5.8_x86_64_apple": "7d23bc08eeb3f30b2d9f880a173ff2686999091c52ca9ea15e00bf92433e4f59",
+      "oxigraph_v0.5.8_aarch64_linux_gnu": "f4970b1b145ef280410f2334690017004983dd57a1fa449b188415730b3a6147",
+      "oxigraph_v0.5.8_x86_64_linux_gnu": "c0cb0a3e747cfbc4a5b72ffc20b3eb9ebebf7f21f7b3deb447af3fd7abdcb112",
+      "oxigraph_v0.5.8_aarch64_windows_msvc.exe": "e549d8705200c0cd6466cf822f7bbae4da07ede8fedad2351390141a58fdb1e3",
+      "oxigraph_v0.5.8_x86_64_windows_msvc.exe": "9c847300f440e4571a41957d9f9d54272a52baa703b27267a1ab0ede2ca513f6"
+    };
+  }
+});
+
+// ../predicate-mcp/src/storage/oxigraph-daemon.ts
+var oxigraph_daemon_exports = {};
+__export(oxigraph_daemon_exports, {
+  ensureUp: () => ensureUp,
+  status: () => status,
+  stop: () => stop
+});
+import { spawn } from "node:child_process";
+import { promises as fs4 } from "node:fs";
+import { createServer } from "node:net";
+import { join as join6 } from "node:path";
+function handshakePath(storePath) {
+  return join6(storePath, "oxigraph.json");
+}
+async function readHandshake(storePath) {
+  try {
+    return JSON.parse(await fs4.readFile(handshakePath(storePath), "utf8"));
+  } catch {
+    return null;
+  }
+}
+function pidAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function healthOk(host, port) {
+  try {
+    const r2 = await fetch(`http://${host}:${port}/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/sparql-query",
+        "Accept": "application/sparql-results+json"
+      },
+      body: "ASK {}",
+      signal: AbortSignal.timeout(1e3)
+    });
+    return r2.ok;
+  } catch {
+    return false;
+  }
+}
+function pickPort() {
+  return new Promise((res, rej) => {
+    const srv = createServer();
+    srv.on("error", rej);
+    srv.listen(0, "127.0.0.1", () => {
+      const addr = srv.address();
+      const port = typeof addr === "object" && addr ? addr.port : 0;
+      srv.close(() => res(port));
+    });
+  });
+}
+async function waitForHealth(host, port, tries = 50) {
+  for (let i2 = 0; i2 < tries; i2++) {
+    if (await healthOk(host, port)) return true;
+    await sleep(200);
+  }
+  return false;
+}
+async function ensureUp(storePath) {
+  const existing = await readHandshake(storePath);
+  if (existing && pidAlive(existing.pid) && await healthOk(existing.host, existing.port)) {
+    return existing;
+  }
+  const bin = await ensureBinary();
+  let port;
+  try {
+    await fs4.mkdir(storePath, { recursive: true });
+    port = await pickPort();
+  } catch (err3) {
+    throw new BackendUnavailable(`oxigraph daemon setup failed (mkdir/port): ${err3.message}`);
+  }
+  const child = spawn(bin, ["serve", "--location", storePath, "--bind", `127.0.0.1:${port}`], {
+    detached: true,
+    stdio: "ignore"
+  });
+  child.unref();
+  if (child.pid === void 0) {
+    throw new BackendUnavailable(`oxigraph daemon spawn failed (no PID assigned) for ${bin}`);
+  }
+  if (!await waitForHealth("127.0.0.1", port)) {
+    try {
+      if (child.pid) process.kill(child.pid);
+    } catch {
+    }
+    throw new BackendUnavailable(`oxigraph daemon did not become ready on 127.0.0.1:${port} after 10s`);
+  }
+  const handle = { host: "127.0.0.1", port, pid: child.pid, version: OXIGRAPH_VERSION };
+  try {
+    await fs4.writeFile(handshakePath(storePath), JSON.stringify(handle), "utf8");
+  } catch (err3) {
+    throw new BackendUnavailable(`oxigraph daemon handshake write failed: ${err3.message}`);
+  }
+  return handle;
+}
+async function stop(storePath) {
+  const h2 = await readHandshake(storePath);
+  if (!h2) return;
+  if (pidAlive(h2.pid) && await healthOk(h2.host, h2.port)) {
+    try {
+      process.kill(h2.pid, "SIGTERM");
+    } catch {
+    }
+  }
+  try {
+    await fs4.unlink(handshakePath(storePath));
+  } catch {
+  }
+}
+function status(storePath) {
+  return readHandshake(storePath);
+}
+var sleep;
+var init_oxigraph_daemon = __esm({
+  "../predicate-mcp/src/storage/oxigraph-daemon.ts"() {
+    "use strict";
+    init_oxigraph_binary();
+    sleep = (ms) => new Promise((r2) => setTimeout(r2, ms));
+  }
+});
+
+// ../predicate-mcp/src/storage/oxigraph-server.ts
+function err2(status2, body) {
+  const e2 = new Error(`SPARQL error ${status2}: ${body}`);
+  e2.status = status2;
+  e2.body = body;
+  return e2;
+}
+var OxigraphServerAdapter;
+var init_oxigraph_server = __esm({
+  "../predicate-mcp/src/storage/oxigraph-server.ts"() {
+    "use strict";
+    init_oxigraph_daemon();
+    OxigraphServerAdapter = class {
+      storePath;
+      handle = null;
+      readyPromise = null;
+      constructor(opts) {
+        this.storePath = opts.storePath;
+      }
+      async ready() {
+        if (this.readyPromise === null) {
+          this.readyPromise = ensureUp(this.storePath).then((h2) => {
+            this.handle = h2;
+          }).catch((e2) => {
+            this.readyPromise = null;
+            throw e2;
+          });
+        }
+        await this.readyPromise;
+      }
+      base() {
+        if (!this.handle) throw new Error("OxigraphServerAdapter.ready() was not awaited");
+        return `http://${this.handle.host}:${this.handle.port}`;
+      }
+      async select(query) {
+        await this.ready();
+        const res = await fetch(`${this.base()}/query`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/sparql-query",
+            "Accept": "application/sparql-results+json"
+          },
+          body: query
+        });
+        if (!res.ok) throw err2(res.status, await res.text());
+        return await res.json();
+      }
+      async ask(query) {
+        await this.ready();
+        const res = await fetch(`${this.base()}/query`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/sparql-query",
+            "Accept": "application/sparql-results+json"
+          },
+          body: query
+        });
+        if (!res.ok) throw err2(res.status, await res.text());
+        const json = await res.json();
+        return json.boolean;
+      }
+      async update(query) {
+        await this.ready();
+        const res = await fetch(`${this.base()}/update`, {
+          method: "POST",
+          headers: { "Content-Type": "application/sparql-update" },
+          body: query
+        });
+        if (!res.ok) throw err2(res.status, await res.text());
+      }
+      async knownGraphs() {
+        const r2 = await this.select(
+          'SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o } FILTER(STRSTARTS(STR(?g), "kg:")) }'
+        );
+        return r2.results.bindings.map((b2) => b2["g"].value);
+      }
+      async loadTurtle(turtle, graph) {
+        await this.ready();
+        const url = `${this.base()}/store?graph=${encodeURIComponent(graph)}`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "text/turtle" },
+          body: turtle
+        });
+        if (!res.ok) throw err2(res.status, await res.text());
+      }
+      async serializeGraph(graph, format) {
+        await this.ready();
+        const mime = format === "turtle" ? "text/turtle" : format === "nt-star" ? "application/n-triples-star" : "application/n-triples";
+        const url = `${this.base()}/store?graph=${encodeURIComponent(graph)}`;
+        const res = await fetch(url, { method: "GET", headers: { "Accept": mime } });
+        if (!res.ok) throw err2(res.status, await res.text());
+        return await res.text();
+      }
+      async clearGraph(graph) {
+        await this.update(`DROP SILENT GRAPH <${graph}>`);
+      }
+      async close() {
+      }
+    };
+  }
+});
+
+// ../predicate-mcp/src/storage/oxigraph-default.ts
+var DefaultOxigraphAdapter;
+var init_oxigraph_default = __esm({
+  "../predicate-mcp/src/storage/oxigraph-default.ts"() {
+    "use strict";
+    init_oxigraph_server();
+    init_oxigraph();
+    init_oxigraph_binary();
+    DefaultOxigraphAdapter = class {
+      storePath;
+      inner = null;
+      active = null;
+      initPromise = null;
+      constructor(opts) {
+        this.storePath = opts.storePath;
+      }
+      async ready() {
+        if (this.initPromise === null) {
+          this.initPromise = this.init().catch((e2) => {
+            this.initPromise = null;
+            throw e2;
+          });
+        }
+        await this.initPromise;
+      }
+      async init() {
+        const server = new OxigraphServerAdapter({ storePath: this.storePath });
+        try {
+          await server.ready();
+          this.inner = server;
+          this.active = "oxigraph";
+        } catch (e2) {
+          if (!(e2 instanceof BackendUnavailable)) throw e2;
+          console.error(
+            `predicate: native Oxigraph unavailable (${e2.message}); using in-process WASM store.`
+          );
+          const wasm = new OxigraphAdapter({ storePath: this.storePath });
+          await wasm.ready();
+          this.inner = wasm;
+          this.active = "oxigraph-wasm";
+        }
+      }
+      /** Which backend ended up live. Valid after `ready()`. */
+      activeBackend() {
+        if (!this.active) throw new Error("activeBackend() called before ready()");
+        return this.active;
+      }
+      async use() {
+        await this.ready();
+        return this.inner;
+      }
+      async select(q2) {
+        return (await this.use()).select(q2);
+      }
+      async ask(q2) {
+        return (await this.use()).ask(q2);
+      }
+      async update(q2) {
+        return (await this.use()).update(q2);
+      }
+      async knownGraphs() {
+        return (await this.use()).knownGraphs();
+      }
+      async loadTurtle(t2, g2) {
+        return (await this.use()).loadTurtle(t2, g2);
+      }
+      async serializeGraph(g2, f2) {
+        return (await this.use()).serializeGraph(g2, f2);
+      }
+      async clearGraph(g2) {
+        return (await this.use()).clearGraph(g2);
+      }
+      async close() {
+        if (this.inner) await this.inner.close();
+      }
+    };
+  }
+});
+
 // ../predicate-mcp/src/storage/factory.ts
 var factory_exports = {};
 __export(factory_exports, {
@@ -664,8 +1064,11 @@ function getAdapter() {
     case "fuseki":
       cached = new FusekiAdapter(cfg);
       return cached;
-    case "oxigraph":
+    case "oxigraph-wasm":
       cached = new OxigraphAdapter({ storePath: cfg.oxigraphStorePath });
+      return cached;
+    case "oxigraph":
+      cached = new DefaultOxigraphAdapter({ storePath: cfg.oxigraphStorePath });
       return cached;
     default:
       throw new Error(`unknown PREDICATE_BACKEND='${cfg.backend}'`);
@@ -684,15 +1087,24 @@ var init_factory = __esm({
     init_config();
     init_fuseki();
     init_oxigraph();
+    init_oxigraph_default();
   }
 });
 
 // ../predicate-mcp/src/storage/index.ts
 var storage_exports = {};
 __export(storage_exports, {
+  BackendUnavailable: () => BackendUnavailable,
+  DefaultOxigraphAdapter: () => DefaultOxigraphAdapter,
   FusekiAdapter: () => FusekiAdapter,
   OxigraphAdapter: () => OxigraphAdapter,
-  getAdapter: () => getAdapter
+  OxigraphServerAdapter: () => OxigraphServerAdapter,
+  daemonStatus: () => status,
+  detectTarget: () => detectTarget,
+  ensureBinary: () => ensureBinary,
+  ensureUp: () => ensureUp,
+  getAdapter: () => getAdapter,
+  stopDaemon: () => stop
 });
 var init_storage = __esm({
   "../predicate-mcp/src/storage/index.ts"() {
@@ -700,6 +1112,10 @@ var init_storage = __esm({
     init_fuseki();
     init_oxigraph();
     init_factory();
+    init_oxigraph_server();
+    init_oxigraph_default();
+    init_oxigraph_binary();
+    init_oxigraph_daemon();
   }
 });
 
@@ -971,8 +1387,8 @@ var require_tr46 = __commonJS({
       var len = countSymbols(domain_name);
       for (var i2 = 0; i2 < len; ++i2) {
         var codePoint = domain_name.codePointAt(i2);
-        var status = findStatus(codePoint);
-        switch (status[1]) {
+        var status2 = findStatus(codePoint);
+        switch (status2[1]) {
           case "disallowed":
             hasError = true;
             processed += String.fromCodePoint(codePoint);
@@ -980,11 +1396,11 @@ var require_tr46 = __commonJS({
           case "ignored":
             break;
           case "mapped":
-            processed += String.fromCodePoint.apply(String, status[2]);
+            processed += String.fromCodePoint.apply(String, status2[2]);
             break;
           case "deviation":
             if (processing_option === PROCESSING_OPTIONS.TRANSITIONAL) {
-              processed += String.fromCodePoint.apply(String, status[2]);
+              processed += String.fromCodePoint.apply(String, status2[2]);
             } else {
               processed += String.fromCodePoint(codePoint);
             }
@@ -997,7 +1413,7 @@ var require_tr46 = __commonJS({
               hasError = true;
               processed += String.fromCodePoint(codePoint);
             } else {
-              processed += String.fromCodePoint.apply(String, status[2]);
+              processed += String.fromCodePoint.apply(String, status2[2]);
             }
             break;
           case "disallowed_STD3_valid":
@@ -1025,8 +1441,8 @@ var require_tr46 = __commonJS({
       }
       var len = countSymbols(label);
       for (var i2 = 0; i2 < len; ++i2) {
-        var status = findStatus(label.codePointAt(i2));
-        if (processing === PROCESSING_OPTIONS.TRANSITIONAL && status[1] !== "valid" || processing === PROCESSING_OPTIONS.NONTRANSITIONAL && status[1] !== "valid" && status[1] !== "deviation") {
+        var status2 = findStatus(label.codePointAt(i2));
+        if (processing === PROCESSING_OPTIONS.TRANSITIONAL && status2[1] !== "valid" || processing === PROCESSING_OPTIONS.NONTRANSITIONAL && status2[1] !== "valid" && status2[1] !== "deviation") {
           error2 = true;
           break;
         }
@@ -2679,8 +3095,8 @@ var require_lib2 = __commonJS({
       this.size = size;
       this.timeout = timeout;
       if (body instanceof Stream2) {
-        body.on("error", function(err2) {
-          const error2 = err2.name === "AbortError" ? err2 : new FetchError(`Invalid response body while trying to fetch ${_this.url}: ${err2.message}`, "system", err2);
+        body.on("error", function(err3) {
+          const error2 = err3.name === "AbortError" ? err3 : new FetchError(`Invalid response body while trying to fetch ${_this.url}: ${err3.message}`, "system", err3);
           _this[INTERNALS].error = error2;
         });
       }
@@ -2731,8 +3147,8 @@ var require_lib2 = __commonJS({
         return consumeBody.call(this).then(function(buffer) {
           try {
             return JSON.parse(buffer.toString());
-          } catch (err2) {
-            return Body.Promise.reject(new FetchError(`invalid json response body at ${_this2.url} reason: ${err2.message}`, "invalid-json"));
+          } catch (err3) {
+            return Body.Promise.reject(new FetchError(`invalid json response body at ${_this2.url} reason: ${err3.message}`, "invalid-json"));
           }
         });
       },
@@ -2816,12 +3232,12 @@ var require_lib2 = __commonJS({
             reject(new FetchError(`Response timeout while trying to fetch ${_this4.url} (over ${_this4.timeout}ms)`, "body-timeout"));
           }, _this4.timeout);
         }
-        body.on("error", function(err2) {
-          if (err2.name === "AbortError") {
+        body.on("error", function(err3) {
+          if (err3.name === "AbortError") {
             abort = true;
-            reject(err2);
+            reject(err3);
           } else {
-            reject(new FetchError(`Invalid response body while trying to fetch ${_this4.url}: ${err2.message}`, "system", err2));
+            reject(new FetchError(`Invalid response body while trying to fetch ${_this4.url}: ${err3.message}`, "system", err3));
           }
         });
         body.on("data", function(chunk) {
@@ -2843,8 +3259,8 @@ var require_lib2 = __commonJS({
           clearTimeout(resTimeout);
           try {
             resolve5(Buffer.concat(accum, accumBytes));
-          } catch (err2) {
-            reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err2.message}`, "system", err2));
+          } catch (err3) {
+            reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err3.message}`, "system", err3));
           }
         });
       });
@@ -3273,7 +3689,7 @@ var require_lib2 = __commonJS({
         let body = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : null;
         let opts = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
         Body.call(this, body, opts);
-        const status = opts.status || 200;
+        const status2 = opts.status || 200;
         const headers = new Headers3(opts.headers);
         if (body != null && !headers.has("Content-Type")) {
           const contentType = extractContentType(body);
@@ -3283,8 +3699,8 @@ var require_lib2 = __commonJS({
         }
         this[INTERNALS$1] = {
           url: opts.url,
-          status,
-          statusText: opts.statusText || STATUS_CODES[status],
+          status: status2,
+          statusText: opts.statusText || STATUS_CODES[status2],
           headers,
           counter: opts.counter
         };
@@ -3558,19 +3974,19 @@ var require_lib2 = __commonJS({
             }, request.timeout);
           });
         }
-        req.on("error", function(err2) {
-          reject(new FetchError(`request to ${request.url} failed, reason: ${err2.message}`, "system", err2));
+        req.on("error", function(err3) {
+          reject(new FetchError(`request to ${request.url} failed, reason: ${err3.message}`, "system", err3));
           if (response && response.body) {
-            destroyStream(response.body, err2);
+            destroyStream(response.body, err3);
           }
           finalize();
         });
-        fixResponseChunkedTransferBadEnding(req, function(err2) {
+        fixResponseChunkedTransferBadEnding(req, function(err3) {
           if (signal && signal.aborted) {
             return;
           }
           if (response && response.body) {
-            destroyStream(response.body, err2);
+            destroyStream(response.body, err3);
           }
         });
         if (parseInt(process.version.substring(1)) < 14) {
@@ -3578,9 +3994,9 @@ var require_lib2 = __commonJS({
             s2.addListener("close", function(hadError) {
               const hasDataListener = s2.listenerCount("data") > 0;
               if (response && hasDataListener && !hadError && !(signal && signal.aborted)) {
-                const err2 = new Error("Premature close");
-                err2.code = "ERR_STREAM_PREMATURE_CLOSE";
-                response.body.emit("error", err2);
+                const err3 = new Error("Premature close");
+                err3.code = "ERR_STREAM_PREMATURE_CLOSE";
+                response.body.emit("error", err3);
               }
             });
           });
@@ -3593,7 +4009,7 @@ var require_lib2 = __commonJS({
             let locationURL = null;
             try {
               locationURL = location === null ? null : new URL$1(location, request.url).toString();
-            } catch (err2) {
+            } catch (err3) {
               if (request.redirect !== "manual") {
                 reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, "invalid-redirect"));
                 finalize();
@@ -3609,8 +4025,8 @@ var require_lib2 = __commonJS({
                 if (locationURL !== null) {
                   try {
                     headers.set("Location", locationURL);
-                  } catch (err2) {
-                    reject(err2);
+                  } catch (err3) {
+                    reject(err3);
                   }
                 }
                 break;
@@ -3726,19 +4142,19 @@ var require_lib2 = __commonJS({
           response.once("close", function(hadError) {
             const hasDataListener = socket && socket.listenerCount("data") > 0;
             if (hasDataListener && !hadError) {
-              const err2 = new Error("Premature close");
-              err2.code = "ERR_STREAM_PREMATURE_CLOSE";
-              errorCallback(err2);
+              const err3 = new Error("Premature close");
+              err3.code = "ERR_STREAM_PREMATURE_CLOSE";
+              errorCallback(err3);
             }
           });
         }
       });
     }
-    function destroyStream(stream, err2) {
+    function destroyStream(stream, err3) {
       if (stream.destroy) {
-        stream.destroy(err2);
+        stream.destroy(err3);
       } else {
-        stream.emit("error", err2);
+        stream.emit("error", err3);
         stream.end();
       }
     }
@@ -5945,8 +6361,8 @@ var require_humanize_ms = __commonJS({
       if (typeof t2 === "number") return t2;
       var r2 = ms(t2);
       if (r2 === void 0) {
-        var err2 = new Error(util.format("humanize-ms(%j) result undefined", t2));
-        console.warn(err2.stack);
+        var err3 = new Error(util.format("humanize-ms(%j) result undefined", t2));
+        console.warn(err3.stack);
       }
       return r2;
     };
@@ -6140,15 +6556,15 @@ var require_agent = __commonJS({
       }
       createConnection(options, oncreate) {
         let called = false;
-        const onNewCreate = (err2, socket) => {
+        const onNewCreate = (err3, socket) => {
           if (called) return;
           called = true;
-          if (err2) {
+          if (err3) {
             this.createSocketErrorCount++;
-            return oncreate(err2);
+            return oncreate(err3);
           }
           this[INIT_SOCKET](socket, options);
-          oncreate(err2, socket);
+          oncreate(err3, socket);
         };
         const newSocket = super.createConnection(options, onNewCreate);
         if (newSocket) onNewCreate(null, newSocket);
@@ -6255,21 +6671,21 @@ var require_agent = __commonJS({
         }
       }
       socket.on("timeout", onTimeout);
-      function onError(err2) {
+      function onError(err3) {
         const listenerCount = socket.listeners("error").length;
         debug3(
           "%s(requests: %s, finished: %s) error: %s, listenerCount: %s",
           socket[SOCKET_NAME],
           socket[SOCKET_REQUEST_COUNT],
           socket[SOCKET_REQUEST_FINISHED_COUNT],
-          err2,
+          err3,
           listenerCount
         );
         agent.errorSocketCount++;
         if (listenerCount === 1) {
           debug3("%s emit uncaught error event", socket[SOCKET_NAME]);
           socket.removeListener("error", onError);
-          socket.emit("error", err2);
+          socket.emit("error", err3);
         }
       }
       socket.on("error", onError);
@@ -6893,9 +7309,9 @@ var require_event_target_shim = __commonJS({
           if (typeof node.listener === "function") {
             try {
               node.listener.call(this, wrappedEvent);
-            } catch (err2) {
+            } catch (err3) {
               if (typeof console !== "undefined" && typeof console.error === "function") {
-                console.error(err2);
+                console.error(err3);
               }
             }
           } else if (node.listenerType !== ATTRIBUTE && typeof node.listener.handleEvent === "function") {
@@ -7032,8 +7448,8 @@ var require_node_domexception = __commonJS({
       try {
         const { MessageChannel } = __require("worker_threads"), port = new MessageChannel().port1, ab = new ArrayBuffer();
         port.postMessage(ab, [ab, ab]);
-      } catch (err2) {
-        err2.constructor.name === "DOMException" && (globalThis.DOMException = err2.constructor);
+      } catch (err3) {
+        err3.constructor.name === "DOMException" && (globalThis.DOMException = err3.constructor);
       }
     }
     module.exports = globalThis.DOMException;
@@ -7067,7 +7483,7 @@ __export(fileFromPath_exports, {
   fileFromPathSync: () => fileFromPathSync,
   isFile: () => isFile
 });
-import { statSync as statSync3, createReadStream, promises as fs3 } from "fs";
+import { statSync as statSync3, createReadStream, promises as fs5 } from "fs";
 import { basename } from "path";
 function createFileFromPath(path2, { mtimeMs, size }, filenameOrOptions, options = {}) {
   let filename;
@@ -7090,7 +7506,7 @@ function fileFromPathSync(path2, filenameOrOptions, options = {}) {
   return createFileFromPath(path2, stats2, filenameOrOptions, options);
 }
 async function fileFromPath2(path2, filenameOrOptions, options) {
-  const stats2 = await fs3.stat(path2);
+  const stats2 = await fs5.stat(path2);
   return createFileFromPath(path2, stats2, filenameOrOptions, options);
 }
 var import_node_domexception, __classPrivateFieldSet4, __classPrivateFieldGet5, _FileFromPath_path, _FileFromPath_start, MESSAGE, FileFromPath;
@@ -7131,7 +7547,7 @@ var init_fileFromPath = __esm({
         });
       }
       async *stream() {
-        const { mtimeMs } = await fs3.stat(__classPrivateFieldGet5(this, _FileFromPath_path, "f"));
+        const { mtimeMs } = await fs5.stat(__classPrivateFieldGet5(this, _FileFromPath_path, "f"));
         if (mtimeMs > this.lastModified) {
           throw new import_node_domexception.default(MESSAGE, "NotReadableError");
         }
@@ -7546,13 +7962,13 @@ var require_N3Lexer = __commonJS({
       // ### `_syntaxError` creates a syntax error for the given issue
       _syntaxError(issue) {
         this._input = null;
-        const err2 = new Error(`Unexpected "${issue}" on line ${this._line}.`);
-        err2.context = {
+        const err3 = new Error(`Unexpected "${issue}" on line ${this._line}.`);
+        err3.context = {
           token: void 0,
           line: this._line,
           previousToken: this.previousToken
         };
-        return err2;
+        return err3;
       }
       // ### Strips off any starting UTF BOM mark.
       _readStartingBom(input) {
@@ -8575,13 +8991,13 @@ var require_N3Parser = __commonJS({
       }
       // ### `_error` emits an error message through the callback
       _error(message, token) {
-        const err2 = new Error(`${message} on line ${token.line}.`);
-        err2.context = {
+        const err3 = new Error(`${message} on line ${token.line}.`);
+        err3.context = {
           token,
           line: token.line,
           previousToken: this._lexer.previousToken
         };
-        this._callback(err2);
+        this._callback(err3);
         this._callback = noop;
       }
       // ### `_resolveIRI` resolves an IRI against the base path
@@ -9283,8 +9699,8 @@ var require_primordials = __commonJS({
       PromisePrototypeThen(self, thenFn, catchFn) {
         return self.then(thenFn, catchFn);
       },
-      PromiseReject(err2) {
-        return Promise.reject(err2);
+      PromiseReject(err3) {
+        return Promise.reject(err3);
       },
       PromiseResolve(val) {
         return Promise.resolve(val);
@@ -9475,9 +9891,9 @@ var require_errors = __commonJS({
           outerError.errors.push(innerError);
           return outerError;
         }
-        const err2 = new AggregateError([outerError, innerError], outerError.message);
-        err2.code = outerError.code;
-        return err2;
+        const err3 = new AggregateError([outerError, innerError], outerError.message);
+        err3.code = outerError.code;
+        return err3;
       }
       return innerError || outerError;
     }
@@ -9750,9 +10166,9 @@ var require_util = __commonJS({
       },
       promisify(fn) {
         return new Promise((resolve5, reject) => {
-          fn((err2, ...args) => {
-            if (err2) {
-              return reject(err2);
+          fn((err3, ...args) => {
+            if (err3) {
+              return reject(err3);
             }
             return resolve5(...args);
           });
@@ -10398,8 +10814,8 @@ var require_end_of_stream = __commonJS({
           callback.call(stream);
         }
       };
-      const onerror = (err2) => {
-        callback.call(stream, err2);
+      const onerror = (err3) => {
+        callback.call(stream, err3);
       };
       let closed = isClosed(stream);
       const onclose = () => {
@@ -10546,12 +10962,12 @@ var require_end_of_stream = __commonJS({
         autoCleanup = opts.cleanup;
       }
       return new Promise2((resolve5, reject) => {
-        const cleanup = eos(stream, opts, (err2) => {
+        const cleanup = eos(stream, opts, (err3) => {
           if (autoCleanup) {
             cleanup();
           }
-          if (err2) {
-            reject(err2);
+          if (err3) {
+            reject(err3);
           } else {
             resolve5();
           }
@@ -10577,18 +10993,18 @@ var require_destroy = __commonJS({
     var { kIsDestroyed, isDestroyed, isFinished, isServerRequest } = require_utils2();
     var kDestroy = Symbol2("kDestroy");
     var kConstruct = Symbol2("kConstruct");
-    function checkError(err2, w2, r2) {
-      if (err2) {
-        err2.stack;
+    function checkError(err3, w2, r2) {
+      if (err3) {
+        err3.stack;
         if (w2 && !w2.errored) {
-          w2.errored = err2;
+          w2.errored = err3;
         }
         if (r2 && !r2.errored) {
-          r2.errored = err2;
+          r2.errored = err3;
         }
       }
     }
-    function destroy(err2, cb) {
+    function destroy(err3, cb) {
       const r2 = this._readableState;
       const w2 = this._writableState;
       const s2 = w2 || r2;
@@ -10598,7 +11014,7 @@ var require_destroy = __commonJS({
         }
         return this;
       }
-      checkError(err2, w2, r2);
+      checkError(err3, w2, r2);
       if (w2) {
         w2.destroyed = true;
       }
@@ -10607,23 +11023,23 @@ var require_destroy = __commonJS({
       }
       if (!s2.constructed) {
         this.once(kDestroy, function(er2) {
-          _destroy(this, aggregateTwoErrors(er2, err2), cb);
+          _destroy(this, aggregateTwoErrors(er2, err3), cb);
         });
       } else {
-        _destroy(this, err2, cb);
+        _destroy(this, err3, cb);
       }
       return this;
     }
-    function _destroy(self, err2, cb) {
+    function _destroy(self, err3, cb) {
       let called = false;
-      function onDestroy(err3) {
+      function onDestroy(err4) {
         if (called) {
           return;
         }
         called = true;
         const r2 = self._readableState;
         const w2 = self._writableState;
-        checkError(err3, w2, r2);
+        checkError(err4, w2, r2);
         if (w2) {
           w2.closed = true;
         }
@@ -10631,22 +11047,22 @@ var require_destroy = __commonJS({
           r2.closed = true;
         }
         if (typeof cb === "function") {
-          cb(err3);
+          cb(err4);
         }
-        if (err3) {
-          process2.nextTick(emitErrorCloseNT, self, err3);
+        if (err4) {
+          process2.nextTick(emitErrorCloseNT, self, err4);
         } else {
           process2.nextTick(emitCloseNT, self);
         }
       }
       try {
-        self._destroy(err2 || null, onDestroy);
-      } catch (err3) {
-        onDestroy(err3);
+        self._destroy(err3 || null, onDestroy);
+      } catch (err4) {
+        onDestroy(err4);
       }
     }
-    function emitErrorCloseNT(self, err2) {
-      emitErrorNT(self, err2);
+    function emitErrorCloseNT(self, err3) {
+      emitErrorNT(self, err3);
       emitCloseNT(self);
     }
     function emitCloseNT(self) {
@@ -10662,7 +11078,7 @@ var require_destroy = __commonJS({
         self.emit("close");
       }
     }
-    function emitErrorNT(self, err2) {
+    function emitErrorNT(self, err3) {
       const r2 = self._readableState;
       const w2 = self._writableState;
       if (w2 !== null && w2 !== void 0 && w2.errorEmitted || r2 !== null && r2 !== void 0 && r2.errorEmitted) {
@@ -10674,7 +11090,7 @@ var require_destroy = __commonJS({
       if (r2) {
         r2.errorEmitted = true;
       }
-      self.emit("error", err2);
+      self.emit("error", err3);
     }
     function undestroy() {
       const r2 = this._readableState;
@@ -10704,26 +11120,26 @@ var require_destroy = __commonJS({
         w2.finished = w2.writable === false;
       }
     }
-    function errorOrDestroy(stream, err2, sync) {
+    function errorOrDestroy(stream, err3, sync) {
       const r2 = stream._readableState;
       const w2 = stream._writableState;
       if (w2 !== null && w2 !== void 0 && w2.destroyed || r2 !== null && r2 !== void 0 && r2.destroyed) {
         return this;
       }
       if (r2 !== null && r2 !== void 0 && r2.autoDestroy || w2 !== null && w2 !== void 0 && w2.autoDestroy)
-        stream.destroy(err2);
-      else if (err2) {
-        err2.stack;
+        stream.destroy(err3);
+      else if (err3) {
+        err3.stack;
         if (w2 && !w2.errored) {
-          w2.errored = err2;
+          w2.errored = err3;
         }
         if (r2 && !r2.errored) {
-          r2.errored = err2;
+          r2.errored = err3;
         }
         if (sync) {
-          process2.nextTick(emitErrorNT, stream, err2);
+          process2.nextTick(emitErrorNT, stream, err3);
         } else {
-          emitErrorNT(stream, err2);
+          emitErrorNT(stream, err3);
         }
       }
     }
@@ -10747,9 +11163,9 @@ var require_destroy = __commonJS({
     }
     function constructNT(stream) {
       let called = false;
-      function onConstruct(err2) {
+      function onConstruct(err3) {
         if (called) {
-          errorOrDestroy(stream, err2 !== null && err2 !== void 0 ? err2 : new ERR_MULTIPLE_CALLBACK());
+          errorOrDestroy(stream, err3 !== null && err3 !== void 0 ? err3 : new ERR_MULTIPLE_CALLBACK());
           return;
         }
         called = true;
@@ -10763,19 +11179,19 @@ var require_destroy = __commonJS({
           w2.constructed = true;
         }
         if (s2.destroyed) {
-          stream.emit(kDestroy, err2);
-        } else if (err2) {
-          errorOrDestroy(stream, err2, true);
+          stream.emit(kDestroy, err3);
+        } else if (err3) {
+          errorOrDestroy(stream, err3, true);
         } else {
           process2.nextTick(emitConstructNT, stream);
         }
       }
       try {
-        stream._construct((err2) => {
-          process2.nextTick(onConstruct, err2);
+        stream._construct((err3) => {
+          process2.nextTick(onConstruct, err3);
         });
-      } catch (err2) {
-        process2.nextTick(onConstruct, err2);
+      } catch (err3) {
+        process2.nextTick(onConstruct, err3);
       }
     }
     function emitConstructNT(stream) {
@@ -10787,30 +11203,30 @@ var require_destroy = __commonJS({
     function emitCloseLegacy(stream) {
       stream.emit("close");
     }
-    function emitErrorCloseLegacy(stream, err2) {
-      stream.emit("error", err2);
+    function emitErrorCloseLegacy(stream, err3) {
+      stream.emit("error", err3);
       process2.nextTick(emitCloseLegacy, stream);
     }
-    function destroyer(stream, err2) {
+    function destroyer(stream, err3) {
       if (!stream || isDestroyed(stream)) {
         return;
       }
-      if (!err2 && !isFinished(stream)) {
-        err2 = new AbortError();
+      if (!err3 && !isFinished(stream)) {
+        err3 = new AbortError();
       }
       if (isServerRequest(stream)) {
         stream.socket = null;
-        stream.destroy(err2);
+        stream.destroy(err3);
       } else if (isRequest(stream)) {
         stream.abort();
       } else if (isRequest(stream.req)) {
         stream.req.abort();
       } else if (typeof stream.destroy === "function") {
-        stream.destroy(err2);
+        stream.destroy(err3);
       } else if (typeof stream.close === "function") {
         stream.close();
-      } else if (err2) {
-        process2.nextTick(emitErrorCloseLegacy, stream, err2);
+      } else if (err3) {
+        process2.nextTick(emitErrorCloseLegacy, stream, err3);
       } else {
         process2.nextTick(emitCloseLegacy, stream);
       }
@@ -11533,8 +11949,8 @@ var require_from = __commonJS({
                 reading = false;
               }
             }
-          } catch (err2) {
-            readable.destroy(err2);
+          } catch (err3) {
+            readable.destroy(err3);
           }
           break;
         }
@@ -11707,11 +12123,11 @@ var require_readable = __commonJS({
     }
     Readable2.prototype.destroy = destroyImpl.destroy;
     Readable2.prototype._undestroy = destroyImpl.undestroy;
-    Readable2.prototype._destroy = function(err2, cb) {
-      cb(err2);
+    Readable2.prototype._destroy = function(err3, cb) {
+      cb(err3);
     };
-    Readable2.prototype[EE.captureRejectionSymbol] = function(err2) {
-      this.destroy(err2);
+    Readable2.prototype[EE.captureRejectionSymbol] = function(err3) {
+      this.destroy(err3);
     };
     Readable2.prototype[SymbolAsyncDispose] = function() {
       let error2;
@@ -11719,7 +12135,7 @@ var require_readable = __commonJS({
         error2 = this.readableEnded ? null : new AbortError();
         this.destroy(error2);
       }
-      return new Promise2((resolve5, reject) => eos(this, (err2) => err2 && err2 !== error2 ? reject(err2) : resolve5(null)));
+      return new Promise2((resolve5, reject) => eos(this, (err3) => err3 && err3 !== error2 ? reject(err3) : resolve5(null)));
     };
     Readable2.prototype.push = function(chunk, encoding) {
       return readableAddChunk(this, chunk, encoding, false);
@@ -11730,7 +12146,7 @@ var require_readable = __commonJS({
     function readableAddChunk(stream, chunk, encoding, addToFront) {
       debug3("readableAddChunk", chunk);
       const state = stream._readableState;
-      let err2;
+      let err3;
       if ((state.state & kObjectMode) === 0) {
         if (typeof chunk === "string") {
           encoding = encoding || state.defaultEncoding;
@@ -11748,11 +12164,11 @@ var require_readable = __commonJS({
           chunk = Stream2._uint8ArrayToBuffer(chunk);
           encoding = "";
         } else if (chunk != null) {
-          err2 = new ERR_INVALID_ARG_TYPE("chunk", ["string", "Buffer", "Uint8Array"], chunk);
+          err3 = new ERR_INVALID_ARG_TYPE("chunk", ["string", "Buffer", "Uint8Array"], chunk);
         }
       }
-      if (err2) {
-        errorOrDestroy(stream, err2);
+      if (err3) {
+        errorOrDestroy(stream, err3);
       } else if (chunk === null) {
         state.state &= ~kReading;
         onEofChunk(stream, state);
@@ -11878,8 +12294,8 @@ var require_readable = __commonJS({
         if (state.length === 0) state.state |= kNeedReadable;
         try {
           this._read(state.highWaterMark);
-        } catch (err2) {
-          errorOrDestroy(this, err2);
+        } catch (err3) {
+          errorOrDestroy(this, err3);
         }
         state.state &= ~kSync;
         if (!state.reading) n2 = howMuchToRead(nOrig, state);
@@ -12218,8 +12634,8 @@ var require_readable = __commonJS({
       stream.on("end", () => {
         this.push(null);
       });
-      stream.on("error", (err2) => {
-        errorOrDestroy(this, err2);
+      stream.on("error", (err3) => {
+        errorOrDestroy(this, err3);
       });
       stream.on("close", () => {
         this.destroy();
@@ -12278,8 +12694,8 @@ var require_readable = __commonJS({
         {
           writable: false
         },
-        (err2) => {
-          error2 = err2 ? aggregateTwoErrors(error2, err2) : null;
+        (err3) => {
+          error2 = err3 ? aggregateTwoErrors(error2, err3) : null;
           callback();
           callback = nop;
         }
@@ -12297,8 +12713,8 @@ var require_readable = __commonJS({
             await new Promise2(next);
           }
         }
-      } catch (err2) {
-        error2 = aggregateTwoErrors(error2, err2);
+      } catch (err3) {
+        error2 = aggregateTwoErrors(error2, err3);
         throw error2;
       } finally {
         if ((error2 || (options === null || options === void 0 ? void 0 : options.destroyOnReturn) !== false) && (error2 === void 0 || stream._readableState.autoDestroy)) {
@@ -12502,9 +12918,9 @@ var require_readable = __commonJS({
       return new Readable2({
         objectMode: (_ref = (_src$readableObjectMo = src.readableObjectMode) !== null && _src$readableObjectMo !== void 0 ? _src$readableObjectMo : src.objectMode) !== null && _ref !== void 0 ? _ref : true,
         ...options,
-        destroy(err2, callback) {
-          destroyImpl.destroyer(src, err2);
-          callback(err2);
+        destroy(err3, callback) {
+          destroyImpl.destroyer(src, err3);
+          callback(err3);
         }
       }).wrap(src);
     };
@@ -12661,16 +13077,16 @@ var require_writable = __commonJS({
           throw new ERR_INVALID_ARG_TYPE("chunk", ["string", "Buffer", "Uint8Array"], chunk);
         }
       }
-      let err2;
+      let err3;
       if (state.ending) {
-        err2 = new ERR_STREAM_WRITE_AFTER_END();
+        err3 = new ERR_STREAM_WRITE_AFTER_END();
       } else if (state.destroyed) {
-        err2 = new ERR_STREAM_DESTROYED("write");
+        err3 = new ERR_STREAM_DESTROYED("write");
       }
-      if (err2) {
-        process2.nextTick(cb, err2);
-        errorOrDestroy(stream, err2, true);
-        return err2;
+      if (err3) {
+        process2.nextTick(cb, err3);
+        errorOrDestroy(stream, err3, true);
+        return err3;
       }
       state.pendingcb++;
       return writeOrBuffer(stream, state, chunk, encoding, cb);
@@ -12837,9 +13253,9 @@ var require_writable = __commonJS({
       state.bufferProcessing = true;
       if (bufferedLength > 1 && stream._writev) {
         state.pendingcb -= bufferedLength - 1;
-        const callback = state.allNoop ? nop : (err2) => {
+        const callback = state.allNoop ? nop : (err3) => {
           for (let n2 = i2; n2 < buffered.length; ++n2) {
-            buffered[n2].callback(err2);
+            buffered[n2].callback(err3);
           }
         };
         const chunks = state.allNoop && i2 === 0 ? buffered : ArrayPrototypeSlice(buffered, i2);
@@ -12890,30 +13306,30 @@ var require_writable = __commonJS({
         cb = encoding;
         encoding = null;
       }
-      let err2;
+      let err3;
       if (chunk !== null && chunk !== void 0) {
         const ret = _write(this, chunk, encoding);
         if (ret instanceof Error2) {
-          err2 = ret;
+          err3 = ret;
         }
       }
       if (state.corked) {
         state.corked = 1;
         this.uncork();
       }
-      if (err2) {
+      if (err3) {
       } else if (!state.errored && !state.ending) {
         state.ending = true;
         finishMaybe(this, state, true);
         state.ended = true;
       } else if (state.finished) {
-        err2 = new ERR_STREAM_ALREADY_FINISHED("end");
+        err3 = new ERR_STREAM_ALREADY_FINISHED("end");
       } else if (state.destroyed) {
-        err2 = new ERR_STREAM_DESTROYED("end");
+        err3 = new ERR_STREAM_DESTROYED("end");
       }
       if (typeof cb === "function") {
-        if (err2 || state.finished) {
-          process2.nextTick(cb, err2);
+        if (err3 || state.finished) {
+          process2.nextTick(cb, err3);
         } else {
           state[kOnFinished].push(cb);
         }
@@ -12925,19 +13341,19 @@ var require_writable = __commonJS({
     }
     function callFinal(stream, state) {
       let called = false;
-      function onFinish(err2) {
+      function onFinish(err3) {
         if (called) {
-          errorOrDestroy(stream, err2 !== null && err2 !== void 0 ? err2 : ERR_MULTIPLE_CALLBACK());
+          errorOrDestroy(stream, err3 !== null && err3 !== void 0 ? err3 : ERR_MULTIPLE_CALLBACK());
           return;
         }
         called = true;
         state.pendingcb--;
-        if (err2) {
+        if (err3) {
           const onfinishCallbacks = state[kOnFinished].splice(0);
           for (let i2 = 0; i2 < onfinishCallbacks.length; i2++) {
-            onfinishCallbacks[i2](err2);
+            onfinishCallbacks[i2](err3);
           }
-          errorOrDestroy(stream, err2, state.sync);
+          errorOrDestroy(stream, err3, state.sync);
         } else if (needFinish(state)) {
           state.prefinished = true;
           stream.emit("prefinish");
@@ -12949,8 +13365,8 @@ var require_writable = __commonJS({
       state.pendingcb++;
       try {
         stream._final(onFinish);
-      } catch (err2) {
-        onFinish(err2);
+      } catch (err3) {
+        onFinish(err3);
       }
       state.sync = false;
     }
@@ -13103,20 +13519,20 @@ var require_writable = __commonJS({
       }
     });
     var destroy = destroyImpl.destroy;
-    Writable.prototype.destroy = function(err2, cb) {
+    Writable.prototype.destroy = function(err3, cb) {
       const state = this._writableState;
       if (!state.destroyed && (state.bufferedIndex < state.buffered.length || state[kOnFinished].length)) {
         process2.nextTick(errorBuffer, state);
       }
-      destroy.call(this, err2, cb);
+      destroy.call(this, err3, cb);
       return this;
     };
     Writable.prototype._undestroy = destroyImpl.undestroy;
-    Writable.prototype._destroy = function(err2, cb) {
-      cb(err2);
+    Writable.prototype._destroy = function(err3, cb) {
+      cb(err3);
     };
-    Writable.prototype[EE.captureRejectionSymbol] = function(err2) {
-      this.destroy(err2);
+    Writable.prototype[EE.captureRejectionSymbol] = function(err3) {
+      this.destroy(err3);
     };
     var webStreamsAdapters;
     function lazyWebStreams() {
@@ -13235,8 +13651,8 @@ var require_duplexify = __commonJS({
                 throw new ERR_INVALID_RETURN_VALUE("nully", "body", val);
               }
             },
-            (err2) => {
-              destroyer(d2, err2);
+            (err3) => {
+              destroyer(d2, err3);
             }
           );
           return d2 = new Duplexify({
@@ -13249,8 +13665,8 @@ var require_duplexify = __commonJS({
                 try {
                   await promise;
                   process2.nextTick(cb, null);
-                } catch (err2) {
-                  process2.nextTick(cb, err2);
+                } catch (err3) {
+                  process2.nextTick(cb, err3);
                 }
               });
             },
@@ -13292,8 +13708,8 @@ var require_duplexify = __commonJS({
             }
             d2.push(null);
           },
-          (err2) => {
-            destroyer(d2, err2);
+          (err3) => {
+            destroyer(d2, err3);
           }
         );
         return d2 = new Duplexify({
@@ -13362,9 +13778,9 @@ var require_duplexify = __commonJS({
             cb
           });
         },
-        destroy(err2, cb) {
+        destroy(err3, cb) {
           ac.abort();
-          cb(err2);
+          cb(err3);
         }
       };
     }
@@ -13378,13 +13794,13 @@ var require_duplexify = __commonJS({
       let onreadable;
       let onclose;
       let d2;
-      function onfinished(err2) {
+      function onfinished(err3) {
         const cb = onclose;
         onclose = null;
         if (cb) {
-          cb(err2);
-        } else if (err2) {
-          d2.destroy(err2);
+          cb(err3);
+        } else if (err3) {
+          d2.destroy(err3);
         }
       }
       d2 = new Duplexify({
@@ -13395,12 +13811,12 @@ var require_duplexify = __commonJS({
         writable
       });
       if (writable) {
-        eos(w2, (err2) => {
+        eos(w2, (err3) => {
           writable = false;
-          if (err2) {
-            destroyer(r2, err2);
+          if (err3) {
+            destroyer(r2, err3);
           }
-          onfinished(err2);
+          onfinished(err3);
         });
         d2._write = function(chunk, encoding, callback) {
           if (w2.write(chunk, encoding)) {
@@ -13429,12 +13845,12 @@ var require_duplexify = __commonJS({
         });
       }
       if (readable) {
-        eos(r2, (err2) => {
+        eos(r2, (err3) => {
           readable = false;
-          if (err2) {
-            destroyer(r2, err2);
+          if (err3) {
+            destroyer(r2, err3);
           }
-          onfinished(err2);
+          onfinished(err3);
         });
         r2.on("readable", function() {
           if (onreadable) {
@@ -13459,19 +13875,19 @@ var require_duplexify = __commonJS({
           }
         };
       }
-      d2._destroy = function(err2, callback) {
-        if (!err2 && onclose !== null) {
-          err2 = new AbortError();
+      d2._destroy = function(err3, callback) {
+        if (!err3 && onclose !== null) {
+          err3 = new AbortError();
         }
         onreadable = null;
         ondrain = null;
         onfinish = null;
         if (onclose === null) {
-          callback(err2);
+          callback(err3);
         } else {
           onclose = callback;
-          destroyer(w2, err2);
-          destroyer(r2, err2);
+          destroyer(w2, err3);
+          destroyer(r2, err3);
         }
       };
       return d2;
@@ -13671,9 +14087,9 @@ var require_transform = __commonJS({
       const rState = this._readableState;
       const wState = this._writableState;
       const length = rState.length;
-      this._transform(chunk, encoding, (err2, val) => {
-        if (err2) {
-          callback(err2);
+      this._transform(chunk, encoding, (err3, val) => {
+        if (err3) {
+          callback(err3);
           return;
         }
         if (val != null) {
@@ -13763,15 +14179,15 @@ var require_pipeline = __commonJS({
           readable: reading,
           writable: writing
         },
-        (err2) => {
-          finished = !err2;
+        (err3) => {
+          finished = !err3;
         }
       );
       return {
-        destroy: (err2) => {
+        destroy: (err3) => {
           if (finished) return;
           finished = true;
-          destroyImpl.destroyer(stream, err2 || new ERR_STREAM_DESTROYED("pipe"));
+          destroyImpl.destroyer(stream, err3 || new ERR_STREAM_DESTROYED("pipe"));
         },
         cleanup
       };
@@ -13797,9 +14213,9 @@ var require_pipeline = __commonJS({
     async function pumpToNode(iterable, writable, finish, { end }) {
       let error2;
       let onresolve = null;
-      const resume = (err2) => {
-        if (err2) {
-          error2 = err2;
+      const resume = (err3) => {
+        if (err3) {
+          error2 = err3;
         }
         if (onresolve) {
           const callback = onresolve;
@@ -13842,8 +14258,8 @@ var require_pipeline = __commonJS({
           await wait();
         }
         finish();
-      } catch (err2) {
-        finish(error2 !== err2 ? aggregateTwoErrors(error2, err2) : err2);
+      } catch (err3) {
+        finish(error2 !== err3 ? aggregateTwoErrors(error2, err3) : err3);
       } finally {
         cleanup();
         writable.off("drain", resume);
@@ -13865,12 +14281,12 @@ var require_pipeline = __commonJS({
           await writer.close();
         }
         finish();
-      } catch (err2) {
+      } catch (err3) {
         try {
-          await writer.abort(err2);
-          finish(err2);
-        } catch (err3) {
+          await writer.abort(err3);
           finish(err3);
+        } catch (err4) {
+          finish(err4);
         }
       }
     }
@@ -13901,13 +14317,13 @@ var require_pipeline = __commonJS({
       let value;
       const destroys = [];
       let finishCount = 0;
-      function finish(err2) {
-        finishImpl(err2, --finishCount === 0);
+      function finish(err3) {
+        finishImpl(err3, --finishCount === 0);
       }
-      function finishImpl(err2, final) {
+      function finishImpl(err3, final) {
         var _disposable;
-        if (err2 && (!error2 || error2.code === "ERR_STREAM_PREMATURE_CLOSE")) {
-          error2 = err2;
+        if (err3 && (!error2 || error2.code === "ERR_STREAM_PREMATURE_CLOSE")) {
+          error2 = err3;
         }
         if (!error2 && !final) {
           return;
@@ -13933,9 +14349,9 @@ var require_pipeline = __commonJS({
         const end = reading || (opts === null || opts === void 0 ? void 0 : opts.end) !== false;
         const isLastStream = i2 === streams.length - 1;
         if (isNodeStream(stream)) {
-          let onError2 = function(err2) {
-            if (err2 && err2.name !== "AbortError" && err2.code !== "ERR_STREAM_PREMATURE_CLOSE") {
-              finish(err2);
+          let onError2 = function(err3) {
+            if (err3 && err3.name !== "AbortError" && err3.code !== "ERR_STREAM_PREMATURE_CLOSE") {
+              finish(err3);
             }
           };
           var onError = onError2;
@@ -14003,9 +14419,9 @@ var require_pipeline = __commonJS({
                   }
                   process2.nextTick(finish);
                 },
-                (err2) => {
-                  pt2.destroy(err2);
-                  process2.nextTick(finish, err2);
+                (err3) => {
+                  pt2.destroy(err3);
+                  process2.nextTick(finish, err3);
                 }
               );
             } else if (isIterable(ret, true)) {
@@ -14120,12 +14536,12 @@ var require_pipeline = __commonJS({
           readable: true,
           writable: false
         },
-        (err2) => {
+        (err3) => {
           const rState = src._readableState;
-          if (err2 && err2.code === "ERR_STREAM_PREMATURE_CLOSE" && rState && rState.ended && !rState.errored && !rState.errorEmitted) {
+          if (err3 && err3.code === "ERR_STREAM_PREMATURE_CLOSE" && rState && rState.ended && !rState.errored && !rState.errorEmitted) {
             src.once("end", finish).once("error", finish);
           } else {
-            finish(err2);
+            finish(err3);
           }
         }
       );
@@ -14197,13 +14613,13 @@ var require_compose = __commonJS({
       let onreadable;
       let onclose;
       let d2;
-      function onfinished(err2) {
+      function onfinished(err3) {
         const cb = onclose;
         onclose = null;
         if (cb) {
-          cb(err2);
-        } else if (err2) {
-          d2.destroy(err2);
+          cb(err3);
+        } else if (err3) {
+          d2.destroy(err3);
         } else if (!readable && !writable) {
           d2.destroy();
         }
@@ -14248,8 +14664,8 @@ var require_compose = __commonJS({
               writer.write(chunk).catch(() => {
               });
               callback();
-            } catch (err2) {
-              callback(err2);
+            } catch (err3) {
+              callback(err3);
             }
           };
           d2._final = async function(callback) {
@@ -14258,8 +14674,8 @@ var require_compose = __commonJS({
               writer.close().catch(() => {
               });
               onfinish = callback;
-            } catch (err2) {
-              callback(err2);
+            } catch (err3) {
+              callback(err3);
             }
           };
         }
@@ -14317,19 +14733,19 @@ var require_compose = __commonJS({
           };
         }
       }
-      d2._destroy = function(err2, callback) {
-        if (!err2 && onclose !== null) {
-          err2 = new AbortError();
+      d2._destroy = function(err3, callback) {
+        if (!err3 && onclose !== null) {
+          err3 = new AbortError();
         }
         onreadable = null;
         ondrain = null;
         onfinish = null;
         if (onclose === null) {
-          callback(err2);
+          callback(err3);
         } else {
           onclose = callback;
           if (isNodeStream(tail)) {
-            destroyer(tail, err2);
+            destroyer(tail, err3);
           }
         }
       };
@@ -14448,8 +14864,8 @@ var require_operators = __commonJS({
                   continue;
                 }
                 val = PromiseResolve(val);
-              } catch (err2) {
-                val = PromiseReject(err2);
+              } catch (err3) {
+                val = PromiseReject(err3);
               }
               cnt += 1;
               PromisePrototypeThen(val, afterItemProcessed, onCatch);
@@ -14465,8 +14881,8 @@ var require_operators = __commonJS({
               }
             }
             queue.push(kEof);
-          } catch (err2) {
-            const val = PromiseReject(err2);
+          } catch (err3) {
+            const val = PromiseReject(err3);
             PromisePrototypeThen(val, afterItemProcessed, onCatch);
             queue.push(val);
           } finally {
@@ -14592,13 +15008,13 @@ var require_operators = __commonJS({
       }
       let hasInitialValue = arguments.length > 1;
       if (options !== null && options !== void 0 && (_options$signal2 = options.signal) !== null && _options$signal2 !== void 0 && _options$signal2.aborted) {
-        const err2 = new AbortError(void 0, {
+        const err3 = new AbortError(void 0, {
           cause: options.signal.reason
         });
         this.once("error", () => {
         });
-        await finished(this.destroy(err2));
-        throw err2;
+        await finished(this.destroy(err3));
+        throw err3;
       }
       const ac = new AbortController2();
       const signal = ac.signal;
@@ -14764,9 +15180,9 @@ var require_promises = __commonJS({
         }
         pl(
           streams,
-          (err2, value) => {
-            if (err2) {
-              reject(err2);
+          (err3, value) => {
+            if (err3) {
+              reject(err3);
             } else {
               resolve5(value);
             }
@@ -17921,7 +18337,7 @@ function escapeLiteral(value) {
 // ../predicate-cli/src/commands/init.ts
 init_storage();
 import { readFileSync as readFileSync2, existsSync as existsSync4, statSync as statSync2 } from "node:fs";
-import { join as join5, dirname as dirname3, resolve as resolve3 } from "node:path";
+import { join as join7, dirname as dirname3, resolve as resolve3 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { createInterface } from "node:readline/promises";
 init_src();
@@ -17939,18 +18355,18 @@ function findCatalogDir() {
   const here = dirname3(fileURLToPath2(import.meta.url));
   const candidates = [
     // Bundled-alongside-CLI layout (predicate-skill global install).
-    join5(here, "catalog"),
+    join7(here, "catalog"),
     // Monorepo / source-tree layouts.
-    join5(here, "..", "..", "..", "predicate-ontology", "catalog"),
-    join5(here, "..", "predicate-ontology", "catalog"),
-    join5(here, "..", "..", "predicate-ontology", "catalog"),
-    join5(here, "predicate-ontology", "catalog")
+    join7(here, "..", "..", "..", "predicate-ontology", "catalog"),
+    join7(here, "..", "predicate-ontology", "catalog"),
+    join7(here, "..", "..", "predicate-ontology", "catalog"),
+    join7(here, "predicate-ontology", "catalog")
   ];
-  for (const c2 of candidates) if (existsSync4(join5(c2, "catalog.json"))) return c2;
+  for (const c2 of candidates) if (existsSync4(join7(c2, "catalog.json"))) return c2;
   throw new Error(`catalog directory not found \u2014 checked ${candidates.join(", ")}`);
 }
 function findMetaTtl(catalogDir) {
-  return join5(catalogDir, "..", "meta", "predicate-meta.ttl");
+  return join7(catalogDir, "..", "meta", "predicate-meta.ttl");
 }
 function help() {
   console.log(`predicate init [--mode community|upload|empty] [--ontology NAME] [--file PATH] [--force]
@@ -17988,8 +18404,8 @@ async function loadTtlFile(client, path2) {
   await client.loadTurtle(turtle, "kg:tbox");
 }
 async function loadJudgmentOverlay(client, catalogDir) {
-  await loadTtlFile(client, join5(catalogDir, "judgment.ttl"));
-  await loadTtlFile(client, join5(catalogDir, "judgment.shacl.ttl"));
+  await loadTtlFile(client, join7(catalogDir, "judgment.ttl"));
+  await loadTtlFile(client, join7(catalogDir, "judgment.shacl.ttl"));
 }
 async function wipeForInit(client, force) {
   const tboxGraphs = ["kg:tbox", "kg:tbox-staging", "kg:meta"];
@@ -18019,7 +18435,7 @@ function validateUserUpload(turtle) {
 }
 async function buildPlanCommunity(ontology) {
   const catalogDir = findCatalogDir();
-  const catalog = JSON.parse(readFileSync2(join5(catalogDir, "catalog.json"), "utf8"));
+  const catalog = JSON.parse(readFileSync2(join7(catalogDir, "catalog.json"), "utf8"));
   const entry = catalog.ontologies.find((o2) => o2.name === ontology);
   if (!entry) {
     console.error(`predicate init: unknown ontology '${ontology}'. Available: ${catalog.ontologies.map((o2) => o2.name).join(", ")}`);
@@ -18055,8 +18471,8 @@ async function applyPlan(client, plan, force) {
   await loadTtlFile(client, findMetaTtl(plan.catalogDir));
   await loadJudgmentOverlay(client, plan.catalogDir);
   if (plan.kind === "community") {
-    for (const f2 of plan.entry.files) await loadTtlFile(client, join5(plan.catalogDir, f2));
-    if (plan.entry.shapes) await loadTtlFile(client, join5(plan.catalogDir, plan.entry.shapes));
+    for (const f2 of plan.entry.files) await loadTtlFile(client, join7(plan.catalogDir, f2));
+    if (plan.entry.shapes) await loadTtlFile(client, join7(plan.catalogDir, plan.entry.shapes));
     await writeConfig(client, "community", plan.entry.name);
     console.log(`predicate init: ${plan.entry.name} ontology loaded (${plan.entry.description}, license: ${plan.entry.license}).`);
     return 0;
@@ -18064,17 +18480,17 @@ async function applyPlan(client, plan, force) {
   if (plan.kind === "upload") {
     try {
       await loadTtlFile(client, plan.abs);
-    } catch (err2) {
+    } catch (err3) {
       await client.clearGraph("kg:tbox");
       await loadTtlFile(client, findMetaTtl(plan.catalogDir));
-      console.error(`predicate init: upload failed during load: ${err2.message}. kg:tbox rolled back to meta-only.`);
+      console.error(`predicate init: upload failed during load: ${err3.message}. kg:tbox rolled back to meta-only.`);
       return 1;
     }
     await writeConfig(client, "upload", "user");
     console.log(`predicate init: uploaded ${plan.abs} (${plan.size} bytes). Schema-learning enabled.`);
     return 0;
   }
-  await loadTtlFile(client, join5(plan.catalogDir, "top.ttl"));
+  await loadTtlFile(client, join7(plan.catalogDir, "top.ttl"));
   await writeConfig(client, "empty", "top");
   console.log(`predicate init: empty mode (meta + top vocabulary loaded). The agent will propose new predicates as needed; sweeper promotes after 3 uses.`);
   return 0;
@@ -18095,7 +18511,7 @@ async function interactive(client, force) {
     let plan;
     if (choice === "1") {
       const catalogDir = findCatalogDir();
-      const catalog = JSON.parse(readFileSync2(join5(catalogDir, "catalog.json"), "utf8"));
+      const catalog = JSON.parse(readFileSync2(join7(catalogDir, "catalog.json"), "utf8"));
       console.log("\nAvailable ontologies:");
       for (const o2 of catalog.ontologies) console.log(`  - ${o2.name.padEnd(18)} ${o2.description}`);
       const name = (await rl.question("\nWhich ontology? ")).trim();
@@ -18223,8 +18639,8 @@ async function up(args = []) {
   let scope;
   try {
     scope = parseScope(args);
-  } catch (err2) {
-    console.error(`predicate up: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate up: ${err3.message}`);
     return 2;
   }
   const ifNeeded = args.includes("--if-needed");
@@ -18251,8 +18667,20 @@ async function up(args = []) {
       console.error("predicate up: Fuseki did not become ready in 20s.");
       return 1;
     }
+  } else if (cfg.backend === "oxigraph") {
+    const { ensureUp: ensureUp2 } = await Promise.resolve().then(() => (init_oxigraph_daemon(), oxigraph_daemon_exports));
+    try {
+      const h2 = await ensureUp2(cfg.oxigraphStorePath);
+      console.log(
+        `predicate up: scope=${scope ?? "auto"} \u2014 native oxigraph daemon on 127.0.0.1:${h2.port}, store ${cfg.oxigraphStorePath}`
+      );
+    } catch (e2) {
+      console.error(
+        `predicate up: native oxigraph unavailable (${e2.message}); the server will fall back to the in-process WASM store.`
+      );
+    }
   } else {
-    console.log(`predicate up: scope=${scope ?? "auto"} \u2014 opening Oxigraph store at ${cfg.oxigraphStorePath}`);
+    console.log(`predicate up: scope=${scope ?? "auto"} \u2014 in-process WASM store at ${cfg.oxigraphStorePath}`);
   }
   const { bootstrapGraphs: bootstrapGraphs2 } = await Promise.resolve().then(() => (init_src(), src_exports));
   const { getAdapter: getAdapter2 } = await Promise.resolve().then(() => (init_storage(), storage_exports));
@@ -18269,8 +18697,8 @@ async function up(args = []) {
     if (process.stdin.isTTY) return init([]);
     console.error("predicate up: no init config and non-TTY stdin; defaulting to empty mode.");
     return init(["--mode", "empty"]);
-  } catch (err2) {
-    console.error(`predicate up: post-bootstrap init check failed: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate up: post-bootstrap init check failed: ${err3.message}`);
     return 0;
   }
 }
@@ -18278,7 +18706,7 @@ async function up(args = []) {
 // ../predicate-cli/src/commands/down.ts
 init_config();
 init_factory();
-async function down() {
+async function down(args = []) {
   const cfg = loadConfig();
   if (cfg.backend === "fuseki") {
     if (!dockerAvailable()) {
@@ -18289,6 +18717,26 @@ async function down() {
     console.log(`stopping Fuseki at ${dir}`);
     return compose(["down"], dir);
   }
+  if (cfg.backend === "oxigraph") {
+    const { stopDaemon } = await Promise.resolve().then(() => (init_storage(), storage_exports));
+    if (args.includes("--all")) {
+      const { homeRoot: homeRoot2 } = await Promise.resolve().then(() => (init_config(), config_exports));
+      const { readdir } = await import("node:fs/promises");
+      const { join: join11 } = await import("node:path");
+      const roots = [join11(homeRoot2(), "store")];
+      try {
+        const projects = await readdir(join11(homeRoot2(), "projects"));
+        for (const p2 of projects) roots.push(join11(homeRoot2(), "projects", p2, "store"));
+      } catch {
+      }
+      for (const r2 of roots) await stopDaemon(r2).catch((e2) => console.error(`predicate down: ${r2}: ${e2.message}`));
+      console.log(`predicate down: stopped home-registered oxigraph daemons (${roots.length} candidate stores).`);
+      return 0;
+    }
+    await stopDaemon(cfg.oxigraphStorePath);
+    console.log(`predicate down: stopped oxigraph daemon for ${cfg.oxigraphStorePath} (in-repo stores: run from the repo).`);
+    return 0;
+  }
   const adapter = getCachedAdapter();
   if (adapter) {
     try {
@@ -18296,7 +18744,7 @@ async function down() {
     } catch {
     }
   }
-  console.log("Oxigraph backend is in-process; no daemon to stop. Store flushed to disk.");
+  console.log("WASM backend is in-process; no daemon to stop. Store flushed to disk.");
   return 0;
 }
 
@@ -18305,7 +18753,7 @@ init_config();
 init_storage();
 init_graphs();
 import { existsSync as existsSync5, accessSync, constants, rmSync } from "node:fs";
-import { dirname as dirname4, join as join6 } from "node:path";
+import { dirname as dirname4, join as join8 } from "node:path";
 async function roundTripSelfTest(storePath) {
   const S2 = "urn:predicate:selftest:s";
   const P2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
@@ -18359,8 +18807,8 @@ async function doctor() {
       detail: writable ? cfg.oxigraphStorePath : `cannot write to ${cfg.oxigraphStorePath}`
     });
     if (writable) {
-      const selftestDir = join6(dirname4(cfg.oxigraphStorePath), "doctor-selftest");
-      const rt2 = await roundTripSelfTest(selftestDir).catch((err2) => ({ persisted: false, detail: err2.message }));
+      const selftestDir = join8(dirname4(cfg.oxigraphStorePath), "doctor-selftest");
+      const rt2 = await roundTripSelfTest(selftestDir).catch((err3) => ({ persisted: false, detail: err3.message }));
       checks.push({
         name: "round-trip (assert\u2192flush\u2192reopen\u2192read)",
         ok: rt2.persisted,
@@ -18370,6 +18818,24 @@ async function doctor() {
         rmSync(selftestDir, { recursive: true, force: true });
       } catch {
       }
+    }
+    if (cfg.backend === "oxigraph") {
+      const { daemonStatus } = await Promise.resolve().then(() => (init_storage(), storage_exports));
+      const h2 = await daemonStatus(cfg.oxigraphStorePath).catch(() => null);
+      let live = false;
+      if (h2) {
+        live = await fetch(`http://${h2.host}:${h2.port}/query`, {
+          method: "POST",
+          headers: { "Content-Type": "application/sparql-query", "Accept": "application/sparql-results+json" },
+          body: "ASK {}",
+          signal: AbortSignal.timeout(1e3)
+        }).then((r2) => r2.ok).catch(() => false);
+      }
+      checks.push({
+        name: "oxigraph daemon",
+        ok: live,
+        detail: live ? `127.0.0.1:${h2.port} (pid ${h2.pid}, v${h2.version})` : "no live daemon \u2014 run 'predicate up' (native default; falls back to WASM if the binary is unavailable)"
+      });
     }
     const fusekiPing = await fetch(`${cfg.fusekiUrl}/$/ping`).catch(() => null);
     if (fusekiPing?.ok) {
@@ -18392,8 +18858,8 @@ async function doctor() {
       ok: tboxOk,
       detail: tboxOk ? "" : "no classes found \u2014 try 'predicate up' (re-runs bootstrap)"
     });
-  } catch (err2) {
-    checks.push({ name: "adapter open", ok: false, detail: err2.message });
+  } catch (err3) {
+    checks.push({ name: "adapter open", ok: false, detail: err3.message });
   }
   const width = Math.max(...checks.map((c2) => c2.name.length));
   for (const c2 of checks) {
@@ -18987,56 +19453,56 @@ init2();
 var AnthropicError = class extends Error {
 };
 var APIError = class _APIError extends AnthropicError {
-  constructor(status, error2, message, headers) {
-    super(`${_APIError.makeMessage(status, error2, message)}`);
-    this.status = status;
+  constructor(status2, error2, message, headers) {
+    super(`${_APIError.makeMessage(status2, error2, message)}`);
+    this.status = status2;
     this.headers = headers;
     this.request_id = headers?.["request-id"];
     this.error = error2;
   }
-  static makeMessage(status, error2, message) {
+  static makeMessage(status2, error2, message) {
     const msg = error2?.message ? typeof error2.message === "string" ? error2.message : JSON.stringify(error2.message) : error2 ? JSON.stringify(error2) : message;
-    if (status && msg) {
-      return `${status} ${msg}`;
+    if (status2 && msg) {
+      return `${status2} ${msg}`;
     }
-    if (status) {
-      return `${status} status code (no body)`;
+    if (status2) {
+      return `${status2} status code (no body)`;
     }
     if (msg) {
       return msg;
     }
     return "(no status code or body)";
   }
-  static generate(status, errorResponse, message, headers) {
-    if (!status || !headers) {
+  static generate(status2, errorResponse, message, headers) {
+    if (!status2 || !headers) {
       return new APIConnectionError({ message, cause: castToError(errorResponse) });
     }
     const error2 = errorResponse;
-    if (status === 400) {
-      return new BadRequestError(status, error2, message, headers);
+    if (status2 === 400) {
+      return new BadRequestError(status2, error2, message, headers);
     }
-    if (status === 401) {
-      return new AuthenticationError(status, error2, message, headers);
+    if (status2 === 401) {
+      return new AuthenticationError(status2, error2, message, headers);
     }
-    if (status === 403) {
-      return new PermissionDeniedError(status, error2, message, headers);
+    if (status2 === 403) {
+      return new PermissionDeniedError(status2, error2, message, headers);
     }
-    if (status === 404) {
-      return new NotFoundError(status, error2, message, headers);
+    if (status2 === 404) {
+      return new NotFoundError(status2, error2, message, headers);
     }
-    if (status === 409) {
-      return new ConflictError(status, error2, message, headers);
+    if (status2 === 409) {
+      return new ConflictError(status2, error2, message, headers);
     }
-    if (status === 422) {
-      return new UnprocessableEntityError(status, error2, message, headers);
+    if (status2 === 422) {
+      return new UnprocessableEntityError(status2, error2, message, headers);
     }
-    if (status === 429) {
-      return new RateLimitError(status, error2, message, headers);
+    if (status2 === 429) {
+      return new RateLimitError(status2, error2, message, headers);
     }
-    if (status >= 500) {
-      return new InternalServerError(status, error2, message, headers);
+    if (status2 >= 500) {
+      return new InternalServerError(status2, error2, message, headers);
     }
-    return new _APIError(status, error2, message, headers);
+    return new _APIError(status2, error2, message, headers);
   }
 };
 var APIUserAbortError = class extends APIError {
@@ -19358,8 +19824,8 @@ var Stream = class _Stream {
             return ctrl.close();
           const bytes = encoder.encode(JSON.stringify(value) + "\n");
           ctrl.enqueue(bytes);
-        } catch (err2) {
-          ctrl.error(err2);
+        } catch (err3) {
+          ctrl.error(err3);
         }
       },
       async cancel() {
@@ -19784,8 +20250,8 @@ var APIClient = class {
   parseHeaders(headers) {
     return !headers ? {} : Symbol.iterator in headers ? Object.fromEntries(Array.from(headers).map((header) => [...header])) : { ...headers };
   }
-  makeStatusError(status, error2, message, headers) {
-    return APIError.generate(status, error2, message, headers);
+  makeStatusError(status2, error2, message, headers) {
+    return APIError.generate(status2, error2, message, headers);
   }
   request(options, remainingRetries = null) {
     return new APIPromise(this.makeRequest(options, remainingRetries));
@@ -19829,8 +20295,8 @@ var APIClient = class {
       const errMessage = errJSON ? void 0 : errText;
       const retryMessage = retriesRemaining ? `(error; no more retries left)` : `(error; not retryable)`;
       debug(`response (error; ${retryMessage})`, response.status, url, responseHeaders, errMessage);
-      const err2 = this.makeStatusError(response.status, errJSON, errMessage, responseHeaders);
-      throw err2;
+      const err3 = this.makeStatusError(response.status, errJSON, errMessage, responseHeaders);
+      throw err3;
     }
     return { response, options, controller };
   }
@@ -19928,7 +20394,7 @@ var APIClient = class {
       const maxRetries = options.maxRetries ?? this.maxRetries;
       timeoutMillis = this.calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries);
     }
-    await sleep(timeoutMillis);
+    await sleep2(timeoutMillis);
     return this.makeRequest(options, retriesRemaining - 1);
   }
   calculateDefaultRetryTimeoutMillis(retriesRemaining, maxRetries) {
@@ -20153,7 +20619,7 @@ var getPlatformHeaders = () => {
 var safeJSON = (text) => {
   try {
     return JSON.parse(text);
-  } catch (err2) {
+  } catch (err3) {
     return void 0;
   }
 };
@@ -20161,7 +20627,7 @@ var startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
 var isAbsoluteURL = (url) => {
   return startsWithSchemeRegexp.test(url);
 };
-var sleep = (ms) => new Promise((resolve5) => setTimeout(resolve5, ms));
+var sleep2 = (ms) => new Promise((resolve5) => setTimeout(resolve5, ms));
 var validatePositiveInteger = (name, n2) => {
   if (typeof n2 !== "number" || !Number.isInteger(n2)) {
     throw new AnthropicError(`${name} must be an integer`);
@@ -20171,16 +20637,16 @@ var validatePositiveInteger = (name, n2) => {
   }
   return n2;
 };
-var castToError = (err2) => {
-  if (err2 instanceof Error)
-    return err2;
-  if (typeof err2 === "object" && err2 !== null) {
+var castToError = (err3) => {
+  if (err3 instanceof Error)
+    return err3;
+  if (typeof err3 === "object" && err3 !== null) {
     try {
-      return new Error(JSON.stringify(err2));
+      return new Error(JSON.stringify(err3));
     } catch {
     }
   }
-  return new Error(String(err2));
+  return new Error(String(err3));
 };
 var readEnv = (env) => {
   if (typeof process !== "undefined") {
@@ -21206,17 +21672,17 @@ var BetaMessageStream = class _BetaMessageStream {
       }
       readQueue.length = 0;
     });
-    this.on("abort", (err2) => {
+    this.on("abort", (err3) => {
       done = true;
       for (const reader of readQueue) {
-        reader.reject(err2);
+        reader.reject(err3);
       }
       readQueue.length = 0;
     });
-    this.on("error", (err2) => {
+    this.on("error", (err3) => {
       done = true;
       for (const reader of readQueue) {
-        reader.reject(err2);
+        reader.reject(err3);
       }
       readQueue.length = 0;
     });
@@ -21931,17 +22397,17 @@ var MessageStream = class _MessageStream {
       }
       readQueue.length = 0;
     });
-    this.on("abort", (err2) => {
+    this.on("abort", (err3) => {
       done = true;
       for (const reader of readQueue) {
-        reader.reject(err2);
+        reader.reject(err3);
       }
       readQueue.length = 0;
     });
-    this.on("error", (err2) => {
+    this.on("error", (err3) => {
       done = true;
       for (const reader of readQueue) {
-        reader.reject(err2);
+        reader.reject(err3);
       }
       readQueue.length = 0;
     });
@@ -25928,7 +26394,7 @@ var to_ntriples_default = toNT;
 function quietToNT(term2) {
   try {
     return to_ntriples_default(term2);
-  } catch (err2) {
+  } catch (err3) {
     return null;
   }
 }
@@ -28511,10 +28977,10 @@ var PromotionSweeper = class {
 };
 
 // ../predicate-agent/src/generalizer.ts
-import { createHash as createHash2 } from "node:crypto";
+import { createHash as createHash3 } from "node:crypto";
 var RDF_TYPE3 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fingerprintHash(fingerprint) {
-  return createHash2("sha1").update(fingerprint.join("|")).digest("hex").slice(0, 12);
+  return createHash3("sha1").update(fingerprint.join("|")).digest("hex").slice(0, 12);
 }
 var Generalizer = class {
   constructor(client, opts = {}) {
@@ -28807,8 +29273,8 @@ async function maintain() {
       `predicate maintain: archived=${result.archivedCount} proposals=${proposals}${skipped} promotions=${promotions} inferred=${inferred} elapsed=${result.elapsedMs}ms event=${result.eventId}`
     );
     return 0;
-  } catch (err2) {
-    console.error(`predicate maintain failed: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate maintain failed: ${err3.message}`);
     return 1;
   }
 }
@@ -28939,8 +29405,8 @@ async function capture(args, stdin = process.stdin) {
     let payload;
     try {
       payload = JSON.parse(raw);
-    } catch (err2) {
-      console.error(`predicate capture: invalid JSON on stdin: ${err2.message}`);
+    } catch (err3) {
+      console.error(`predicate capture: invalid JSON on stdin: ${err3.message}`);
       return 2;
     }
     toolName = typeof payload["tool_name"] === "string" ? payload["tool_name"] : void 0;
@@ -28962,8 +29428,8 @@ async function capture(args, stdin = process.stdin) {
     const client = getAdapter();
     await kgCapture(client, { toolName, input: toolInput, output: toolOutput, sessionId, phase });
     return 0;
-  } catch (err2) {
-    console.error(`predicate capture failed: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate capture failed: ${err3.message}`);
     return 1;
   }
 }
@@ -28971,7 +29437,7 @@ async function capture(args, stdin = process.stdin) {
 // ../predicate-cli/src/commands/extract.ts
 init_storage();
 import { readFileSync as readFileSync3, readdirSync as readdirSync2, statSync as statSync4 } from "node:fs";
-import { basename as basename2, join as join7 } from "node:path";
+import { basename as basename2, join as join9 } from "node:path";
 
 // ../predicate-cli/src/commands/replay-rebuild.ts
 init_storage();
@@ -29031,7 +29497,7 @@ async function deleteExtractedSlice(client, sessionId) {
 }
 
 // ../predicate-agent/src/turn-extractor.ts
-import { createHash as createHash3 } from "node:crypto";
+import { createHash as createHash4 } from "node:crypto";
 var META11 = "https://predicate.dev/meta#";
 var CB = "https://predicate.dev/codebase#";
 var RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -29043,7 +29509,7 @@ function literal3(value, datatype) {
   return datatype ? { type: "literal", value, datatype } : { type: "literal", value };
 }
 function hash12(s2) {
-  return createHash3("sha1").update(s2).digest("hex").slice(0, 12);
+  return createHash4("sha1").update(s2).digest("hex").slice(0, 12);
 }
 function extractMessageContent(ev) {
   const msg = ev["message"];
@@ -29213,16 +29679,16 @@ ${input.toolSummary}
 </tool-call-summary>`
       }]
     });
-  } catch (err2) {
-    return { triples: [], skipped: [`API call failed: ${err2.message}`] };
+  } catch (err3) {
+    return { triples: [], skipped: [`API call failed: ${err3.message}`] };
   }
   const text = response.content.filter((b2) => b2.type === "text").map((b2) => b2.text).join("\n");
   let parsed;
   try {
     const stripped = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
     parsed = JSON.parse(stripped);
-  } catch (err2) {
-    return { triples: [], skipped: [`failed to parse LLM JSON: ${err2.message}`] };
+  } catch (err3) {
+    return { triples: [], skipped: [`failed to parse LLM JSON: ${err3.message}`] };
   }
   if (typeof parsed !== "object" || parsed === null) {
     return { triples: [], skipped: ["LLM returned non-object JSON"] };
@@ -29347,8 +29813,8 @@ async function extractTranscript(client, opts) {
     try {
       await kgAssert(client, t2);
       asserted++;
-    } catch (err2) {
-      rejections.push({ subject: t2.subject, predicate: t2.predicate, reason: err2.message });
+    } catch (err3) {
+      rejections.push({ subject: t2.subject, predicate: t2.predicate, reason: err3.message });
     }
   }
   return {
@@ -29365,9 +29831,9 @@ async function replay(pathArg, platform) {
   let files;
   try {
     const st2 = statSync4(pathArg);
-    files = st2.isDirectory() ? readdirSync2(pathArg).filter((f2) => f2.endsWith(".jsonl")).map((f2) => join7(pathArg, f2)) : [pathArg];
-  } catch (err2) {
-    console.error(`predicate extract --replay: cannot read ${pathArg}: ${err2.message}`);
+    files = st2.isDirectory() ? readdirSync2(pathArg).filter((f2) => f2.endsWith(".jsonl")).map((f2) => join9(pathArg, f2)) : [pathArg];
+  } catch (err3) {
+    console.error(`predicate extract --replay: cannot read ${pathArg}: ${err3.message}`);
     return 2;
   }
   if (files.length === 0) {
@@ -29396,8 +29862,8 @@ async function replay(pathArg, platform) {
           );
         }
       }
-    } catch (err2) {
-      console.error(`predicate extract --replay: session ${sessionId} failed: ${err2.message}`);
+    } catch (err3) {
+      console.error(`predicate extract --replay: session ${sessionId} failed: ${err3.message}`);
       errors++;
     }
   }
@@ -29452,8 +29918,8 @@ async function extract(args, stdin = process.stdin) {
   let payload;
   try {
     payload = JSON.parse(raw);
-  } catch (err2) {
-    console.error(`predicate extract: invalid JSON on stdin: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate extract: invalid JSON on stdin: ${err3.message}`);
     return 2;
   }
   const sessionId = typeof payload["session_id"] === "string" ? payload["session_id"] : void 0;
@@ -29465,8 +29931,8 @@ async function extract(args, stdin = process.stdin) {
   let result;
   try {
     result = await extractTranscript(getAdapter(), { sessionId, transcriptPath, platform });
-  } catch (err2) {
-    console.error(`predicate extract: failed to process transcript: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate extract: failed to process transcript: ${err3.message}`);
     return 1;
   }
   console.log(
@@ -29575,8 +30041,8 @@ async function sessions(args) {
     if (hasFlag4(args, "--json")) console.log(JSON.stringify(rows, null, 2));
     else console.log(renderTable(rows));
     return 0;
-  } catch (err2) {
-    console.error(`predicate sessions failed: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate sessions failed: ${err3.message}`);
     return 1;
   }
 }
@@ -29665,8 +30131,8 @@ async function captures(args) {
     if (hasFlag5(args, "--json")) console.log(JSON.stringify(rows, null, 2));
     else console.log(renderTable2(rows));
     return 0;
-  } catch (err2) {
-    console.error(`predicate captures failed: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate captures failed: ${err3.message}`);
     return 1;
   }
 }
@@ -29814,19 +30280,19 @@ async function recall(args) {
     if (hasFlag6(args, "--json")) console.log(JSON.stringify(result, null, 2));
     else console.log(render(result));
     return 0;
-  } catch (err2) {
-    console.error(`predicate recall failed: ${err2.message}`);
+  } catch (err3) {
+    console.error(`predicate recall failed: ${err3.message}`);
     return 1;
   }
 }
 
 // ../predicate-cli/src/commands/dashboard.ts
 init_config();
-import { createServer } from "node:http";
+import { createServer as createServer2 } from "node:http";
 import { readFileSync as readFileSync4 } from "node:fs";
-import { join as join8, dirname as dirname5 } from "node:path";
+import { join as join10, dirname as dirname5 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
-import { spawn } from "node:child_process";
+import { spawn as spawn2 } from "node:child_process";
 function parseFlag7(args, name) {
   const i2 = args.indexOf(name);
   return i2 < 0 || i2 + 1 >= args.length ? void 0 : args[i2 + 1];
@@ -29849,7 +30315,7 @@ Options:
 function openBrowser(url) {
   const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
   try {
-    spawn(cmd, [url], { detached: true, stdio: "ignore" }).unref();
+    spawn2(cmd, [url], { detached: true, stdio: "ignore" }).unref();
   } catch {
   }
 }
@@ -29923,7 +30389,7 @@ async function runAction(req, res) {
   }
   const cliBin = process.env.PREDICATE_CLI_BIN ?? "predicate";
   const cliArgs = (process.env.PREDICATE_CLI_ARGS ?? "").split(" ").filter(Boolean);
-  const child = spawn(cliBin, [...cliArgs, "schema", verb, id], {
+  const child = spawn2(cliBin, [...cliArgs, "schema", verb, id], {
     stdio: ["ignore", "pipe", "pipe"],
     shell: false
   });
@@ -30036,11 +30502,11 @@ async function handleEvents(req, res, fusekiUrl, dataset2) {
 function findDashboardHtml() {
   const here = dirname5(fileURLToPath3(import.meta.url));
   const candidates = [
-    join8(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
-    join8(here, "dashboard", "index.html"),
+    join10(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
+    join10(here, "dashboard", "index.html"),
     // bundled cli.bundle.mjs sits next to dashboard/
-    join8(here, "..", "dashboard", "index.html"),
-    join8(here, "..", "..", "dashboard", "index.html")
+    join10(here, "..", "dashboard", "index.html"),
+    join10(here, "..", "..", "dashboard", "index.html")
   ];
   for (const p2 of candidates) {
     try {
@@ -30055,7 +30521,7 @@ async function startDashboardServer(port) {
   const cfg = loadConfig();
   const htmlPath = findDashboardHtml();
   const html = readFileSync4(htmlPath, "utf8");
-  const server = createServer((req, res) => {
+  const server = createServer2((req, res) => {
     if (req.url === "/api/query" && req.method === "POST") {
       void proxyQuery(req, res, cfg.fusekiUrl, cfg.dataset);
       return;
@@ -30406,8 +30872,8 @@ async function migrate(args) {
     try {
       nt2 = await src.serializeGraph(g2, "nt-star").catch(() => src.serializeGraph(g2, "nt"));
     } catch (e2) {
-      const status = e2.status;
-      if (status === 404) {
+      const status2 = e2.status;
+      if (status2 === 404) {
         console.log("(not found in source, skipping)");
         continue;
       }
@@ -30452,7 +30918,8 @@ Commands:
                        user    = the global ~/.predicate/store (shared)
                     --if-needed                  no-op if the graph is already initialised
   init              Initialize kg:tbox with a community ontology, an uploaded file, or empty.
-  down              Stop Fuseki, preserve the data volume.
+  down              Stop the oxigraph daemon (or Fuseki), preserving data.
+                    --all   sweep all home-registered oxigraph daemons
   doctor            Health checks: docker, fuseki, tbox.
   stats             Print kg_stats output for the live graph.
   sessionstart      Print a one-line KG status banner (used by hook scripts).
@@ -30491,7 +30958,7 @@ async function main() {
     case "up":
       return up(process.argv.slice(3));
     case "down":
-      return down();
+      return down(process.argv.slice(3));
     case "doctor":
       return doctor();
     case "stats":
@@ -30548,8 +31015,8 @@ async function flushAdapter() {
 main().then(async (code) => {
   await flushAdapter();
   process.exit(code);
-}).catch(async (err2) => {
-  console.error(err2);
+}).catch(async (err3) => {
+  console.error(err3);
   await flushAdapter();
   process.exit(1);
 });
