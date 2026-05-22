@@ -95,16 +95,24 @@ const common = {
 
 // Regenerate per-platform adapters from canonical sources and fail if the
 // committed copies are stale (prevents the adapters from silently rotting).
+// The drift check needs git + a working tree; when neither is available
+// (e.g. a tarball-extracted publish container) we regenerate but skip the
+// staleness check rather than crash the build.
 execFileSync('node', [resolve(here, 'gen-adapters.mjs')], { stdio: 'inherit' });
-const dirty = execFileSync('git', ['status', '--porcelain', '--',
-  'AGENTS.md', 'GEMINI.md', '.codex-plugin', '.mcp.json',
-  'gemini-extension.json', 'hooks/gemini-cli/hooks.json'],
-  { cwd: root, encoding: 'utf8' });
-if (dirty.trim()) {
+let dirty = null;
+try {
+  dirty = execFileSync('git', ['status', '--porcelain', '--',
+    'AGENTS.md', 'GEMINI.md', '.codex-plugin', '.mcp.json',
+    'gemini-extension.json', 'hooks/gemini-cli/hooks.json'],
+    { cwd: root, encoding: 'utf8' });
+} catch {
+  console.warn('git unavailable — skipping adapter drift check');
+}
+if (dirty !== null && dirty.trim()) {
   console.error('Generated adapters are stale. Run gen-adapters.mjs and commit:\n' + dirty);
   process.exit(1);
 }
-console.log('adapters regenerated + verified in sync');
+if (dirty !== null) console.log('adapters regenerated + verified in sync');
 
 await build({
   ...common,

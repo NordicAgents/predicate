@@ -36,7 +36,7 @@ export function codexPluginManifest(version = PKG.version) {
     description: PKG.description,
     author: PKG.author,
     homepage: PKG.homepage,
-    license: 'Elastic-2.0',
+    license: 'Elastic-2.0', // SPDX id for the manifest; package.json uses npm's "SEE LICENSE IN LICENSE" form
     keywords: ['mcp', 'knowledge-graph', 'rdf', 'owl', 'sparql', 'reasoning'],
     skills: './skills/',
   };
