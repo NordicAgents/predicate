@@ -207,7 +207,11 @@ importers:
         specifier: ^2.0.0
         version: 2.1.9(@types/node@20.19.41)
 
-  packages/predicate-skill: {}
+  packages/predicate-skill:
+    devDependencies:
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@20.19.41)
 
 packages:
 
