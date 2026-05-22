@@ -35,7 +35,8 @@ Commands:
                        user    = the global ~/.predicate/store (shared)
                     --if-needed                  no-op if the graph is already initialised
   init              Initialize kg:tbox with a community ontology, an uploaded file, or empty.
-  down              Stop Fuseki, preserve the data volume.
+  down              Stop the oxigraph daemon (or Fuseki), preserving data.
+                    --all   sweep all home-registered oxigraph daemons
   doctor            Health checks: docker, fuseki, tbox.
   stats             Print kg_stats output for the live graph.
   sessionstart      Print a one-line KG status banner (used by hook scripts).
@@ -73,7 +74,7 @@ async function main(): Promise<number> {
   const cmd = process.argv[2];
   switch (cmd) {
     case 'up':              return up(process.argv.slice(3));
-    case 'down':            return down();
+    case 'down':            return down(process.argv.slice(3));
     case 'doctor':          return doctor();
     case 'stats':           return stats();
     case 'sessionstart':    return sessionstart();

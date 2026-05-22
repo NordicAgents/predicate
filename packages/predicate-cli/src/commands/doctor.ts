@@ -86,6 +86,27 @@ export async function doctor(): Promise<number> {
       // Best-effort cleanup: never let a cleanup failure fail doctor.
       try { rmSync(selftestDir, { recursive: true, force: true }); } catch { /* ignore */ }
     }
+    if (cfg.backend === 'oxigraph') {
+      const { daemonStatus } = await import('predicate-mcp/src/storage/index.js');
+      const h = await daemonStatus(cfg.oxigraphStorePath).catch(() => null);
+      let live = false;
+      if (h) {
+        live = await fetch(`http://${h.host}:${h.port}/query`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/sparql-query', 'Accept': 'application/sparql-results+json' },
+          body: 'ASK {}',
+          signal: AbortSignal.timeout(1000),
+        }).then((r) => r.ok).catch(() => false);
+      }
+      checks.push({
+        name: 'oxigraph daemon',
+        ok: live,
+        detail: live
+          ? `127.0.0.1:${h!.port} (pid ${h!.pid}, v${h!.version})`
+          : "no live daemon — run 'predicate up' (native default; falls back to WASM if the binary is unavailable)",
+      });
+    }
+
     // Detect a leftover Fuseki to nudge migration (informational, no state change).
     const fusekiPing = await fetch(`${cfg.fusekiUrl}/$/ping`).catch(() => null);
     if (fusekiPing?.ok) {

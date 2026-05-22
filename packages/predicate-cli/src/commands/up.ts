@@ -113,8 +113,21 @@ export async function up(args: string[] = []): Promise<number> {
       console.error('predicate up: Fuseki did not become ready in 20s.');
       return 1;
     }
+  } else if (cfg.backend === 'oxigraph') {
+    const { ensureUp } = await import('predicate-mcp/src/storage/oxigraph-daemon.js');
+    try {
+      const h = await ensureUp(cfg.oxigraphStorePath);
+      console.log(
+        `predicate up: scope=${scope ?? 'auto'} — native oxigraph daemon on 127.0.0.1:${h.port}, store ${cfg.oxigraphStorePath}`,
+      );
+    } catch (e) {
+      console.error(
+        `predicate up: native oxigraph unavailable (${(e as Error).message}); the server will fall back to the in-process WASM store.`,
+      );
+    }
   } else {
-    console.log(`predicate up: scope=${scope ?? 'auto'} — opening Oxigraph store at ${cfg.oxigraphStorePath}`);
+    // oxigraph-wasm: in-process, no daemon to start.
+    console.log(`predicate up: scope=${scope ?? 'auto'} — in-process WASM store at ${cfg.oxigraphStorePath}`);
   }
 
   // Bootstrap + init paths are shared.

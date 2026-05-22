@@ -77,8 +77,7 @@ plus the named graphs, the reasoner, and plugin registration.
 |---|---|
 | `/predicate:up` | Open the backend and bootstrap the 8 named graphs. |
 | `/predicate:down` | Close the backend (no daemon on Oxigraph; `docker compose down` on Fuseki). |
-| `/predicate:doctor` | Backend-aware health check. |
-| `/predicate:stats` | Triple / ABox / inferred / TBox counts and ratios. |
+| `/predicate:status` | Backend-aware health check + triple / ABox / inferred / TBox counts and ratios. |
 | `/predicate:ask <question>` | Free-form question routed through `kg_ask`. |
 
 **Routing:** Automatic. SessionStart injects a one-line status banner;
@@ -279,8 +278,8 @@ predicate --help
 | `.claude-plugin/plugin.json` | MCP + skills + hooks registration for the Claude Code marketplace. |
 | `server.bundle.mjs` | Bundled MCP server (`oxigraph` loaded from `node_modules` at runtime). |
 | `cli.bundle.mjs` | Bundled `predicate` CLI, surfaced via this package's `bin`. |
-| `skills/predicate/SKILL.md` | Host-agent contract: triggers, workflow, anti-patterns, worked examples. |
-| `commands/{up,down,doctor,stats,ask}.md` | Slash-command definitions for `/predicate:*`. |
+| `skills/predicate-reasoning/SKILL.md` | Host-agent contract: triggers, workflow, anti-patterns, worked examples. |
+| `commands/{up,down,status,ask}.md` | Slash-command definitions for `/predicate:*`. |
 | `hooks/` | Claude Code lifecycle hooks + per-platform templates (cursor, gemini-cli, vscode-copilot, opencode, codex-cli). |
 | `compose/` | Fuseki + TDB2 docker-compose config — only used by the opt-in Fuseki backend. |
 | `catalog/`, `meta/` | Bundled ontology catalog + meta vocabulary for `predicate init`. |

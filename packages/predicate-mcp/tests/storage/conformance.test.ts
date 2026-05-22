@@ -7,13 +7,25 @@ import type { StorageAdapter } from '../../src/storage/adapter.js';
 // leg runs only when explicitly requested via BACKEND/PREDICATE_BACKEND.
 const BACKEND = process.env.BACKEND ?? process.env.PREDICATE_BACKEND ?? 'oxigraph';
 
+// storePath used by the oxigraph-server branch; captured here so afterAll can
+// call stop() on the same path without closing the shared production daemon.
+let _oxigraphServerStorePath: string | null = null;
+
 async function makeAdapter(): Promise<StorageAdapter> {
   if (BACKEND === 'fuseki') {
     const { FusekiAdapter } = await import('../../src/storage/fuseki.js');
     const { loadConfig } = await import('../../src/config.js');
     return new FusekiAdapter(loadConfig());
   }
-  if (BACKEND === 'oxigraph') {
+  if (BACKEND === 'oxigraph-server') {
+    const { OxigraphServerAdapter } = await import('../../src/storage/oxigraph-server.js');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const storePath = join(tmpdir(), `predicate-conformance-${process.pid}`);
+    _oxigraphServerStorePath = storePath;
+    return new OxigraphServerAdapter({ storePath });
+  }
+  if (BACKEND === 'oxigraph' || BACKEND === 'oxigraph-wasm') {
     const { OxigraphAdapter } = await import('../../src/storage/oxigraph.js');
     return new OxigraphAdapter({ storePath: ':memory:' });
   }
@@ -31,6 +43,15 @@ describe(`StorageAdapter conformance (BACKEND=${BACKEND})`, () => {
 
   afterAll(async () => {
     await adapter.close();
+    // For the oxigraph-server backend, stop the test-spawned daemon and clean up
+    // the temp store. This is safe because the store path is unique to this
+    // process (includes process.pid), so it cannot be the shared production daemon.
+    if (_oxigraphServerStorePath !== null) {
+      const { stop } = await import('../../src/storage/oxigraph-daemon.js');
+      await stop(_oxigraphServerStorePath);
+      const { promises: fs } = await import('node:fs');
+      await fs.rm(_oxigraphServerStorePath, { recursive: true, force: true });
+    }
   });
 
   it('round-trips a triple via update + select', async () => {
