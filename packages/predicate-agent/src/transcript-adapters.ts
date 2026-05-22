@@ -79,7 +79,6 @@ export function adaptGeminiTranscript(
   });
 }
 
-
 function pick(o: Record<string, unknown>, keys: string[]): unknown {
   for (const k of keys) {
     if (o[k] !== undefined && o[k] !== null) return o[k];
