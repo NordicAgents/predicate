@@ -3224,7 +3224,7 @@ var require_lib2 = __commonJS({
       let accum = [];
       let accumBytes = 0;
       let abort = false;
-      return new Body.Promise(function(resolve5, reject) {
+      return new Body.Promise(function(resolve7, reject) {
         let resTimeout;
         if (_this4.timeout) {
           resTimeout = setTimeout(function() {
@@ -3258,7 +3258,7 @@ var require_lib2 = __commonJS({
           }
           clearTimeout(resTimeout);
           try {
-            resolve5(Buffer.concat(accum, accumBytes));
+            resolve7(Buffer.concat(accum, accumBytes));
           } catch (err3) {
             reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err3.message}`, "system", err3));
           }
@@ -3933,7 +3933,7 @@ var require_lib2 = __commonJS({
         throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
       }
       Body.Promise = fetch3.Promise;
-      return new fetch3.Promise(function(resolve5, reject) {
+      return new fetch3.Promise(function(resolve7, reject) {
         const request = new Request3(url, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
@@ -4066,7 +4066,7 @@ var require_lib2 = __commonJS({
                   requestOpts.body = void 0;
                   requestOpts.headers.delete("content-length");
                 }
-                resolve5(fetch3(new Request3(locationURL, requestOpts)));
+                resolve7(fetch3(new Request3(locationURL, requestOpts)));
                 finalize();
                 return;
             }
@@ -4087,7 +4087,7 @@ var require_lib2 = __commonJS({
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
             response = new Response3(body, response_options);
-            resolve5(response);
+            resolve7(response);
             return;
           }
           const zlibOptions = {
@@ -4097,7 +4097,7 @@ var require_lib2 = __commonJS({
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
             response = new Response3(body, response_options);
-            resolve5(response);
+            resolve7(response);
             return;
           }
           if (codings == "deflate" || codings == "x-deflate") {
@@ -4109,12 +4109,12 @@ var require_lib2 = __commonJS({
                 body = body.pipe(zlib.createInflateRaw());
               }
               response = new Response3(body, response_options);
-              resolve5(response);
+              resolve7(response);
             });
             raw.on("end", function() {
               if (!response) {
                 response = new Response3(body, response_options);
-                resolve5(response);
+                resolve7(response);
               }
             });
             return;
@@ -4122,11 +4122,11 @@ var require_lib2 = __commonJS({
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
             response = new Response3(body, response_options);
-            resolve5(response);
+            resolve7(response);
             return;
           }
           response = new Response3(body, response_options);
-          resolve5(response);
+          resolve7(response);
         });
         writeToStream(req, request);
       });
@@ -10152,25 +10152,25 @@ var require_util = __commonJS({
         };
       },
       createDeferredPromise: function() {
-        let resolve5;
+        let resolve7;
         let reject;
         const promise = new Promise((res, rej) => {
-          resolve5 = res;
+          resolve7 = res;
           reject = rej;
         });
         return {
           promise,
-          resolve: resolve5,
+          resolve: resolve7,
           reject
         };
       },
       promisify(fn) {
-        return new Promise((resolve5, reject) => {
+        return new Promise((resolve7, reject) => {
           fn((err3, ...args) => {
             if (err3) {
               return reject(err3);
             }
-            return resolve5(...args);
+            return resolve7(...args);
           });
         });
       },
@@ -10961,7 +10961,7 @@ var require_end_of_stream = __commonJS({
         validateBoolean(opts.cleanup, "cleanup");
         autoCleanup = opts.cleanup;
       }
-      return new Promise2((resolve5, reject) => {
+      return new Promise2((resolve7, reject) => {
         const cleanup = eos(stream, opts, (err3) => {
           if (autoCleanup) {
             cleanup();
@@ -10969,7 +10969,7 @@ var require_end_of_stream = __commonJS({
           if (err3) {
             reject(err3);
           } else {
-            resolve5();
+            resolve7();
           }
         });
       });
@@ -12135,7 +12135,7 @@ var require_readable = __commonJS({
         error2 = this.readableEnded ? null : new AbortError();
         this.destroy(error2);
       }
-      return new Promise2((resolve5, reject) => eos(this, (err3) => err3 && err3 !== error2 ? reject(err3) : resolve5(null)));
+      return new Promise2((resolve7, reject) => eos(this, (err3) => err3 && err3 !== error2 ? reject(err3) : resolve7(null)));
     };
     Readable2.prototype.push = function(chunk, encoding) {
       return readableAddChunk(this, chunk, encoding, false);
@@ -12679,12 +12679,12 @@ var require_readable = __commonJS({
     }
     async function* createAsyncIterator(stream, options) {
       let callback = nop;
-      function next(resolve5) {
+      function next(resolve7) {
         if (this === stream) {
           callback();
           callback = nop;
         } else {
-          callback = resolve5;
+          callback = resolve7;
         }
       }
       stream.on("readable", next);
@@ -13736,7 +13736,7 @@ var require_duplexify = __commonJS({
       );
     };
     function fromAsyncGen(fn) {
-      let { promise, resolve: resolve5 } = createDeferredPromise();
+      let { promise, resolve: resolve7 } = createDeferredPromise();
       const ac = new AbortController2();
       const signal = ac.signal;
       const value = fn(
@@ -13751,7 +13751,7 @@ var require_duplexify = __commonJS({
               throw new AbortError(void 0, {
                 cause: signal.reason
               });
-            ({ promise, resolve: resolve5 } = createDeferredPromise());
+            ({ promise, resolve: resolve7 } = createDeferredPromise());
             yield chunk;
           }
         })(),
@@ -13762,8 +13762,8 @@ var require_duplexify = __commonJS({
       return {
         value,
         write(chunk, encoding, cb) {
-          const _resolve = resolve5;
-          resolve5 = null;
+          const _resolve = resolve7;
+          resolve7 = null;
           _resolve({
             chunk,
             done: false,
@@ -13771,8 +13771,8 @@ var require_duplexify = __commonJS({
           });
         },
         final(cb) {
-          const _resolve = resolve5;
-          resolve5 = null;
+          const _resolve = resolve7;
+          resolve7 = null;
           _resolve({
             done: true,
             cb
@@ -14223,7 +14223,7 @@ var require_pipeline = __commonJS({
           callback();
         }
       };
-      const wait = () => new Promise2((resolve5, reject) => {
+      const wait = () => new Promise2((resolve7, reject) => {
         if (error2) {
           reject(error2);
         } else {
@@ -14231,7 +14231,7 @@ var require_pipeline = __commonJS({
             if (error2) {
               reject(error2);
             } else {
-              resolve5();
+              resolve7();
             }
           };
         }
@@ -14875,8 +14875,8 @@ var require_operators = __commonJS({
                 next = null;
               }
               if (!done && (queue.length >= highWaterMark || cnt >= concurrency)) {
-                await new Promise2((resolve5) => {
-                  resume = resolve5;
+                await new Promise2((resolve7) => {
+                  resume = resolve7;
                 });
               }
             }
@@ -14910,8 +14910,8 @@ var require_operators = __commonJS({
               queue.shift();
               maybeResume();
             }
-            await new Promise2((resolve5) => {
-              next = resolve5;
+            await new Promise2((resolve7) => {
+              next = resolve7;
             });
           }
         } finally {
@@ -15169,7 +15169,7 @@ var require_promises = __commonJS({
     var { finished } = require_end_of_stream();
     require_stream();
     function pipeline(...streams) {
-      return new Promise2((resolve5, reject) => {
+      return new Promise2((resolve7, reject) => {
         let signal;
         let end;
         const lastArg = streams[streams.length - 1];
@@ -15184,7 +15184,7 @@ var require_promises = __commonJS({
             if (err3) {
               reject(err3);
             } else {
-              resolve5(value);
+              resolve7(value);
             }
           },
           {
@@ -18728,11 +18728,11 @@ async function down(args = []) {
     if (args.includes("--all")) {
       const { homeRoot: homeRoot2 } = await Promise.resolve().then(() => (init_config(), config_exports));
       const { readdir } = await import("node:fs/promises");
-      const { join: join11 } = await import("node:path");
-      const roots = [join11(homeRoot2(), "store")];
+      const { join: join12 } = await import("node:path");
+      const roots = [join12(homeRoot2(), "store")];
       try {
-        const projects = await readdir(join11(homeRoot2(), "projects"));
-        for (const p2 of projects) roots.push(join11(homeRoot2(), "projects", p2, "store"));
+        const projects = await readdir(join12(homeRoot2(), "projects"));
+        for (const p2 of projects) roots.push(join12(homeRoot2(), "projects", p2, "store"));
       } catch {
       }
       for (const r2 of roots) await stopDaemon(r2).catch((e2) => console.error(`predicate down: ${r2}: ${e2.message}`));
@@ -18759,7 +18759,26 @@ init_config();
 init_storage();
 init_graphs();
 import { existsSync as existsSync5, accessSync, constants, rmSync } from "node:fs";
-import { dirname as dirname4, join as join8 } from "node:path";
+import { dirname as dirname4, join as join8, resolve as resolve4 } from "node:path";
+import { fileURLToPath as fileURLToPath3 } from "node:url";
+var PLATFORM_HOOK_DIR = {
+  codex: "hooks/codex-cli",
+  gemini: "hooks/gemini-cli"
+};
+function platformChecks(platform) {
+  const dir = PLATFORM_HOOK_DIR[platform];
+  if (!dir) {
+    return [{ name: "platform", ok: false, detail: `unknown platform '${platform}' (codex|gemini)` }];
+  }
+  const root = dirname4(fileURLToPath3(import.meta.url));
+  const scripts = ["session-start.sh", "stop.sh"];
+  const present = scripts.map((s2) => existsSync5(resolve4(root, dir, s2)));
+  return [{
+    name: "hook scripts",
+    ok: present.every(Boolean),
+    detail: scripts.join(", ")
+  }];
+}
 async function roundTripSelfTest(storePath) {
   const S2 = "urn:predicate:selftest:s";
   const P2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
@@ -18783,7 +18802,15 @@ async function roundTripSelfTest(storePath) {
   }
   return survived ? { persisted: true, detail: "assert \u2192 flush \u2192 reopen \u2192 read OK" } : { persisted: false, detail: "triple lost across reopen \u2014 flush-on-close is broken" };
 }
-async function doctor() {
+async function doctor(args = []) {
+  const platform = args[0];
+  if (platform) {
+    const checks2 = platformChecks(platform);
+    for (const c2 of checks2) {
+      console.log(`${c2.ok ? "ok  " : "FAIL"} ${c2.name}${c2.detail ? " \u2014 " + c2.detail : ""}`);
+    }
+    return checks2.every((c2) => c2.ok) ? 0 : 1;
+  }
   const cfg = loadConfig();
   const checks = [];
   checks.push({ name: "backend", ok: true, detail: cfg.backend });
@@ -20040,8 +20067,8 @@ function _addRequestID(value, response) {
 }
 var APIPromise = class _APIPromise extends Promise {
   constructor(responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve5) => {
-      resolve5(null);
+    super((resolve7) => {
+      resolve7(null);
     });
     this.responsePromise = responsePromise;
     this.parseResponse = parseResponse;
@@ -20633,7 +20660,7 @@ var startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
 var isAbsoluteURL = (url) => {
   return startsWithSchemeRegexp.test(url);
 };
-var sleep2 = (ms) => new Promise((resolve5) => setTimeout(resolve5, ms));
+var sleep2 = (ms) => new Promise((resolve7) => setTimeout(resolve7, ms));
 var validatePositiveInteger = (name, n2) => {
   if (typeof n2 !== "number" || !Number.isInteger(n2)) {
     throw new AnthropicError(`${name} must be an integer`);
@@ -21247,12 +21274,12 @@ var BetaMessageStream = class _BetaMessageStream {
       }
       return this._emit("error", new AnthropicError(String(error2)));
     });
-    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve5, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve5, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve7, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve7, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve5, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve5, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve7, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve7, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet8(this, _BetaMessageStream_connectedPromise, "f").catch(() => {
@@ -21410,11 +21437,11 @@ var BetaMessageStream = class _BetaMessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve5, reject) => {
+    return new Promise((resolve7, reject) => {
       __classPrivateFieldSet7(this, _BetaMessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve5);
+      this.once(event, resolve7);
     });
   }
   async done() {
@@ -21698,7 +21725,7 @@ var BetaMessageStream = class _BetaMessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve5, reject) => readQueue.push({ resolve: resolve5, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve7, reject) => readQueue.push({ resolve: resolve7, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -21972,12 +21999,12 @@ var MessageStream = class _MessageStream {
       }
       return this._emit("error", new AnthropicError(String(error2)));
     });
-    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve5, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve5, "f");
+    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve7, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve7, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve5, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve5, "f");
+    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve7, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve7, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet9(this, _MessageStream_connectedPromise, "f").catch(() => {
@@ -22135,11 +22162,11 @@ var MessageStream = class _MessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve5, reject) => {
+    return new Promise((resolve7, reject) => {
       __classPrivateFieldSet8(this, _MessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve5);
+      this.once(event, resolve7);
     });
   }
   async done() {
@@ -22423,7 +22450,7 @@ var MessageStream = class _MessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve5, reject) => readQueue.push({ resolve: resolve5, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve7, reject) => readQueue.push({ resolve: resolve7, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -23555,7 +23582,7 @@ var SchemaProposer = class {
 // ../predicate-agent/src/promotion-sweeper.ts
 init_storage();
 import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
-import { resolve as resolve4 } from "node:path";
+import { resolve as resolve5 } from "node:path";
 
 // ../predicate-reasoner/src/shacl.ts
 var import_n3 = __toESM(require_lib3(), 1);
@@ -28650,7 +28677,7 @@ var PromotionSweeper = class {
   constructor(client, opts = {}) {
     this.client = client;
     this.useThreshold = opts.useThreshold ?? 3;
-    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? (process.env["PREDICATE_STORE_PATH"] ? resolve4(process.env["PREDICATE_STORE_PATH"], "promoted") : resolve4(process.cwd(), ".predicate", "promoted"));
+    this.promotedDir = opts.promotedDir ?? process.env["PREDICATE_PROMOTED_DIR"] ?? (process.env["PREDICATE_STORE_PATH"] ? resolve5(process.env["PREDICATE_STORE_PATH"], "promoted") : resolve5(process.cwd(), ".predicate", "promoted"));
     this.reasoner = new FusekiConstructAdapter(client);
   }
   client;
@@ -28939,7 +28966,7 @@ var PromotionSweeper = class {
         o: o2.type === "uri" ? { type: "uri", value: o2.value } : { type: "literal", value: o2.value, datatype: o2.datatype }
       };
     });
-    const turtleFile = resolve4(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
+    const turtleFile = resolve5(this.promotedDir, `${p2.id.replace(/[^A-Za-z0-9-]/g, "_")}.ttl`);
     const turtle = quads.map(tripleTurtle).join("\n") + "\n";
     this.ensurePromotedDir();
     writeFileSync2(turtleFile, turtle, "utf8");
@@ -30256,7 +30283,7 @@ init_config();
 import { createServer as createServer2 } from "node:http";
 import { readFileSync as readFileSync4 } from "node:fs";
 import { join as join10, dirname as dirname5 } from "node:path";
-import { fileURLToPath as fileURLToPath3 } from "node:url";
+import { fileURLToPath as fileURLToPath4 } from "node:url";
 import { spawn as spawn2 } from "node:child_process";
 function parseFlag7(args, name) {
   const i2 = args.indexOf(name);
@@ -30286,11 +30313,11 @@ function openBrowser(url) {
 }
 async function proxyQuery(req, res, fusekiUrl, dataset2) {
   let body = "";
-  await new Promise((resolve5, reject) => {
+  await new Promise((resolve7, reject) => {
     req.on("data", (c2) => {
       body += String(c2);
     });
-    req.on("end", () => resolve5());
+    req.on("end", () => resolve7());
     req.on("error", reject);
   });
   try {
@@ -30316,7 +30343,7 @@ var lastDigest;
 async function runAction(req, res) {
   let body = "";
   let aborted = false;
-  await new Promise((resolve5, reject) => {
+  await new Promise((resolve7, reject) => {
     req.on("data", (c2) => {
       body += String(c2);
       if (body.length > 4096) {
@@ -30324,7 +30351,7 @@ async function runAction(req, res) {
         req.destroy();
       }
     });
-    req.on("end", () => resolve5());
+    req.on("end", () => resolve7());
     req.on("error", reject);
   });
   if (aborted) {
@@ -30367,9 +30394,9 @@ async function runAction(req, res) {
   child.stderr.on("data", (c2) => {
     stderr = cap(stderr, String(c2));
   });
-  const exitCode = await new Promise((resolve5) => {
-    child.on("close", (code) => resolve5(code ?? -1));
-    child.on("error", () => resolve5(-1));
+  const exitCode = await new Promise((resolve7) => {
+    child.on("close", (code) => resolve7(code ?? -1));
+    child.on("error", () => resolve7(-1));
   });
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ ok: exitCode === 0, exitCode, stdout, stderr }));
@@ -30465,7 +30492,7 @@ async function handleEvents(req, res, fusekiUrl, dataset2) {
   });
 }
 function findDashboardHtml() {
-  const here = dirname5(fileURLToPath3(import.meta.url));
+  const here = dirname5(fileURLToPath4(import.meta.url));
   const candidates = [
     join10(here, "..", "..", "..", "predicate-skill", "dashboard", "index.html"),
     join10(here, "dashboard", "index.html"),
@@ -30507,16 +30534,16 @@ async function startDashboardServer(port) {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("not found");
   });
-  await new Promise((resolve5, reject) => {
+  await new Promise((resolve7, reject) => {
     server.once("error", reject);
-    server.listen(port, "127.0.0.1", () => resolve5());
+    server.listen(port, "127.0.0.1", () => resolve7());
   });
   const address = server.address();
   const boundPort = typeof address === "object" && address ? address.port : port;
   return {
     port: boundPort,
     url: `http://127.0.0.1:${boundPort}`,
-    close: () => new Promise((resolve5) => {
+    close: () => new Promise((resolve7) => {
       for (const c2 of sseClients) c2.end();
       sseClients.clear();
       if (pollerTimer) {
@@ -30524,7 +30551,7 @@ async function startDashboardServer(port) {
         pollerTimer = void 0;
         lastDigest = void 0;
       }
-      server.close(() => resolve5());
+      server.close(() => resolve7());
     })
   };
 }
@@ -30867,6 +30894,68 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
   return 0;
 }
 
+// ../predicate-cli/src/commands/install.ts
+import { mkdirSync as mkdirSync2, readFileSync as readFileSync5, writeFileSync as writeFileSync3, existsSync as existsSync6, copyFileSync } from "node:fs";
+import { dirname as dirname6, join as join11, resolve as resolve6 } from "node:path";
+import { fileURLToPath as fileURLToPath5 } from "node:url";
+var MCP_ENV = { PREDICATE_BACKEND: "oxigraph", PREDICATE_DATASET: "predicate" };
+function configSpec(platform) {
+  switch (platform) {
+    case "vscode":
+      return { rel: ".vscode/mcp.json", key: "servers" };
+    case "cursor":
+      return { rel: ".cursor/mcp.json", key: "mcpServers" };
+  }
+}
+function readJson(path2) {
+  if (!existsSync6(path2)) return {};
+  try {
+    return JSON.parse(readFileSync5(path2, "utf8"));
+  } catch {
+    return {};
+  }
+}
+function writeMcpConfig(platform, projectDir, serverPath) {
+  const { rel, key } = configSpec(platform);
+  const out = join11(projectDir, rel);
+  mkdirSync2(dirname6(out), { recursive: true });
+  const cfg = readJson(out);
+  const servers = cfg[key] ?? {};
+  servers.predicate = { command: "node", args: [serverPath], env: { ...MCP_ENV } };
+  cfg[key] = servers;
+  writeFileSync3(out, JSON.stringify(cfg, null, 2) + "\n");
+  return out;
+}
+function bundledServerPath() {
+  const here = dirname6(fileURLToPath5(import.meta.url));
+  const candidate = resolve6(here, "server.bundle.mjs");
+  return existsSync6(candidate) ? candidate : resolve6(here, "../../../predicate-skill/server.bundle.mjs");
+}
+function dropInstructions(projectDir) {
+  const here = dirname6(fileURLToPath5(import.meta.url));
+  const src = resolve6(here, "AGENTS.md");
+  if (!existsSync6(src)) return null;
+  const dst = join11(projectDir, "AGENTS.md");
+  if (!existsSync6(dst)) copyFileSync(src, dst);
+  return existsSync6(dst) ? dst : null;
+}
+async function install(args) {
+  const platform = args[0];
+  if (platform !== "vscode" && platform !== "cursor") {
+    console.error("usage: predicate install <vscode|cursor>");
+    console.error("  (Claude/Codex/Gemini install via their own marketplace/extension commands)");
+    return 2;
+  }
+  const projectDir = process.cwd();
+  const serverPath = bundledServerPath();
+  const written = writeMcpConfig(platform, projectDir, serverPath);
+  const instr = dropInstructions(projectDir);
+  console.log(`Wrote ${written}`);
+  if (instr) console.log(`Wrote ${instr}`);
+  console.log(`Restart ${platform === "vscode" ? "VS Code" : "Cursor"} to load the predicate MCP server.`);
+  return 0;
+}
+
 // ../predicate-cli/src/index.ts
 var VERSION2 = true ? "2.6.1" : "0.0.0-dev";
 function help10() {
@@ -30898,6 +30987,7 @@ Commands:
   schema            List / approve / reject pending kg:tbox-staging proposals.
   config            Get/set runtime config (schema-learning toggle, init keys).
   migrate           Migrate data: --from fuseki --to oxigraph.
+  install           Write MCP config + AGENTS.md for an MCP-only host: install <vscode|cursor>.
   --version         Print the predicate version.
   --help            This message.
 
@@ -30925,7 +31015,7 @@ async function main() {
     case "down":
       return down(process.argv.slice(3));
     case "doctor":
-      return doctor();
+      return doctor(process.argv.slice(3));
     case "stats":
       return stats();
     case "sessionstart":
@@ -30952,6 +31042,8 @@ async function main() {
       return init(process.argv.slice(3));
     case "migrate":
       return migrate(process.argv.slice(3));
+    case "install":
+      return install(process.argv.slice(3));
     case "--version":
     case "version":
       console.log(VERSION2);
