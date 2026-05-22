@@ -69,6 +69,10 @@ async function waitForHealth(host: string, port: number, tries = 50): Promise<bo
 /** Ensure a daemon is serving `storePath`. Reuse a live one if the handshake is
  *  valid; otherwise spawn a fresh one on a free localhost port. */
 export async function ensureUp(storePath: string): Promise<DaemonHandle> {
+  // NOTE: two concurrent callers can both pass the no-valid-handshake guard and
+  // each spawn. The loser fails RocksDB's exclusive write lock and exits;
+  // waitForHealth then returns false → BackendUnavailable → WASM fallback. No
+  // external lock here: the spec accepts this for per-store singletons.
   const existing = await readHandshake(storePath);
   if (existing && pidAlive(existing.pid) && (await healthOk(existing.host, existing.port))) {
     return existing;
@@ -84,9 +88,13 @@ export async function ensureUp(storePath: string): Promise<DaemonHandle> {
   });
   child.unref();
 
+  if (child.pid === undefined) {
+    throw new BackendUnavailable(`oxigraph daemon spawn failed (no PID assigned) for ${bin}`);
+  }
+
   if (!(await waitForHealth('127.0.0.1', port))) {
     try { if (child.pid) process.kill(child.pid); } catch { /* ignore */ }
-    throw new BackendUnavailable(`oxigraph daemon did not become ready on 127.0.0.1:${port}`);
+    throw new BackendUnavailable(`oxigraph daemon did not become ready on 127.0.0.1:${port} after 10s`);
   }
 
   const handle: DaemonHandle = { host: '127.0.0.1', port, pid: child.pid!, version: OXIGRAPH_VERSION };
@@ -98,7 +106,11 @@ export async function ensureUp(storePath: string): Promise<DaemonHandle> {
 export async function stop(storePath: string): Promise<void> {
   const h = await readHandshake(storePath);
   if (!h) return;
-  try { process.kill(h.pid, 'SIGTERM'); } catch { /* already gone */ }
+  // Only kill if the recorded PID is still our live daemon; otherwise the PID may
+  // have been recycled to an unrelated process. Either way, clear the handshake.
+  if (pidAlive(h.pid) && (await healthOk(h.host, h.port))) {
+    try { process.kill(h.pid, 'SIGTERM'); } catch { /* already gone */ }
+  }
   try { await fs.unlink(handshakePath(storePath)); } catch { /* ignore */ }
 }
 
