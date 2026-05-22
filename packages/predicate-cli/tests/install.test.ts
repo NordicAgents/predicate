@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, readFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, rmSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { writeMcpConfig } from '../src/commands/install.js';
@@ -25,11 +25,17 @@ describe('writeMcpConfig', () => {
     expect(cfg.mcpServers.predicate.args[0]).toBe('/abs/server.bundle.mjs');
   });
 
-  it('preserves a pre-existing unrelated server entry', () => {
-    writeMcpConfig('vscode', dir, '/abs/server.bundle.mjs');
+  it('preserves a pre-existing unrelated server entry and top-level keys', () => {
+    // Seed an existing .vscode/mcp.json with an unrelated server + extra key.
+    mkdirSync(join(dir, '.vscode'), { recursive: true });
+    writeFileSync(
+      join(dir, '.vscode/mcp.json'),
+      JSON.stringify({ servers: { otherTool: { command: 'foo' } }, someTopLevelExtra: 1 }),
+    );
     const out = writeMcpConfig('vscode', dir, '/abs/server.bundle.mjs');
     const cfg = JSON.parse(readFileSync(out, 'utf8'));
-    expect(existsSync(out)).toBe(true);
-    expect(cfg.servers.predicate).toBeDefined();
+    expect(cfg.servers.predicate.args[0]).toBe('/abs/server.bundle.mjs');
+    expect(cfg.servers.otherTool).toEqual({ command: 'foo' }); // unrelated entry untouched
+    expect(cfg.someTopLevelExtra).toBe(1); // sibling top-level key preserved
   });
 });
