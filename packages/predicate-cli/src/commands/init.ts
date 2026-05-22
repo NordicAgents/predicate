@@ -83,6 +83,18 @@ async function loadJudgmentOverlay(client: StorageAdapter, catalogDir: string): 
   await loadTtlFile(client, join(catalogDir, 'judgment.shacl.ttl'));
 }
 
+// Mode-independent vocabulary that every initialised store must carry: the
+// pred: meta vocabulary (pred:sessionId, pred:at, …) and the judgment overlay.
+// applyPlan loads these for fresh inits; the legacy-codebase fast-path in `up`
+// calls this so upgraded stores aren't left without meta (which would make the
+// Stop-hook extractor's session/timestamp triples fail TBox validation).
+// Idempotent: loadTurtle merges, so re-loading declared terms is a no-op.
+export async function loadCoreVocab(client: StorageAdapter): Promise<void> {
+  const catalogDir = findCatalogDir();
+  await loadTtlFile(client, findMetaTtl(catalogDir));
+  await loadJudgmentOverlay(client, catalogDir);
+}
+
 // v2.0.1: always wipes kg:tbox + kg:tbox-staging + kg:meta so init is idempotent
 // against TBox residue from a half-migrated v1.13 install or earlier test pollution.
 // When `force=true` also wipes the ABox-side graphs (caller has accepted destruction).

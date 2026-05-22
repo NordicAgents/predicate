@@ -41,6 +41,14 @@ describe('predicate up — v2.0 legacy migration', () => {
        ASK { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology "codebase" } }`,
     );
     expect(configured).toBe(true);
+
+    // Regression: legacy adoption must also load the core meta vocab, or the
+    // Stop-hook extractor's pred:sessionId / pred:at triples get rejected as
+    // undeclared on every session.
+    const hasMeta = await client.ask(
+      `ASK { GRAPH <kg:tbox> { <https://predicate.dev/meta#sessionId> ?p ?o } }`,
+    );
+    expect(hasMeta).toBe(true);
   });
 
   it('skips init when config already exists', async () => {

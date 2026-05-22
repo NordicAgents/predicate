@@ -5,7 +5,13 @@
 # never blocks the user's next prompt.
 set -uo pipefail
 
-if ! command -v predicate >/dev/null 2>&1; then
+# Prefer the CLI bundled with the plugin (works even when `predicate` isn't on
+# PATH after a marketplace install); fall back to a global install otherwise.
+if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" && -f "${CLAUDE_PLUGIN_ROOT}/cli.bundle.mjs" ]]; then
+  predicate_cli() { node "${CLAUDE_PLUGIN_ROOT}/cli.bundle.mjs" "$@"; }
+elif command -v predicate >/dev/null 2>&1; then
+  predicate_cli() { predicate "$@"; }
+else
   exit 0
 fi
 
@@ -13,8 +19,8 @@ fi
 payload="$(cat || true)"
 
 if [ -n "$payload" ]; then
-  printf '%s' "$payload" | predicate extract --from-stdin >/dev/null 2>&1 || true
+  printf '%s' "$payload" | predicate_cli extract --from-stdin >/dev/null 2>&1 || true
 fi
 
-predicate maintain >/dev/null 2>&1 || true
+predicate_cli maintain >/dev/null 2>&1 || true
 exit 0
