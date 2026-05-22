@@ -27,7 +27,12 @@ const ASSET_BY_TARGET: Record<string, string> = {
 // SHA-256 of each release asset, pinned from the v0.5.8 GitHub release.
 // Populate via scripts/pin-oxigraph-checksums.mjs (Task 3).
 const SHA256_BY_ASSET: Record<string, string> = {
-  // filled in Task 3
+  'oxigraph_v0.5.8_aarch64_apple': '8ea2c129395b6ff5e98b754f868eefef2eb6bf0d93c64d3f281c0aa1e7fe7dbf',
+  'oxigraph_v0.5.8_x86_64_apple': '7d23bc08eeb3f30b2d9f880a173ff2686999091c52ca9ea15e00bf92433e4f59',
+  'oxigraph_v0.5.8_aarch64_linux_gnu': 'f4970b1b145ef280410f2334690017004983dd57a1fa449b188415730b3a6147',
+  'oxigraph_v0.5.8_x86_64_linux_gnu': 'c0cb0a3e747cfbc4a5b72ffc20b3eb9ebebf7f21f7b3deb447af3fd7abdcb112',
+  'oxigraph_v0.5.8_aarch64_windows_msvc.exe': 'e549d8705200c0cd6466cf822f7bbae4da07ede8fedad2351390141a58fdb1e3',
+  'oxigraph_v0.5.8_x86_64_windows_msvc.exe': '9c847300f440e4571a41957d9f9d54272a52baa703b27267a1ab0ede2ca513f6',
 };
 
 export function detectTarget(
