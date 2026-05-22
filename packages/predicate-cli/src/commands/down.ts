@@ -2,7 +2,7 @@ import { findComposeDir, dockerAvailable, compose } from '../docker.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { getCachedAdapter } from 'predicate-mcp/src/storage/factory.js';
 
-export async function down(): Promise<number> {
+export async function down(args: string[] = []): Promise<number> {
   const cfg = loadConfig();
 
   if (cfg.backend === 'fuseki') {
@@ -17,7 +17,7 @@ export async function down(): Promise<number> {
 
   if (cfg.backend === 'oxigraph') {
     const { stopDaemon } = await import('predicate-mcp/src/storage/index.js');
-    if (process.argv.includes('--all')) {
+    if (args.includes('--all')) {
       const { homeRoot } = await import('predicate-mcp/src/config.js');
       const { readdir } = await import('node:fs/promises');
       const { join } = await import('node:path');
@@ -26,7 +26,7 @@ export async function down(): Promise<number> {
         const projects = await readdir(join(homeRoot(), 'projects'));
         for (const p of projects) roots.push(join(homeRoot(), 'projects', p, 'store'));
       } catch { /* none */ }
-      for (const r of roots) await stopDaemon(r).catch(() => {});
+      for (const r of roots) await stopDaemon(r).catch((e) => console.error(`predicate down: ${r}: ${(e as Error).message}`));
       console.log(`predicate down: stopped home-registered oxigraph daemons (${roots.length} candidate stores).`);
       return 0;
     }
