@@ -8,7 +8,7 @@
 //   { type: "user",      message: { content: [{type:"tool_result", tool_use_id, is_error?, content}, ...] } }
 //
 // Claude Code already writes that canonical shape; its adapter is the
-// identity. Gemini CLI and OpenCode write similar information under
+// identity. Gemini CLI writes similar information under
 // different field names. Their transcript schemas are NOT formally
 // documented and may vary by version, so the parsers use permissive
 // field-candidate matching and fall through gracefully on unrecognized
@@ -79,55 +79,6 @@ export function adaptGeminiTranscript(
   });
 }
 
-export function adaptOpenCodeTranscript(
-  events: Array<Record<string, unknown>>,
-): Array<Record<string, unknown>> {
-  // Best-effort: OpenCode emits split before/after events per tool call.
-  //   { event: "tool.before", id|callId, tool: { name, input|args } }
-  //   { event: "tool.after",  id|callId, result?, error? }
-  return events.map((ev) => {
-    const evType = String(ev['event'] ?? ev['type'] ?? '');
-    if (evType === 'tool.before' || evType.endsWith('.before')) {
-      const tool = (ev['tool'] as Record<string, unknown> | undefined) ?? {};
-      return {
-        type: 'assistant',
-        message: {
-          role: 'assistant',
-          content: [
-            {
-              type: 'tool_use',
-              id: pickStr(ev, ['id', 'callId']) ?? '',
-              name: pickStr(tool, ['name']) ?? '',
-              input: (pick(tool, ['input', 'args']) as Record<string, unknown>) ?? {},
-            },
-          ],
-        },
-      };
-    }
-    if (evType === 'tool.after' || evType.endsWith('.after')) {
-      return {
-        type: 'user',
-        message: {
-          role: 'user',
-          content: [
-            {
-              type: 'tool_result',
-              tool_use_id: pickStr(ev, ['id', 'callId']) ?? '',
-              is_error: ev['error'] !== undefined && ev['error'] !== null,
-              content:
-                typeof ev['result'] === 'string'
-                  ? ev['result']
-                  : typeof ev['error'] === 'string'
-                    ? ev['error']
-                    : '',
-            },
-          ],
-        },
-      };
-    }
-    return ev;
-  });
-}
 
 function pick(o: Record<string, unknown>, keys: string[]): unknown {
   for (const k of keys) {

@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   adaptClaudeCodeTranscript,
   adaptGeminiTranscript,
-  adaptOpenCodeTranscript,
 } from '../src/transcript-adapters.js';
 import { extractDeterministic, type Transcript } from '../src/turn-extractor.js';
 
@@ -103,69 +102,3 @@ describe('adaptGeminiTranscript', () => {
   });
 });
 
-describe('adaptOpenCodeTranscript', () => {
-  it('transforms tool.before{tool:{name,input}} into canonical assistant/tool_use', () => {
-    const adapted = adaptOpenCodeTranscript([
-      {
-        event: 'tool.before',
-        id: 'o1',
-        tool: { name: 'Write', input: { file_path: '/work/oc.ts' } },
-      },
-    ]);
-    expect(adapted[0]).toEqual({
-      type: 'assistant',
-      message: {
-        role: 'assistant',
-        content: [
-          {
-            type: 'tool_use',
-            id: 'o1',
-            name: 'Write',
-            input: { file_path: '/work/oc.ts' },
-          },
-        ],
-      },
-    });
-  });
-
-  it('transforms tool.after with error:"..." into canonical user/tool_result with is_error:true', () => {
-    const adapted = adaptOpenCodeTranscript([
-      {
-        event: 'tool.after',
-        id: 'o1',
-        error: 'permission denied',
-      },
-    ]);
-    expect(adapted[0]).toEqual({
-      type: 'user',
-      message: {
-        role: 'user',
-        content: [
-          {
-            type: 'tool_result',
-            tool_use_id: 'o1',
-            is_error: true,
-            content: 'permission denied',
-          },
-        ],
-      },
-    });
-  });
-
-  it('produces events that extractDeterministic understands end-to-end', () => {
-    const adapted = adaptOpenCodeTranscript([
-      {
-        event: 'tool.before',
-        id: 'o1',
-        tool: { name: 'Edit', input: { file_path: '/work/oc.ts' } },
-      },
-      { event: 'tool.after', id: 'o1', result: 'ok' },
-    ]);
-    const transcript: Transcript = { sessionId: 'ses-oc', events: adapted };
-    const r = extractDeterministic(transcript);
-    const fileTriples = r.triples.filter(
-      (t) => t.subject === 'file:///work/oc.ts' && t.predicate.endsWith('#modifiedIn'),
-    );
-    expect(fileTriples).toHaveLength(1);
-  });
-});

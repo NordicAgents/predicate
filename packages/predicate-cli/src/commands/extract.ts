@@ -17,10 +17,9 @@ import { extractSemantic, type SemanticTriple } from 'predicate-agent/src/semant
 import {
   adaptClaudeCodeTranscript,
   adaptGeminiTranscript,
-  adaptOpenCodeTranscript,
 } from 'predicate-agent/src/transcript-adapters.js';
 
-const SUPPORTED_PLATFORMS = ['claude-code', 'gemini', 'opencode'] as const;
+export const SUPPORTED_PLATFORMS = ['claude-code', 'gemini'] as const;
 type Platform = (typeof SUPPORTED_PLATFORMS)[number];
 
 function parseFlag(args: string[], name: string): string | undefined {
@@ -37,8 +36,6 @@ function adapterFor(platform: Platform): (events: Array<Record<string, unknown>>
   switch (platform) {
     case 'gemini':
       return adaptGeminiTranscript;
-    case 'opencode':
-      return adaptOpenCodeTranscript;
     case 'claude-code':
     default:
       return adaptClaudeCodeTranscript;
@@ -75,7 +72,7 @@ Options:
   --from-stdin         Required (unless --replay is used).
   --replay <path>   Rebuild the extracted abox slice from a transcript file or
                     a directory of <session-id>.jsonl files (re-materializes inferred).
-  --platform <name>    One of: claude-code (default), gemini, opencode.
+  --platform <name>    One of: claude-code (default), gemini.
                        Selects the transcript adapter for the platform.
   --strict             Exit non-zero if any triple is rejected (default: exit 0
                        for Stop-hook safety).
