@@ -49,6 +49,8 @@ describe(`StorageAdapter conformance (BACKEND=${BACKEND})`, () => {
     if (_oxigraphServerStorePath !== null) {
       const { stop } = await import('../../src/storage/oxigraph-daemon.js');
       await stop(_oxigraphServerStorePath);
+      const { promises: fs } = await import('node:fs');
+      await fs.rm(_oxigraphServerStorePath, { recursive: true, force: true });
     }
   });
 

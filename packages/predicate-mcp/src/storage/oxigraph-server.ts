@@ -24,7 +24,9 @@ export class OxigraphServerAdapter implements StorageAdapter {
 
   async ready(): Promise<void> {
     if (this.readyPromise === null) {
-      this.readyPromise = ensureUp(this.storePath).then((h) => { this.handle = h; });
+      this.readyPromise = ensureUp(this.storePath)
+        .then((h) => { this.handle = h; })
+        .catch((e) => { this.readyPromise = null; throw e; });
     }
     await this.readyPromise;
   }
