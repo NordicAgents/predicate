@@ -62,9 +62,12 @@ export function geminiHooksJson() {
   const cmd = (script) => `bash "\${extensionPath}/hooks/gemini-cli/${script}"`;
   return {
     hooks: {
-      SessionStart: [{ matcher: 'startup|resume', hooks: [{ type: 'command', command: cmd('session-start.sh') }] }],
-      AfterAgent:   [{ matcher: '', hooks: [{ type: 'command', command: cmd('stop.sh') }] }],
-      PreCompress:  [{ matcher: '', hooks: [{ type: 'command', command: cmd('pre-compact.sh') }] }],
+      SessionStart: [
+        { matcher: 'startup', hooks: [{ type: 'command', command: cmd('session-start.sh') }] },
+        { matcher: 'resume',  hooks: [{ type: 'command', command: cmd('session-start.sh') }] },
+      ],
+      AfterAgent:  [{ matcher: '', hooks: [{ type: 'command', command: cmd('stop.sh') }] }],
+      PreCompress: [{ matcher: '', hooks: [{ type: 'command', command: cmd('pre-compact.sh') }] }],
     },
   };
 }
@@ -73,9 +76,11 @@ export function generateAll() {
   const skill = readFileSync(SKILL_PATH, 'utf8');
   const written = [];
 
-  // One AGENTS.md and one GEMINI.md (deduped by filename across platforms).
+  // AGENTS.md at package root (Codex/Cursor/VSCode). GEMINI.md is generated
+  // separately into the self-contained gemini-extension/ dir below.
   const files = new Set(Object.values(PLATFORMS).map((p) => p.instructionFile));
   for (const name of files) {
+    if (name === 'GEMINI.md') continue;
     writeFileSync(resolve(root, name), buildInstructionDoc(skill, name));
     written.push(name);
   }
@@ -88,16 +93,21 @@ export function generateAll() {
     JSON.stringify(codexMcpJson(), null, 2) + '\n');
   written.push('.codex-plugin/plugin.json', '.mcp.json');
 
-  // Gemini extension manifest
-  writeFileSync(resolve(root, 'gemini-extension.json'),
-    JSON.stringify(geminiExtensionManifest(), null, 2) + '\n');
-  written.push('gemini-extension.json');
+  // Self-contained Gemini extension: manifest, context doc, and hooks all
+  // live under gemini-extension/ (Gemini copies the dir on install).
+  mkdirSync(resolve(root, 'gemini-extension/hooks'), { recursive: true });
+  writeFileSync(resolve(root, 'gemini-extension/GEMINI.md'),
+    buildInstructionDoc(skill, 'GEMINI.md'));
+  written.push('gemini-extension/GEMINI.md');
 
-  // Gemini hooks/hooks.json — REAL Gemini event names
-  mkdirSync(resolve(root, 'hooks/gemini-cli'), { recursive: true });
-  writeFileSync(resolve(root, 'hooks/gemini-cli/hooks.json'),
+  writeFileSync(resolve(root, 'gemini-extension/gemini-extension.json'),
+    JSON.stringify(geminiExtensionManifest(), null, 2) + '\n');
+  written.push('gemini-extension/gemini-extension.json');
+
+  // Gemini hooks.json — REAL Gemini event names, at the extension root.
+  writeFileSync(resolve(root, 'gemini-extension/hooks/hooks.json'),
     JSON.stringify(geminiHooksJson(), null, 2) + '\n');
-  written.push('hooks/gemini-cli/hooks.json');
+  written.push('gemini-extension/hooks/hooks.json');
 
   return written;
 }

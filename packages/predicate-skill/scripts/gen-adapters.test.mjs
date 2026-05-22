@@ -40,9 +40,10 @@ describe('manifests', () => {
     expect(g.mcpServers.predicate.args[0]).toBe('${extensionPath}/server.bundle.mjs');
     expect(g.version).toBe('9.9.9');
   });
-  it('gemini hooks.json uses the real Gemini event names', () => {
+  it('gemini hooks.json uses real event names with split SessionStart matchers', () => {
     const h = geminiHooksJson();
     expect(Object.keys(h.hooks).sort()).toEqual(['AfterAgent', 'PreCompress', 'SessionStart']);
+    expect(h.hooks.SessionStart.map((e) => e.matcher).sort()).toEqual(['resume', 'startup']);
     expect(JSON.stringify(h)).toContain('${extensionPath}/hooks/gemini-cli/stop.sh');
   });
 });

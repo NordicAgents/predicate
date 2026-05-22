@@ -2,7 +2,16 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume",
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${extensionPath}/hooks/gemini-cli/session-start.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
         "hooks": [
           {
             "type": "command",
