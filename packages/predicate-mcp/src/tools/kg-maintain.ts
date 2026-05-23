@@ -4,6 +4,7 @@ import {
   PromotionSweeper, type SweeperResult,
   Generalizer, type GeneralizerResult,
   LifecycleController,
+  ShadowEvaluator,
 } from 'predicate-agent/src/index.js';
 import { runFixpoint } from 'predicate-reasoner/src/fixpoint.js';
 import { RULES } from 'predicate-reasoner/src/rules/index.js';
@@ -65,6 +66,7 @@ export async function kgMaintain(
     const sweeper = await new PromotionSweeper(client, {
       useThreshold: input.useThreshold ?? 3,
     }).run();
+    await new ShadowEvaluator(client).run({ tier: signal.tier });
     return {
       archivedCount: 0,
       elapsedMs: Date.now() - t0,
@@ -114,6 +116,8 @@ export async function kgMaintain(
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3,
   }).run();
+
+  await new ShadowEvaluator(client).run({ tier: signal.tier });
 
   const tFix = Date.now();
   const fixpoint = await runFixpoint(client, RULES, {
