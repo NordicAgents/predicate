@@ -27,7 +27,9 @@ export class LifecycleController {
       const r = await this.client.select(
         `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${g}> { ?s ?p ?o } }`,
       );
-      tripleCount += parseInt(r.results.bindings[0]!['n']!.value, 10);
+      const raw = r.results.bindings[0]?.['n']?.value;
+      const n = raw ? parseInt(raw, 10) : 0;
+      tripleCount += Number.isNaN(n) ? 0 : n;
     }
     return {
       tier: tripleCount >= this.scaleGateTriples ? 'Active' : 'Seedling',
