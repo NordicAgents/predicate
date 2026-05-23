@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { getAdapter } from '../../src/storage/index.js';
 
 import { kgMaintain } from '../../src/tools/kg-maintain.js';
+import { kgConfigSet } from '../../src/tools/kg-config.js';
 import { SchemaProposer } from 'predicate-agent/src/index.js';
 
 const client = getAdapter();
@@ -17,6 +18,10 @@ beforeEach(async () => {
   }
   // Note: we INSERT directly to kg:abox bypassing kg_assert for fixture speed,
   // sidestepping the TBox-membership check that would reject 'urn:test:p'.
+  // Force the Active tier (gate=0) so these tests exercise the reaper +
+  // generalizer paths; the scale-gate (Task 5) would otherwise put these
+  // small-graph fixtures into Seedling and skip archiving/generalization.
+  await kgConfigSet(client, { key: 'scale-gate-triples', value: 0 });
 });
 
 afterAll(async () => {
