@@ -6,7 +6,7 @@ import { appendScoreboard, renderCurve } from './report.js';
 import type { ScoreRow } from './eval-types.js';
 
 const DOMAINS: Record<string, { episodes: number }> = {
-  org: { episodes: 4 },
+  org: { episodes: 8 },
   research: { episodes: 4 },
   coding: { episodes: 3 },
 };

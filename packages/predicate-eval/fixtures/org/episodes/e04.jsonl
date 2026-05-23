@@ -1,2 +1,2 @@
-{"s":"http://ex/org/lee","p":"http://ex/org#reportsTo","o":"http://ex/org/omar"}
-{"s":"http://ex/org/lee","p":"http://ex/org#reportsTo","o":"http://ex/org/nadia"}
+{"s":"http://ex/org/quinn","p":"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","o":"http://ex/org#Contractor"}
+{"s":"http://ex/org/zoe","p":"http://ex/org#reportsTo","o":"http://ex/org/quinn"}

@@ -5,7 +5,14 @@ export type KeySpec =
   | { derive: 'direct'; rel: string; from: string }
   | { derive: 'boolean-conflict'; about: string }
   | { derive: 'conflict-ids'; about: string }
-  | { derive: 'path'; edges: Array<[string, string, string]> };
+  | { derive: 'path'; edges: Array<[string, string, string]> }
+  // Hand-authored ground truth for questions that require OWL entailment to
+  // answer (subclass-type, inverse-property, domain inference, disjointness) —
+  // where deriving the key mechanically would mean replicating the reasoner.
+  // `since` is the episode at which the fact becomes true; before it the key
+  // is empty/false (so the fixture-integrity check still holds).
+  | { derive: 'literal-set'; values: string[]; since: number }
+  | { derive: 'literal-boolean'; since: number };
 
 export interface Question {
   id: string;

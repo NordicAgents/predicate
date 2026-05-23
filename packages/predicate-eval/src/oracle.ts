@@ -60,6 +60,10 @@ export function deriveAnswerKey(
       };
     case 'path':
       return { kind: 'path', edges: key.edges };
+    case 'literal-set':
+      return { kind: 'set', values: new Set(cutoff >= key.since ? key.values : []) };
+    case 'literal-boolean':
+      return { kind: 'boolean', value: cutoff >= key.since };
     default: {
       const _exhaustive: never = key;
       throw new Error(`unknown key derive: ${JSON.stringify(_exhaustive)} (type=${type})`);

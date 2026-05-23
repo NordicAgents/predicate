@@ -1,7 +1,7 @@
 [
   {
     "id": "org-q01",
-    "text": "Who is in Dana's management chain?",
+    "text": "Who is in Dana's management chain (transitively)?",
     "type": "set",
     "key": { "derive": "transitive", "rel": "http://ex/org#reportsTo", "from": "http://ex/org/dana" },
     "needs_episode": 1,
@@ -10,13 +10,73 @@
     "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/org/dana> <http://ex/org#reportsTo> ?p } }"
   },
   {
+    "id": "org-q08",
+    "text": "Who does Omar report to (transitively)?",
+    "type": "set",
+    "key": { "derive": "transitive", "rel": "http://ex/org#reportsTo", "from": "http://ex/org/omar" },
+    "needs_episode": 3,
+    "rule_under_test": ["r03"],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/org/omar> <http://ex/org#reportsTo> ?p } }"
+  },
+  {
+    "id": "org-q03",
+    "text": "Who does Erin manage (her reporting line — manages is the inverse of the transitive reportsTo)?",
+    "type": "set",
+    "key": { "derive": "literal-set", "values": ["http://ex/org/dana", "http://ex/org/sofia"], "since": 1 },
+    "needs_episode": 1,
+    "rule_under_test": ["r04", "r03"],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?x WHERE { GRAPH <kg:inferred> { <http://ex/org/erin> <http://ex/org#manages> ?x } }"
+  },
+  {
+    "id": "org-q04",
+    "text": "Is Quinn a Person?",
+    "type": "boolean",
+    "key": { "derive": "literal-boolean", "since": 4 },
+    "needs_episode": 4,
+    "rule_under_test": ["r01"],
+    "reasoning_dependent": true,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/org/quinn> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Person> } }"
+  },
+  {
+    "id": "org-q05",
+    "text": "Is Sofia a Person (inferred from the domain of reportsTo)?",
+    "type": "boolean",
+    "key": { "derive": "literal-boolean", "since": 5 },
+    "needs_episode": 5,
+    "rule_under_test": ["r06"],
+    "reasoning_dependent": true,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/org/sofia> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Person> } }"
+  },
+  {
+    "id": "org-q06",
+    "text": "Does Pat have a contradictory employment classification (Contractor and FullTime are disjoint)?",
+    "type": "boolean",
+    "key": { "derive": "literal-boolean", "since": 8 },
+    "needs_episode": 8,
+    "rule_under_test": ["r11"],
+    "reasoning_dependent": false,
+    "golden_sparql": "ASK { GRAPH <kg:abox> { <http://ex/org/pat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Contractor> . <http://ex/org/pat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#FullTime> } }"
+  },
+  {
     "id": "org-q02",
     "text": "Does Lee have conflicting managers?",
     "type": "boolean",
     "key": { "derive": "boolean-conflict", "about": "http://ex/org/lee" },
-    "needs_episode": 4,
-    "rule_under_test": ["r08", "r21"],
-    "reasoning_dependent": true,
+    "needs_episode": 6,
+    "rule_under_test": ["r21"],
+    "reasoning_dependent": false,
     "golden_sparql": "ASK { GRAPH <kg:abox> { <http://ex/org/lee> <http://ex/org#reportsTo> ?a, ?b . FILTER(?a != ?b) } }"
+  },
+  {
+    "id": "org-q07",
+    "text": "What team is Dana on (direct recall, no reasoning)?",
+    "type": "set",
+    "key": { "derive": "direct", "rel": "http://ex/org#memberOf", "from": "http://ex/org/dana" },
+    "needs_episode": 1,
+    "rule_under_test": [],
+    "reasoning_dependent": false,
+    "golden_sparql": "SELECT ?t WHERE { GRAPH <kg:abox> { <http://ex/org/dana> <http://ex/org#memberOf> ?t } }"
   }
 ]

@@ -41,4 +41,16 @@ describe('deriveAnswerKey', () => {
     expect(deriveAnswerKey(oracle, { derive: 'boolean-conflict', about: 'person:lee' }, 'boolean', 4))
       .toEqual({ kind: 'boolean', value: true });
   });
+
+  it('gates a literal-set on its since-episode', () => {
+    const key = { derive: 'literal-set' as const, values: ['person:dana'], since: 3 };
+    expect(deriveAnswerKey(oracle, key, 'set', 2)).toEqual({ kind: 'set', values: new Set() });
+    expect(deriveAnswerKey(oracle, key, 'set', 3)).toEqual({ kind: 'set', values: new Set(['person:dana']) });
+  });
+
+  it('gates a literal-boolean on its since-episode', () => {
+    const key = { derive: 'literal-boolean' as const, since: 5 };
+    expect(deriveAnswerKey(oracle, key, 'boolean', 4)).toEqual({ kind: 'boolean', value: false });
+    expect(deriveAnswerKey(oracle, key, 'boolean', 5)).toEqual({ kind: 'boolean', value: true });
+  });
 });
