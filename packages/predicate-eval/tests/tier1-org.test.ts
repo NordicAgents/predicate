@@ -13,5 +13,8 @@ describe('tier1 org run', () => {
     const finalOn = on[on.length - 1]!;
     expect(finalOn.lift!).toBeGreaterThan(0);                            // reasoning earns its keep
     expect(finalOn.accuracy).toBeGreaterThan(0.5);
+    for (let i = 1; i < on.length; i++) {
+      expect(on[i]!.accuracy).toBeGreaterThanOrEqual(on[i - 1]!.accuracy);
+    }
   }, 30_000);
 });

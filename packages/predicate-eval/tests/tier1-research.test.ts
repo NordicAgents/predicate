@@ -12,5 +12,8 @@ describe('tier1 research run', () => {
     expect(on[0]!.accuracy).toBeLessThan(on[on.length - 1]!.accuracy);
     expect(on[on.length - 1]!.lift!).toBeGreaterThan(0);
     expect(on[on.length - 1]!.accuracy).toBeGreaterThan(0.5);
+    for (let i = 1; i < on.length; i++) {
+      expect(on[i]!.accuracy).toBeGreaterThanOrEqual(on[i - 1]!.accuracy);
+    }
   }, 30_000);
 });

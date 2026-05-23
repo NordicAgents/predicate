@@ -2,7 +2,8 @@
   "facts": [
     { "s": "https://industriagents.com/predicate/codebase/auth.ts", "p": "https://industriagents.com/predicate/codebase#dependsOn", "o": "https://industriagents.com/predicate/codebase/jwt.ts", "episode": 1 },
     { "s": "https://industriagents.com/predicate/codebase/jwt.ts", "p": "https://industriagents.com/predicate/codebase#dependsOn", "o": "https://industriagents.com/predicate/codebase/crypto.ts", "episode": 2 },
-    { "s": "https://industriagents.com/predicate/codebase/auth.ts", "p": "https://industriagents.com/predicate/codebase#imports", "o": "https://industriagents.com/predicate/codebase/jwt.ts", "episode": 1 }
+    { "s": "https://industriagents.com/predicate/codebase/auth.ts", "p": "https://industriagents.com/predicate/codebase#imports", "o": "https://industriagents.com/predicate/codebase/jwt.ts", "episode": 1 },
+    { "s": "https://industriagents.com/predicate/codebase/crypto.ts", "p": "https://industriagents.com/predicate/codebase#dependsOn", "o": "https://industriagents.com/predicate/codebase/ssl.ts", "episode": 3 }
   ],
   "conflicts": [],
   "disjoint": []

@@ -1,22 +1,11 @@
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
+import { seedProvenance } from '../provenance.js';
 
 const NS = 'http://ex/sound#';
 const P = `${NS}rel`;
-const META = 'https://industriagents.com/predicate/meta#';
 
 export interface ClosureResult { missing: string[]; extra: string[]; }
-
-/** Annotate every kg:abox triple with confidence=1 so closureEligible() includes it. */
-async function seedProvenance(client: StorageAdapter): Promise<void> {
-  await client.update(`
-    PREFIX pred: <${META}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    INSERT { GRAPH <kg:provenance> { << ?s ?p ?o >> pred:confidence "1"^^xsd:decimal . } }
-    WHERE  { GRAPH <kg:abox> { ?s ?p ?o }
-             FILTER NOT EXISTS { GRAPH <kg:provenance> { << ?s ?p ?o >> pred:confidence ?c } } }
-  `);
-}
 
 /** Build a chain n0->...->nk over a transitive property, materialize, diff against the reference closure. */
 export async function checkTransitiveClosure(

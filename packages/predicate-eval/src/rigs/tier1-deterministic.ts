@@ -7,8 +7,7 @@ import { readEpisode, applyEpisodeTriples, rematerialize } from '../episode-runn
 import { collectMetrics } from '../metrics.js';
 import { scoreSet, scoreBoolean, scoreConflict } from '../scorer.js';
 import type { Question, ScoreRow, AnswerKey } from '../eval-types.js';
-
-const META = 'https://industriagents.com/predicate/meta#';
+import { seedProvenance } from '../provenance.js';
 
 const GRAPHS = ['kg:tbox', 'kg:abox', 'kg:inferred', 'kg:usage', 'kg:provenance'] as const;
 
@@ -16,29 +15,6 @@ function episodePaths(domainDir: string): string[] {
   return readdirSync(join(domainDir, 'episodes'))
     .filter((f) => f.endsWith('.jsonl')).sort()
     .map((f) => join(domainDir, 'episodes', f));
-}
-
-/**
- * Annotate every triple in kg:abox with confidence=1 in kg:provenance.
- * This is required for closureEligible() to include abox triples in reasoning
- * (it excludes triples that have no provenance annotation).
- */
-async function seedProvenance(client: StorageAdapter): Promise<void> {
-  await client.update(`
-    PREFIX pred: <${META}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    INSERT {
-      GRAPH <kg:provenance> {
-        << ?s ?p ?o >> pred:confidence "1"^^xsd:decimal .
-      }
-    }
-    WHERE {
-      GRAPH <kg:abox> { ?s ?p ?o }
-      FILTER NOT EXISTS {
-        GRAPH <kg:provenance> { << ?s ?p ?o >> pred:confidence ?c }
-      }
-    }
-  `);
 }
 
 async function runGolden(client: StorageAdapter, q: Question): Promise<AnswerKey> {

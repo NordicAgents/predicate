@@ -1,2 +1,2 @@
-{"s":"https://industriagents.com/predicate/codebase/crypto.ts","p":"https://industriagents.com/predicate/codebase#imports","o":"https://industriagents.com/predicate/codebase/openssl.ts"}
-{"s":"https://industriagents.com/predicate/codebase/openssl.ts","p":"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","o":"https://industriagents.com/predicate/codebase#File"}
+{"s":"https://industriagents.com/predicate/codebase/ssl.ts","p":"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","o":"https://industriagents.com/predicate/codebase#File"}
+{"s":"https://industriagents.com/predicate/codebase/crypto.ts","p":"https://industriagents.com/predicate/codebase#dependsOn","o":"https://industriagents.com/predicate/codebase/ssl.ts"}
