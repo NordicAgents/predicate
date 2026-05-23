@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import type { ScaleTier, DemoteDecision } from './types.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
+import { markAboxDirty } from 'predicate-mcp/src/materialize.js';
 
 const COUNTED_GRAPHS = ['kg:abox', 'kg:tbox', 'kg:inferred', 'kg:goals', 'kg:usage'];
 const META = 'https://industriagents.com/predicate/meta#';
@@ -65,6 +66,11 @@ export class LifecycleController {
       `);
     }
     await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
+    // move() invalidated kg:inferred; mark the ABox dirty so the next read
+    // (materializeIfDirty in kg_ask/kg_explain) rebuilds inferences from the
+    // updated graphs. Inside kg_maintain the subsequent runFixpoint+clearAboxDirty
+    // supersedes this (harmless redundant mark); standalone demote relies on it.
+    await markAboxDirty(this.client);
     const eventId = this.newEventId(opts.eventType.toLowerCase());
     await this.client.update(`
       PREFIX pred: <${META}>

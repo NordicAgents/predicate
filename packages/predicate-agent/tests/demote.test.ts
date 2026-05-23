@@ -7,6 +7,7 @@ import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { SchemaProposer } from '../src/schema-proposer.js';
 import { PromotionSweeper } from '../src/promotion-sweeper.js';
 import { LifecycleController } from '../src/lifecycle-controller.js';
+import { isAboxDirty } from 'predicate-mcp/src/materialize.js';
 
 const client = getAdapter();
 let promotedDir: string;
@@ -56,6 +57,23 @@ describe('demote round-trip', () => {
     expect(parseInt(tbox.results.bindings[0]!['n']!.value, 10)).toBe(0);
     expect(parseInt(demoted.results.bindings[0]!['n']!.value, 10)).toBeGreaterThan(0);
     expect(demote.demotedFile && existsSync(demote.demotedFile)).toBeTruthy();
+  });
+
+  it('marks the ABox dirty after demote so reads re-materialize', async () => {
+    const proposer = new SchemaProposer(client);
+    const delta = { kind: 'add-class' as const, add: [
+      { s: 'https://industriagents.com/predicate/codebase/Gadget', p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', o: { type: 'uri' as const, value: 'http://www.w3.org/2002/07/owl#Class' } },
+    ] };
+    const proposalId = await proposer.propose(delta, { justification: 'because' });
+    for (let i = 0; i < 3; i++) await recordUsage('SELECT * WHERE { <https://industriagents.com/predicate/codebase/Gadget> ?p ?o }');
+    await new PromotionSweeper(client).promoteById(proposalId, { actor: 'test' });
+    // clear any dirty state from promote, to prove DEMOTE sets it
+    const { clearAboxDirty } = await import('predicate-mcp/src/materialize.js');
+    await clearAboxDirty(client);
+    expect(await isAboxDirty(client)).toBe(false);
+
+    await new LifecycleController(client).demoteById(proposalId, { reason: 'test', actor: 'test' });
+    expect(await isAboxDirty(client)).toBe(true);
   });
 
   it('returns not-found for an unknown proposal', async () => {
