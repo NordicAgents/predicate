@@ -5,34 +5,40 @@ const META = 'https://industriagents.com/predicate/meta#';
 const CONFIG_URI = 'urn:predicate:config';
 
 // Map external key (kebab-case) ↔ internal property (camelCase)
-const KEY_TO_PROP: Record<string, { prop: string; type: 'boolean' | 'string' }> = {
-  'schema-learning':  { prop: 'schemaLearningEnabled', type: 'boolean' },
-  'init-mode':        { prop: 'initMode',              type: 'string'  },
-  'init-ontology':    { prop: 'initOntology',          type: 'string'  },
+const KEY_TO_PROP: Record<string, { prop: string; type: 'boolean' | 'string' | 'number' }> = {
+  'schema-learning':    { prop: 'schemaLearningEnabled', type: 'boolean' },
+  'init-mode':          { prop: 'initMode',              type: 'string'  },
+  'init-ontology':      { prop: 'initOntology',          type: 'string'  },
+  'scale-gate-triples': { prop: 'scaleGateTriples',      type: 'number'  },
 };
 
+type ConfigKey = 'schema-learning' | 'init-mode' | 'init-ontology' | 'scale-gate-triples';
+
 export interface KgConfigSetInput {
-  key: 'schema-learning' | 'init-mode' | 'init-ontology';
-  value: string | boolean;
+  key: ConfigKey;
+  value: string | boolean | number;
 }
 
 export type KgConfigSetResult =
-  | { ok: true; key: string; value: string | boolean }
+  | { ok: true; key: string; value: string | boolean | number }
   | { ok: false; error: string };
 
 export interface KgConfigGetInput {
-  key?: 'schema-learning' | 'init-mode' | 'init-ontology';
+  key?: ConfigKey;
 }
 
 export interface KgConfigGetResult {
-  config?: Record<string, string | boolean>;
+  config?: Record<string, string | boolean | number>;
   key?: string;
-  value?: string | boolean | null;
+  value?: string | boolean | number | null;
 }
 
-function literalFor(value: string | boolean, type: 'boolean' | 'string'): string {
+function literalFor(value: string | boolean | number, type: 'boolean' | 'string' | 'number'): string {
   if (type === 'boolean') {
     return `"${value}"^^<http://www.w3.org/2001/XMLSchema#boolean>`;
+  }
+  if (type === 'number') {
+    return `"${value}"^^<http://www.w3.org/2001/XMLSchema#integer>`;
   }
   return escapeLiteral(String(value));
 }
@@ -50,6 +56,9 @@ export async function kgConfigSet(
   }
   if (meta.type === 'string' && typeof input.value !== 'string') {
     return { ok: false, error: `${input.key} expects string, got ${typeof input.value}` };
+  }
+  if (meta.type === 'number' && typeof input.value !== 'number') {
+    return { ok: false, error: `${input.key} expects number, got ${typeof input.value}` };
   }
   const propIri = `<${META}${meta.prop}>`;
   const lit = literalFor(input.value, meta.type);
@@ -79,7 +88,10 @@ export async function kgConfigGet(
     const b = r.results.bindings[0];
     if (!b) return { key: input.key, value: null };
     const raw = b['o']!.value;
-    const value: string | boolean = meta.type === 'boolean' ? raw === 'true' : raw;
+    const value: string | boolean | number =
+      meta.type === 'boolean' ? raw === 'true'
+      : meta.type === 'number' ? parseInt(raw, 10)
+      : raw;
     return { key: input.key, value };
   }
   // All-config flavor
@@ -87,14 +99,17 @@ export async function kgConfigGet(
     PREFIX pred: <${META}>
     SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> ?p ?o } }
   `);
-  const config: Record<string, string | boolean> = {};
+  const config: Record<string, string | boolean | number> = {};
   for (const b of r.results.bindings) {
     const propIri = b['p']!.value;
     const propLocal = propIri.slice(META.length);
     const externalKey = Object.entries(KEY_TO_PROP).find(([, v]) => v.prop === propLocal);
     if (!externalKey) continue;
     const [extKey, kmeta] = externalKey;
-    config[extKey] = kmeta.type === 'boolean' ? b['o']!.value === 'true' : b['o']!.value;
+    config[extKey] =
+      kmeta.type === 'boolean' ? b['o']!.value === 'true'
+      : kmeta.type === 'number' ? parseInt(b['o']!.value, 10)
+      : b['o']!.value;
   }
   return { config };
 }
