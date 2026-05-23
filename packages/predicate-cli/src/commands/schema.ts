@@ -1,5 +1,6 @@
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { PromotionSweeper } from 'predicate-agent/src/promotion-sweeper.js';
+import { LifecycleController } from 'predicate-agent/src/index.js';
 
 const META = 'https://industriagents.com/predicate/meta#';
 const PROPOSAL_IRI = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
@@ -11,6 +12,7 @@ Verbs:
   list                    Print pending proposals from kg:tbox-staging as JSON.
   approve <proposalIri>   Force-promote a proposal (still runs validation).
   reject  <proposalIri>   Reject and remove a proposal from staging.
+  demote  <proposalIri>   Reverse a promotion: move its triples to kg:tbox-demoted.
 `);
 }
 
@@ -90,6 +92,25 @@ async function rejectProposal(id: string): Promise<number> {
   }
 }
 
+async function demoteProposal(id: string): Promise<number> {
+  if (!PROPOSAL_IRI.test(id)) {
+    console.error(`predicate schema demote: invalid proposal IRI: ${id}`);
+    return 2;
+  }
+  try {
+    const client = getAdapter();
+    const decision = await new LifecycleController(client).demoteById(id, {
+      reason: 'demoted via CLI', actor: 'user-demote',
+    });
+    const ok = decision.outcome === 'demoted';
+    process.stdout.write(JSON.stringify({ ok, ...decision }));
+    return ok ? 0 : 1;
+  } catch (e) {
+    process.stdout.write(JSON.stringify({ ok: false, error: (e as Error).message }));
+    return 1;
+  }
+}
+
 export async function schema(args: string[]): Promise<number> {
   const verb = args[0];
   switch (verb) {
@@ -103,6 +124,11 @@ export async function schema(args: string[]): Promise<number> {
       const id = args[1];
       if (!id) { help(); return 2; }
       return rejectProposal(id);
+    }
+    case 'demote': {
+      const id = args[1];
+      if (!id) { help(); return 2; }
+      return demoteProposal(id);
     }
     case undefined:
     case '--help':
