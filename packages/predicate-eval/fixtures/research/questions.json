@@ -7,7 +7,7 @@
     "needs_episode": 1,
     "rule_under_test": ["r03"],
     "reasoning_dependent": true,
-    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/res/p1> <http://ex/res#influencedBy> ?p } }"
+    "golden_sparql": "SELECT ?p WHERE { { GRAPH <kg:abox> { <http://ex/res/p1> <http://ex/res#influencedBy> ?p } } UNION { GRAPH <kg:inferred> { <http://ex/res/p1> <http://ex/res#influencedBy> ?p } } }"
   },
   {
     "id": "res-q08",
@@ -17,7 +17,7 @@
     "needs_episode": 2,
     "rule_under_test": ["r03"],
     "reasoning_dependent": true,
-    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/res/p2> <http://ex/res#influencedBy> ?p } }"
+    "golden_sparql": "SELECT ?p WHERE { { GRAPH <kg:abox> { <http://ex/res/p2> <http://ex/res#influencedBy> ?p } } UNION { GRAPH <kg:inferred> { <http://ex/res/p2> <http://ex/res#influencedBy> ?p } } }"
   },
   {
     "id": "res-q03",
@@ -27,7 +27,7 @@
     "needs_episode": 1,
     "rule_under_test": ["r04"],
     "reasoning_dependent": true,
-    "golden_sparql": "SELECT ?x WHERE { GRAPH <kg:inferred> { <http://ex/res/p2> <http://ex/res#citedBy> ?x } }"
+    "golden_sparql": "SELECT ?x WHERE { { GRAPH <kg:abox> { <http://ex/res/p2> <http://ex/res#citedBy> ?x } } UNION { GRAPH <kg:inferred> { <http://ex/res/p2> <http://ex/res#citedBy> ?x } } }"
   },
   {
     "id": "res-q04",
@@ -37,7 +37,7 @@
     "needs_episode": 1,
     "rule_under_test": ["r06"],
     "reasoning_dependent": true,
-    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/res/p1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/res#Paper> } }"
+    "golden_sparql": "ASK { { GRAPH <kg:abox> { <http://ex/res/p1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/res#Paper> } } UNION { GRAPH <kg:inferred> { <http://ex/res/p1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/res#Paper> } } }"
   },
   {
     "id": "res-q05",
@@ -47,7 +47,7 @@
     "needs_episode": 3,
     "rule_under_test": ["r07"],
     "reasoning_dependent": true,
-    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/res/p4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/res#Paper> } }"
+    "golden_sparql": "ASK { { GRAPH <kg:abox> { <http://ex/res/p4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/res#Paper> } } UNION { GRAPH <kg:inferred> { <http://ex/res/p4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/res#Paper> } } }"
   },
   {
     "id": "res-q06",

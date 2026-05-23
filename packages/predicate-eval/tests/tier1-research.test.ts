@@ -15,11 +15,11 @@ describe('tier1 research run', () => {
     expect(Object.keys(on[0]!.perQuestion).length).toBe(8);
 
     const finalOn = on[on.length - 1]!;
-    expect(on[0]!.accuracy).toBeLessThan(0.4);
-    // Caps at ~0.93 (not 1.0): the two transitive influencedBy questions read
-    // kg:inferred, which lacks the base edge because influencedBy has no inverse
-    // to round-trip it (the documented inferred-only ceiling). Still high + rising.
-    expect(finalOn.accuracy).toBeGreaterThan(0.9);
+    expect(on[0]!.accuracy).toBeLessThan(0.5);
+    // Reaches full accuracy: golden queries read abox ∪ inferred, so transitive
+    // influencedBy answers combine the base edge (abox) with the derived closure
+    // (inferred). Lift is conservative — what inference adds beyond raw recall.
+    expect(finalOn.accuracy).toBe(1);
     expect(finalOn.lift!).toBeGreaterThan(0.4);
 
     // Overall accuracy monotonic non-decreasing.

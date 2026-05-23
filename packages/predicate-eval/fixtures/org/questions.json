@@ -7,7 +7,7 @@
     "needs_episode": 1,
     "rule_under_test": ["r03"],
     "reasoning_dependent": true,
-    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/org/dana> <http://ex/org#reportsTo> ?p } }"
+    "golden_sparql": "SELECT ?p WHERE { { GRAPH <kg:abox> { <http://ex/org/dana> <http://ex/org#reportsTo> ?p } } UNION { GRAPH <kg:inferred> { <http://ex/org/dana> <http://ex/org#reportsTo> ?p } } }"
   },
   {
     "id": "org-q08",
@@ -17,7 +17,7 @@
     "needs_episode": 3,
     "rule_under_test": ["r03"],
     "reasoning_dependent": true,
-    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/org/omar> <http://ex/org#reportsTo> ?p } }"
+    "golden_sparql": "SELECT ?p WHERE { { GRAPH <kg:abox> { <http://ex/org/omar> <http://ex/org#reportsTo> ?p } } UNION { GRAPH <kg:inferred> { <http://ex/org/omar> <http://ex/org#reportsTo> ?p } } }"
   },
   {
     "id": "org-q03",
@@ -27,7 +27,7 @@
     "needs_episode": 1,
     "rule_under_test": ["r04", "r03"],
     "reasoning_dependent": true,
-    "golden_sparql": "SELECT ?x WHERE { GRAPH <kg:inferred> { <http://ex/org/erin> <http://ex/org#manages> ?x } }"
+    "golden_sparql": "SELECT ?x WHERE { { GRAPH <kg:abox> { <http://ex/org/erin> <http://ex/org#manages> ?x } } UNION { GRAPH <kg:inferred> { <http://ex/org/erin> <http://ex/org#manages> ?x } } }"
   },
   {
     "id": "org-q04",
@@ -37,7 +37,7 @@
     "needs_episode": 4,
     "rule_under_test": ["r01"],
     "reasoning_dependent": true,
-    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/org/quinn> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Person> } }"
+    "golden_sparql": "ASK { { GRAPH <kg:abox> { <http://ex/org/quinn> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Person> } } UNION { GRAPH <kg:inferred> { <http://ex/org/quinn> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Person> } } }"
   },
   {
     "id": "org-q05",
@@ -47,7 +47,7 @@
     "needs_episode": 5,
     "rule_under_test": ["r06"],
     "reasoning_dependent": true,
-    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/org/sofia> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Person> } }"
+    "golden_sparql": "ASK { { GRAPH <kg:abox> { <http://ex/org/sofia> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Person> } } UNION { GRAPH <kg:inferred> { <http://ex/org/sofia> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Person> } } }"
   },
   {
     "id": "org-q06",

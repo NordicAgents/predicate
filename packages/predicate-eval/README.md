@@ -97,16 +97,15 @@ annotation. The harness seeds `confidence=1` on captured triples before calling
 `materialize()` so transitive rules fire correctly. Implication: real capture
 must attach provenance or inference silently does nothing.
 
-**Reasoning-dependent golden queries read `kg:inferred`; direct questions read `kg:abox`.**
-Transitive (reasoning-dependent) questions (e.g. code-q01, res-q01, org-q01) query
-`kg:inferred`, so the inference-off control returns nothing for them and lift is the full
-inferred contribution. Direct questions (org-q02, res-q02, code-q02) query `kg:abox` and
-are not affected by inference mode. Consequence: a transitive question's score can cap
-below 1.0 when the direct (base) edge lives only in `kg:abox` (e.g. research
-`influencedBy`), whereas org reached 1.0 because `manages owl:inverseOf reportsTo`
-round-trips the base edge into `kg:inferred`. A future refinement is to query
-`abox ∪ inferred` (matching PRD §8.3), which makes lift conservative and consistent
-across domains.
+**Reasoning-dependent golden queries read `abox ∪ inferred`; direct questions read `kg:abox`.**
+Reasoning-dependent questions (transitive, inverse, type-inference) union the asserted and
+inferred graphs — matching how the real product queries (PRD §8.3). This makes **lift
+conservative**: the inference-off control still answers from the raw ABox facts, so lift
+measures only what OWL inference adds *beyond* recall (not the base facts themselves). It also
+makes every domain able to reach 1.0 consistently — the base edge comes from `kg:abox`, the
+derived closure from `kg:inferred`. (Earlier, querying `kg:inferred` only, research capped at
+0.93 because `influencedBy` has no inverse to round-trip its base edge; the union fixes that.)
+Direct questions query `kg:abox` and are unaffected by inference mode.
 
 **Naive fixpoint does not scale (scaling probe).** On a subclass chain the
 materializer computes the full O(n²) closure with a naive re-run-all-rules
