@@ -3,6 +3,7 @@ import type { ScaleTier } from './types.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
 const COUNTED_GRAPHS = ['kg:abox', 'kg:tbox', 'kg:inferred', 'kg:goals', 'kg:usage'];
+const META = 'https://industriagents.com/predicate/meta#';
 
 export type MoveSelector =
   | { kind: 'ground'; tripleBlock: string }                 // concrete `s p o .` block
@@ -39,22 +40,25 @@ export class LifecycleController {
     return `urn:predicate:event:${kind}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   }
 
+  /**
+   * Moves triples from `opts.fromGraph` to `opts.toGraph` according to the
+   * given selector, then unconditionally drops kg:inferred so the next
+   * reasoner pass re-materialises without the moved axioms, and emits a
+   * provenance event into kg:meta.
+   */
   async move(opts: MoveOptions): Promise<void> {
-    const META = 'https://industriagents.com/predicate/meta#';
     if (opts.selector.kind === 'ground') {
       const block = opts.selector.tripleBlock;
       await this.client.update(
-        `DELETE DATA { GRAPH <${opts.fromGraph}> { ${block} } }`,
-      );
-      await this.client.update(
-        `INSERT DATA { GRAPH <${opts.toGraph}> { ${block} } }`,
+        `DELETE DATA { GRAPH ${escapeIRI(opts.fromGraph)} { ${block} } } ;\n` +
+        `INSERT DATA { GRAPH ${escapeIRI(opts.toGraph)} { ${block} } }`,
       );
     } else {
       await this.client.update(`
         PREFIX pred: <${META}>
         PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-        DELETE { GRAPH <${opts.fromGraph}> { ?s ?p ?o } }
-        INSERT { GRAPH <${opts.toGraph}>   { ?s ?p ?o } }
+        DELETE { GRAPH ${escapeIRI(opts.fromGraph)} { ?s ?p ?o } }
+        INSERT { GRAPH ${escapeIRI(opts.toGraph)}   { ?s ?p ?o } }
         WHERE  { ${opts.selector.whereClause} }
       `);
     }
@@ -64,7 +68,7 @@ export class LifecycleController {
       PREFIX pred: <${META}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA { GRAPH <kg:meta> {
-        ${escapeIRI(eventId)} a pred:${opts.eventType} ;
+        ${escapeIRI(eventId)} a ${escapeIRI(META + opts.eventType)} ;
           pred:at      "${new Date().toISOString()}"^^xsd:dateTime ;
           pred:actor   "LifecycleController" ;
           pred:goal    ${escapeIRI(opts.goalIri)} ;

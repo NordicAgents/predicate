@@ -59,7 +59,7 @@ describe('LifecycleController.scaleSignal', () => {
 
 describe('LifecycleController.move', () => {
   beforeEach(async () => {
-    for (const g of ['kg:tbox', 'kg:tbox-demoted', 'kg:inferred', 'kg:meta']) {
+    for (const g of ['kg:tbox', 'kg:tbox-demoted', 'kg:inferred', 'kg:meta', 'kg:abox', 'kg:abox-archive']) {
       await reset(g);
     }
   });
@@ -83,10 +83,40 @@ describe('LifecycleController.move', () => {
     const inferred = await client.select(`SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:inferred> { ?s ?p ?o } }`);
     const ev = await client.select(`
       PREFIX pred: <https://industriagents.com/predicate/meta#>
-      SELECT ?e WHERE { GRAPH <kg:meta> { ?e a pred:SchemaDemoted } }`);
+      SELECT ?e WHERE { GRAPH <kg:meta> { ?e a <https://industriagents.com/predicate/meta#SchemaDemoted> } }`);
 
     expect(tbox.results.bindings[0]!['n']!.value).toBe('0');
     expect(demoted.results.bindings[0]!['n']!.value).toBe('1');
+    expect(inferred.results.bindings[0]!['n']!.value).toBe('0'); // dropped
+    expect(ev.results.bindings.length).toBe(1);
+  });
+
+  it('moves where-selected triples between graphs, drops inferred, emits an event', async () => {
+    await client.update(`INSERT DATA { GRAPH <kg:abox> {
+      <urn:t:m1> <urn:t:p> <urn:t:o1> .
+      <urn:t:m2> <urn:t:p> <urn:t:o2> .
+    } }`);
+    await client.update(`INSERT DATA { GRAPH <kg:inferred> { <urn:i:x> <urn:i:p> <urn:i:y> . } }`);
+    const ctrl = new LifecycleController(client);
+
+    await ctrl.move({
+      fromGraph: 'kg:abox',
+      toGraph: 'kg:abox-archive',
+      selector: { kind: 'where', whereClause: 'GRAPH <kg:abox> { ?s ?p ?o }' },
+      eventType: 'MaintenanceArchive',
+      goalIri: 'urn:test:proposal:2',
+      payload: { reason: 'archive test' },
+    });
+
+    const abox = await client.select(`SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`);
+    const archive = await client.select(`SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox-archive> { ?s ?p ?o } }`);
+    const inferred = await client.select(`SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:inferred> { ?s ?p ?o } }`);
+    const ev = await client.select(`
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
+      SELECT ?e WHERE { GRAPH <kg:meta> { ?e a <https://industriagents.com/predicate/meta#MaintenanceArchive> } }`);
+
+    expect(abox.results.bindings[0]!['n']!.value).toBe('0');
+    expect(archive.results.bindings[0]!['n']!.value).toBe('2');
     expect(inferred.results.bindings[0]!['n']!.value).toBe('0'); // dropped
     expect(ev.results.bindings.length).toBe(1);
   });
