@@ -11,3 +11,4 @@ export * from './schema-proposer.js';
 export * from './promotion-sweeper.js';
 export * from './generalizer.js';
 export * from './transcript-adapters.js';
+export * from './lifecycle-controller.js';
