@@ -2,11 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { OxigraphAdapter } from '../src/storage/index.js';
 import { kgMaintain } from '../src/tools/kg-maintain.js';
 import { kgStats } from '../src/tools/kg-stats.js';
+import { kgConfigSet } from '../src/tools/kg-config.js';
 
 describe('materialization latency metric', () => {
   it('records a MaterializationCompleted event so kg_stats P95 is populated', async () => {
     const client = new OxigraphAdapter({ storePath: ':memory:' });
     await client.update('CREATE SILENT GRAPH <kg:meta>');
+    await kgConfigSet(client, { key: 'scale-gate-triples', value: 0 });
     await kgMaintain(client, {});
     const r = await client.select(`
       PREFIX pred: <https://industriagents.com/predicate/meta#>
