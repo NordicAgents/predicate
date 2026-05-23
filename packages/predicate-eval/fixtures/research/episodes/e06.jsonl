@@ -1,0 +1,2 @@
+{"s":"http://ex/res/claimNew","p":"http://ex/res#about","o":"http://ex/res/dosingFinding"}
+{"s":"http://ex/res/claimOld","p":"http://ex/res#supersededBy","o":"http://ex/res/claimNew"}

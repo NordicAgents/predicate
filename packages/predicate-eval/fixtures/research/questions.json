@@ -10,13 +10,73 @@
     "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/res/p1> <http://ex/res#influencedBy> ?p } }"
   },
   {
+    "id": "res-q08",
+    "text": "What papers influenced p2 (transitively)?",
+    "type": "set",
+    "key": { "derive": "transitive", "rel": "http://ex/res#influencedBy", "from": "http://ex/res/p2" },
+    "needs_episode": 2,
+    "rule_under_test": ["r03"],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/res/p2> <http://ex/res#influencedBy> ?p } }"
+  },
+  {
+    "id": "res-q03",
+    "text": "Which papers cite p2 (citedBy is the inverse of cites)?",
+    "type": "set",
+    "key": { "derive": "literal-set", "values": ["http://ex/res/p1", "http://ex/res/p3"], "since": 1 },
+    "needs_episode": 1,
+    "rule_under_test": ["r04"],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?x WHERE { GRAPH <kg:inferred> { <http://ex/res/p2> <http://ex/res#citedBy> ?x } }"
+  },
+  {
+    "id": "res-q04",
+    "text": "Is p1 a Paper (inferred from the domain of cites)?",
+    "type": "boolean",
+    "key": { "derive": "literal-boolean", "since": 1 },
+    "needs_episode": 1,
+    "rule_under_test": ["r06"],
+    "reasoning_dependent": true,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/res/p1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/res#Paper> } }"
+  },
+  {
+    "id": "res-q05",
+    "text": "Is p4 a Paper (inferred from the range of influencedBy)?",
+    "type": "boolean",
+    "key": { "derive": "literal-boolean", "since": 3 },
+    "needs_episode": 3,
+    "rule_under_test": ["r07"],
+    "reasoning_dependent": true,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/res/p4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/res#Paper> } }"
+  },
+  {
+    "id": "res-q06",
+    "text": "Has the dosing claim been superseded?",
+    "type": "boolean",
+    "key": { "derive": "literal-boolean", "since": 6 },
+    "needs_episode": 6,
+    "rule_under_test": [],
+    "reasoning_dependent": false,
+    "golden_sparql": "ASK { GRAPH <kg:abox> { <http://ex/res/claimOld> <http://ex/res#supersededBy> ?x } }"
+  },
+  {
     "id": "res-q02",
     "text": "Are there contradictory claims about the mortality finding?",
     "type": "boolean",
     "key": { "derive": "boolean-conflict", "about": "http://ex/res/mortalityClaim" },
-    "needs_episode": 4,
+    "needs_episode": 8,
     "rule_under_test": ["r21"],
     "reasoning_dependent": false,
     "golden_sparql": "ASK { GRAPH <kg:abox> { ?a <http://ex/res#about> <http://ex/res/mortalityClaim> . ?b <http://ex/res#about> <http://ex/res/mortalityClaim> . FILTER(?a != ?b) } }"
+  },
+  {
+    "id": "res-q07",
+    "text": "What does p1 cite directly (recall, no reasoning)?",
+    "type": "set",
+    "key": { "derive": "direct", "rel": "http://ex/res#cites", "from": "http://ex/res/p1" },
+    "needs_episode": 1,
+    "rule_under_test": [],
+    "reasoning_dependent": false,
+    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:abox> { <http://ex/res/p1> <http://ex/res#cites> ?p } }"
   }
 ]

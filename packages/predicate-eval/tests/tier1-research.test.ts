@@ -6,14 +6,31 @@ import { runTier1 } from '../src/rigs/tier1-deterministic.js';
 const DIR = join(import.meta.dirname, '..', 'fixtures', 'research');
 
 describe('tier1 research run', () => {
-  it('accuracy rises across episodes and reasoning lift is positive', async () => {
-    const rows = await runTier1(getAdapter(), 'research', DIR, 4);
+  it('compounds across 8 episodes with positive reasoning lift', async () => {
+    const rows = await runTier1(getAdapter(), 'research', DIR, 8);
     const on = rows.filter((r) => r.inference === 'on').sort((a, b) => a.episode - b.episode);
-    expect(on[0]!.accuracy).toBeLessThan(on[on.length - 1]!.accuracy);
-    expect(on[on.length - 1]!.lift!).toBeGreaterThan(0);
-    expect(on[on.length - 1]!.accuracy).toBeGreaterThan(0.5);
+
+    // 8 questions: r03 transitive x2, r04 inverse, r06 domain, r07 range,
+    // supersession, contradiction, direct-recall baseline.
+    expect(Object.keys(on[0]!.perQuestion).length).toBe(8);
+
+    const finalOn = on[on.length - 1]!;
+    expect(on[0]!.accuracy).toBeLessThan(0.4);
+    // Caps at ~0.93 (not 1.0): the two transitive influencedBy questions read
+    // kg:inferred, which lacks the base edge because influencedBy has no inverse
+    // to round-trip it (the documented inferred-only ceiling). Still high + rising.
+    expect(finalOn.accuracy).toBeGreaterThan(0.9);
+    expect(finalOn.lift!).toBeGreaterThan(0.4);
+
+    // Overall accuracy monotonic non-decreasing.
     for (let i = 1; i < on.length; i++) {
       expect(on[i]!.accuracy).toBeGreaterThanOrEqual(on[i - 1]!.accuracy);
     }
-  }, 30_000);
+    // Every individual question non-decreasing (guards masked regressions).
+    for (const qid of Object.keys(on[0]!.perQuestion)) {
+      for (let i = 1; i < on.length; i++) {
+        expect(on[i]!.perQuestion[qid]!).toBeGreaterThanOrEqual(on[i - 1]!.perQuestion[qid]! - 1e-9);
+      }
+    }
+  }, 60_000);
 });

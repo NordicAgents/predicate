@@ -1,2 +1,1 @@
-{"s":"http://ex/res/claimA","p":"http://ex/res#about","o":"http://ex/res/mortalityClaim"}
-{"s":"http://ex/res/claimB","p":"http://ex/res#about","o":"http://ex/res/mortalityClaim"}
+{"s":"http://ex/res/p3","p":"http://ex/res#cites","o":"http://ex/res/p2"}

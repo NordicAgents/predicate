@@ -1,4 +1,2 @@
-{"s":"http://ex/res/p1","p":"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","o":"http://ex/res#Paper"}
-{"s":"http://ex/res/p2","p":"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","o":"http://ex/res#Paper"}
 {"s":"http://ex/res/p1","p":"http://ex/res#influencedBy","o":"http://ex/res/p2"}
 {"s":"http://ex/res/p1","p":"http://ex/res#cites","o":"http://ex/res/p2"}
