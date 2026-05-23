@@ -48200,6 +48200,7 @@ INSERT DATA { GRAPH ${escapeIRI(opts.toGraph)} { ${block} } }`
       `);
     }
     await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
+    await markAboxDirty(this.client);
     const eventId = this.newEventId(opts.eventType.toLowerCase());
     await this.client.update(`
       PREFIX pred: <${META7}>
