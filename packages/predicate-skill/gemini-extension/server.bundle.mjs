@@ -2992,7 +2992,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve3.call(this, root, ref);
+      let _sch = resolve4.call(this, root, ref);
       if (_sch === void 0) {
         const schema = (_a2 = root.localRefs) === null || _a2 === void 0 ? void 0 : _a2[ref];
         const { schemaId } = this.opts;
@@ -3019,7 +3019,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve3(root, ref) {
+    function resolve4(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -3650,7 +3650,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve3(baseURI, relativeURI, options) {
+    function resolve4(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse4(baseURI, schemelessOptions), parse4(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
@@ -3908,7 +3908,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize,
-      resolve: resolve3,
+      resolve: resolve4,
       resolveComponent,
       equal,
       serialize,
@@ -10152,25 +10152,25 @@ var require_util2 = __commonJS({
         };
       },
       createDeferredPromise: function() {
-        let resolve3;
+        let resolve4;
         let reject;
         const promise = new Promise((res, rej) => {
-          resolve3 = res;
+          resolve4 = res;
           reject = rej;
         });
         return {
           promise,
-          resolve: resolve3,
+          resolve: resolve4,
           reject
         };
       },
       promisify(fn) {
-        return new Promise((resolve3, reject) => {
+        return new Promise((resolve4, reject) => {
           fn((err3, ...args) => {
             if (err3) {
               return reject(err3);
             }
-            return resolve3(...args);
+            return resolve4(...args);
           });
         });
       },
@@ -10961,7 +10961,7 @@ var require_end_of_stream = __commonJS({
         validateBoolean(opts.cleanup, "cleanup");
         autoCleanup = opts.cleanup;
       }
-      return new Promise2((resolve3, reject) => {
+      return new Promise2((resolve4, reject) => {
         const cleanup = eos(stream, opts, (err3) => {
           if (autoCleanup) {
             cleanup();
@@ -10969,7 +10969,7 @@ var require_end_of_stream = __commonJS({
           if (err3) {
             reject(err3);
           } else {
-            resolve3();
+            resolve4();
           }
         });
       });
@@ -12135,7 +12135,7 @@ var require_readable = __commonJS({
         error3 = this.readableEnded ? null : new AbortError();
         this.destroy(error3);
       }
-      return new Promise2((resolve3, reject) => eos(this, (err3) => err3 && err3 !== error3 ? reject(err3) : resolve3(null)));
+      return new Promise2((resolve4, reject) => eos(this, (err3) => err3 && err3 !== error3 ? reject(err3) : resolve4(null)));
     };
     Readable2.prototype.push = function(chunk, encoding) {
       return readableAddChunk(this, chunk, encoding, false);
@@ -12679,12 +12679,12 @@ var require_readable = __commonJS({
     }
     async function* createAsyncIterator(stream, options) {
       let callback = nop;
-      function next(resolve3) {
+      function next(resolve4) {
         if (this === stream) {
           callback();
           callback = nop;
         } else {
-          callback = resolve3;
+          callback = resolve4;
         }
       }
       stream.on("readable", next);
@@ -13736,7 +13736,7 @@ var require_duplexify = __commonJS({
       );
     };
     function fromAsyncGen(fn) {
-      let { promise, resolve: resolve3 } = createDeferredPromise();
+      let { promise, resolve: resolve4 } = createDeferredPromise();
       const ac = new AbortController2();
       const signal = ac.signal;
       const value = fn(
@@ -13751,7 +13751,7 @@ var require_duplexify = __commonJS({
               throw new AbortError(void 0, {
                 cause: signal.reason
               });
-            ({ promise, resolve: resolve3 } = createDeferredPromise());
+            ({ promise, resolve: resolve4 } = createDeferredPromise());
             yield chunk;
           }
         })(),
@@ -13762,8 +13762,8 @@ var require_duplexify = __commonJS({
       return {
         value,
         write(chunk, encoding, cb) {
-          const _resolve = resolve3;
-          resolve3 = null;
+          const _resolve = resolve4;
+          resolve4 = null;
           _resolve({
             chunk,
             done: false,
@@ -13771,8 +13771,8 @@ var require_duplexify = __commonJS({
           });
         },
         final(cb) {
-          const _resolve = resolve3;
-          resolve3 = null;
+          const _resolve = resolve4;
+          resolve4 = null;
           _resolve({
             done: true,
             cb
@@ -14223,7 +14223,7 @@ var require_pipeline = __commonJS({
           callback();
         }
       };
-      const wait = () => new Promise2((resolve3, reject) => {
+      const wait = () => new Promise2((resolve4, reject) => {
         if (error3) {
           reject(error3);
         } else {
@@ -14231,7 +14231,7 @@ var require_pipeline = __commonJS({
             if (error3) {
               reject(error3);
             } else {
-              resolve3();
+              resolve4();
             }
           };
         }
@@ -14875,8 +14875,8 @@ var require_operators = __commonJS({
                 next = null;
               }
               if (!done && (queue.length >= highWaterMark || cnt >= concurrency)) {
-                await new Promise2((resolve3) => {
-                  resume = resolve3;
+                await new Promise2((resolve4) => {
+                  resume = resolve4;
                 });
               }
             }
@@ -14910,8 +14910,8 @@ var require_operators = __commonJS({
               queue.shift();
               maybeResume();
             }
-            await new Promise2((resolve3) => {
-              next = resolve3;
+            await new Promise2((resolve4) => {
+              next = resolve4;
             });
           }
         } finally {
@@ -15169,7 +15169,7 @@ var require_promises = __commonJS({
     var { finished } = require_end_of_stream();
     require_stream();
     function pipeline(...streams) {
-      return new Promise2((resolve3, reject) => {
+      return new Promise2((resolve4, reject) => {
         let signal;
         let end;
         const lastArg = streams[streams.length - 1];
@@ -15184,7 +15184,7 @@ var require_promises = __commonJS({
             if (err3) {
               reject(err3);
             } else {
-              resolve3(value);
+              resolve4(value);
             }
           },
           {
@@ -20446,7 +20446,7 @@ var require_lib3 = __commonJS({
       let accum = [];
       let accumBytes = 0;
       let abort = false;
-      return new Body.Promise(function(resolve3, reject) {
+      return new Body.Promise(function(resolve4, reject) {
         let resTimeout;
         if (_this4.timeout) {
           resTimeout = setTimeout(function() {
@@ -20480,7 +20480,7 @@ var require_lib3 = __commonJS({
           }
           clearTimeout(resTimeout);
           try {
-            resolve3(Buffer.concat(accum, accumBytes));
+            resolve4(Buffer.concat(accum, accumBytes));
           } catch (err3) {
             reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err3.message}`, "system", err3));
           }
@@ -21155,7 +21155,7 @@ var require_lib3 = __commonJS({
         throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
       }
       Body.Promise = fetch3.Promise;
-      return new fetch3.Promise(function(resolve3, reject) {
+      return new fetch3.Promise(function(resolve4, reject) {
         const request = new Request3(url, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
@@ -21288,7 +21288,7 @@ var require_lib3 = __commonJS({
                   requestOpts.body = void 0;
                   requestOpts.headers.delete("content-length");
                 }
-                resolve3(fetch3(new Request3(locationURL, requestOpts)));
+                resolve4(fetch3(new Request3(locationURL, requestOpts)));
                 finalize();
                 return;
             }
@@ -21309,7 +21309,7 @@ var require_lib3 = __commonJS({
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
             response = new Response3(body, response_options);
-            resolve3(response);
+            resolve4(response);
             return;
           }
           const zlibOptions = {
@@ -21319,7 +21319,7 @@ var require_lib3 = __commonJS({
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
             response = new Response3(body, response_options);
-            resolve3(response);
+            resolve4(response);
             return;
           }
           if (codings == "deflate" || codings == "x-deflate") {
@@ -21331,12 +21331,12 @@ var require_lib3 = __commonJS({
                 body = body.pipe(zlib.createInflateRaw());
               }
               response = new Response3(body, response_options);
-              resolve3(response);
+              resolve4(response);
             });
             raw.on("end", function() {
               if (!response) {
                 response = new Response3(body, response_options);
-                resolve3(response);
+                resolve4(response);
               }
             });
             return;
@@ -21344,11 +21344,11 @@ var require_lib3 = __commonJS({
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
             response = new Response3(body, response_options);
-            resolve3(response);
+            resolve4(response);
             return;
           }
           response = new Response3(body, response_options);
-          resolve3(response);
+          resolve4(response);
         });
         writeToStream(req, request);
       });
@@ -35165,7 +35165,7 @@ var Protocol = class {
           return;
         }
         const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
+        await new Promise((resolve4) => setTimeout(resolve4, pollInterval));
         options?.signal?.throwIfAborted();
       }
     } catch (error3) {
@@ -35182,7 +35182,7 @@ var Protocol = class {
    */
   request(request, resultSchema, options) {
     const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       const earlyReject = (error3) => {
         reject(error3);
       };
@@ -35260,7 +35260,7 @@ var Protocol = class {
           if (!parseResult.success) {
             reject(parseResult.error);
           } else {
-            resolve3(parseResult.data);
+            resolve4(parseResult.data);
           }
         } catch (error3) {
           reject(error3);
@@ -35521,12 +35521,12 @@ var Protocol = class {
       }
     } catch {
     }
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       if (signal.aborted) {
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
         return;
       }
-      const timeoutId = setTimeout(resolve3, interval);
+      const timeoutId = setTimeout(resolve4, interval);
       signal.addEventListener("abort", () => {
         clearTimeout(timeoutId);
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
@@ -36396,12 +36396,12 @@ var StdioServerTransport = class {
     this.onclose?.();
   }
   send(message) {
-    return new Promise((resolve3) => {
+    return new Promise((resolve4) => {
       const json = serializeMessage(message);
       if (this._stdout.write(json)) {
-        resolve3();
+        resolve4();
       } else {
-        this._stdout.once("drain", resolve3);
+        this._stdout.once("drain", resolve4);
       }
     });
   }
@@ -38231,9 +38231,9 @@ async function kgAsk(client, input) {
 async function logUsage(client, question, sparql, rowCount, elapsedMs) {
   const usage = escapeIRI(GRAPH.usage);
   const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META7 = "https://industriagents.com/predicate/meta#";
+  const META11 = "https://industriagents.com/predicate/meta#";
   await client.update(`
-    PREFIX pred: <${META7}>
+    PREFIX pred: <${META11}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH ${usage} {
       <${id}> a pred:Query ;
@@ -44614,8 +44614,8 @@ function _addRequestID(value, response) {
 }
 var APIPromise = class _APIPromise extends Promise {
   constructor(responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve3) => {
-      resolve3(null);
+    super((resolve4) => {
+      resolve4(null);
     });
     this.responsePromise = responsePromise;
     this.parseResponse = parseResponse;
@@ -45207,7 +45207,7 @@ var startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
 var isAbsoluteURL = (url) => {
   return startsWithSchemeRegexp.test(url);
 };
-var sleep2 = (ms) => new Promise((resolve3) => setTimeout(resolve3, ms));
+var sleep2 = (ms) => new Promise((resolve4) => setTimeout(resolve4, ms));
 var validatePositiveInteger = (name, n2) => {
   if (typeof n2 !== "number" || !Number.isInteger(n2)) {
     throw new AnthropicError(`${name} must be an integer`);
@@ -45821,12 +45821,12 @@ var BetaMessageStream = class _BetaMessageStream {
       }
       return this._emit("error", new AnthropicError(String(error3)));
     });
-    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve3, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve3, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve4, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve4, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve3, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve3, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve4, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve4, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet8(this, _BetaMessageStream_connectedPromise, "f").catch(() => {
@@ -45984,11 +45984,11 @@ var BetaMessageStream = class _BetaMessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       __classPrivateFieldSet7(this, _BetaMessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve3);
+      this.once(event, resolve4);
     });
   }
   async done() {
@@ -46272,7 +46272,7 @@ var BetaMessageStream = class _BetaMessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve3, reject) => readQueue.push({ resolve: resolve3, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve4, reject) => readQueue.push({ resolve: resolve4, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -46546,12 +46546,12 @@ var MessageStream = class _MessageStream {
       }
       return this._emit("error", new AnthropicError(String(error3)));
     });
-    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve3, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve3, "f");
+    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve4, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve4, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve3, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve3, "f");
+    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve4, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve4, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet9(this, _MessageStream_connectedPromise, "f").catch(() => {
@@ -46709,11 +46709,11 @@ var MessageStream = class _MessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       __classPrivateFieldSet8(this, _MessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve3);
+      this.once(event, resolve4);
     });
   }
   async done() {
@@ -46997,7 +46997,7 @@ var MessageStream = class _MessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve3, reject) => readQueue.push({ resolve: resolve3, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve4, reject) => readQueue.push({ resolve: resolve4, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -47693,7 +47693,30 @@ var SchemaProposer = class {
 // ../predicate-agent/src/promotion-sweeper.ts
 import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
 import { resolve as resolve2 } from "node:path";
+
+// ../predicate-agent/src/usage-query.ts
 var META5 = "https://industriagents.com/predicate/meta#";
+async function countProposalUses(client, proposalId) {
+  const subjects = await client.select(`
+    PREFIX pred: <${META5}>
+    SELECT DISTINCT ?s WHERE {
+      GRAPH <kg:tbox-staging> { << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} . }
+    }
+  `);
+  const iris = subjects.results.bindings.map((b2) => b2["s"].value);
+  if (iris.length === 0) return 0;
+  const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
+  const r2 = await client.select(`
+    PREFIX pred: <${META5}>
+    SELECT (COUNT(*) AS ?n) WHERE {
+      GRAPH <kg:usage> { ?q a pred:Query ; pred:sparql ?sparql . FILTER (${filters}) }
+    }
+  `);
+  return parseInt(r2.results.bindings[0]["n"].value, 10);
+}
+
+// ../predicate-agent/src/promotion-sweeper.ts
+var META6 = "https://industriagents.com/predicate/meta#";
 function newEventId3(kind2) {
   return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -47760,7 +47783,7 @@ var PromotionSweeper = class {
   }
   async listProposals() {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       SELECT ?id ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ?id a pred:Proposal ;
@@ -47789,7 +47812,7 @@ var PromotionSweeper = class {
   }
   async loadProposalRow(id) {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       SELECT ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ${escapeIRI(id)} a pred:Proposal ;
@@ -47815,27 +47838,7 @@ var PromotionSweeper = class {
     };
   }
   async countUses(proposalId) {
-    const subjects = await this.client.select(`
-      PREFIX pred: <${META5}>
-      SELECT DISTINCT ?s WHERE {
-        GRAPH <kg:tbox-staging> {
-          << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
-        }
-      }
-    `);
-    const iris = subjects.results.bindings.map((b2) => b2["s"].value);
-    if (iris.length === 0) return 0;
-    const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
-    const r2 = await this.client.select(`
-      PREFIX pred: <${META5}>
-      SELECT (COUNT(*) AS ?n) WHERE {
-        GRAPH <kg:usage> {
-          ?q a pred:Query ; pred:sparql ?sparql .
-          FILTER (${filters})
-        }
-      }
-    `);
-    return parseInt(r2.results.bindings[0]["n"].value, 10);
+    return countProposalUses(this.client, proposalId);
   }
   async decide(p2) {
     const now = Date.now();
@@ -47869,7 +47872,7 @@ var PromotionSweeper = class {
     await this.client.update(`CREATE SILENT GRAPH <${scratch}>`);
     try {
       await this.client.update(`
-        PREFIX pred: <${META5}>
+        PREFIX pred: <${META6}>
         INSERT { GRAPH <${scratch}> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -47909,7 +47912,7 @@ var PromotionSweeper = class {
   async deleteProposalFromStaging(proposalId) {
     if (this.client instanceof OxigraphAdapter) {
       const matches = await this.client.select(`
-        PREFIX pred: <${META5}>
+        PREFIX pred: <${META6}>
         SELECT ?s ?p ?o WHERE {
           GRAPH <kg:tbox-staging> {
             << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
@@ -47928,7 +47931,7 @@ var PromotionSweeper = class {
       this.client.deleteRdfStarAnnotationsForProposal("kg:tbox-staging", proposalId);
     } else {
       await this.client.update(`
-        PREFIX pred: <${META5}>
+        PREFIX pred: <${META6}>
         DELETE { GRAPH <kg:tbox-staging> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -47938,7 +47941,7 @@ var PromotionSweeper = class {
         }
       `);
       await this.client.update(`
-        PREFIX pred: <${META5}>
+        PREFIX pred: <${META6}>
         DELETE { GRAPH <kg:tbox-staging> { ?qt ?pp ?po } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -47949,7 +47952,7 @@ var PromotionSweeper = class {
       `);
     }
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       DELETE WHERE {
         GRAPH <kg:tbox-staging> { ${escapeIRI(proposalId)} ?mp ?mo }
       }
@@ -47958,7 +47961,7 @@ var PromotionSweeper = class {
   async rejectExpired(p2, actor = "PromotionSweeper", reason = "expired") {
     await this.deleteProposalFromStaging(p2.id);
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -47973,7 +47976,7 @@ var PromotionSweeper = class {
   }
   async recordValidationFailed(p2, reason) {
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -47989,9 +47992,21 @@ var PromotionSweeper = class {
   ensurePromotedDir() {
     mkdirSync(this.promotedDir, { recursive: true });
   }
+  /**
+   * Promote a staged proposal into kg:tbox.
+   *
+   * NOTE — substrate boundary: the reaper and `kg_demote` route their graph-moves
+   * through `LifecycleController.move()` (one DELETE/INSERT + drop-inferred + ONE
+   * event). `promote()` deliberately does NOT, because it has concerns move() does
+   * not model: it writes the reviewed Turtle file to `promoted/<id>.ttl` and emits
+   * TWO events (SchemaPromoted + TBoxVersionAdvanced). Folding these into move()
+   * would force it to become a multi-event, file-writing primitive — over-generalising
+   * it for one caller (YAGNI). Two of the three movers share move(); promote stays
+   * bespoke. See docs/superpowers/specs/2026-05-23-lifecycle-controller-scale-shadow-demote-design.md §5.
+   */
   async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       SELECT ?s ?p ?o WHERE {
         GRAPH <kg:tbox-staging> {
           << ?s ?p ?o >> pred:proposalId ${escapeIRI(p2.id)} .
@@ -48025,7 +48040,7 @@ var PromotionSweeper = class {
     const payloadAdvanced = escapeLiteral(JSON.stringify({ proposalId: p2.id, turtleFile }));
     await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:tbox> {
@@ -48147,33 +48162,314 @@ var Generalizer = class {
   }
 };
 
+// ../predicate-agent/src/lifecycle-controller.ts
+import { readFileSync as readFileSync3, existsSync as existsSync3, mkdirSync as mkdirSync2, renameSync } from "node:fs";
+import { resolve as resolve3 } from "node:path";
+var COUNTED_GRAPHS = ["kg:abox", "kg:tbox", "kg:inferred", "kg:goals", "kg:usage"];
+var META7 = "https://industriagents.com/predicate/meta#";
+var LifecycleController = class {
+  constructor(client, opts = {}) {
+    this.client = client;
+    this.scaleGateTriples = opts.scaleGateTriples ?? 25e3;
+  }
+  client;
+  scaleGateTriples;
+  newEventId(kind2) {
+    return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+  /**
+   * Moves triples from `opts.fromGraph` to `opts.toGraph` according to the
+   * given selector, then unconditionally drops kg:inferred so the next
+   * reasoner pass re-materialises without the moved axioms, and emits a
+   * provenance event into kg:meta.
+   */
+  async move(opts) {
+    if (opts.selector.kind === "ground") {
+      const block = opts.selector.tripleBlock;
+      await this.client.update(
+        `DELETE DATA { GRAPH ${escapeIRI(opts.fromGraph)} { ${block} } } ;
+INSERT DATA { GRAPH ${escapeIRI(opts.toGraph)} { ${block} } }`
+      );
+    } else {
+      await this.client.update(`
+        PREFIX pred: <${META7}>
+        PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+        DELETE { GRAPH ${escapeIRI(opts.fromGraph)} { ?s ?p ?o } }
+        INSERT { GRAPH ${escapeIRI(opts.toGraph)}   { ?s ?p ?o } }
+        WHERE  { ${opts.selector.whereClause} }
+      `);
+    }
+    await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
+    await markAboxDirty(this.client);
+    const eventId = this.newEventId(opts.eventType.toLowerCase());
+    await this.client.update(`
+      PREFIX pred: <${META7}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        ${escapeIRI(eventId)} a ${escapeIRI(META7 + opts.eventType)} ;
+          pred:at      "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
+          pred:actor   "LifecycleController" ;
+          pred:goal    ${escapeIRI(opts.goalIri)} ;
+          pred:payload ${escapeLiteral(JSON.stringify(opts.payload))} .
+      } }
+    `);
+  }
+  promotedDir() {
+    return process.env["PREDICATE_PROMOTED_DIR"] ?? (process.env["PREDICATE_STORE_PATH"] ? resolve3(process.env["PREDICATE_STORE_PATH"], "promoted") : resolve3(process.cwd(), ".predicate", "promoted"));
+  }
+  /**
+   * Reverse a schema promotion by proposal id. Reads the promoted Turtle file
+   * written at promotion time to learn exactly which triples to move out of
+   * kg:tbox into kg:tbox-demoted (dropping kg:inferred and emitting a
+   * SchemaDemoted event via `move`), then relocates the file from promoted/ to
+   * demoted/ so git records what is no longer live.
+   */
+  async demoteById(proposalId, opts) {
+    const safe = proposalId.replace(/[^A-Za-z0-9-]/g, "_");
+    const promotedFile = resolve3(this.promotedDir(), `${safe}.ttl`);
+    if (!existsSync3(promotedFile)) {
+      return { proposalId, outcome: "not-found", reason: "no promoted Turtle file for this proposal" };
+    }
+    const tripleBlock = readFileSync3(promotedFile, "utf8").trim();
+    if (!tripleBlock) {
+      return { proposalId, outcome: "not-found", reason: "promoted Turtle file is empty" };
+    }
+    const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    await this.move({
+      fromGraph: "kg:tbox",
+      toGraph: "kg:tbox-demoted",
+      selector: { kind: "ground", tripleBlock },
+      eventType: "SchemaDemoted",
+      goalIri: proposalId,
+      payload: { proposalId, reason: opts.reason, actor: opts.actor, tboxVersion }
+    });
+    const demotedDir = resolve3(this.promotedDir(), "..", "demoted");
+    mkdirSync2(demotedDir, { recursive: true });
+    const demotedFile = resolve3(demotedDir, `${safe}.ttl`);
+    renameSync(promotedFile, demotedFile);
+    return { proposalId, outcome: "demoted", demotedFile, tboxVersion };
+  }
+  async scaleSignal() {
+    let tripleCount = 0;
+    for (const g2 of COUNTED_GRAPHS) {
+      const r2 = await this.client.select(
+        `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${g2}> { ?s ?p ?o } }`
+      );
+      const raw = r2.results.bindings[0]?.["n"]?.value;
+      const n2 = raw ? parseInt(raw, 10) : 0;
+      tripleCount += Number.isNaN(n2) ? 0 : n2;
+    }
+    return {
+      tier: tripleCount >= this.scaleGateTriples ? "Active" : "Seedling",
+      tripleCount,
+      threshold: this.scaleGateTriples
+    };
+  }
+};
+
+// ../predicate-agent/src/shadow-evaluator.ts
+var META8 = "https://industriagents.com/predicate/meta#";
+var DEFAULT_USAGE_N = 3;
+var DEFAULT_TTL_DAYS2 = 7;
+function decideCounterfactual(i2) {
+  if (i2.useCount >= i2.n) return "promote";
+  if (i2.ageInStagingDays > i2.ttlDays) return "expire";
+  return "wait";
+}
+var USAGE_GRID_N = [2, 3, 5];
+var USAGE_GRID_TTL = [3, 7, 14];
+function counterfactualGrid(useCount, ageInStagingDays) {
+  const cells = [];
+  for (const n2 of USAGE_GRID_N) {
+    for (const ttlDays of USAGE_GRID_TTL) {
+      cells.push({ n: n2, ttlDays, decision: decideCounterfactual({ useCount, ageInStagingDays, n: n2, ttlDays }) });
+    }
+  }
+  return cells;
+}
+var ShadowEvaluator = class {
+  constructor(client) {
+    this.client = client;
+  }
+  client;
+  async run(opts) {
+    const proposals = await this.client.select(`
+      PREFIX pred: <${META8}>
+      SELECT ?id ?proposedAt ?goal WHERE {
+        GRAPH <kg:tbox-staging> {
+          ?id a pred:Proposal ;
+              pred:proposedAt ?proposedAt .
+          OPTIONAL { ?id pred:motivatingGoal ?goal }
+        }
+      }
+    `);
+    const now = Date.now();
+    let count = 0;
+    for (const b2 of proposals.results.bindings) {
+      const id = b2["id"].value;
+      const proposedAt = b2["proposedAt"].value;
+      const ageInStagingDays = (now - new Date(proposedAt).getTime()) / 864e5;
+      const useCount = await countProposalUses(this.client, id);
+      const goalSource = await this.goalSource(b2["goal"]?.value);
+      const grid = counterfactualGrid(useCount, ageInStagingDays);
+      const live = decideCounterfactual({ useCount, ageInStagingDays, n: DEFAULT_USAGE_N, ttlDays: DEFAULT_TTL_DAYS2 });
+      const record2 = {
+        proposalId: id,
+        passTimestamp: new Date(now).toISOString(),
+        tier: opts.tier,
+        goalSource,
+        liveDecision: live,
+        currentUseCount: useCount,
+        ageInStagingDays: Math.round(ageInStagingDays * 100) / 100,
+        counterfactual: grid
+      };
+      await this.emit(id, record2);
+      count++;
+    }
+    return count;
+  }
+  async goalSource(goalIri) {
+    if (!goalIri) return "explicit";
+    const r2 = await this.client.select(`
+      PREFIX pred: <${META8}>
+      SELECT ?src WHERE { GRAPH <kg:goals> { ${escapeIRI(goalIri)} pred:source ?src } }
+    `);
+    return r2.results.bindings[0]?.["src"]?.value === "inferred" ? "inferred" : "explicit";
+  }
+  async emit(proposalId, record2) {
+    const eventId = `urn:predicate:event:gate-shadow-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    await this.client.update(`
+      PREFIX pred: <${META8}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        ${escapeIRI(eventId)} a pred:GateShadow ;
+          pred:at      "${record2.passTimestamp}"^^xsd:dateTime ;
+          pred:actor   "ShadowEvaluator" ;
+          pred:goal    ${escapeIRI(proposalId)} ;
+          pred:payload ${escapeLiteral(JSON.stringify(record2))} .
+      } }
+    `);
+  }
+};
+
+// ../predicate-mcp/src/tools/kg-config.ts
+var META9 = "https://industriagents.com/predicate/meta#";
+var CONFIG_URI = "urn:predicate:config";
+var KEY_TO_PROP = {
+  "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
+  "init-mode": { prop: "initMode", type: "string" },
+  "init-ontology": { prop: "initOntology", type: "string" },
+  "scale-gate-triples": { prop: "scaleGateTriples", type: "number" }
+};
+async function kgConfigGet(client, input) {
+  if (input.key) {
+    const meta = KEY_TO_PROP[input.key];
+    if (!meta) return { key: input.key, value: null };
+    const r3 = await client.select(`
+      PREFIX pred: <${META9}>
+      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> <${META9}${meta.prop}> ?o } }
+    `);
+    const b2 = r3.results.bindings[0];
+    if (!b2) return { key: input.key, value: null };
+    const raw = b2["o"].value;
+    let value;
+    if (meta.type === "boolean") {
+      value = raw === "true";
+    } else if (meta.type === "number") {
+      const n2 = parseInt(raw, 10);
+      value = Number.isNaN(n2) ? null : n2;
+    } else {
+      value = raw;
+    }
+    return { key: input.key, value };
+  }
+  const r2 = await client.select(`
+    PREFIX pred: <${META9}>
+    SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> ?p ?o } }
+  `);
+  const config2 = {};
+  for (const b2 of r2.results.bindings) {
+    const propIri = b2["p"].value;
+    const propLocal = propIri.slice(META9.length);
+    const externalKey = Object.entries(KEY_TO_PROP).find(([, v2]) => v2.prop === propLocal);
+    if (!externalKey) continue;
+    const [extKey, kmeta] = externalKey;
+    if (kmeta.type === "boolean") {
+      config2[extKey] = b2["o"].value === "true";
+    } else if (kmeta.type === "number") {
+      const n2 = parseInt(b2["o"].value, 10);
+      if (!Number.isNaN(n2)) config2[extKey] = n2;
+    } else {
+      config2[extKey] = b2["o"].value;
+    }
+  }
+  return { config: config2 };
+}
+
 // ../predicate-mcp/src/tools/kg-maintain.ts
-var META6 = "https://industriagents.com/predicate/meta#";
+var META10 = "https://industriagents.com/predicate/meta#";
 async function kgMaintain(client, input = {}) {
   const archiveCutoff = input.archiveCutoff ?? 0.6;
   const ageDays = input.ageDays ?? 30;
   const cutoffDate = new Date(Date.now() - ageDays * 864e5).toISOString();
   const t0 = Date.now();
+  const cfg = await kgConfigGet(client, { key: "scale-gate-triples" });
+  const scaleGateTriples = typeof cfg.value === "number" ? cfg.value : void 0;
+  const controller = new LifecycleController(client, { scaleGateTriples });
+  const signal = await controller.scaleSignal();
+  if (signal.tier === "Seedling") {
+    const skipId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    await client.update(`
+      PREFIX pred: <${META10}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        <${skipId}> a pred:MaintenanceSkipped ;
+          pred:at      "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
+          pred:actor   "kg_maintain" ;
+          pred:payload ${escapeLiteral(JSON.stringify({
+      reason: "below-scale-gate",
+      tier: signal.tier,
+      tripleCount: signal.tripleCount,
+      threshold: signal.threshold
+    }))} .
+      } }
+    `);
+    const sweeper2 = await new PromotionSweeper(client, {
+      useThreshold: input.useThreshold ?? 3
+    }).run();
+    await new ShadowEvaluator(client).run({ tier: signal.tier });
+    return {
+      archivedCount: 0,
+      elapsedMs: Date.now() - t0,
+      eventId: skipId,
+      tier: signal.tier,
+      skipped: true,
+      sweeper: sweeper2
+    };
+  }
   await client.update(`CREATE SILENT GRAPH <kg:abox-archive>`);
   const before = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`
   );
   const beforeCount = parseInt(before.results.bindings[0].n.value, 10);
-  await client.update(`
-    PREFIX pred: <${META6}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
-    INSERT { GRAPH <kg:abox-archive> { ?s ?p ?o } }
-    WHERE {
-      GRAPH <kg:abox> { ?s ?p ?o }
-      GRAPH <kg:provenance> {
-        << ?s ?p ?o >> pred:confidence ?conf ;
-                       pred:timestamp  ?ts .
-        FILTER (?conf < ${archiveCutoff})
-        FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
-      }
-    }
-  `);
+  await controller.move({
+    fromGraph: "kg:abox",
+    toGraph: "kg:abox-archive",
+    selector: {
+      kind: "where",
+      whereClause: `
+        GRAPH <kg:abox> { ?s ?p ?o }
+        GRAPH <kg:provenance> {
+          << ?s ?p ?o >> pred:confidence ?conf ;
+                         pred:timestamp  ?ts .
+          FILTER (?conf < ${archiveCutoff})
+          FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
+        }`
+    },
+    eventType: "MaintenanceArchive",
+    goalIri: "urn:predicate:maintenance",
+    payload: { archiveCutoff, ageDays }
+  });
   const after = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`
   );
@@ -48185,6 +48481,7 @@ async function kgMaintain(client, input = {}) {
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3
   }).run();
+  await new ShadowEvaluator(client).run({ tier: signal.tier });
   const tFix = Date.now();
   const fixpoint = await runFixpoint(client, RULES, {
     tboxGraph: "kg:tbox",
@@ -48196,7 +48493,7 @@ async function kgMaintain(client, input = {}) {
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
-    PREFIX pred: <${META6}>
+    PREFIX pred: <${META10}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${eventId}> a pred:MaintenanceRun ;
@@ -48216,7 +48513,7 @@ async function kgMaintain(client, input = {}) {
   `);
   const matEventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   await client.update(`
-    PREFIX pred: <${META6}>
+    PREFIX pred: <${META10}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${matEventId}> a pred:MaterializationCompleted ;
@@ -48237,7 +48534,9 @@ async function kgMaintain(client, input = {}) {
     sweeper,
     generalizer,
     fixpoint,
-    autoProposalsSkipped: generalizer.autoProposalsSkipped
+    autoProposalsSkipped: generalizer.autoProposalsSkipped,
+    tier: signal.tier,
+    skipped: false
   };
 }
 
@@ -48392,6 +48691,12 @@ async function materializationLatencyP95(client) {
   const idx = Math.min(values.length - 1, Math.ceil(values.length * 0.95) - 1);
   return values[Math.max(idx, 0)];
 }
+async function eventCount(client, type) {
+  const r2 = await client.select(`
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    SELECT (COUNT(?e) AS ?n) WHERE { GRAPH <kg:meta> { ?e a pred:${type} } }`);
+  return parseInt(r2.results.bindings[0]["n"].value, 10);
+}
 async function kgStats(client) {
   const [abox, inferred, tbox] = await Promise.all([
     countGraph(client, "kg:abox"),
@@ -48404,6 +48709,11 @@ async function kgStats(client) {
   const inferredRatio = denom === 0 ? 0 : inferred / denom;
   const unused = await unusedConceptRatio(client, classes);
   const p95 = await materializationLatencyP95(client);
+  const cfg = await kgConfigGet(client, { key: "scale-gate-triples" });
+  const scaleGateTriples = typeof cfg.value === "number" ? cfg.value : 25e3;
+  const signal = await new LifecycleController(client, { scaleGateTriples }).scaleSignal();
+  const promoted = await eventCount(client, "SchemaPromoted");
+  const demoted = await eventCount(client, "SchemaDemoted");
   return {
     triples,
     abox,
@@ -48412,7 +48722,10 @@ async function kgStats(client) {
     classes,
     inferredRatio,
     unusedConceptRatio: unused,
-    materializationLatencyMsP95: p95
+    materializationLatencyMsP95: p95,
+    tier: signal.tier,
+    scaleGateTriples,
+    demotePromoteRatio: promoted === 0 ? 0 : demoted / promoted
   };
 }
 
@@ -48515,6 +48828,15 @@ async function kgExtractJudgments(client, input) {
     }));
   }
   return { judgmentSchema, currentJudgments, brief: BRIEF };
+}
+
+// ../predicate-mcp/src/tools/kg-demote.ts
+async function kgDemote(client, input) {
+  const ctrl = new LifecycleController(client);
+  return ctrl.demoteById(input.proposalId, {
+    reason: input.reason ?? "demoted via kg_demote",
+    actor: "kg_demote"
+  });
 }
 
 // ../predicate-mcp/src/tools/registry.ts
@@ -48697,6 +49019,15 @@ function buildTools(client, options = {}) {
           sessionId: external_exports.string().optional()
         }), raw, "kg_extract_judgments");
         return kgExtractJudgments(client, args);
+      }
+    },
+    {
+      name: "kg_demote",
+      description: "Reverse a schema promotion by proposal id: move its triples out of kg:tbox into kg:tbox-demoted, drop kg:inferred, and log a SchemaDemoted event. Reversible, queryable, by-id.",
+      inputSchema: external_exports.object({ proposalId: external_exports.string().min(1), reason: external_exports.string().optional() }),
+      handler: async (raw) => {
+        const args = parseInput(external_exports.object({ proposalId: external_exports.string().min(1), reason: external_exports.string().optional() }), raw, "kg_demote");
+        return kgDemote(client, args);
       }
     },
     ...stubs()

@@ -3,10 +3,13 @@ import { escapeLiteral } from '../sparql/escape.js';
 import {
   PromotionSweeper, type SweeperResult,
   Generalizer, type GeneralizerResult,
+  LifecycleController,
+  ShadowEvaluator,
 } from 'predicate-agent/src/index.js';
 import { runFixpoint } from 'predicate-reasoner/src/fixpoint.js';
 import { RULES } from 'predicate-reasoner/src/rules/index.js';
 import { clearAboxDirty } from '../materialize.js';
+import { kgConfigGet } from './kg-config.js';
 
 const META = 'https://industriagents.com/predicate/meta#';
 
@@ -25,6 +28,8 @@ export interface MaintainResult {
   generalizer?: GeneralizerResult;
   fixpoint?: { iterations: number; inferredCount: number };
   autoProposalsSkipped?: boolean;
+  tier: 'Seedling' | 'Active';
+  skipped: boolean;
 }
 
 export async function kgMaintain(
@@ -36,6 +41,42 @@ export async function kgMaintain(
   const cutoffDate = new Date(Date.now() - ageDays * 86400_000).toISOString();
   const t0 = Date.now();
 
+  const cfg = await kgConfigGet(client, { key: 'scale-gate-triples' });
+  const scaleGateTriples = typeof cfg.value === 'number' ? cfg.value : undefined;
+  const controller = new LifecycleController(client, { scaleGateTriples });
+  const signal = await controller.scaleSignal();
+
+  if (signal.tier === 'Seedling') {
+    const skipId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    await client.update(`
+      PREFIX pred: <${META}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        <${skipId}> a pred:MaintenanceSkipped ;
+          pred:at      "${new Date().toISOString()}"^^xsd:dateTime ;
+          pred:actor   "kg_maintain" ;
+          pred:payload ${escapeLiteral(JSON.stringify({
+            reason: 'below-scale-gate',
+            tier: signal.tier,
+            tripleCount: signal.tripleCount,
+            threshold: signal.threshold,
+          }))} .
+      } }
+    `);
+    const sweeper = await new PromotionSweeper(client, {
+      useThreshold: input.useThreshold ?? 3,
+    }).run();
+    await new ShadowEvaluator(client).run({ tier: signal.tier });
+    return {
+      archivedCount: 0,
+      elapsedMs: Date.now() - t0,
+      eventId: skipId,
+      tier: signal.tier,
+      skipped: true,
+      sweeper,
+    };
+  }
+
   await client.update(`CREATE SILENT GRAPH <kg:abox-archive>`);
 
   const before = await client.select(
@@ -43,21 +84,24 @@ export async function kgMaintain(
   );
   const beforeCount = parseInt(before.results.bindings[0]!.n!.value, 10);
 
-  await client.update(`
-    PREFIX pred: <${META}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
-    INSERT { GRAPH <kg:abox-archive> { ?s ?p ?o } }
-    WHERE {
-      GRAPH <kg:abox> { ?s ?p ?o }
-      GRAPH <kg:provenance> {
-        << ?s ?p ?o >> pred:confidence ?conf ;
-                       pred:timestamp  ?ts .
-        FILTER (?conf < ${archiveCutoff})
-        FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
-      }
-    }
-  `);
+  await controller.move({
+    fromGraph: 'kg:abox',
+    toGraph: 'kg:abox-archive',
+    selector: {
+      kind: 'where',
+      whereClause: `
+        GRAPH <kg:abox> { ?s ?p ?o }
+        GRAPH <kg:provenance> {
+          << ?s ?p ?o >> pred:confidence ?conf ;
+                         pred:timestamp  ?ts .
+          FILTER (?conf < ${archiveCutoff})
+          FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
+        }`,
+    },
+    eventType: 'MaintenanceArchive',
+    goalIri: 'urn:predicate:maintenance',
+    payload: { archiveCutoff, ageDays },
+  });
 
   const after = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`,
@@ -72,6 +116,8 @@ export async function kgMaintain(
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3,
   }).run();
+
+  await new ShadowEvaluator(client).run({ tier: signal.tier });
 
   const tFix = Date.now();
   const fixpoint = await runFixpoint(client, RULES, {
@@ -127,5 +173,7 @@ export async function kgMaintain(
     generalizer,
     fixpoint,
     autoProposalsSkipped: generalizer.autoProposalsSkipped,
+    tier: signal.tier,
+    skipped: false,
   };
 }

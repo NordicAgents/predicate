@@ -74,4 +74,11 @@ describe('kg_stats', () => {
     const s = await kgStats(client);
     expect(s.materializationLatencyMsP95).toBe(0);
   });
+
+  it('reports the current scale tier and demote/promote ratio', async () => {
+    const stats = await kgStats(getAdapter());
+    expect(['Seedling', 'Active']).toContain(stats.tier);
+    expect(typeof stats.scaleGateTriples).toBe('number');
+    expect(typeof stats.demotePromoteRatio).toBe('number');
+  });
 });

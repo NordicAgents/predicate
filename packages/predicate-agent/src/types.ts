@@ -164,6 +164,9 @@ export interface KgStats {
   inferredRatio: number;
   unusedConceptRatio: number;
   materializationLatencyMsP95: number;
+  tier: 'Seedling' | 'Active';
+  scaleGateTriples: number;
+  demotePromoteRatio: number;   // SchemaDemoted count / SchemaPromoted count (0 if none promoted)
 }
 
 export interface GeneralizerProposal {
@@ -178,4 +181,35 @@ export interface GeneralizerResult {
   scannedSubjects: number;
   durationMs: number;
   autoProposalsSkipped?: boolean;
+}
+
+// --- Lifecycle controller: scale / shadow / demote --------------------
+
+export type ScaleTier = 'Seedling' | 'Active';
+
+/** One cell of the usage-gate counterfactual grid. */
+export interface CounterfactualCell {
+  n: number;                                 // use-count threshold
+  ttlDays: number;                           // staging TTL
+  decision: 'promote' | 'wait' | 'expire';
+}
+
+/** Payload of a pred:GateShadow event (JSON-serialised into pred:payload). */
+export interface GateShadowRecord {
+  proposalId: string;
+  passTimestamp: string;                     // ISO 8601
+  tier: ScaleTier;
+  goalSource: 'explicit' | 'inferred';
+  liveDecision: 'promote' | 'wait' | 'expire';
+  currentUseCount: number;
+  ageInStagingDays: number;
+  counterfactual: CounterfactualCell[];
+}
+
+export interface DemoteDecision {
+  proposalId: string;
+  outcome: 'demoted' | 'not-found';
+  reason?: string;
+  demotedFile?: string;
+  tboxVersion?: string;
 }

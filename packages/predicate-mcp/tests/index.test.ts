@@ -7,11 +7,12 @@ describe('tool registry', () => {
   const tools = buildTools(getAdapter());
   const names = tools.map((t) => t.name);
 
-  it('exposes exactly the 9 agent-facing tools', () => {
+  it('exposes exactly the 10 agent-facing tools', () => {
     expect(names.sort()).toEqual(
       [
         'kg_ask',
         'kg_assert',
+        'kg_demote',
         'kg_explain',
         'kg_explore_schema',
         'kg_extract_judgments',

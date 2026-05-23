@@ -11,3 +11,6 @@ packages/predicate-server/fuseki-data/
 .claude/settings.local.json
 .claude/worktrees/
 .predicate/
+
+# oxigraph in-memory test artifact
+:memory:/

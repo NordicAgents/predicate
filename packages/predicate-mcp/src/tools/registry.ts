@@ -11,6 +11,7 @@ import { kgResearchGoal } from './kg-research-goal.js';
 import { kgProposeSchema } from './kg-propose-schema.js';
 import { kgStats } from './kg-stats.js';
 import { kgExtractJudgments } from './kg-extract-judgments.js';
+import { kgDemote } from './kg-demote.js';
 
 export interface BuildToolsOptions {
   /**
@@ -208,6 +209,15 @@ export function buildTools(client: StorageAdapter, options: BuildToolsOptions = 
           sessionId: z.string().optional(),
         }), raw, 'kg_extract_judgments');
         return kgExtractJudgments(client, args);
+      },
+    },
+    {
+      name: 'kg_demote',
+      description: 'Reverse a schema promotion by proposal id: move its triples out of kg:tbox into kg:tbox-demoted, drop kg:inferred, and log a SchemaDemoted event. Reversible, queryable, by-id.',
+      inputSchema: z.object({ proposalId: z.string().min(1), reason: z.string().optional() }),
+      handler: async (raw): Promise<unknown> => {
+        const args = parseInput(z.object({ proposalId: z.string().min(1), reason: z.string().optional() }), raw, 'kg_demote');
+        return kgDemote(client, args);
       },
     },
     ...stubs(),

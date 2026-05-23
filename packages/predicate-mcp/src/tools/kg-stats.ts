@@ -1,5 +1,7 @@
 import type { StorageAdapter } from '../storage/index.js';
 import type { KgStats } from 'predicate-agent/src/index.js';
+import { LifecycleController } from 'predicate-agent/src/index.js';
+import { kgConfigGet } from './kg-config.js';
 
 async function countGraph(client: StorageAdapter, graph: string): Promise<number> {
   const r = await client.select(
@@ -62,6 +64,13 @@ async function materializationLatencyP95(client: StorageAdapter): Promise<number
   return values[Math.max(idx, 0)]!;
 }
 
+async function eventCount(client: StorageAdapter, type: string): Promise<number> {
+  const r = await client.select(`
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    SELECT (COUNT(?e) AS ?n) WHERE { GRAPH <kg:meta> { ?e a pred:${type} } }`);
+  return parseInt(r.results.bindings[0]!['n']!.value, 10);
+}
+
 export async function kgStats(client: StorageAdapter): Promise<KgStats> {
   const [abox, inferred, tbox] = await Promise.all([
     countGraph(client, 'kg:abox'),
@@ -74,6 +83,11 @@ export async function kgStats(client: StorageAdapter): Promise<KgStats> {
   const inferredRatio = denom === 0 ? 0 : inferred / denom;
   const unused = await unusedConceptRatio(client, classes);
   const p95 = await materializationLatencyP95(client);
+  const cfg = await kgConfigGet(client, { key: 'scale-gate-triples' });
+  const scaleGateTriples = typeof cfg.value === 'number' ? cfg.value : 25000;
+  const signal = await new LifecycleController(client, { scaleGateTriples }).scaleSignal();
+  const promoted = await eventCount(client, 'SchemaPromoted');
+  const demoted = await eventCount(client, 'SchemaDemoted');
   return {
     triples,
     abox,
@@ -83,5 +97,8 @@ export async function kgStats(client: StorageAdapter): Promise<KgStats> {
     inferredRatio,
     unusedConceptRatio: unused,
     materializationLatencyMsP95: p95,
+    tier: signal.tier,
+    scaleGateTriples,
+    demotePromoteRatio: promoted === 0 ? 0 : demoted / promoted,
   };
 }

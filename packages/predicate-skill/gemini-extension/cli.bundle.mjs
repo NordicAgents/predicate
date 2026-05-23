@@ -3224,7 +3224,7 @@ var require_lib2 = __commonJS({
       let accum = [];
       let accumBytes = 0;
       let abort = false;
-      return new Body.Promise(function(resolve7, reject) {
+      return new Body.Promise(function(resolve8, reject) {
         let resTimeout;
         if (_this4.timeout) {
           resTimeout = setTimeout(function() {
@@ -3258,7 +3258,7 @@ var require_lib2 = __commonJS({
           }
           clearTimeout(resTimeout);
           try {
-            resolve7(Buffer.concat(accum, accumBytes));
+            resolve8(Buffer.concat(accum, accumBytes));
           } catch (err3) {
             reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err3.message}`, "system", err3));
           }
@@ -3933,7 +3933,7 @@ var require_lib2 = __commonJS({
         throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
       }
       Body.Promise = fetch3.Promise;
-      return new fetch3.Promise(function(resolve7, reject) {
+      return new fetch3.Promise(function(resolve8, reject) {
         const request = new Request3(url, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
@@ -4066,7 +4066,7 @@ var require_lib2 = __commonJS({
                   requestOpts.body = void 0;
                   requestOpts.headers.delete("content-length");
                 }
-                resolve7(fetch3(new Request3(locationURL, requestOpts)));
+                resolve8(fetch3(new Request3(locationURL, requestOpts)));
                 finalize();
                 return;
             }
@@ -4087,7 +4087,7 @@ var require_lib2 = __commonJS({
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
             response = new Response3(body, response_options);
-            resolve7(response);
+            resolve8(response);
             return;
           }
           const zlibOptions = {
@@ -4097,7 +4097,7 @@ var require_lib2 = __commonJS({
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
             response = new Response3(body, response_options);
-            resolve7(response);
+            resolve8(response);
             return;
           }
           if (codings == "deflate" || codings == "x-deflate") {
@@ -4109,12 +4109,12 @@ var require_lib2 = __commonJS({
                 body = body.pipe(zlib.createInflateRaw());
               }
               response = new Response3(body, response_options);
-              resolve7(response);
+              resolve8(response);
             });
             raw.on("end", function() {
               if (!response) {
                 response = new Response3(body, response_options);
-                resolve7(response);
+                resolve8(response);
               }
             });
             return;
@@ -4122,11 +4122,11 @@ var require_lib2 = __commonJS({
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
             response = new Response3(body, response_options);
-            resolve7(response);
+            resolve8(response);
             return;
           }
           response = new Response3(body, response_options);
-          resolve7(response);
+          resolve8(response);
         });
         writeToStream(req, request);
       });
@@ -10152,25 +10152,25 @@ var require_util = __commonJS({
         };
       },
       createDeferredPromise: function() {
-        let resolve7;
+        let resolve8;
         let reject;
         const promise = new Promise((res, rej) => {
-          resolve7 = res;
+          resolve8 = res;
           reject = rej;
         });
         return {
           promise,
-          resolve: resolve7,
+          resolve: resolve8,
           reject
         };
       },
       promisify(fn) {
-        return new Promise((resolve7, reject) => {
+        return new Promise((resolve8, reject) => {
           fn((err3, ...args) => {
             if (err3) {
               return reject(err3);
             }
-            return resolve7(...args);
+            return resolve8(...args);
           });
         });
       },
@@ -10961,7 +10961,7 @@ var require_end_of_stream = __commonJS({
         validateBoolean(opts.cleanup, "cleanup");
         autoCleanup = opts.cleanup;
       }
-      return new Promise2((resolve7, reject) => {
+      return new Promise2((resolve8, reject) => {
         const cleanup = eos(stream, opts, (err3) => {
           if (autoCleanup) {
             cleanup();
@@ -10969,7 +10969,7 @@ var require_end_of_stream = __commonJS({
           if (err3) {
             reject(err3);
           } else {
-            resolve7();
+            resolve8();
           }
         });
       });
@@ -12135,7 +12135,7 @@ var require_readable = __commonJS({
         error2 = this.readableEnded ? null : new AbortError();
         this.destroy(error2);
       }
-      return new Promise2((resolve7, reject) => eos(this, (err3) => err3 && err3 !== error2 ? reject(err3) : resolve7(null)));
+      return new Promise2((resolve8, reject) => eos(this, (err3) => err3 && err3 !== error2 ? reject(err3) : resolve8(null)));
     };
     Readable2.prototype.push = function(chunk, encoding) {
       return readableAddChunk(this, chunk, encoding, false);
@@ -12679,12 +12679,12 @@ var require_readable = __commonJS({
     }
     async function* createAsyncIterator(stream, options) {
       let callback = nop;
-      function next(resolve7) {
+      function next(resolve8) {
         if (this === stream) {
           callback();
           callback = nop;
         } else {
-          callback = resolve7;
+          callback = resolve8;
         }
       }
       stream.on("readable", next);
@@ -13736,7 +13736,7 @@ var require_duplexify = __commonJS({
       );
     };
     function fromAsyncGen(fn) {
-      let { promise, resolve: resolve7 } = createDeferredPromise();
+      let { promise, resolve: resolve8 } = createDeferredPromise();
       const ac = new AbortController2();
       const signal = ac.signal;
       const value = fn(
@@ -13751,7 +13751,7 @@ var require_duplexify = __commonJS({
               throw new AbortError(void 0, {
                 cause: signal.reason
               });
-            ({ promise, resolve: resolve7 } = createDeferredPromise());
+            ({ promise, resolve: resolve8 } = createDeferredPromise());
             yield chunk;
           }
         })(),
@@ -13762,8 +13762,8 @@ var require_duplexify = __commonJS({
       return {
         value,
         write(chunk, encoding, cb) {
-          const _resolve = resolve7;
-          resolve7 = null;
+          const _resolve = resolve8;
+          resolve8 = null;
           _resolve({
             chunk,
             done: false,
@@ -13771,8 +13771,8 @@ var require_duplexify = __commonJS({
           });
         },
         final(cb) {
-          const _resolve = resolve7;
-          resolve7 = null;
+          const _resolve = resolve8;
+          resolve8 = null;
           _resolve({
             done: true,
             cb
@@ -14223,7 +14223,7 @@ var require_pipeline = __commonJS({
           callback();
         }
       };
-      const wait = () => new Promise2((resolve7, reject) => {
+      const wait = () => new Promise2((resolve8, reject) => {
         if (error2) {
           reject(error2);
         } else {
@@ -14231,7 +14231,7 @@ var require_pipeline = __commonJS({
             if (error2) {
               reject(error2);
             } else {
-              resolve7();
+              resolve8();
             }
           };
         }
@@ -14875,8 +14875,8 @@ var require_operators = __commonJS({
                 next = null;
               }
               if (!done && (queue.length >= highWaterMark || cnt >= concurrency)) {
-                await new Promise2((resolve7) => {
-                  resume = resolve7;
+                await new Promise2((resolve8) => {
+                  resume = resolve8;
                 });
               }
             }
@@ -14910,8 +14910,8 @@ var require_operators = __commonJS({
               queue.shift();
               maybeResume();
             }
-            await new Promise2((resolve7) => {
-              next = resolve7;
+            await new Promise2((resolve8) => {
+              next = resolve8;
             });
           }
         } finally {
@@ -15169,7 +15169,7 @@ var require_promises = __commonJS({
     var { finished } = require_end_of_stream();
     require_stream();
     function pipeline(...streams) {
-      return new Promise2((resolve7, reject) => {
+      return new Promise2((resolve8, reject) => {
         let signal;
         let end;
         const lastArg = streams[streams.length - 1];
@@ -15184,7 +15184,7 @@ var require_promises = __commonJS({
             if (err3) {
               reject(err3);
             } else {
-              resolve7(value);
+              resolve8(value);
             }
           },
           {
@@ -18907,154 +18907,6 @@ async function doctor(args = []) {
 // ../predicate-cli/src/commands/stats.ts
 init_storage();
 
-// ../predicate-mcp/src/tools/kg-stats.ts
-async function countGraph(client, graph) {
-  const r2 = await client.select(
-    `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${graph}> { ?s ?p ?o } }`
-  );
-  return parseInt(r2.results.bindings[0].n.value, 10);
-}
-async function countClasses(client) {
-  const r2 = await client.select(`
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    SELECT (COUNT(DISTINCT ?c) AS ?n) WHERE {
-      GRAPH <kg:tbox> { ?c a owl:Class }
-    }
-  `);
-  return parseInt(r2.results.bindings[0].n.value, 10);
-}
-async function unusedConceptRatio(client, classCount) {
-  if (classCount === 0) return 0;
-  const r2 = await client.select(`
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    SELECT (COUNT(DISTINCT ?c) AS ?n) WHERE {
-      GRAPH <kg:tbox> { ?c a owl:Class }
-      FILTER NOT EXISTS {
-        { GRAPH <kg:abox>     { ?x rdf:type ?c } }
-        UNION
-        { GRAPH <kg:inferred> { ?x rdf:type ?c } }
-      }
-    }
-  `);
-  const unused = parseInt(r2.results.bindings[0].n.value, 10);
-  return unused / classCount;
-}
-async function materializationLatencyP95(client) {
-  const r2 = await client.select(`
-    PREFIX pred: <https://industriagents.com/predicate/meta#>
-    SELECT ?payload WHERE {
-      GRAPH <kg:meta> {
-        ?e a pred:MaterializationCompleted ;
-           pred:payload ?payload .
-      }
-    }
-  `);
-  const values = r2.results.bindings.map((b2) => {
-    const raw = b2.payload?.value ?? "";
-    const m2 = raw.match(/"elapsedMs"\s*:\s*(\d+)/);
-    return m2 ? parseInt(m2[1], 10) : 0;
-  }).filter((n2) => Number.isFinite(n2) && n2 > 0);
-  if (values.length === 0) return 0;
-  values.sort((a2, b2) => a2 - b2);
-  const idx = Math.min(values.length - 1, Math.ceil(values.length * 0.95) - 1);
-  return values[Math.max(idx, 0)];
-}
-async function kgStats(client) {
-  const [abox, inferred, tbox] = await Promise.all([
-    countGraph(client, "kg:abox"),
-    countGraph(client, "kg:inferred"),
-    countGraph(client, "kg:tbox")
-  ]);
-  const classes = await countClasses(client);
-  const triples = abox + inferred + tbox;
-  const denom = abox + inferred;
-  const inferredRatio = denom === 0 ? 0 : inferred / denom;
-  const unused = await unusedConceptRatio(client, classes);
-  const p95 = await materializationLatencyP95(client);
-  return {
-    triples,
-    abox,
-    inferred,
-    tbox,
-    classes,
-    inferredRatio,
-    unusedConceptRatio: unused,
-    materializationLatencyMsP95: p95
-  };
-}
-
-// ../predicate-cli/src/commands/stats.ts
-async function stats() {
-  const client = getAdapter();
-  const s2 = await kgStats(client);
-  const rows = [
-    ["triples", s2.triples],
-    ["abox", s2.abox],
-    ["inferred", s2.inferred],
-    ["tbox", s2.tbox],
-    ["classes", s2.classes],
-    ["inferredRatio", s2.inferredRatio.toFixed(3)],
-    ["unusedConceptRatio", s2.unusedConceptRatio.toFixed(3)],
-    ["materializationLatencyMsP95", s2.materializationLatencyMsP95]
-  ];
-  const width = Math.max(...rows.map(([k2]) => k2.length));
-  for (const [k2, v2] of rows) {
-    console.log(`${k2.padEnd(width)}  ${v2}`);
-  }
-  return 0;
-}
-
-// ../predicate-cli/src/commands/sessionstart.ts
-init_storage();
-var META3 = "https://industriagents.com/predicate/meta#";
-var OWL = "http://www.w3.org/2002/07/owl#";
-async function sessionstart() {
-  const client = getAdapter();
-  try {
-    const goalsRes = await client.select(
-      `PREFIX pred: <${META3}>
-       SELECT (COUNT(*) AS ?n) WHERE {
-         GRAPH <kg:goals> { ?g pred:status "active" }
-       }`
-    );
-    const classesRes = await client.select(
-      `PREFIX owl: <${OWL}>
-       SELECT (COUNT(DISTINCT ?c) AS ?n) WHERE {
-         GRAPH <kg:tbox> { ?c a owl:Class }
-       }`
-    );
-    const priorSessionsRes = await client.select(
-      `PREFIX pred: <${META3}>
-       SELECT (COUNT(DISTINCT ?s) AS ?n) WHERE {
-         GRAPH <kg:abox> { ?s a pred:Session }
-       }`
-    );
-    const ontologyRes = await client.select(
-      `PREFIX pred: <${META3}>
-       SELECT ?o WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology ?o } }`
-    ).catch(() => ({ results: { bindings: [] } }));
-    const goals = goalsRes.results.bindings[0]?.n?.value ?? "0";
-    const classes = classesRes.results.bindings[0]?.n?.value ?? "0";
-    const priorSessions = priorSessionsRes.results.bindings[0]?.n?.value ?? "0";
-    const ontology = ontologyRes.results.bindings[0]?.o?.value ?? "";
-    const sessionHint = priorSessions !== "0" ? ` ${priorSessions} prior session(s) in kg:abox \u2014 query for past file changes / command outcomes if relevant.` : "";
-    const ontologyHint = ontology ? ` (${ontology} ontology)` : "";
-    console.log(
-      `Predicate ready: ${goals} active goals, ${classes} TBox classes${ontologyHint}.${sessionHint} Use kg_explore_schema before drafting SPARQL.`
-    );
-    return 0;
-  } catch {
-    console.log(
-      `Predicate: Fuseki not reachable; KG tools may fail. Start it with \`predicate up\`.`
-    );
-    return 0;
-  }
-}
-
-// ../predicate-cli/src/commands/maintain.ts
-init_storage();
-
 // ../../node_modules/.pnpm/@anthropic-ai+sdk@0.40.1/node_modules/@anthropic-ai/sdk/version.mjs
 var VERSION = "0.40.1";
 
@@ -20067,8 +19919,8 @@ function _addRequestID(value, response) {
 }
 var APIPromise = class _APIPromise extends Promise {
   constructor(responsePromise, parseResponse = defaultParseResponse) {
-    super((resolve7) => {
-      resolve7(null);
+    super((resolve8) => {
+      resolve8(null);
     });
     this.responsePromise = responsePromise;
     this.parseResponse = parseResponse;
@@ -20660,7 +20512,7 @@ var startsWithSchemeRegexp = /^[a-z][a-z0-9+.-]*:/i;
 var isAbsoluteURL = (url) => {
   return startsWithSchemeRegexp.test(url);
 };
-var sleep2 = (ms) => new Promise((resolve7) => setTimeout(resolve7, ms));
+var sleep2 = (ms) => new Promise((resolve8) => setTimeout(resolve8, ms));
 var validatePositiveInteger = (name, n2) => {
   if (typeof n2 !== "number" || !Number.isInteger(n2)) {
     throw new AnthropicError(`${name} must be an integer`);
@@ -21274,12 +21126,12 @@ var BetaMessageStream = class _BetaMessageStream {
       }
       return this._emit("error", new AnthropicError(String(error2)));
     });
-    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve7, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve7, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_connectedPromise, new Promise((resolve8, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveConnectedPromise, resolve8, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve7, reject) => {
-      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve7, "f");
+    __classPrivateFieldSet7(this, _BetaMessageStream_endPromise, new Promise((resolve8, reject) => {
+      __classPrivateFieldSet7(this, _BetaMessageStream_resolveEndPromise, resolve8, "f");
       __classPrivateFieldSet7(this, _BetaMessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet8(this, _BetaMessageStream_connectedPromise, "f").catch(() => {
@@ -21437,11 +21289,11 @@ var BetaMessageStream = class _BetaMessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve7, reject) => {
+    return new Promise((resolve8, reject) => {
       __classPrivateFieldSet7(this, _BetaMessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve7);
+      this.once(event, resolve8);
     });
   }
   async done() {
@@ -21725,7 +21577,7 @@ var BetaMessageStream = class _BetaMessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve7, reject) => readQueue.push({ resolve: resolve7, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve8, reject) => readQueue.push({ resolve: resolve8, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -21999,12 +21851,12 @@ var MessageStream = class _MessageStream {
       }
       return this._emit("error", new AnthropicError(String(error2)));
     });
-    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve7, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve7, "f");
+    __classPrivateFieldSet8(this, _MessageStream_connectedPromise, new Promise((resolve8, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveConnectedPromise, resolve8, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectConnectedPromise, reject, "f");
     }), "f");
-    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve7, reject) => {
-      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve7, "f");
+    __classPrivateFieldSet8(this, _MessageStream_endPromise, new Promise((resolve8, reject) => {
+      __classPrivateFieldSet8(this, _MessageStream_resolveEndPromise, resolve8, "f");
       __classPrivateFieldSet8(this, _MessageStream_rejectEndPromise, reject, "f");
     }), "f");
     __classPrivateFieldGet9(this, _MessageStream_connectedPromise, "f").catch(() => {
@@ -22162,11 +22014,11 @@ var MessageStream = class _MessageStream {
    *   const message = await stream.emitted('message') // rejects if the stream errors
    */
   emitted(event) {
-    return new Promise((resolve7, reject) => {
+    return new Promise((resolve8, reject) => {
       __classPrivateFieldSet8(this, _MessageStream_catchingPromiseCreated, true, "f");
       if (event !== "error")
         this.once("error", reject);
-      this.once(event, resolve7);
+      this.once(event, resolve8);
     });
   }
   async done() {
@@ -22450,7 +22302,7 @@ var MessageStream = class _MessageStream {
           if (done) {
             return { value: void 0, done: true };
           }
-          return new Promise((resolve7, reject) => readQueue.push({ resolve: resolve7, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
+          return new Promise((resolve8, reject) => readQueue.push({ resolve: resolve8, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: false } : { value: void 0, done: true });
         }
         const chunk = pushQueue.shift();
         return { value: chunk, done: false };
@@ -23419,15 +23271,15 @@ var RULES = [
 
 // ../predicate-mcp/src/materialize.ts
 var STATE = "urn:predicate:materialization-state";
-var META4 = "https://industriagents.com/predicate/meta#";
+var META3 = "https://industriagents.com/predicate/meta#";
 async function markAboxDirty(client) {
   await client.update(
-    `PREFIX pred: <${META4}> INSERT DATA { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty true } }`
+    `PREFIX pred: <${META3}> INSERT DATA { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty true } }`
   );
 }
 async function clearAboxDirty(client) {
   await client.update(
-    `PREFIX pred: <${META4}> DELETE WHERE { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty ?v } }`
+    `PREFIX pred: <${META3}> DELETE WHERE { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty ?v } }`
   );
 }
 
@@ -23507,7 +23359,7 @@ async function kgAssert(client, t2) {
 }
 
 // ../predicate-agent/src/schema-proposer.ts
-var META5 = "https://industriagents.com/predicate/meta#";
+var META4 = "https://industriagents.com/predicate/meta#";
 var DEFAULT_TTL_DAYS = 7;
 function newProposalId() {
   const ts = Date.now().toString(36);
@@ -23547,7 +23399,7 @@ var SchemaProposer = class {
     const parentLine = delta.kind === "refine-class" ? `${escapeIRI(id)} pred:parent ${escapeIRI(delta.parent)} .` : "";
     const migrationLine = delta.kind === "breaking" ? `${escapeIRI(id)} pred:migration ${escapeLiteral(delta.migration)} .` : "";
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META4}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:tbox-staging> {
@@ -28543,7 +28395,7 @@ async function unsatisfiableClasses(client, tboxView, inferred) {
 }
 
 // ../predicate-reasoner/src/explain.ts
-var META6 = "https://industriagents.com/predicate/meta#";
+var META5 = "https://industriagents.com/predicate/meta#";
 var MAX_DEPTH = 8;
 function quadKey(q2) {
   const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
@@ -28564,7 +28416,7 @@ async function isAsserted(client, q2) {
 async function getProvenance(client, q2) {
   const o2 = typeof q2.o === "string" ? `<${q2.o}>` : `"${q2.o.value}"`;
   const r2 = await client.select(`
-    PREFIX pred: <${META6}>
+    PREFIX pred: <${META5}>
     SELECT ?src ?conf ?method ?ts WHERE {
       GRAPH <kg:provenance> {
         << <${q2.s}> <${q2.p}> ${o2} >> pred:source ?src ;
@@ -28656,6 +28508,27 @@ var FusekiConstructAdapter = class {
     return explain(this.client, this.__rules, claim);
   }
 };
+
+// ../predicate-agent/src/usage-query.ts
+var META6 = "https://industriagents.com/predicate/meta#";
+async function countProposalUses(client, proposalId) {
+  const subjects = await client.select(`
+    PREFIX pred: <${META6}>
+    SELECT DISTINCT ?s WHERE {
+      GRAPH <kg:tbox-staging> { << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} . }
+    }
+  `);
+  const iris = subjects.results.bindings.map((b2) => b2["s"].value);
+  if (iris.length === 0) return 0;
+  const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
+  const r2 = await client.select(`
+    PREFIX pred: <${META6}>
+    SELECT (COUNT(*) AS ?n) WHERE {
+      GRAPH <kg:usage> { ?q a pred:Query ; pred:sparql ?sparql . FILTER (${filters}) }
+    }
+  `);
+  return parseInt(r2.results.bindings[0]["n"].value, 10);
+}
 
 // ../predicate-agent/src/promotion-sweeper.ts
 var META7 = "https://industriagents.com/predicate/meta#";
@@ -28780,27 +28653,7 @@ var PromotionSweeper = class {
     };
   }
   async countUses(proposalId) {
-    const subjects = await this.client.select(`
-      PREFIX pred: <${META7}>
-      SELECT DISTINCT ?s WHERE {
-        GRAPH <kg:tbox-staging> {
-          << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
-        }
-      }
-    `);
-    const iris = subjects.results.bindings.map((b2) => b2["s"].value);
-    if (iris.length === 0) return 0;
-    const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
-    const r2 = await this.client.select(`
-      PREFIX pred: <${META7}>
-      SELECT (COUNT(*) AS ?n) WHERE {
-        GRAPH <kg:usage> {
-          ?q a pred:Query ; pred:sparql ?sparql .
-          FILTER (${filters})
-        }
-      }
-    `);
-    return parseInt(r2.results.bindings[0]["n"].value, 10);
+    return countProposalUses(this.client, proposalId);
   }
   async decide(p2) {
     const now = Date.now();
@@ -28954,6 +28807,18 @@ var PromotionSweeper = class {
   ensurePromotedDir() {
     mkdirSync(this.promotedDir, { recursive: true });
   }
+  /**
+   * Promote a staged proposal into kg:tbox.
+   *
+   * NOTE — substrate boundary: the reaper and `kg_demote` route their graph-moves
+   * through `LifecycleController.move()` (one DELETE/INSERT + drop-inferred + ONE
+   * event). `promote()` deliberately does NOT, because it has concerns move() does
+   * not model: it writes the reviewed Turtle file to `promoted/<id>.ttl` and emits
+   * TWO events (SchemaPromoted + TBoxVersionAdvanced). Folding these into move()
+   * would force it to become a multi-event, file-writing primitive — over-generalising
+   * it for one caller (YAGNI). Two of the three movers share move(); promote stays
+   * bespoke. See docs/superpowers/specs/2026-05-23-lifecycle-controller-scale-shadow-demote-design.md §5.
+   */
   async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
       PREFIX pred: <${META7}>
@@ -29166,33 +29031,512 @@ function pickStr(o2, keys) {
   return typeof v2 === "string" ? v2 : void 0;
 }
 
-// ../predicate-mcp/src/tools/kg-maintain.ts
+// ../predicate-agent/src/lifecycle-controller.ts
+import { readFileSync as readFileSync3, existsSync as existsSync6, mkdirSync as mkdirSync2, renameSync } from "node:fs";
+import { resolve as resolve6 } from "node:path";
+var COUNTED_GRAPHS = ["kg:abox", "kg:tbox", "kg:inferred", "kg:goals", "kg:usage"];
 var META8 = "https://industriagents.com/predicate/meta#";
+var LifecycleController = class {
+  constructor(client, opts = {}) {
+    this.client = client;
+    this.scaleGateTriples = opts.scaleGateTriples ?? 25e3;
+  }
+  client;
+  scaleGateTriples;
+  newEventId(kind2) {
+    return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+  /**
+   * Moves triples from `opts.fromGraph` to `opts.toGraph` according to the
+   * given selector, then unconditionally drops kg:inferred so the next
+   * reasoner pass re-materialises without the moved axioms, and emits a
+   * provenance event into kg:meta.
+   */
+  async move(opts) {
+    if (opts.selector.kind === "ground") {
+      const block = opts.selector.tripleBlock;
+      await this.client.update(
+        `DELETE DATA { GRAPH ${escapeIRI(opts.fromGraph)} { ${block} } } ;
+INSERT DATA { GRAPH ${escapeIRI(opts.toGraph)} { ${block} } }`
+      );
+    } else {
+      await this.client.update(`
+        PREFIX pred: <${META8}>
+        PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+        DELETE { GRAPH ${escapeIRI(opts.fromGraph)} { ?s ?p ?o } }
+        INSERT { GRAPH ${escapeIRI(opts.toGraph)}   { ?s ?p ?o } }
+        WHERE  { ${opts.selector.whereClause} }
+      `);
+    }
+    await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
+    await markAboxDirty(this.client);
+    const eventId = this.newEventId(opts.eventType.toLowerCase());
+    await this.client.update(`
+      PREFIX pred: <${META8}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        ${escapeIRI(eventId)} a ${escapeIRI(META8 + opts.eventType)} ;
+          pred:at      "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
+          pred:actor   "LifecycleController" ;
+          pred:goal    ${escapeIRI(opts.goalIri)} ;
+          pred:payload ${escapeLiteral(JSON.stringify(opts.payload))} .
+      } }
+    `);
+  }
+  promotedDir() {
+    return process.env["PREDICATE_PROMOTED_DIR"] ?? (process.env["PREDICATE_STORE_PATH"] ? resolve6(process.env["PREDICATE_STORE_PATH"], "promoted") : resolve6(process.cwd(), ".predicate", "promoted"));
+  }
+  /**
+   * Reverse a schema promotion by proposal id. Reads the promoted Turtle file
+   * written at promotion time to learn exactly which triples to move out of
+   * kg:tbox into kg:tbox-demoted (dropping kg:inferred and emitting a
+   * SchemaDemoted event via `move`), then relocates the file from promoted/ to
+   * demoted/ so git records what is no longer live.
+   */
+  async demoteById(proposalId, opts) {
+    const safe = proposalId.replace(/[^A-Za-z0-9-]/g, "_");
+    const promotedFile = resolve6(this.promotedDir(), `${safe}.ttl`);
+    if (!existsSync6(promotedFile)) {
+      return { proposalId, outcome: "not-found", reason: "no promoted Turtle file for this proposal" };
+    }
+    const tripleBlock = readFileSync3(promotedFile, "utf8").trim();
+    if (!tripleBlock) {
+      return { proposalId, outcome: "not-found", reason: "promoted Turtle file is empty" };
+    }
+    const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    await this.move({
+      fromGraph: "kg:tbox",
+      toGraph: "kg:tbox-demoted",
+      selector: { kind: "ground", tripleBlock },
+      eventType: "SchemaDemoted",
+      goalIri: proposalId,
+      payload: { proposalId, reason: opts.reason, actor: opts.actor, tboxVersion }
+    });
+    const demotedDir = resolve6(this.promotedDir(), "..", "demoted");
+    mkdirSync2(demotedDir, { recursive: true });
+    const demotedFile = resolve6(demotedDir, `${safe}.ttl`);
+    renameSync(promotedFile, demotedFile);
+    return { proposalId, outcome: "demoted", demotedFile, tboxVersion };
+  }
+  async scaleSignal() {
+    let tripleCount = 0;
+    for (const g2 of COUNTED_GRAPHS) {
+      const r2 = await this.client.select(
+        `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${g2}> { ?s ?p ?o } }`
+      );
+      const raw = r2.results.bindings[0]?.["n"]?.value;
+      const n2 = raw ? parseInt(raw, 10) : 0;
+      tripleCount += Number.isNaN(n2) ? 0 : n2;
+    }
+    return {
+      tier: tripleCount >= this.scaleGateTriples ? "Active" : "Seedling",
+      tripleCount,
+      threshold: this.scaleGateTriples
+    };
+  }
+};
+
+// ../predicate-agent/src/shadow-evaluator.ts
+var META9 = "https://industriagents.com/predicate/meta#";
+var DEFAULT_USAGE_N = 3;
+var DEFAULT_TTL_DAYS2 = 7;
+function decideCounterfactual(i2) {
+  if (i2.useCount >= i2.n) return "promote";
+  if (i2.ageInStagingDays > i2.ttlDays) return "expire";
+  return "wait";
+}
+var USAGE_GRID_N = [2, 3, 5];
+var USAGE_GRID_TTL = [3, 7, 14];
+function counterfactualGrid(useCount, ageInStagingDays) {
+  const cells = [];
+  for (const n2 of USAGE_GRID_N) {
+    for (const ttlDays of USAGE_GRID_TTL) {
+      cells.push({ n: n2, ttlDays, decision: decideCounterfactual({ useCount, ageInStagingDays, n: n2, ttlDays }) });
+    }
+  }
+  return cells;
+}
+var ShadowEvaluator = class {
+  constructor(client) {
+    this.client = client;
+  }
+  client;
+  async run(opts) {
+    const proposals = await this.client.select(`
+      PREFIX pred: <${META9}>
+      SELECT ?id ?proposedAt ?goal WHERE {
+        GRAPH <kg:tbox-staging> {
+          ?id a pred:Proposal ;
+              pred:proposedAt ?proposedAt .
+          OPTIONAL { ?id pred:motivatingGoal ?goal }
+        }
+      }
+    `);
+    const now = Date.now();
+    let count = 0;
+    for (const b2 of proposals.results.bindings) {
+      const id = b2["id"].value;
+      const proposedAt = b2["proposedAt"].value;
+      const ageInStagingDays = (now - new Date(proposedAt).getTime()) / 864e5;
+      const useCount = await countProposalUses(this.client, id);
+      const goalSource = await this.goalSource(b2["goal"]?.value);
+      const grid = counterfactualGrid(useCount, ageInStagingDays);
+      const live = decideCounterfactual({ useCount, ageInStagingDays, n: DEFAULT_USAGE_N, ttlDays: DEFAULT_TTL_DAYS2 });
+      const record = {
+        proposalId: id,
+        passTimestamp: new Date(now).toISOString(),
+        tier: opts.tier,
+        goalSource,
+        liveDecision: live,
+        currentUseCount: useCount,
+        ageInStagingDays: Math.round(ageInStagingDays * 100) / 100,
+        counterfactual: grid
+      };
+      await this.emit(id, record);
+      count++;
+    }
+    return count;
+  }
+  async goalSource(goalIri) {
+    if (!goalIri) return "explicit";
+    const r2 = await this.client.select(`
+      PREFIX pred: <${META9}>
+      SELECT ?src WHERE { GRAPH <kg:goals> { ${escapeIRI(goalIri)} pred:source ?src } }
+    `);
+    return r2.results.bindings[0]?.["src"]?.value === "inferred" ? "inferred" : "explicit";
+  }
+  async emit(proposalId, record) {
+    const eventId = `urn:predicate:event:gate-shadow-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    await this.client.update(`
+      PREFIX pred: <${META9}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        ${escapeIRI(eventId)} a pred:GateShadow ;
+          pred:at      "${record.passTimestamp}"^^xsd:dateTime ;
+          pred:actor   "ShadowEvaluator" ;
+          pred:goal    ${escapeIRI(proposalId)} ;
+          pred:payload ${escapeLiteral(JSON.stringify(record))} .
+      } }
+    `);
+  }
+};
+
+// ../predicate-mcp/src/tools/kg-config.ts
+var META10 = "https://industriagents.com/predicate/meta#";
+var CONFIG_URI3 = "urn:predicate:config";
+var KEY_TO_PROP = {
+  "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
+  "init-mode": { prop: "initMode", type: "string" },
+  "init-ontology": { prop: "initOntology", type: "string" },
+  "scale-gate-triples": { prop: "scaleGateTriples", type: "number" }
+};
+function literalFor(value, type) {
+  if (type === "boolean") {
+    return `"${value}"^^<http://www.w3.org/2001/XMLSchema#boolean>`;
+  }
+  if (type === "number") {
+    return `"${value}"^^<http://www.w3.org/2001/XMLSchema#integer>`;
+  }
+  return escapeLiteral(String(value));
+}
+async function kgConfigSet(client, input) {
+  const meta = KEY_TO_PROP[input.key];
+  if (!meta) {
+    return { ok: false, error: `unknown key '${input.key}'. Valid keys: ${Object.keys(KEY_TO_PROP).join(", ")}` };
+  }
+  if (meta.type === "boolean" && typeof input.value !== "boolean") {
+    return { ok: false, error: `${input.key} expects boolean, got ${typeof input.value}` };
+  }
+  if (meta.type === "string" && typeof input.value !== "string") {
+    return { ok: false, error: `${input.key} expects string, got ${typeof input.value}` };
+  }
+  if (meta.type === "number" && (typeof input.value !== "number" || !Number.isInteger(input.value) || input.value < 0)) {
+    return { ok: false, error: `${input.key} expects a non-negative integer, got ${JSON.stringify(input.value)}` };
+  }
+  const propIri = `<${META10}${meta.prop}>`;
+  const lit = literalFor(input.value, meta.type);
+  await client.update(`
+    PREFIX pred: <${META10}>
+    DELETE { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ?o } }
+    WHERE  { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ?o } }
+  `);
+  await client.update(`
+    PREFIX pred: <${META10}>
+    INSERT DATA { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ${lit} } }
+  `);
+  return { ok: true, key: input.key, value: input.value };
+}
+async function kgConfigGet(client, input) {
+  if (input.key) {
+    const meta = KEY_TO_PROP[input.key];
+    if (!meta) return { key: input.key, value: null };
+    const r3 = await client.select(`
+      PREFIX pred: <${META10}>
+      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> <${META10}${meta.prop}> ?o } }
+    `);
+    const b2 = r3.results.bindings[0];
+    if (!b2) return { key: input.key, value: null };
+    const raw = b2["o"].value;
+    let value;
+    if (meta.type === "boolean") {
+      value = raw === "true";
+    } else if (meta.type === "number") {
+      const n2 = parseInt(raw, 10);
+      value = Number.isNaN(n2) ? null : n2;
+    } else {
+      value = raw;
+    }
+    return { key: input.key, value };
+  }
+  const r2 = await client.select(`
+    PREFIX pred: <${META10}>
+    SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> ?p ?o } }
+  `);
+  const config2 = {};
+  for (const b2 of r2.results.bindings) {
+    const propIri = b2["p"].value;
+    const propLocal = propIri.slice(META10.length);
+    const externalKey = Object.entries(KEY_TO_PROP).find(([, v2]) => v2.prop === propLocal);
+    if (!externalKey) continue;
+    const [extKey, kmeta] = externalKey;
+    if (kmeta.type === "boolean") {
+      config2[extKey] = b2["o"].value === "true";
+    } else if (kmeta.type === "number") {
+      const n2 = parseInt(b2["o"].value, 10);
+      if (!Number.isNaN(n2)) config2[extKey] = n2;
+    } else {
+      config2[extKey] = b2["o"].value;
+    }
+  }
+  return { config: config2 };
+}
+
+// ../predicate-mcp/src/tools/kg-stats.ts
+async function countGraph(client, graph) {
+  const r2 = await client.select(
+    `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${graph}> { ?s ?p ?o } }`
+  );
+  return parseInt(r2.results.bindings[0].n.value, 10);
+}
+async function countClasses(client) {
+  const r2 = await client.select(`
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    SELECT (COUNT(DISTINCT ?c) AS ?n) WHERE {
+      GRAPH <kg:tbox> { ?c a owl:Class }
+    }
+  `);
+  return parseInt(r2.results.bindings[0].n.value, 10);
+}
+async function unusedConceptRatio(client, classCount) {
+  if (classCount === 0) return 0;
+  const r2 = await client.select(`
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    SELECT (COUNT(DISTINCT ?c) AS ?n) WHERE {
+      GRAPH <kg:tbox> { ?c a owl:Class }
+      FILTER NOT EXISTS {
+        { GRAPH <kg:abox>     { ?x rdf:type ?c } }
+        UNION
+        { GRAPH <kg:inferred> { ?x rdf:type ?c } }
+      }
+    }
+  `);
+  const unused = parseInt(r2.results.bindings[0].n.value, 10);
+  return unused / classCount;
+}
+async function materializationLatencyP95(client) {
+  const r2 = await client.select(`
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    SELECT ?payload WHERE {
+      GRAPH <kg:meta> {
+        ?e a pred:MaterializationCompleted ;
+           pred:payload ?payload .
+      }
+    }
+  `);
+  const values = r2.results.bindings.map((b2) => {
+    const raw = b2.payload?.value ?? "";
+    const m2 = raw.match(/"elapsedMs"\s*:\s*(\d+)/);
+    return m2 ? parseInt(m2[1], 10) : 0;
+  }).filter((n2) => Number.isFinite(n2) && n2 > 0);
+  if (values.length === 0) return 0;
+  values.sort((a2, b2) => a2 - b2);
+  const idx = Math.min(values.length - 1, Math.ceil(values.length * 0.95) - 1);
+  return values[Math.max(idx, 0)];
+}
+async function eventCount(client, type) {
+  const r2 = await client.select(`
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    SELECT (COUNT(?e) AS ?n) WHERE { GRAPH <kg:meta> { ?e a pred:${type} } }`);
+  return parseInt(r2.results.bindings[0]["n"].value, 10);
+}
+async function kgStats(client) {
+  const [abox, inferred, tbox] = await Promise.all([
+    countGraph(client, "kg:abox"),
+    countGraph(client, "kg:inferred"),
+    countGraph(client, "kg:tbox")
+  ]);
+  const classes = await countClasses(client);
+  const triples = abox + inferred + tbox;
+  const denom = abox + inferred;
+  const inferredRatio = denom === 0 ? 0 : inferred / denom;
+  const unused = await unusedConceptRatio(client, classes);
+  const p95 = await materializationLatencyP95(client);
+  const cfg = await kgConfigGet(client, { key: "scale-gate-triples" });
+  const scaleGateTriples = typeof cfg.value === "number" ? cfg.value : 25e3;
+  const signal = await new LifecycleController(client, { scaleGateTriples }).scaleSignal();
+  const promoted = await eventCount(client, "SchemaPromoted");
+  const demoted = await eventCount(client, "SchemaDemoted");
+  return {
+    triples,
+    abox,
+    inferred,
+    tbox,
+    classes,
+    inferredRatio,
+    unusedConceptRatio: unused,
+    materializationLatencyMsP95: p95,
+    tier: signal.tier,
+    scaleGateTriples,
+    demotePromoteRatio: promoted === 0 ? 0 : demoted / promoted
+  };
+}
+
+// ../predicate-cli/src/commands/stats.ts
+async function stats() {
+  const client = getAdapter();
+  const s2 = await kgStats(client);
+  const rows = [
+    ["triples", s2.triples],
+    ["abox", s2.abox],
+    ["inferred", s2.inferred],
+    ["tbox", s2.tbox],
+    ["classes", s2.classes],
+    ["inferredRatio", s2.inferredRatio.toFixed(3)],
+    ["unusedConceptRatio", s2.unusedConceptRatio.toFixed(3)],
+    ["materializationLatencyMsP95", s2.materializationLatencyMsP95]
+  ];
+  const width = Math.max(...rows.map(([k2]) => k2.length));
+  for (const [k2, v2] of rows) {
+    console.log(`${k2.padEnd(width)}  ${v2}`);
+  }
+  return 0;
+}
+
+// ../predicate-cli/src/commands/sessionstart.ts
+init_storage();
+var META11 = "https://industriagents.com/predicate/meta#";
+var OWL = "http://www.w3.org/2002/07/owl#";
+async function sessionstart() {
+  const client = getAdapter();
+  try {
+    const goalsRes = await client.select(
+      `PREFIX pred: <${META11}>
+       SELECT (COUNT(*) AS ?n) WHERE {
+         GRAPH <kg:goals> { ?g pred:status "active" }
+       }`
+    );
+    const classesRes = await client.select(
+      `PREFIX owl: <${OWL}>
+       SELECT (COUNT(DISTINCT ?c) AS ?n) WHERE {
+         GRAPH <kg:tbox> { ?c a owl:Class }
+       }`
+    );
+    const priorSessionsRes = await client.select(
+      `PREFIX pred: <${META11}>
+       SELECT (COUNT(DISTINCT ?s) AS ?n) WHERE {
+         GRAPH <kg:abox> { ?s a pred:Session }
+       }`
+    );
+    const ontologyRes = await client.select(
+      `PREFIX pred: <${META11}>
+       SELECT ?o WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology ?o } }`
+    ).catch(() => ({ results: { bindings: [] } }));
+    const goals = goalsRes.results.bindings[0]?.n?.value ?? "0";
+    const classes = classesRes.results.bindings[0]?.n?.value ?? "0";
+    const priorSessions = priorSessionsRes.results.bindings[0]?.n?.value ?? "0";
+    const ontology = ontologyRes.results.bindings[0]?.o?.value ?? "";
+    const sessionHint = priorSessions !== "0" ? ` ${priorSessions} prior session(s) in kg:abox \u2014 query for past file changes / command outcomes if relevant.` : "";
+    const ontologyHint = ontology ? ` (${ontology} ontology)` : "";
+    console.log(
+      `Predicate ready: ${goals} active goals, ${classes} TBox classes${ontologyHint}.${sessionHint} Use kg_explore_schema before drafting SPARQL.`
+    );
+    return 0;
+  } catch {
+    console.log(
+      `Predicate: Fuseki not reachable; KG tools may fail. Start it with \`predicate up\`.`
+    );
+    return 0;
+  }
+}
+
+// ../predicate-cli/src/commands/maintain.ts
+init_storage();
+
+// ../predicate-mcp/src/tools/kg-maintain.ts
+var META12 = "https://industriagents.com/predicate/meta#";
 async function kgMaintain(client, input = {}) {
   const archiveCutoff = input.archiveCutoff ?? 0.6;
   const ageDays = input.ageDays ?? 30;
   const cutoffDate = new Date(Date.now() - ageDays * 864e5).toISOString();
   const t0 = Date.now();
+  const cfg = await kgConfigGet(client, { key: "scale-gate-triples" });
+  const scaleGateTriples = typeof cfg.value === "number" ? cfg.value : void 0;
+  const controller = new LifecycleController(client, { scaleGateTriples });
+  const signal = await controller.scaleSignal();
+  if (signal.tier === "Seedling") {
+    const skipId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    await client.update(`
+      PREFIX pred: <${META12}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        <${skipId}> a pred:MaintenanceSkipped ;
+          pred:at      "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
+          pred:actor   "kg_maintain" ;
+          pred:payload ${escapeLiteral(JSON.stringify({
+      reason: "below-scale-gate",
+      tier: signal.tier,
+      tripleCount: signal.tripleCount,
+      threshold: signal.threshold
+    }))} .
+      } }
+    `);
+    const sweeper2 = await new PromotionSweeper(client, {
+      useThreshold: input.useThreshold ?? 3
+    }).run();
+    await new ShadowEvaluator(client).run({ tier: signal.tier });
+    return {
+      archivedCount: 0,
+      elapsedMs: Date.now() - t0,
+      eventId: skipId,
+      tier: signal.tier,
+      skipped: true,
+      sweeper: sweeper2
+    };
+  }
   await client.update(`CREATE SILENT GRAPH <kg:abox-archive>`);
   const before = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`
   );
   const beforeCount = parseInt(before.results.bindings[0].n.value, 10);
-  await client.update(`
-    PREFIX pred: <${META8}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
-    INSERT { GRAPH <kg:abox-archive> { ?s ?p ?o } }
-    WHERE {
-      GRAPH <kg:abox> { ?s ?p ?o }
-      GRAPH <kg:provenance> {
-        << ?s ?p ?o >> pred:confidence ?conf ;
-                       pred:timestamp  ?ts .
-        FILTER (?conf < ${archiveCutoff})
-        FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
-      }
-    }
-  `);
+  await controller.move({
+    fromGraph: "kg:abox",
+    toGraph: "kg:abox-archive",
+    selector: {
+      kind: "where",
+      whereClause: `
+        GRAPH <kg:abox> { ?s ?p ?o }
+        GRAPH <kg:provenance> {
+          << ?s ?p ?o >> pred:confidence ?conf ;
+                         pred:timestamp  ?ts .
+          FILTER (?conf < ${archiveCutoff})
+          FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
+        }`
+    },
+    eventType: "MaintenanceArchive",
+    goalIri: "urn:predicate:maintenance",
+    payload: { archiveCutoff, ageDays }
+  });
   const after = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`
   );
@@ -29204,6 +29548,7 @@ async function kgMaintain(client, input = {}) {
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3
   }).run();
+  await new ShadowEvaluator(client).run({ tier: signal.tier });
   const tFix = Date.now();
   const fixpoint = await runFixpoint(client, RULES, {
     tboxGraph: "kg:tbox",
@@ -29215,7 +29560,7 @@ async function kgMaintain(client, input = {}) {
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
-    PREFIX pred: <${META8}>
+    PREFIX pred: <${META12}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${eventId}> a pred:MaintenanceRun ;
@@ -29235,7 +29580,7 @@ async function kgMaintain(client, input = {}) {
   `);
   const matEventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   await client.update(`
-    PREFIX pred: <${META8}>
+    PREFIX pred: <${META12}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${matEventId}> a pred:MaterializationCompleted ;
@@ -29256,7 +29601,9 @@ async function kgMaintain(client, input = {}) {
     sweeper,
     generalizer,
     fixpoint,
-    autoProposalsSkipped: generalizer.autoProposalsSkipped
+    autoProposalsSkipped: generalizer.autoProposalsSkipped,
+    tier: signal.tier,
+    skipped: false
   };
 }
 
@@ -29284,7 +29631,7 @@ init_storage();
 
 // ../predicate-mcp/src/tools/kg-capture.ts
 init_graphs();
-var META9 = "https://industriagents.com/predicate/meta#";
+var META13 = "https://industriagents.com/predicate/meta#";
 function truncate(s2, max) {
   if (s2.length <= max) return s2;
   const extra = s2.length - max;
@@ -29311,14 +29658,14 @@ async function kgCapture(client, input) {
   const hasOutput = input.output !== void 0 && input.output !== null;
   const outputStr = hasOutput ? serialize(input.output, maxChars) : "";
   const lines = [
-    `${escapeIRI(captureId)} a <${META9}ToolCall> ;`,
-    `  <${META9}toolName>  ${escapeLiteral(input.toolName)} ;`,
-    `  <${META9}phase>     ${escapeLiteral(input.phase)} ;`,
-    `  <${META9}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
+    `${escapeIRI(captureId)} a <${META13}ToolCall> ;`,
+    `  <${META13}toolName>  ${escapeLiteral(input.toolName)} ;`,
+    `  <${META13}phase>     ${escapeLiteral(input.phase)} ;`,
+    `  <${META13}at>        "${(/* @__PURE__ */ new Date()).toISOString()}"^^<http://www.w3.org/2001/XMLSchema#dateTime>`
   ];
-  if (inputStr.length > 0) lines.push(`  ; <${META9}toolInput>  ${escapeLiteral(inputStr)}`);
-  if (hasOutput) lines.push(`  ; <${META9}toolOutput> ${escapeLiteral(outputStr)}`);
-  if (input.sessionId) lines.push(`  ; <${META9}sessionId>  ${escapeLiteral(input.sessionId)}`);
+  if (inputStr.length > 0) lines.push(`  ; <${META13}toolInput>  ${escapeLiteral(inputStr)}`);
+  if (hasOutput) lines.push(`  ; <${META13}toolOutput> ${escapeLiteral(outputStr)}`);
+  if (input.sessionId) lines.push(`  ; <${META13}sessionId>  ${escapeLiteral(input.sessionId)}`);
   lines.push("  .");
   await client.update(`
     INSERT DATA { GRAPH ${escapeIRI(GRAPH.usage)} {
@@ -29436,12 +29783,12 @@ async function capture(args, stdin = process.stdin) {
 
 // ../predicate-cli/src/commands/extract.ts
 init_storage();
-import { readFileSync as readFileSync3, readdirSync as readdirSync2, statSync as statSync4 } from "node:fs";
+import { readFileSync as readFileSync4, readdirSync as readdirSync2, statSync as statSync4 } from "node:fs";
 import { basename as basename2, join as join9 } from "node:path";
 
 // ../predicate-cli/src/commands/replay-rebuild.ts
 init_storage();
-var META10 = "https://industriagents.com/predicate/meta#";
+var META14 = "https://industriagents.com/predicate/meta#";
 function renderObject2(o2) {
   if (o2.type === "uri") return escapeIRI(o2.value);
   return o2.datatype ? `${escapeLiteral(o2.value)}^^${escapeIRI(o2.datatype)}` : escapeLiteral(o2.value);
@@ -29450,7 +29797,7 @@ async function deleteExtractedSlice(client, sessionId) {
   const source = escapeLiteral(`urn:predicate:session:${sessionId}`);
   if (client instanceof OxigraphAdapter) {
     const matches = await client.select(`
-      PREFIX pred: <${META10}>
+      PREFIX pred: <${META14}>
       SELECT ?s ?p ?o WHERE {
         GRAPH <kg:provenance> { << ?s ?p ?o >> pred:source ${source} . }
         FILTER NOT EXISTS {
@@ -29476,7 +29823,7 @@ async function deleteExtractedSlice(client, sessionId) {
     return;
   }
   await client.update(`
-    PREFIX pred: <${META10}>
+    PREFIX pred: <${META14}>
     DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
     WHERE {
       GRAPH <kg:provenance> { << ?s ?p ?o >> pred:source ${source} . }
@@ -29489,7 +29836,7 @@ async function deleteExtractedSlice(client, sessionId) {
     }
   `);
   await client.update(`
-    PREFIX pred: <${META10}>
+    PREFIX pred: <${META14}>
     DELETE { GRAPH <kg:provenance> { ?qt ?pp ?po } }
     WHERE {
       GRAPH <kg:provenance> {
@@ -29508,7 +29855,7 @@ async function deleteExtractedSlice(client, sessionId) {
 
 // ../predicate-agent/src/turn-extractor.ts
 import { createHash as createHash4 } from "node:crypto";
-var META11 = "https://industriagents.com/predicate/meta#";
+var META15 = "https://industriagents.com/predicate/meta#";
 var CB = "https://industriagents.com/predicate/codebase#";
 var RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 var XSD = "http://www.w3.org/2001/XMLSchema#";
@@ -29572,9 +29919,9 @@ function extractDeterministic(transcript) {
     triples.push(t2);
   }
   const base = { source: sessionUri, confidence: 0.95, method: "tool-parse" };
-  push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META11}Session`), ...base });
-  push({ subject: sessionUri, predicate: `${META11}sessionId`, object: literal3(transcript.sessionId), ...base });
-  push({ subject: sessionUri, predicate: `${META11}at`, object: literal3(now, `${XSD}dateTime`), ...base });
+  push({ subject: sessionUri, predicate: `${RDF}type`, object: uri(`${META15}Session`), ...base });
+  push({ subject: sessionUri, predicate: `${META15}sessionId`, object: literal3(transcript.sessionId), ...base });
+  push({ subject: sessionUri, predicate: `${META15}at`, object: literal3(now, `${XSD}dateTime`), ...base });
   const results = collectToolResults(transcript.events);
   const uses = collectToolUses(transcript.events);
   for (const use of uses) {
@@ -29791,7 +30138,7 @@ Env:
 `);
 }
 async function extractTranscript(client, opts) {
-  const lines = readFileSync3(opts.transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
+  const lines = readFileSync4(opts.transcriptPath, "utf8").split("\n").filter((l2) => l2.trim().length > 0);
   const events = [];
   let skippedLines = 0;
   for (const l2 of lines) {
@@ -29987,10 +30334,10 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META14 = "https://industriagents.com/predicate/meta#";
+  const META18 = "https://industriagents.com/predicate/meta#";
   const CB2 = "https://industriagents.com/predicate/codebase#";
   const rows = await client.select(
-    `PREFIX pred: <${META14}>
+    `PREFIX pred: <${META18}>
      PREFIX cb:   <${CB2}>
      SELECT ?s ?sid ?at
             (COUNT(DISTINCT ?f) AS ?files)
@@ -30081,10 +30428,10 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META14 = "https://industriagents.com/predicate/meta#";
+  const META18 = "https://industriagents.com/predicate/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
-    `PREFIX pred: <${META14}>
+    `PREFIX pred: <${META18}>
      SELECT ?c ?at ?tool ?phase ?session WHERE {
        GRAPH <kg:usage> {
          ?c a pred:ToolCall ;
@@ -30183,10 +30530,10 @@ function escapeSparqlLiteral(s2) {
 }
 async function searchFiles(client, query, limit) {
   const CB2 = "https://industriagents.com/predicate/codebase#";
-  const META14 = "https://industriagents.com/predicate/meta#";
+  const META18 = "https://industriagents.com/predicate/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
-     PREFIX pred: <${META14}>
+     PREFIX pred: <${META18}>
      SELECT ?file (COUNT(DISTINCT ?session) AS ?modCount) (MAX(?at) AS ?lastAt)
      WHERE {
        GRAPH <kg:abox> {
@@ -30297,7 +30644,7 @@ async function recall(args) {
 // ../predicate-cli/src/commands/dashboard.ts
 init_config();
 import { createServer as createServer2 } from "node:http";
-import { readFileSync as readFileSync4 } from "node:fs";
+import { readFileSync as readFileSync5 } from "node:fs";
 import { join as join10, dirname as dirname5 } from "node:path";
 import { fileURLToPath as fileURLToPath4 } from "node:url";
 import { spawn as spawn2 } from "node:child_process";
@@ -30329,11 +30676,11 @@ function openBrowser(url) {
 }
 async function proxyQuery(req, res, fusekiUrl, dataset2) {
   let body = "";
-  await new Promise((resolve7, reject) => {
+  await new Promise((resolve8, reject) => {
     req.on("data", (c2) => {
       body += String(c2);
     });
-    req.on("end", () => resolve7());
+    req.on("end", () => resolve8());
     req.on("error", reject);
   });
   try {
@@ -30359,7 +30706,7 @@ var lastDigest;
 async function runAction(req, res) {
   let body = "";
   let aborted = false;
-  await new Promise((resolve7, reject) => {
+  await new Promise((resolve8, reject) => {
     req.on("data", (c2) => {
       body += String(c2);
       if (body.length > 4096) {
@@ -30367,7 +30714,7 @@ async function runAction(req, res) {
         req.destroy();
       }
     });
-    req.on("end", () => resolve7());
+    req.on("end", () => resolve8());
     req.on("error", reject);
   });
   if (aborted) {
@@ -30410,9 +30757,9 @@ async function runAction(req, res) {
   child.stderr.on("data", (c2) => {
     stderr = cap(stderr, String(c2));
   });
-  const exitCode = await new Promise((resolve7) => {
-    child.on("close", (code) => resolve7(code ?? -1));
-    child.on("error", () => resolve7(-1));
+  const exitCode = await new Promise((resolve8) => {
+    child.on("close", (code) => resolve8(code ?? -1));
+    child.on("error", () => resolve8(-1));
   });
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ ok: exitCode === 0, exitCode, stdout, stderr }));
@@ -30518,7 +30865,7 @@ function findDashboardHtml() {
   ];
   for (const p2 of candidates) {
     try {
-      readFileSync4(p2, "utf8");
+      readFileSync5(p2, "utf8");
       return p2;
     } catch {
     }
@@ -30528,7 +30875,7 @@ function findDashboardHtml() {
 async function startDashboardServer(port) {
   const cfg = loadConfig();
   const htmlPath = findDashboardHtml();
-  const html = readFileSync4(htmlPath, "utf8");
+  const html = readFileSync5(htmlPath, "utf8");
   const server = createServer2((req, res) => {
     if (req.url === "/api/query" && req.method === "POST") {
       void proxyQuery(req, res, cfg.fusekiUrl, cfg.dataset);
@@ -30550,16 +30897,16 @@ async function startDashboardServer(port) {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("not found");
   });
-  await new Promise((resolve7, reject) => {
+  await new Promise((resolve8, reject) => {
     server.once("error", reject);
-    server.listen(port, "127.0.0.1", () => resolve7());
+    server.listen(port, "127.0.0.1", () => resolve8());
   });
   const address = server.address();
   const boundPort = typeof address === "object" && address ? address.port : port;
   return {
     port: boundPort,
     url: `http://127.0.0.1:${boundPort}`,
-    close: () => new Promise((resolve7) => {
+    close: () => new Promise((resolve8) => {
       for (const c2 of sseClients) c2.end();
       sseClients.clear();
       if (pollerTimer) {
@@ -30567,7 +30914,7 @@ async function startDashboardServer(port) {
         pollerTimer = void 0;
         lastDigest = void 0;
       }
-      server.close(() => resolve7());
+      server.close(() => resolve8());
     })
   };
 }
@@ -30593,7 +30940,7 @@ async function dashboard(args) {
 
 // ../predicate-cli/src/commands/schema.ts
 init_storage();
-var META12 = "https://industriagents.com/predicate/meta#";
+var META16 = "https://industriagents.com/predicate/meta#";
 var PROPOSAL_IRI2 = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
 function help8() {
   console.log(`predicate schema <verb> [args]
@@ -30602,13 +30949,14 @@ Verbs:
   list                    Print pending proposals from kg:tbox-staging as JSON.
   approve <proposalIri>   Force-promote a proposal (still runs validation).
   reject  <proposalIri>   Reject and remove a proposal from staging.
+  demote  <proposalIri>   Reverse a promotion: move its triples to kg:tbox-demoted.
 `);
 }
 async function listProposals() {
   try {
     const client = getAdapter();
     const r2 = await client.select(`
-    PREFIX pred: <${META12}>
+    PREFIX pred: <${META16}>
     SELECT ?id ?kind ?justification ?motivatingGoal ?proposedAt ?expiresAt ?useCount
     WHERE {
       GRAPH <kg:tbox-staging> {
@@ -30677,6 +31025,25 @@ async function rejectProposal(id) {
     return 1;
   }
 }
+async function demoteProposal(id) {
+  if (!PROPOSAL_IRI2.test(id)) {
+    console.error(`predicate schema demote: invalid proposal IRI: ${id}`);
+    return 2;
+  }
+  try {
+    const client = getAdapter();
+    const decision = await new LifecycleController(client).demoteById(id, {
+      reason: "demoted via CLI",
+      actor: "user-demote"
+    });
+    const ok = decision.outcome === "demoted";
+    process.stdout.write(JSON.stringify({ ok, ...decision }));
+    return ok ? 0 : 1;
+  } catch (e2) {
+    process.stdout.write(JSON.stringify({ ok: false, error: e2.message }));
+    return 1;
+  }
+}
 async function schema(args) {
   const verb = args[0];
   switch (verb) {
@@ -30698,6 +31065,14 @@ async function schema(args) {
       }
       return rejectProposal(id);
     }
+    case "demote": {
+      const id = args[1];
+      if (!id) {
+        help8();
+        return 2;
+      }
+      return demoteProposal(id);
+    }
     case void 0:
     case "--help":
     case "help":
@@ -30712,76 +31087,6 @@ async function schema(args) {
 
 // ../predicate-cli/src/commands/config.ts
 init_storage();
-
-// ../predicate-mcp/src/tools/kg-config.ts
-var META13 = "https://industriagents.com/predicate/meta#";
-var CONFIG_URI3 = "urn:predicate:config";
-var KEY_TO_PROP = {
-  "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
-  "init-mode": { prop: "initMode", type: "string" },
-  "init-ontology": { prop: "initOntology", type: "string" }
-};
-function literalFor(value, type) {
-  if (type === "boolean") {
-    return `"${value}"^^<http://www.w3.org/2001/XMLSchema#boolean>`;
-  }
-  return escapeLiteral(String(value));
-}
-async function kgConfigSet(client, input) {
-  const meta = KEY_TO_PROP[input.key];
-  if (!meta) {
-    return { ok: false, error: `unknown key '${input.key}'. Valid keys: ${Object.keys(KEY_TO_PROP).join(", ")}` };
-  }
-  if (meta.type === "boolean" && typeof input.value !== "boolean") {
-    return { ok: false, error: `${input.key} expects boolean, got ${typeof input.value}` };
-  }
-  if (meta.type === "string" && typeof input.value !== "string") {
-    return { ok: false, error: `${input.key} expects string, got ${typeof input.value}` };
-  }
-  const propIri = `<${META13}${meta.prop}>`;
-  const lit = literalFor(input.value, meta.type);
-  await client.update(`
-    PREFIX pred: <${META13}>
-    DELETE { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ?o } }
-    WHERE  { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ?o } }
-  `);
-  await client.update(`
-    PREFIX pred: <${META13}>
-    INSERT DATA { GRAPH <kg:meta> { <${CONFIG_URI3}> ${propIri} ${lit} } }
-  `);
-  return { ok: true, key: input.key, value: input.value };
-}
-async function kgConfigGet(client, input) {
-  if (input.key) {
-    const meta = KEY_TO_PROP[input.key];
-    if (!meta) return { key: input.key, value: null };
-    const r3 = await client.select(`
-      PREFIX pred: <${META13}>
-      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> <${META13}${meta.prop}> ?o } }
-    `);
-    const b2 = r3.results.bindings[0];
-    if (!b2) return { key: input.key, value: null };
-    const raw = b2["o"].value;
-    const value = meta.type === "boolean" ? raw === "true" : raw;
-    return { key: input.key, value };
-  }
-  const r2 = await client.select(`
-    PREFIX pred: <${META13}>
-    SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI3}> ?p ?o } }
-  `);
-  const config2 = {};
-  for (const b2 of r2.results.bindings) {
-    const propIri = b2["p"].value;
-    const propLocal = propIri.slice(META13.length);
-    const externalKey = Object.entries(KEY_TO_PROP).find(([, v2]) => v2.prop === propLocal);
-    if (!externalKey) continue;
-    const [extKey, kmeta] = externalKey;
-    config2[extKey] = kmeta.type === "boolean" ? b2["o"].value === "true" : b2["o"].value;
-  }
-  return { config: config2 };
-}
-
-// ../predicate-cli/src/commands/config.ts
 var KEYS = ["schema-learning", "init-mode", "init-ontology"];
 function isKey(s2) {
   return s2 !== void 0 && KEYS.includes(s2);
@@ -30911,8 +31216,8 @@ predicate migrate: triple count mismatch on ${g2}: source=${srcCount}, dest=${ds
 }
 
 // ../predicate-cli/src/commands/install.ts
-import { mkdirSync as mkdirSync2, readFileSync as readFileSync5, writeFileSync as writeFileSync3, existsSync as existsSync6, copyFileSync } from "node:fs";
-import { dirname as dirname6, join as join11, resolve as resolve6 } from "node:path";
+import { mkdirSync as mkdirSync3, readFileSync as readFileSync6, writeFileSync as writeFileSync3, existsSync as existsSync7, copyFileSync } from "node:fs";
+import { dirname as dirname6, join as join11, resolve as resolve7 } from "node:path";
 import { fileURLToPath as fileURLToPath5 } from "node:url";
 var MCP_ENV = { PREDICATE_BACKEND: "oxigraph", PREDICATE_DATASET: "predicate" };
 function configSpec(platform) {
@@ -30924,9 +31229,9 @@ function configSpec(platform) {
   }
 }
 function readJson(path2) {
-  if (!existsSync6(path2)) return {};
+  if (!existsSync7(path2)) return {};
   try {
-    return JSON.parse(readFileSync5(path2, "utf8"));
+    return JSON.parse(readFileSync6(path2, "utf8"));
   } catch {
     return {};
   }
@@ -30934,7 +31239,7 @@ function readJson(path2) {
 function writeMcpConfig(platform, projectDir, serverPath) {
   const { rel, key } = configSpec(platform);
   const out = join11(projectDir, rel);
-  mkdirSync2(dirname6(out), { recursive: true });
+  mkdirSync3(dirname6(out), { recursive: true });
   const cfg = readJson(out);
   const servers = cfg[key] ?? {};
   servers.predicate = { command: "node", args: [serverPath], env: { ...MCP_ENV } };
@@ -30944,16 +31249,16 @@ function writeMcpConfig(platform, projectDir, serverPath) {
 }
 function bundledServerPath() {
   const here = dirname6(fileURLToPath5(import.meta.url));
-  const candidate = resolve6(here, "server.bundle.mjs");
-  return existsSync6(candidate) ? candidate : resolve6(here, "../../../predicate-skill/server.bundle.mjs");
+  const candidate = resolve7(here, "server.bundle.mjs");
+  return existsSync7(candidate) ? candidate : resolve7(here, "../../../predicate-skill/server.bundle.mjs");
 }
 function dropInstructions(projectDir) {
   const here = dirname6(fileURLToPath5(import.meta.url));
-  const src = resolve6(here, "AGENTS.md");
-  if (!existsSync6(src)) return null;
+  const src = resolve7(here, "AGENTS.md");
+  if (!existsSync7(src)) return null;
   const dst = join11(projectDir, "AGENTS.md");
-  if (!existsSync6(dst)) copyFileSync(src, dst);
-  return existsSync6(dst) ? dst : null;
+  if (!existsSync7(dst)) copyFileSync(src, dst);
+  return existsSync7(dst) ? dst : null;
 }
 async function install(args) {
   const platform = args[0];
@@ -30970,6 +31275,41 @@ async function install(args) {
   if (instr) console.log(`Wrote ${instr}`);
   console.log(`Restart ${platform === "vscode" ? "VS Code" : "Cursor"} to load the predicate MCP server.`);
   return 0;
+}
+
+// ../predicate-cli/src/commands/shadow-report.ts
+init_storage();
+var META17 = "https://industriagents.com/predicate/meta#";
+async function shadowReport() {
+  try {
+    const client = getAdapter();
+    const r2 = await client.select(`
+      PREFIX pred: <${META17}>
+      SELECT ?payload WHERE { GRAPH <kg:meta> { ?e a pred:GateShadow ; pred:payload ?payload } }
+    `);
+    const latest = /* @__PURE__ */ new Map();
+    for (const b2 of r2.results.bindings) {
+      const rec = JSON.parse(b2["payload"].value);
+      const prev = latest.get(rec.proposalId);
+      if (!prev || rec.passTimestamp > prev.ts) {
+        latest.set(rec.proposalId, { ts: rec.passTimestamp, cells: rec.counterfactual, goalSource: rec.goalSource });
+      }
+    }
+    const grid = {};
+    for (const { cells, goalSource } of latest.values()) {
+      for (const c2 of cells) {
+        const key = `N=${c2.n},TTL=${c2.ttlDays}d`;
+        grid[key] ??= { promote: 0, wait: 0, expire: 0, inferredPromote: 0 };
+        grid[key][c2.decision]++;
+        if (c2.decision === "promote" && goalSource === "inferred") grid[key].inferredPromote++;
+      }
+    }
+    process.stdout.write(JSON.stringify({ proposals: latest.size, grid }, null, 2));
+    return 0;
+  } catch (e2) {
+    process.stdout.write(JSON.stringify({ ok: false, error: e2.message }));
+    return 1;
+  }
 }
 
 // ../predicate-cli/src/index.ts
@@ -30994,6 +31334,7 @@ Commands:
   stats             Print kg_stats output for the live graph.
   sessionstart      Print a one-line KG status banner (used by hook scripts).
   maintain          Run kg_maintain (reaper + generalizer + sweeper).
+  shadow-report     Roll up GateShadow counterfactual events into a per-(N,TTL) promote/wait/expire tally.
   capture           Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
   extract           Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
   sessions          List recent extracted sessions (modifiedFiles / succeeded / failed counts).
@@ -31038,6 +31379,8 @@ async function main() {
       return sessionstart();
     case "maintain":
       return maintain();
+    case "shadow-report":
+      return shadowReport();
     case "capture":
       return capture(process.argv.slice(3));
     case "extract":

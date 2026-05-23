@@ -16,6 +16,7 @@ import { schema } from './commands/schema.js';
 import { config } from './commands/config.js';
 import { migrate } from './commands/migrate.js';
 import { install } from './commands/install.js';
+import { shadowReport } from './commands/shadow-report.js';
 
 // Injected at bundle time from predicate-skill's package.json (see
 // scripts/bundle.mjs). Falls back to '0.0.0-dev' when run unbundled.
@@ -42,6 +43,7 @@ Commands:
   stats             Print kg_stats output for the live graph.
   sessionstart      Print a one-line KG status banner (used by hook scripts).
   maintain          Run kg_maintain (reaper + generalizer + sweeper).
+  shadow-report     Roll up GateShadow counterfactual events into a per-(N,TTL) promote/wait/expire tally.
   capture           Record a tool invocation in kg:usage (opt-in via PREDICATE_RAW_CAPTURE).
   extract           Read a Stop-hook payload from stdin and extract typed triples into kg:abox.
   sessions          List recent extracted sessions (modifiedFiles / succeeded / failed counts).
@@ -81,6 +83,7 @@ async function main(): Promise<number> {
     case 'stats':           return stats();
     case 'sessionstart':    return sessionstart();
     case 'maintain':        return maintain();
+    case 'shadow-report':   return shadowReport();
     case 'capture':         return capture(process.argv.slice(3));
     case 'extract':         return extract(process.argv.slice(3));
     case 'sessions':        return sessions(process.argv.slice(3));
