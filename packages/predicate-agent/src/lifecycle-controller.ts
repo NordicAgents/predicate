@@ -1,7 +1,21 @@
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import type { ScaleTier } from './types.js';
+import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
 const COUNTED_GRAPHS = ['kg:abox', 'kg:tbox', 'kg:inferred', 'kg:goals', 'kg:usage'];
+
+export type MoveSelector =
+  | { kind: 'ground'; tripleBlock: string }                 // concrete `s p o .` block
+  | { kind: 'where'; whereClause: string };                 // pattern that binds ?s ?p ?o
+
+export interface MoveOptions {
+  fromGraph: string;
+  toGraph: string;
+  selector: MoveSelector;
+  eventType: 'SchemaDemoted' | 'MaintenanceArchive';
+  goalIri: string;
+  payload: Record<string, unknown>;
+}
 
 export interface LifecycleControllerOptions {
   /** Total-triple threshold. At/above => Active; below => Seedling. */
@@ -19,6 +33,44 @@ export class LifecycleController {
 
   constructor(private client: StorageAdapter, opts: LifecycleControllerOptions = {}) {
     this.scaleGateTriples = opts.scaleGateTriples ?? 25000;
+  }
+
+  private newEventId(kind: string): string {
+    return `urn:predicate:event:${kind}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  async move(opts: MoveOptions): Promise<void> {
+    const META = 'https://industriagents.com/predicate/meta#';
+    if (opts.selector.kind === 'ground') {
+      const block = opts.selector.tripleBlock;
+      await this.client.update(
+        `DELETE DATA { GRAPH <${opts.fromGraph}> { ${block} } }`,
+      );
+      await this.client.update(
+        `INSERT DATA { GRAPH <${opts.toGraph}> { ${block} } }`,
+      );
+    } else {
+      await this.client.update(`
+        PREFIX pred: <${META}>
+        PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+        DELETE { GRAPH <${opts.fromGraph}> { ?s ?p ?o } }
+        INSERT { GRAPH <${opts.toGraph}>   { ?s ?p ?o } }
+        WHERE  { ${opts.selector.whereClause} }
+      `);
+    }
+    await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
+    const eventId = this.newEventId(opts.eventType.toLowerCase());
+    await this.client.update(`
+      PREFIX pred: <${META}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        ${escapeIRI(eventId)} a pred:${opts.eventType} ;
+          pred:at      "${new Date().toISOString()}"^^xsd:dateTime ;
+          pred:actor   "LifecycleController" ;
+          pred:goal    ${escapeIRI(opts.goalIri)} ;
+          pred:payload ${escapeLiteral(JSON.stringify(opts.payload))} .
+      } }
+    `);
   }
 
   async scaleSignal(): Promise<ScaleSignal> {
