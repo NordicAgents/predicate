@@ -345,6 +345,18 @@ export class PromotionSweeper {
     mkdirSync(this.promotedDir, { recursive: true });
   }
 
+  /**
+   * Promote a staged proposal into kg:tbox.
+   *
+   * NOTE — substrate boundary: the reaper and `kg_demote` route their graph-moves
+   * through `LifecycleController.move()` (one DELETE/INSERT + drop-inferred + ONE
+   * event). `promote()` deliberately does NOT, because it has concerns move() does
+   * not model: it writes the reviewed Turtle file to `promoted/<id>.ttl` and emits
+   * TWO events (SchemaPromoted + TBoxVersionAdvanced). Folding these into move()
+   * would force it to become a multi-event, file-writing primitive — over-generalising
+   * it for one caller (YAGNI). Two of the three movers share move(); promote stays
+   * bespoke. See docs/superpowers/specs/2026-05-23-lifecycle-controller-scale-shadow-demote-design.md §5.
+   */
   private async promote(p: ProposalRow, actor: string = 'PromotionSweeper'): Promise<{ turtleFile: string; tboxVersion: string }> {
     const r = await this.client.select(`
       PREFIX pred: <${META}>
