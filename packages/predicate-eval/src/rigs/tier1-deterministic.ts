@@ -86,7 +86,11 @@ export async function runTier1(
       const perQuestion: Record<string, number> = {};
       let sum = 0;
       for (const q of questions) {
-        const expected = deriveAnswerKey(oracle, q.key, q.type, ep);
+        // Score against FINAL ground truth (cutoff = last episode), not the current
+        // episode. This is the compounding signal: early episodes score lower because
+        // the graph has not captured those facts yet, and accuracy climbs toward 1.0
+        // as episodes arrive. Do NOT change this to `ep` — that yields a flat 1.0 curve.
+        const expected = deriveAnswerKey(oracle, q.key, q.type, episodes);
         const got = await runGolden(client, q);
         const f1 = score(expected, got);
         perQuestion[q.id] = f1;
