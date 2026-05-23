@@ -1,0 +1,22 @@
+[
+  {
+    "id": "res-q01",
+    "text": "What papers influenced p1 (transitively)?",
+    "type": "set",
+    "key": { "derive": "transitive", "rel": "http://ex/res#influencedBy", "from": "http://ex/res/p1" },
+    "needs_episode": 1,
+    "rule_under_test": ["r03"],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/res/p1> <http://ex/res#influencedBy> ?p } }"
+  },
+  {
+    "id": "res-q02",
+    "text": "Are there contradictory claims about the mortality finding?",
+    "type": "boolean",
+    "key": { "derive": "boolean-conflict", "about": "http://ex/res/mortalityClaim" },
+    "needs_episode": 4,
+    "rule_under_test": ["r21"],
+    "reasoning_dependent": false,
+    "golden_sparql": "ASK { GRAPH <kg:abox> { ?a <http://ex/res#about> <http://ex/res/mortalityClaim> . ?b <http://ex/res#about> <http://ex/res/mortalityClaim> . FILTER(?a != ?b) } }"
+  }
+]

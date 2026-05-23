@@ -1,0 +1,12 @@
+@prefix res:  <http://ex/res#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+res:Paper   a owl:Class .
+res:Claim   a owl:Class .
+res:cites        a owl:ObjectProperty ; rdfs:domain res:Paper ; rdfs:range res:Paper .
+res:citedBy      a owl:ObjectProperty ; owl:inverseOf res:cites .
+res:influencedBy a owl:ObjectProperty, owl:TransitiveProperty ;
+  rdfs:domain res:Paper ; rdfs:range res:Paper .
+res:supersededBy a owl:ObjectProperty ; rdfs:domain res:Claim ; rdfs:range res:Claim .
+res:about        a owl:ObjectProperty .

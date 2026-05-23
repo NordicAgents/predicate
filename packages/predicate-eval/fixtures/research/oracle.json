@@ -1,0 +1,13 @@
+{
+  "facts": [
+    { "s": "http://ex/res/p1", "p": "http://ex/res#influencedBy", "o": "http://ex/res/p2", "episode": 1 },
+    { "s": "http://ex/res/p2", "p": "http://ex/res#influencedBy", "o": "http://ex/res/p3", "episode": 2 },
+    { "s": "http://ex/res/p3", "p": "http://ex/res#influencedBy", "o": "http://ex/res/p4", "episode": 3 },
+    { "s": "http://ex/res/p1", "p": "http://ex/res#cites", "o": "http://ex/res/p2", "episode": 1 }
+  ],
+  "conflicts": [
+    { "id": "rc1", "about": "http://ex/res/mortalityClaim", "predicate": "http://ex/res#value",
+      "values": ["reduces", "increases"], "episode": 4 }
+  ],
+  "disjoint": []
+}
