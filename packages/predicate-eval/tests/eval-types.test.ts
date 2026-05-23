@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Question, ScoreRow } from '../src/eval-types.js';
+import type { Question } from '../src/eval-types.js';
 import { isQuestion } from '../src/eval-types.js';
 
 describe('eval-types', () => {
