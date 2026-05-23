@@ -1,0 +1,22 @@
+[
+  {
+    "id": "org-q01",
+    "text": "Who is in Dana's management chain?",
+    "type": "set",
+    "key": { "derive": "transitive", "rel": "http://ex/org#reportsTo", "from": "http://ex/org/dana" },
+    "needs_episode": 1,
+    "rule_under_test": ["r03"],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?p WHERE { GRAPH <kg:inferred> { <http://ex/org/dana> <http://ex/org#reportsTo> ?p } }"
+  },
+  {
+    "id": "org-q02",
+    "text": "Does Lee have conflicting managers?",
+    "type": "boolean",
+    "key": { "derive": "boolean-conflict", "about": "http://ex/org/lee" },
+    "needs_episode": 4,
+    "rule_under_test": ["r08", "r21"],
+    "reasoning_dependent": true,
+    "golden_sparql": "ASK { GRAPH <kg:abox> { <http://ex/org/lee> <http://ex/org#reportsTo> ?a, ?b . FILTER(?a != ?b) } }"
+  }
+]

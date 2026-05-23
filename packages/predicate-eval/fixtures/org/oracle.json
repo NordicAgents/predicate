@@ -1,0 +1,13 @@
+{
+  "facts": [
+    { "s": "http://ex/org/dana", "p": "http://ex/org#reportsTo", "o": "http://ex/org/erin", "episode": 1 },
+    { "s": "http://ex/org/erin", "p": "http://ex/org#reportsTo", "o": "http://ex/org/omar", "episode": 2 },
+    { "s": "http://ex/org/omar", "p": "http://ex/org#reportsTo", "o": "http://ex/org/zoe",  "episode": 3 },
+    { "s": "http://ex/org/dana", "p": "http://ex/org#memberOf",  "o": "http://ex/org/payments", "episode": 1 }
+  ],
+  "conflicts": [
+    { "id": "c1", "about": "http://ex/org/lee", "predicate": "http://ex/org#reportsTo",
+      "values": ["http://ex/org/omar", "http://ex/org/nadia"], "episode": 4 }
+  ],
+  "disjoint": [{ "classes": ["http://ex/org#Contractor", "http://ex/org#FullTime"] }]
+}

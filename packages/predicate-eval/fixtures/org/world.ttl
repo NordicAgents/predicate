@@ -1,0 +1,18 @@
+@prefix org:  <http://ex/org#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+org:Person     a owl:Class .
+org:Team       a owl:Class .
+org:Project    a owl:Class .
+org:Contractor a owl:Class ; rdfs:subClassOf org:Person .
+org:FullTime   a owl:Class ; rdfs:subClassOf org:Person .
+org:Contractor owl:disjointWith org:FullTime .
+
+org:reportsTo a owl:ObjectProperty, owl:TransitiveProperty ;
+  rdfs:domain org:Person ; rdfs:range org:Person .
+org:manages a owl:ObjectProperty ; owl:inverseOf org:reportsTo .
+org:memberOf a owl:ObjectProperty ; rdfs:domain org:Person ; rdfs:range org:Team .
+org:ownerOf  a owl:ObjectProperty, owl:FunctionalProperty ;
+  rdfs:domain org:Project ; rdfs:range org:Person .

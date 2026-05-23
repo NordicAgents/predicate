@@ -1,0 +1,4 @@
+{"s":"http://ex/org/dana","p":"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","o":"http://ex/org#Person"}
+{"s":"http://ex/org/erin","p":"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","o":"http://ex/org#Person"}
+{"s":"http://ex/org/dana","p":"http://ex/org#reportsTo","o":"http://ex/org/erin"}
+{"s":"http://ex/org/dana","p":"http://ex/org#memberOf","o":"http://ex/org/payments"}
