@@ -82,21 +82,24 @@ export async function kgMaintain(
   );
   const beforeCount = parseInt(before.results.bindings[0]!.n!.value, 10);
 
-  await client.update(`
-    PREFIX pred: <${META}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
-    INSERT { GRAPH <kg:abox-archive> { ?s ?p ?o } }
-    WHERE {
-      GRAPH <kg:abox> { ?s ?p ?o }
-      GRAPH <kg:provenance> {
-        << ?s ?p ?o >> pred:confidence ?conf ;
-                       pred:timestamp  ?ts .
-        FILTER (?conf < ${archiveCutoff})
-        FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
-      }
-    }
-  `);
+  await controller.move({
+    fromGraph: 'kg:abox',
+    toGraph: 'kg:abox-archive',
+    selector: {
+      kind: 'where',
+      whereClause: `
+        GRAPH <kg:abox> { ?s ?p ?o }
+        GRAPH <kg:provenance> {
+          << ?s ?p ?o >> pred:confidence ?conf ;
+                         pred:timestamp  ?ts .
+          FILTER (?conf < ${archiveCutoff})
+          FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
+        }`,
+    },
+    eventType: 'MaintenanceArchive',
+    goalIri: 'urn:predicate:maintenance',
+    payload: { archiveCutoff, ageDays },
+  });
 
   const after = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`,
