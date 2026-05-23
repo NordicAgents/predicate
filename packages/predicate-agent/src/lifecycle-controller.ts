@@ -106,7 +106,13 @@ export class LifecycleController {
     if (!tripleBlock) {
       return { proposalId, outcome: 'not-found', reason: 'promoted Turtle file is empty' };
     }
-    const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
+    const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    // Order matters: mutate the store (move triples + drop inferred + log) BEFORE
+    // relocating the file. This ordering is crash-recoverable: RDF graphs are sets,
+    // so if renameSync below fails, a re-run finds the still-present promoted/<id>.ttl,
+    // re-runs move() as a harmless no-op (DELETE finds nothing in kg:tbox, INSERT
+    // dedups in kg:tbox-demoted), and completes the rename. File-first ordering would
+    // instead leave the store live but the file relocated -> a stuck, unrecoverable state.
     await this.move({
       fromGraph: 'kg:tbox',
       toGraph: 'kg:tbox-demoted',
