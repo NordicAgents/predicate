@@ -1,5 +1,7 @@
+import { readFileSync, existsSync, mkdirSync, renameSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
-import type { ScaleTier } from './types.js';
+import type { ScaleTier, DemoteDecision } from './types.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
 const COUNTED_GRAPHS = ['kg:abox', 'kg:tbox', 'kg:inferred', 'kg:goals', 'kg:usage'];
@@ -75,6 +77,50 @@ export class LifecycleController {
           pred:payload ${escapeLiteral(JSON.stringify(opts.payload))} .
       } }
     `);
+  }
+
+  private promotedDir(): string {
+    return process.env['PREDICATE_PROMOTED_DIR']
+      ?? (process.env['PREDICATE_STORE_PATH']
+        ? resolve(process.env['PREDICATE_STORE_PATH'], 'promoted')
+        : resolve(process.cwd(), '.predicate', 'promoted'));
+  }
+
+  /**
+   * Reverse a schema promotion by proposal id. Reads the promoted Turtle file
+   * written at promotion time to learn exactly which triples to move out of
+   * kg:tbox into kg:tbox-demoted (dropping kg:inferred and emitting a
+   * SchemaDemoted event via `move`), then relocates the file from promoted/ to
+   * demoted/ so git records what is no longer live.
+   */
+  async demoteById(
+    proposalId: string,
+    opts: { reason: string; actor: string },
+  ): Promise<DemoteDecision> {
+    const safe = proposalId.replace(/[^A-Za-z0-9-]/g, '_');
+    const promotedFile = resolve(this.promotedDir(), `${safe}.ttl`);
+    if (!existsSync(promotedFile)) {
+      return { proposalId, outcome: 'not-found', reason: 'no promoted Turtle file for this proposal' };
+    }
+    const tripleBlock = readFileSync(promotedFile, 'utf8').trim();
+    if (!tripleBlock) {
+      return { proposalId, outcome: 'not-found', reason: 'promoted Turtle file is empty' };
+    }
+    const tboxVersion = `urn:predicate:tbox:v-${Date.now().toString(36)}`;
+    await this.move({
+      fromGraph: 'kg:tbox',
+      toGraph: 'kg:tbox-demoted',
+      selector: { kind: 'ground', tripleBlock },
+      eventType: 'SchemaDemoted',
+      goalIri: proposalId,
+      payload: { proposalId, reason: opts.reason, actor: opts.actor, tboxVersion },
+    });
+    // relocate promoted/<id>.ttl -> demoted/<id>.ttl (git's record of what is no longer live)
+    const demotedDir = resolve(this.promotedDir(), '..', 'demoted');
+    mkdirSync(demotedDir, { recursive: true });
+    const demotedFile = resolve(demotedDir, `${safe}.ttl`);
+    renameSync(promotedFile, demotedFile);
+    return { proposalId, outcome: 'demoted', demotedFile, tboxVersion };
   }
 
   async scaleSignal(): Promise<ScaleSignal> {
