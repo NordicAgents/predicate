@@ -30973,7 +30973,7 @@ async function install(args) {
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.7.0" : "0.0.0-dev";
+var VERSION2 = true ? "2.7.1" : "0.0.0-dev";
 function help10() {
   console.log(`predicate <command>
 

@@ -1,6 +1,12 @@
 # predicate-server
 
-Apache Jena Fuseki 5.x + TDB2, bound to localhost only.
+Backend bootstrap for the graph + the **opt-in Fuseki backend**: Apache Jena
+Fuseki 5.x + TDB2 in Docker, bound to localhost only. The default Oxigraph
+backend needs none of this — `predicate-server` matters only when
+`PREDICATE_BACKEND=fuseki`.
+
+Part of the [Predicate](https://github.com/NordicAgents/predicate#readme)
+monorepo.
 
 ## Use
 
