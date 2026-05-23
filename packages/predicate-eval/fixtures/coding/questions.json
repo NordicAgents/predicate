@@ -1,0 +1,22 @@
+[
+  {
+    "id": "code-q01",
+    "text": "What does auth.ts depend on (transitively)?",
+    "type": "set",
+    "key": { "derive": "transitive", "rel": "https://industriagents.com/predicate/codebase#dependsOn", "from": "https://industriagents.com/predicate/codebase/auth.ts" },
+    "needs_episode": 1,
+    "rule_under_test": ["r03"],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?f WHERE { GRAPH <kg:inferred> { <https://industriagents.com/predicate/codebase/auth.ts> <https://industriagents.com/predicate/codebase#dependsOn> ?f } }"
+  },
+  {
+    "id": "code-q02",
+    "text": "What does auth.ts import directly?",
+    "type": "set",
+    "key": { "derive": "direct", "rel": "https://industriagents.com/predicate/codebase#imports", "from": "https://industriagents.com/predicate/codebase/auth.ts" },
+    "needs_episode": 1,
+    "rule_under_test": [],
+    "reasoning_dependent": false,
+    "golden_sparql": "SELECT ?f WHERE { GRAPH <kg:abox> { <https://industriagents.com/predicate/codebase/auth.ts> <https://industriagents.com/predicate/codebase#imports> ?f } }"
+  }
+]
