@@ -9,7 +9,8 @@
     "test": "vitest run",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src tests --max-warnings 0",
     "demo": "tsx src/load-corpus.ts && tsx src/ask.ts",
-    "ontology-check": "tsx src/ontology-ci.ts"
+    "ontology-check": "tsx src/ontology-ci.ts",
+    "eval": "tsx src/eval.ts"
   },
   "dependencies": {
     "predicate-agent": "workspace:^",
