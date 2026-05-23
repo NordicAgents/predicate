@@ -164,6 +164,9 @@ export interface KgStats {
   inferredRatio: number;
   unusedConceptRatio: number;
   materializationLatencyMsP95: number;
+  tier: 'Seedling' | 'Active';
+  scaleGateTriples: number;
+  demotePromoteRatio: number;   // SchemaDemoted count / SchemaPromoted count (0 if none promoted)
 }
 
 export interface GeneralizerProposal {
