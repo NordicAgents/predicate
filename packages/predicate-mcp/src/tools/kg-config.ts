@@ -57,8 +57,8 @@ export async function kgConfigSet(
   if (meta.type === 'string' && typeof input.value !== 'string') {
     return { ok: false, error: `${input.key} expects string, got ${typeof input.value}` };
   }
-  if (meta.type === 'number' && typeof input.value !== 'number') {
-    return { ok: false, error: `${input.key} expects number, got ${typeof input.value}` };
+  if (meta.type === 'number' && (typeof input.value !== 'number' || !Number.isInteger(input.value) || input.value < 0)) {
+    return { ok: false, error: `${input.key} expects a non-negative integer, got ${JSON.stringify(input.value)}` };
   }
   const propIri = `<${META}${meta.prop}>`;
   const lit = literalFor(input.value, meta.type);
@@ -88,10 +88,15 @@ export async function kgConfigGet(
     const b = r.results.bindings[0];
     if (!b) return { key: input.key, value: null };
     const raw = b['o']!.value;
-    const value: string | boolean | number =
-      meta.type === 'boolean' ? raw === 'true'
-      : meta.type === 'number' ? parseInt(raw, 10)
-      : raw;
+    let value: string | boolean | number | null;
+    if (meta.type === 'boolean') {
+      value = raw === 'true';
+    } else if (meta.type === 'number') {
+      const n = parseInt(raw, 10);
+      value = Number.isNaN(n) ? null : n;
+    } else {
+      value = raw;
+    }
     return { key: input.key, value };
   }
   // All-config flavor
@@ -106,10 +111,14 @@ export async function kgConfigGet(
     const externalKey = Object.entries(KEY_TO_PROP).find(([, v]) => v.prop === propLocal);
     if (!externalKey) continue;
     const [extKey, kmeta] = externalKey;
-    config[extKey] =
-      kmeta.type === 'boolean' ? b['o']!.value === 'true'
-      : kmeta.type === 'number' ? parseInt(b['o']!.value, 10)
-      : b['o']!.value;
+    if (kmeta.type === 'boolean') {
+      config[extKey] = b['o']!.value === 'true';
+    } else if (kmeta.type === 'number') {
+      const n = parseInt(b['o']!.value, 10);
+      if (!Number.isNaN(n)) config[extKey] = n;
+    } else {
+      config[extKey] = b['o']!.value;
+    }
   }
   return { config };
 }

@@ -21,4 +21,17 @@ describe('kg-config scale-gate-triples', () => {
     const set = await kgConfigSet(client, { key: 'scale-gate-triples', value: 'big' as unknown as number });
     expect(set.ok).toBe(false);
   });
+
+  it('all-config round-trip includes scale-gate-triples', async () => {
+    await kgConfigSet(client, { key: 'scale-gate-triples', value: 50000 });
+    const got = await kgConfigGet(client, {});
+    expect(got.config!['scale-gate-triples']).toBe(50000);
+  });
+
+  it('rejects a non-integer (float) value', async () => {
+    const setFloat = await kgConfigSet(client, { key: 'scale-gate-triples', value: 3.7 });
+    expect(setFloat.ok).toBe(false);
+    const setNeg = await kgConfigSet(client, { key: 'scale-gate-triples', value: -5 });
+    expect(setNeg.ok).toBe(false);
+  });
 });
