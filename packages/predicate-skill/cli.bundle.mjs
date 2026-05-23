@@ -31313,7 +31313,7 @@ async function shadowReport() {
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.8.0" : "0.0.0-dev";
+var VERSION2 = true ? "2.9.0" : "0.0.0-dev";
 function help10() {
   console.log(`predicate <command>
 
