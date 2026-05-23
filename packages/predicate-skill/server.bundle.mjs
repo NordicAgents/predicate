@@ -38231,9 +38231,9 @@ async function kgAsk(client, input) {
 async function logUsage(client, question, sparql, rowCount, elapsedMs) {
   const usage = escapeIRI(GRAPH.usage);
   const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META7 = "https://industriagents.com/predicate/meta#";
+  const META11 = "https://industriagents.com/predicate/meta#";
   await client.update(`
-    PREFIX pred: <${META7}>
+    PREFIX pred: <${META11}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH ${usage} {
       <${id}> a pred:Query ;
@@ -47693,7 +47693,30 @@ var SchemaProposer = class {
 // ../predicate-agent/src/promotion-sweeper.ts
 import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
 import { resolve as resolve2 } from "node:path";
+
+// ../predicate-agent/src/usage-query.ts
 var META5 = "https://industriagents.com/predicate/meta#";
+async function countProposalUses(client, proposalId) {
+  const subjects = await client.select(`
+    PREFIX pred: <${META5}>
+    SELECT DISTINCT ?s WHERE {
+      GRAPH <kg:tbox-staging> { << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} . }
+    }
+  `);
+  const iris = subjects.results.bindings.map((b2) => b2["s"].value);
+  if (iris.length === 0) return 0;
+  const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
+  const r2 = await client.select(`
+    PREFIX pred: <${META5}>
+    SELECT (COUNT(*) AS ?n) WHERE {
+      GRAPH <kg:usage> { ?q a pred:Query ; pred:sparql ?sparql . FILTER (${filters}) }
+    }
+  `);
+  return parseInt(r2.results.bindings[0]["n"].value, 10);
+}
+
+// ../predicate-agent/src/promotion-sweeper.ts
+var META6 = "https://industriagents.com/predicate/meta#";
 function newEventId3(kind2) {
   return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -47760,7 +47783,7 @@ var PromotionSweeper = class {
   }
   async listProposals() {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       SELECT ?id ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ?id a pred:Proposal ;
@@ -47789,7 +47812,7 @@ var PromotionSweeper = class {
   }
   async loadProposalRow(id) {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       SELECT ?kind ?expiresAt ?justification ?parent ?migration WHERE {
         GRAPH <kg:tbox-staging> {
           ${escapeIRI(id)} a pred:Proposal ;
@@ -47815,27 +47838,7 @@ var PromotionSweeper = class {
     };
   }
   async countUses(proposalId) {
-    const subjects = await this.client.select(`
-      PREFIX pred: <${META5}>
-      SELECT DISTINCT ?s WHERE {
-        GRAPH <kg:tbox-staging> {
-          << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
-        }
-      }
-    `);
-    const iris = subjects.results.bindings.map((b2) => b2["s"].value);
-    if (iris.length === 0) return 0;
-    const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(" || ");
-    const r2 = await this.client.select(`
-      PREFIX pred: <${META5}>
-      SELECT (COUNT(*) AS ?n) WHERE {
-        GRAPH <kg:usage> {
-          ?q a pred:Query ; pred:sparql ?sparql .
-          FILTER (${filters})
-        }
-      }
-    `);
-    return parseInt(r2.results.bindings[0]["n"].value, 10);
+    return countProposalUses(this.client, proposalId);
   }
   async decide(p2) {
     const now = Date.now();
@@ -47869,7 +47872,7 @@ var PromotionSweeper = class {
     await this.client.update(`CREATE SILENT GRAPH <${scratch}>`);
     try {
       await this.client.update(`
-        PREFIX pred: <${META5}>
+        PREFIX pred: <${META6}>
         INSERT { GRAPH <${scratch}> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -47909,7 +47912,7 @@ var PromotionSweeper = class {
   async deleteProposalFromStaging(proposalId) {
     if (this.client instanceof OxigraphAdapter) {
       const matches = await this.client.select(`
-        PREFIX pred: <${META5}>
+        PREFIX pred: <${META6}>
         SELECT ?s ?p ?o WHERE {
           GRAPH <kg:tbox-staging> {
             << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
@@ -47928,7 +47931,7 @@ var PromotionSweeper = class {
       this.client.deleteRdfStarAnnotationsForProposal("kg:tbox-staging", proposalId);
     } else {
       await this.client.update(`
-        PREFIX pred: <${META5}>
+        PREFIX pred: <${META6}>
         DELETE { GRAPH <kg:tbox-staging> { ?s ?p ?o } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -47938,7 +47941,7 @@ var PromotionSweeper = class {
         }
       `);
       await this.client.update(`
-        PREFIX pred: <${META5}>
+        PREFIX pred: <${META6}>
         DELETE { GRAPH <kg:tbox-staging> { ?qt ?pp ?po } }
         WHERE {
           GRAPH <kg:tbox-staging> {
@@ -47949,7 +47952,7 @@ var PromotionSweeper = class {
       `);
     }
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       DELETE WHERE {
         GRAPH <kg:tbox-staging> { ${escapeIRI(proposalId)} ?mp ?mo }
       }
@@ -47958,7 +47961,7 @@ var PromotionSweeper = class {
   async rejectExpired(p2, actor = "PromotionSweeper", reason = "expired") {
     await this.deleteProposalFromStaging(p2.id);
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -47973,7 +47976,7 @@ var PromotionSweeper = class {
   }
   async recordValidationFailed(p2, reason) {
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:meta> {
@@ -47991,7 +47994,7 @@ var PromotionSweeper = class {
   }
   async promote(p2, actor = "PromotionSweeper") {
     const r2 = await this.client.select(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       SELECT ?s ?p ?o WHERE {
         GRAPH <kg:tbox-staging> {
           << ?s ?p ?o >> pred:proposalId ${escapeIRI(p2.id)} .
@@ -48025,7 +48028,7 @@ var PromotionSweeper = class {
     const payloadAdvanced = escapeLiteral(JSON.stringify({ proposalId: p2.id, turtleFile }));
     await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
     await this.client.update(`
-      PREFIX pred: <${META5}>
+      PREFIX pred: <${META6}>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:tbox> {
@@ -48147,33 +48150,276 @@ var Generalizer = class {
   }
 };
 
+// ../predicate-agent/src/lifecycle-controller.ts
+var COUNTED_GRAPHS = ["kg:abox", "kg:tbox", "kg:inferred", "kg:goals", "kg:usage"];
+var META7 = "https://industriagents.com/predicate/meta#";
+var LifecycleController = class {
+  constructor(client, opts = {}) {
+    this.client = client;
+    this.scaleGateTriples = opts.scaleGateTriples ?? 25e3;
+  }
+  client;
+  scaleGateTriples;
+  newEventId(kind2) {
+    return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+  /**
+   * Moves triples from `opts.fromGraph` to `opts.toGraph` according to the
+   * given selector, then unconditionally drops kg:inferred so the next
+   * reasoner pass re-materialises without the moved axioms, and emits a
+   * provenance event into kg:meta.
+   */
+  async move(opts) {
+    if (opts.selector.kind === "ground") {
+      const block = opts.selector.tripleBlock;
+      await this.client.update(
+        `DELETE DATA { GRAPH ${escapeIRI(opts.fromGraph)} { ${block} } } ;
+INSERT DATA { GRAPH ${escapeIRI(opts.toGraph)} { ${block} } }`
+      );
+    } else {
+      await this.client.update(`
+        PREFIX pred: <${META7}>
+        PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+        DELETE { GRAPH ${escapeIRI(opts.fromGraph)} { ?s ?p ?o } }
+        INSERT { GRAPH ${escapeIRI(opts.toGraph)}   { ?s ?p ?o } }
+        WHERE  { ${opts.selector.whereClause} }
+      `);
+    }
+    await this.client.update(`DROP SILENT GRAPH <kg:inferred>`);
+    const eventId = this.newEventId(opts.eventType.toLowerCase());
+    await this.client.update(`
+      PREFIX pred: <${META7}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        ${escapeIRI(eventId)} a ${escapeIRI(META7 + opts.eventType)} ;
+          pred:at      "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
+          pred:actor   "LifecycleController" ;
+          pred:goal    ${escapeIRI(opts.goalIri)} ;
+          pred:payload ${escapeLiteral(JSON.stringify(opts.payload))} .
+      } }
+    `);
+  }
+  async scaleSignal() {
+    let tripleCount = 0;
+    for (const g2 of COUNTED_GRAPHS) {
+      const r2 = await this.client.select(
+        `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${g2}> { ?s ?p ?o } }`
+      );
+      const raw = r2.results.bindings[0]?.["n"]?.value;
+      const n2 = raw ? parseInt(raw, 10) : 0;
+      tripleCount += Number.isNaN(n2) ? 0 : n2;
+    }
+    return {
+      tier: tripleCount >= this.scaleGateTriples ? "Active" : "Seedling",
+      tripleCount,
+      threshold: this.scaleGateTriples
+    };
+  }
+};
+
+// ../predicate-agent/src/shadow-evaluator.ts
+var META8 = "https://industriagents.com/predicate/meta#";
+var DEFAULT_USAGE_N = 3;
+var DEFAULT_TTL_DAYS2 = 7;
+function decideCounterfactual(i2) {
+  if (i2.useCount >= i2.n) return "promote";
+  if (i2.ageInStagingDays > i2.ttlDays) return "expire";
+  return "wait";
+}
+var USAGE_GRID_N = [2, 3, 5];
+var USAGE_GRID_TTL = [3, 7, 14];
+function counterfactualGrid(useCount, ageInStagingDays) {
+  const cells = [];
+  for (const n2 of USAGE_GRID_N) {
+    for (const ttlDays of USAGE_GRID_TTL) {
+      cells.push({ n: n2, ttlDays, decision: decideCounterfactual({ useCount, ageInStagingDays, n: n2, ttlDays }) });
+    }
+  }
+  return cells;
+}
+var ShadowEvaluator = class {
+  constructor(client) {
+    this.client = client;
+  }
+  client;
+  async run(opts) {
+    const proposals = await this.client.select(`
+      PREFIX pred: <${META8}>
+      SELECT ?id ?proposedAt ?goal WHERE {
+        GRAPH <kg:tbox-staging> {
+          ?id a pred:Proposal ;
+              pred:proposedAt ?proposedAt .
+          OPTIONAL { ?id pred:motivatingGoal ?goal }
+        }
+      }
+    `);
+    const now = Date.now();
+    let count = 0;
+    for (const b2 of proposals.results.bindings) {
+      const id = b2["id"].value;
+      const proposedAt = b2["proposedAt"].value;
+      const ageInStagingDays = (now - new Date(proposedAt).getTime()) / 864e5;
+      const useCount = await countProposalUses(this.client, id);
+      const goalSource = await this.goalSource(b2["goal"]?.value);
+      const grid = counterfactualGrid(useCount, ageInStagingDays);
+      const live = decideCounterfactual({ useCount, ageInStagingDays, n: DEFAULT_USAGE_N, ttlDays: DEFAULT_TTL_DAYS2 });
+      const record2 = {
+        proposalId: id,
+        passTimestamp: new Date(now).toISOString(),
+        tier: opts.tier,
+        goalSource,
+        liveDecision: live,
+        currentUseCount: useCount,
+        ageInStagingDays: Math.round(ageInStagingDays * 100) / 100,
+        counterfactual: grid
+      };
+      await this.emit(id, record2);
+      count++;
+    }
+    return count;
+  }
+  async goalSource(goalIri) {
+    if (!goalIri) return "explicit";
+    const r2 = await this.client.select(`
+      PREFIX pred: <${META8}>
+      SELECT ?src WHERE { GRAPH <kg:goals> { ${escapeIRI(goalIri)} pred:source ?src } }
+    `);
+    return r2.results.bindings[0]?.["src"]?.value === "inferred" ? "inferred" : "explicit";
+  }
+  async emit(proposalId, record2) {
+    const eventId = `urn:predicate:event:gate-shadow-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    await this.client.update(`
+      PREFIX pred: <${META8}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        ${escapeIRI(eventId)} a pred:GateShadow ;
+          pred:at      "${record2.passTimestamp}"^^xsd:dateTime ;
+          pred:actor   "ShadowEvaluator" ;
+          pred:goal    ${escapeIRI(proposalId)} ;
+          pred:payload ${escapeLiteral(JSON.stringify(record2))} .
+      } }
+    `);
+  }
+};
+
+// ../predicate-mcp/src/tools/kg-config.ts
+var META9 = "https://industriagents.com/predicate/meta#";
+var CONFIG_URI = "urn:predicate:config";
+var KEY_TO_PROP = {
+  "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
+  "init-mode": { prop: "initMode", type: "string" },
+  "init-ontology": { prop: "initOntology", type: "string" },
+  "scale-gate-triples": { prop: "scaleGateTriples", type: "number" }
+};
+async function kgConfigGet(client, input) {
+  if (input.key) {
+    const meta = KEY_TO_PROP[input.key];
+    if (!meta) return { key: input.key, value: null };
+    const r3 = await client.select(`
+      PREFIX pred: <${META9}>
+      SELECT ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> <${META9}${meta.prop}> ?o } }
+    `);
+    const b2 = r3.results.bindings[0];
+    if (!b2) return { key: input.key, value: null };
+    const raw = b2["o"].value;
+    let value;
+    if (meta.type === "boolean") {
+      value = raw === "true";
+    } else if (meta.type === "number") {
+      const n2 = parseInt(raw, 10);
+      value = Number.isNaN(n2) ? null : n2;
+    } else {
+      value = raw;
+    }
+    return { key: input.key, value };
+  }
+  const r2 = await client.select(`
+    PREFIX pred: <${META9}>
+    SELECT ?p ?o WHERE { GRAPH <kg:meta> { <${CONFIG_URI}> ?p ?o } }
+  `);
+  const config2 = {};
+  for (const b2 of r2.results.bindings) {
+    const propIri = b2["p"].value;
+    const propLocal = propIri.slice(META9.length);
+    const externalKey = Object.entries(KEY_TO_PROP).find(([, v2]) => v2.prop === propLocal);
+    if (!externalKey) continue;
+    const [extKey, kmeta] = externalKey;
+    if (kmeta.type === "boolean") {
+      config2[extKey] = b2["o"].value === "true";
+    } else if (kmeta.type === "number") {
+      const n2 = parseInt(b2["o"].value, 10);
+      if (!Number.isNaN(n2)) config2[extKey] = n2;
+    } else {
+      config2[extKey] = b2["o"].value;
+    }
+  }
+  return { config: config2 };
+}
+
 // ../predicate-mcp/src/tools/kg-maintain.ts
-var META6 = "https://industriagents.com/predicate/meta#";
+var META10 = "https://industriagents.com/predicate/meta#";
 async function kgMaintain(client, input = {}) {
   const archiveCutoff = input.archiveCutoff ?? 0.6;
   const ageDays = input.ageDays ?? 30;
   const cutoffDate = new Date(Date.now() - ageDays * 864e5).toISOString();
   const t0 = Date.now();
+  const cfg = await kgConfigGet(client, { key: "scale-gate-triples" });
+  const scaleGateTriples = typeof cfg.value === "number" ? cfg.value : void 0;
+  const controller = new LifecycleController(client, { scaleGateTriples });
+  const signal = await controller.scaleSignal();
+  if (signal.tier === "Seedling") {
+    const skipId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    await client.update(`
+      PREFIX pred: <${META10}>
+      PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+      INSERT DATA { GRAPH <kg:meta> {
+        <${skipId}> a pred:MaintenanceSkipped ;
+          pred:at      "${(/* @__PURE__ */ new Date()).toISOString()}"^^xsd:dateTime ;
+          pred:actor   "kg_maintain" ;
+          pred:payload ${escapeLiteral(JSON.stringify({
+      reason: "below-scale-gate",
+      tier: signal.tier,
+      tripleCount: signal.tripleCount,
+      threshold: signal.threshold
+    }))} .
+      } }
+    `);
+    const sweeper2 = await new PromotionSweeper(client, {
+      useThreshold: input.useThreshold ?? 3
+    }).run();
+    await new ShadowEvaluator(client).run({ tier: signal.tier });
+    return {
+      archivedCount: 0,
+      elapsedMs: Date.now() - t0,
+      eventId: skipId,
+      tier: signal.tier,
+      skipped: true,
+      sweeper: sweeper2
+    };
+  }
   await client.update(`CREATE SILENT GRAPH <kg:abox-archive>`);
   const before = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`
   );
   const beforeCount = parseInt(before.results.bindings[0].n.value, 10);
-  await client.update(`
-    PREFIX pred: <${META6}>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    DELETE { GRAPH <kg:abox> { ?s ?p ?o } }
-    INSERT { GRAPH <kg:abox-archive> { ?s ?p ?o } }
-    WHERE {
-      GRAPH <kg:abox> { ?s ?p ?o }
-      GRAPH <kg:provenance> {
-        << ?s ?p ?o >> pred:confidence ?conf ;
-                       pred:timestamp  ?ts .
-        FILTER (?conf < ${archiveCutoff})
-        FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
-      }
-    }
-  `);
+  await controller.move({
+    fromGraph: "kg:abox",
+    toGraph: "kg:abox-archive",
+    selector: {
+      kind: "where",
+      whereClause: `
+        GRAPH <kg:abox> { ?s ?p ?o }
+        GRAPH <kg:provenance> {
+          << ?s ?p ?o >> pred:confidence ?conf ;
+                         pred:timestamp  ?ts .
+          FILTER (?conf < ${archiveCutoff})
+          FILTER (?ts < "${cutoffDate}"^^xsd:dateTime)
+        }`
+    },
+    eventType: "MaintenanceArchive",
+    goalIri: "urn:predicate:maintenance",
+    payload: { archiveCutoff, ageDays }
+  });
   const after = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:abox> { ?s ?p ?o } }`
   );
@@ -48185,6 +48431,7 @@ async function kgMaintain(client, input = {}) {
   const sweeper = await new PromotionSweeper(client, {
     useThreshold: input.useThreshold ?? 3
   }).run();
+  await new ShadowEvaluator(client).run({ tier: signal.tier });
   const tFix = Date.now();
   const fixpoint = await runFixpoint(client, RULES, {
     tboxGraph: "kg:tbox",
@@ -48196,7 +48443,7 @@ async function kgMaintain(client, input = {}) {
   const eventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const elapsedMs = Date.now() - t0;
   await client.update(`
-    PREFIX pred: <${META6}>
+    PREFIX pred: <${META10}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${eventId}> a pred:MaintenanceRun ;
@@ -48216,7 +48463,7 @@ async function kgMaintain(client, input = {}) {
   `);
   const matEventId = `urn:predicate:event:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   await client.update(`
-    PREFIX pred: <${META6}>
+    PREFIX pred: <${META10}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:meta> {
       <${matEventId}> a pred:MaterializationCompleted ;
@@ -48237,7 +48484,9 @@ async function kgMaintain(client, input = {}) {
     sweeper,
     generalizer,
     fixpoint,
-    autoProposalsSkipped: generalizer.autoProposalsSkipped
+    autoProposalsSkipped: generalizer.autoProposalsSkipped,
+    tier: signal.tier,
+    skipped: false
   };
 }
 
