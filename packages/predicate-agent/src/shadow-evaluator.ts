@@ -1,8 +1,13 @@
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import type { CounterfactualCell, GateShadowRecord, ScaleTier } from './types.js';
+import { countProposalUses } from './usage-query.js';
 
 const META = 'https://industriagents.com/predicate/meta#';
+
+/** Live promotion-gate thresholds the shadow evaluator mirrors. */
+export const DEFAULT_USAGE_N = 3;
+export const DEFAULT_TTL_DAYS = 7;
 
 export interface CounterfactualInput {
   useCount: number;
@@ -42,11 +47,10 @@ export class ShadowEvaluator {
   async run(opts: { tier: ScaleTier }): Promise<number> {
     const proposals = await this.client.select(`
       PREFIX pred: <${META}>
-      SELECT ?id ?proposedAt ?expiresAt ?goal WHERE {
+      SELECT ?id ?proposedAt ?goal WHERE {
         GRAPH <kg:tbox-staging> {
           ?id a pred:Proposal ;
-              pred:proposedAt ?proposedAt ;
-              pred:expiresAt  ?expiresAt .
+              pred:proposedAt ?proposedAt .
           OPTIONAL { ?id pred:motivatingGoal ?goal }
         }
       }
@@ -57,13 +61,13 @@ export class ShadowEvaluator {
       const id = b['id']!.value;
       const proposedAt = b['proposedAt']!.value;
       const ageInStagingDays = (now - new Date(proposedAt).getTime()) / 86400_000;
-      const useCount = await this.countUses(id);
+      const useCount = await countProposalUses(this.client, id);
       const goalSource = await this.goalSource(b['goal']?.value);
       const grid = counterfactualGrid(useCount, ageInStagingDays);
-      const live = decideCounterfactual({ useCount, ageInStagingDays, n: 3, ttlDays: 7 });
+      const live = decideCounterfactual({ useCount, ageInStagingDays, n: DEFAULT_USAGE_N, ttlDays: DEFAULT_TTL_DAYS });
       const record: GateShadowRecord = {
         proposalId: id,
-        passTimestamp: new Date().toISOString(),
+        passTimestamp: new Date(now).toISOString(),
         tier: opts.tier,
         goalSource,
         liveDecision: live,
@@ -84,25 +88,6 @@ export class ShadowEvaluator {
       SELECT ?src WHERE { GRAPH <kg:goals> { ${escapeIRI(goalIri)} pred:source ?src } }
     `);
     return r.results.bindings[0]?.['src']?.value === 'inferred' ? 'inferred' : 'explicit';
-  }
-
-  private async countUses(proposalId: string): Promise<number> {
-    const subjects = await this.client.select(`
-      PREFIX pred: <${META}>
-      SELECT DISTINCT ?s WHERE {
-        GRAPH <kg:tbox-staging> { << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} . }
-      }
-    `);
-    const iris = subjects.results.bindings.map((b) => b['s']!.value);
-    if (iris.length === 0) return 0;
-    const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(' || ');
-    const r = await this.client.select(`
-      PREFIX pred: <${META}>
-      SELECT (COUNT(*) AS ?n) WHERE {
-        GRAPH <kg:usage> { ?q a pred:Query ; pred:sparql ?sparql . FILTER (${filters}) }
-      }
-    `);
-    return parseInt(r.results.bindings[0]!['n']!.value, 10);
   }
 
   private async emit(proposalId: string, record: GateShadowRecord): Promise<void> {

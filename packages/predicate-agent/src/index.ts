@@ -13,3 +13,4 @@ export * from './generalizer.js';
 export * from './transcript-adapters.js';
 export * from './lifecycle-controller.js';
 export * from './shadow-evaluator.js';
+export * from './usage-query.js';

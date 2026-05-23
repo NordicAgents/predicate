@@ -7,6 +7,7 @@ import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
 import type {
   DeltaQuad, PromotionDecision, SweeperResult, Term,
 } from './types.js';
+import { countProposalUses } from './usage-query.js';
 
 const META = 'https://industriagents.com/predicate/meta#';
 
@@ -165,28 +166,7 @@ export class PromotionSweeper {
   }
 
   private async countUses(proposalId: string): Promise<number> {
-    const subjects = await this.client.select(`
-      PREFIX pred: <${META}>
-      SELECT DISTINCT ?s WHERE {
-        GRAPH <kg:tbox-staging> {
-          << ?s ?p ?o >> pred:proposalId ${escapeIRI(proposalId)} .
-        }
-      }
-    `);
-    const iris = subjects.results.bindings.map((b) => b['s']!.value);
-    if (iris.length === 0) return 0;
-
-    const filters = iris.map((iri) => `CONTAINS(?sparql, "${iri}")`).join(' || ');
-    const r = await this.client.select(`
-      PREFIX pred: <${META}>
-      SELECT (COUNT(*) AS ?n) WHERE {
-        GRAPH <kg:usage> {
-          ?q a pred:Query ; pred:sparql ?sparql .
-          FILTER (${filters})
-        }
-      }
-    `);
-    return parseInt(r.results.bindings[0]!['n']!.value, 10);
+    return countProposalUses(this.client, proposalId);
   }
 
   private async decide(p: ProposalRow): Promise<PromotionDecision> {
