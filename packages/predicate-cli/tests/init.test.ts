@@ -15,7 +15,7 @@ async function fullReset(): Promise<void> {
 
 async function configExists(): Promise<boolean> {
   return client.ask(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      ASK { GRAPH <kg:meta> { <urn:predicate:config> a pred:Config } }`,
   );
 }
@@ -39,7 +39,7 @@ describe('predicate init', () => {
     expect(code).toBe(0);
     expect(await configExists()).toBe(true);
     const cb = await client.ask(
-      `PREFIX cb: <https://predicate.dev/codebase#>
+      `PREFIX cb: <https://industriagents.com/predicate/codebase#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
        ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
     );
@@ -67,7 +67,7 @@ describe('predicate init', () => {
     const code = await init(['--mode', 'empty']);
     expect(code).toBe(0);
     const top = await client.ask(
-      `ASK { GRAPH <kg:tbox> { <https://predicate.dev/top#Thing> a <http://www.w3.org/2002/07/owl#Class> } }`,
+      `ASK { GRAPH <kg:tbox> { <https://industriagents.com/predicate/top#Thing> a <http://www.w3.org/2002/07/owl#Class> } }`,
     );
     expect(top).toBe(true);
   });
@@ -85,7 +85,7 @@ describe('predicate init', () => {
     const code = await init(['--mode', 'community', '--ontology', 'codebase', '--force']);
     expect(code).toBe(0);
     const cb = await client.ask(
-      `PREFIX cb: <https://predicate.dev/codebase#>
+      `PREFIX cb: <https://industriagents.com/predicate/codebase#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
        ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
     );
@@ -106,7 +106,7 @@ describe('predicate init', () => {
     // Seed kg:tbox with stale codebase triples but leave kg:meta empty
     // (the partial-migration state that bit a real v2.0.0 user).
     await client.update(`
-      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX cb:  <https://industriagents.com/predicate/codebase#>
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       INSERT DATA { GRAPH <kg:tbox> { cb:File a owl:Class . cb:Function a owl:Class } }
     `);
@@ -118,14 +118,14 @@ describe('predicate init', () => {
     // vocab as session-history vocabulary), cb:Function lives only in codebase.ttl,
     // so it is the true indicator that stale residue survived the wipe.
     const stillHasCodebase = await client.ask(
-      `PREFIX cb:  <https://predicate.dev/codebase#>
+      `PREFIX cb:  <https://industriagents.com/predicate/codebase#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
        ASK { GRAPH <kg:tbox> { cb:Function a owl:Class } }`,
     );
     expect(stillHasCodebase).toBe(false);
 
     const hasTop = await client.ask(
-      `PREFIX top: <https://predicate.dev/top#>
+      `PREFIX top: <https://industriagents.com/predicate/top#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
        ASK { GRAPH <kg:tbox> { top:Thing a owl:Class } }`,
     );
@@ -137,7 +137,7 @@ describe('predicate init', () => {
   it('--force --mode upload with bad-prefix.ttl does NOT destroy previous TBox', async () => {
     await init(['--mode', 'community', '--ontology', 'codebase']);
     const codebaseWasLoaded = await client.ask(
-      `PREFIX cb:  <https://predicate.dev/codebase#>
+      `PREFIX cb:  <https://industriagents.com/predicate/codebase#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
        ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
     );
@@ -147,14 +147,14 @@ describe('predicate init', () => {
     expect(code).toBe(1);
 
     const codebaseStillThere = await client.ask(
-      `PREFIX cb:  <https://predicate.dev/codebase#>
+      `PREFIX cb:  <https://industriagents.com/predicate/codebase#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
        ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
     );
     expect(codebaseStillThere, 'rejected upload must not destroy previous TBox').toBe(true);
 
     const cfg = await client.select(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        SELECT ?o WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology ?o } }`,
     );
     expect(cfg.results.bindings[0]?.o?.value).toBe('codebase');

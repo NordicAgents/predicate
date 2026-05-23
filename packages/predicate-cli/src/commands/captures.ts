@@ -39,7 +39,7 @@ async function fetchCaptures(
   client: StorageAdapter,
   opts: { limit: number; tool?: string },
 ): Promise<CaptureRow[]> {
-  const META = 'https://predicate.dev/meta#';
+  const META = 'https://industriagents.com/predicate/meta#';
   const toolFilter = opts.tool
     ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")`
     : '';

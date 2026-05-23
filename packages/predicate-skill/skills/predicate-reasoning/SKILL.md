@@ -64,11 +64,11 @@ kg_explore_schema("Function")     # learn :calls, :declaredIn, :reads
 kg_ask(
   question="What does login depend on?",
   sparql="""
-    PREFIX c: <https://predicate.dev/codebase#>
+    PREFIX c: <https://industriagents.com/predicate/codebase#>
     SELECT ?dep WHERE {
-      { GRAPH <kg:abox> { <https://predicate.dev/codebase/auth.ts#login> c:reads|c:calls ?dep } }
+      { GRAPH <kg:abox> { <https://industriagents.com/predicate/codebase/auth.ts#login> c:reads|c:calls ?dep } }
       UNION
-      { GRAPH <kg:inferred> { <https://predicate.dev/codebase/auth.ts#login> c:dependsOn ?dep } }
+      { GRAPH <kg:inferred> { <https://industriagents.com/predicate/codebase/auth.ts#login> c:dependsOn ?dep } }
     }
   """
 )
@@ -82,7 +82,7 @@ kg_explore_schema("calls")
 kg_ask(
   question="What calls validateToken transitively?",
   sparql="""
-    PREFIX c: <https://predicate.dev/codebase#>
+    PREFIX c: <https://industriagents.com/predicate/codebase#>
     SELECT ?caller WHERE {
       GRAPH <kg:inferred> { ?caller c:calls* <...#validateToken> }
     }
@@ -96,7 +96,7 @@ kg_ask(
 kg_ask(
   question="Any disjoint-class violations?",
   sparql="""
-    PREFIX c: <https://predicate.dev/codebase#>
+    PREFIX c: <https://industriagents.com/predicate/codebase#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     SELECT ?x ?a ?b WHERE {
       GRAPH <kg:inferred> { ?x a ?a, ?b }
@@ -118,8 +118,8 @@ kg_explore_schema("Session")         # confirm the predicates
 kg_ask(
   question="Which files did I modify in the most recent session?",
   sparql="""
-    PREFIX pred: <https://predicate.dev/meta#>
-    PREFIX cb:   <https://predicate.dev/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    PREFIX cb:   <https://industriagents.com/predicate/codebase#>
     SELECT ?file ?session ?at WHERE {
       GRAPH <kg:abox> {
         ?session a pred:Session ; pred:at ?at .
@@ -164,7 +164,7 @@ The reasoner derives additional classes on top of the raw action data
 Query them directly via `kg:inferred`:
 
 ```sparql
-PREFIX cb: <https://predicate.dev/codebase#>
+PREFIX cb: <https://industriagents.com/predicate/codebase#>
 SELECT ?file WHERE { GRAPH <kg:inferred> { ?file a cb:Hotspot } }
 ```
 
@@ -175,8 +175,8 @@ For substring-match recall over session history, call `predicate recall`
 "what did I work on related to X?" or "did I ever run command Y?"
 
 ```sparql
-PREFIX cb:   <https://predicate.dev/codebase#>
-PREFIX pred: <https://predicate.dev/meta#>
+PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+PREFIX pred: <https://industriagents.com/predicate/meta#>
 SELECT ?file (COUNT(DISTINCT ?session) AS ?n) (MAX(?at) AS ?lastAt)
 WHERE {
   GRAPH <kg:abox> {
@@ -205,7 +205,7 @@ predicate recall auth --json   # machine-readable output
 # kg_explore_schema reveals: no :owns property exists
 kg_propose_schema(
   delta="""
-    @prefix c: <https://predicate.dev/codebase#> .
+    @prefix c: <https://industriagents.com/predicate/codebase#> .
     c:Service a owl:Class .
     c:owns a owl:ObjectProperty ;
       rdfs:domain c:Service ; rdfs:range c:Endpoint .

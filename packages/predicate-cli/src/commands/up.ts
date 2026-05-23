@@ -4,7 +4,7 @@ import { loadConfig } from 'predicate-mcp/src/config.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { init, loadCoreVocab } from './init.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const CONFIG_URI = 'urn:predicate:config';
 
 async function checkConfigExists(client: StorageAdapter): Promise<boolean> {
@@ -16,7 +16,7 @@ async function checkConfigExists(client: StorageAdapter): Promise<boolean> {
 
 async function detectLegacyCodebase(client: StorageAdapter): Promise<boolean> {
   return client.ask(`
-    PREFIX cb:  <https://predicate.dev/codebase#>
+    PREFIX cb:  <https://industriagents.com/predicate/codebase#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }
   `);

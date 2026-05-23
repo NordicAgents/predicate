@@ -8,7 +8,7 @@ function artifact(uri: string, content: string): ResearchArtifact {
   return { source: 'docs', uri, content, metadata: {} };
 }
 
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
 describe('ImportExtractor', () => {

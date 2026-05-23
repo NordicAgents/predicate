@@ -113,8 +113,8 @@ function shortFile(f) { return f.replace(/^file:\/\//, '').split('/').slice(-3).
 
 async function loadStats() {
   const q = `
-    PREFIX pred: <https://predicate.dev/meta#>
-    PREFIX cb:   <https://predicate.dev/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    PREFIX cb:   <https://industriagents.com/predicate/codebase#>
     SELECT
       (COUNT(DISTINCT ?session) AS ?sessions)
       (COUNT(DISTINCT ?file) AS ?files)
@@ -141,7 +141,7 @@ async function loadStats() {
 
   // v2.0 ontology + schema-learning badges
   const cfg = await ask(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?ontology ?learning WHERE {
       GRAPH <kg:meta> {
         OPTIONAL { <urn:predicate:config> pred:initOntology ?ontology }
@@ -159,8 +159,8 @@ async function loadStats() {
 
 async function loadSessions() {
   const q = `
-    PREFIX pred: <https://predicate.dev/meta#>
-    PREFIX cb:   <https://predicate.dev/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    PREFIX cb:   <https://industriagents.com/predicate/codebase#>
     SELECT ?sid ?at
       (COUNT(DISTINCT ?file) AS ?nFiles)
       (COUNT(DISTINCT ?ok)   AS ?nOk)
@@ -193,7 +193,7 @@ async function loadSessions() {
 
 async function loadDerived(varName, klass, predicate, divId, label, empty) {
   const q = `
-    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
     SELECT ?${varName} (COUNT(DISTINCT ?session) AS ?n)
     WHERE {
       { GRAPH <kg:inferred> { ?${varName} a cb:${klass} } }
@@ -222,12 +222,12 @@ function ttlString(expiresAtIso) {
 
 async function loadStaging() {
   const threshold = await ask(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?n WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:promotionUseThreshold ?n } }
   `).then(b => b[0] ? parseInt(b[0].n.value, 10) : 3).catch(() => 3);
 
   const q = `
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?id ?kind ?justification ?expiresAt ?useCount
     WHERE {
       GRAPH <kg:tbox-staging> {
@@ -356,15 +356,15 @@ function loadFromHash() {
 
 async function loadSessionPanel(sid) {
   const filesQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?file WHERE {
       GRAPH <kg:abox> { ?s a pred:Session ; pred:sessionId "${sid.replace(/"/g,'\\"')}" . ?file cb:modifiedIn ?s }
     } LIMIT 100
   `;
   const cmdsQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?cmd ?text ?status WHERE {
       GRAPH <kg:abox> {
         ?s a pred:Session ; pred:sessionId "${sid.replace(/"/g,'\\"')}" .
@@ -397,8 +397,8 @@ async function loadSessionPanel(sid) {
 
 async function loadFilePanel(fileIri) {
   const q = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sid ?at WHERE {
       GRAPH <kg:abox> {
         <${fileIri}> cb:modifiedIn ?s .
@@ -407,7 +407,7 @@ async function loadFilePanel(fileIri) {
     } ORDER BY DESC(?at) LIMIT 50
   `;
   const klassQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
     SELECT ?k WHERE { GRAPH <kg:inferred> { <${fileIri}> a ?k FILTER (?k IN (cb:Hotspot, cb:ActiveFile)) } }
   `;
   const [sessions, klasses] = await Promise.all([ask(q).catch(() => []), ask(klassQ).catch(() => [])]);
@@ -427,8 +427,8 @@ async function loadFilePanel(fileIri) {
 
 async function loadCommandPanel(cmdIri) {
   const okQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sid ?at WHERE {
       GRAPH <kg:abox> {
         <${cmdIri}> cb:succeededIn ?s . ?s pred:sessionId ?sid ; pred:at ?at .
@@ -436,8 +436,8 @@ async function loadCommandPanel(cmdIri) {
     } ORDER BY DESC(?at) LIMIT 30
   `;
   const badQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sid ?at WHERE {
       GRAPH <kg:abox> {
         <${cmdIri}> cb:failedIn ?s . ?s pred:sessionId ?sid ; pred:at ?at .
@@ -445,7 +445,7 @@ async function loadCommandPanel(cmdIri) {
     } ORDER BY DESC(?at) LIMIT 30
   `;
   const flakyQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
     ASK { GRAPH <kg:inferred> { <${cmdIri}> a cb:FlakyCommand } }
   `;
   const [oks, bads, flakyResp] = await Promise.all([

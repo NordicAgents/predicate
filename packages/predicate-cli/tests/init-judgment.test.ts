@@ -29,7 +29,7 @@ describe('predicate init — judgment overlay', () => {
     const code = await init(['--mode', 'empty']);
     expect(code).toBe(0);
     const ok = await client.ask(`
-      PREFIX j:   <https://predicate.dev/judgment#>
+      PREFIX j:   <https://industriagents.com/predicate/judgment#>
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       ASK { GRAPH <kg:tbox> { j:Judgment a owl:Class } }
     `);
@@ -40,7 +40,7 @@ describe('predicate init — judgment overlay', () => {
     const code = await init(['--mode', 'community', '--ontology', 'codebase']);
     expect(code).toBe(0);
     const ok = await client.ask(`
-      PREFIX j:   <https://predicate.dev/judgment#>
+      PREFIX j:   <https://industriagents.com/predicate/judgment#>
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       ASK { GRAPH <kg:tbox> { j:Judgment a owl:Class } }
     `);

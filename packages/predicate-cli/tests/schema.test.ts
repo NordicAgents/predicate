@@ -7,7 +7,7 @@ import { SchemaProposer } from 'predicate-agent/src/schema-proposer.js';
 import { schema } from '../src/commands/schema.js';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 
 let promotedDir: string;
 

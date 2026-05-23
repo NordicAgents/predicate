@@ -194,16 +194,16 @@ Append the new properties at the end of the file:
               rdfs:label "The literal command string." .
 
 :modifiedIn   a owl:ObjectProperty ;
-              rdfs:domain :File ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:domain :File ; rdfs:range <https://industriagents.com/predicate/meta#Session> ;
               rdfs:label "File was modified during this session." .
 :createdIn    a owl:ObjectProperty ;
-              rdfs:domain :File ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:domain :File ; rdfs:range <https://industriagents.com/predicate/meta#Session> ;
               rdfs:label "File was newly created in this session." .
 :succeededIn  a owl:ObjectProperty ;
-              rdfs:domain :Command ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:domain :Command ; rdfs:range <https://industriagents.com/predicate/meta#Session> ;
               rdfs:label "Command exited 0 in this session." .
 :failedIn     a owl:ObjectProperty ;
-              rdfs:domain :Command ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:domain :Command ; rdfs:range <https://industriagents.com/predicate/meta#Session> ;
               rdfs:label "Command exited non-zero in this session." .
 ```
 
@@ -223,7 +223,7 @@ Expected: `bootstrap complete`.
 
 ```bash
 curl -fsS http://localhost:3030/predicate/query \
-  --data-urlencode "query=PREFIX pred: <https://predicate.dev/meta#> PREFIX cb: <https://predicate.dev/codebase#> ASK { GRAPH <kg:tbox> { pred:Session a <http://www.w3.org/2002/07/owl#Class> . cb:Command a <http://www.w3.org/2002/07/owl#Class> . cb:modifiedIn a <http://www.w3.org/2002/07/owl#ObjectProperty> } }" \
+  --data-urlencode "query=PREFIX pred: <https://industriagents.com/predicate/meta#> PREFIX cb: <https://industriagents.com/predicate/codebase#> ASK { GRAPH <kg:tbox> { pred:Session a <http://www.w3.org/2002/07/owl#Class> . cb:Command a <http://www.w3.org/2002/07/owl#Class> . cb:modifiedIn a <http://www.w3.org/2002/07/owl#ObjectProperty> } }" \
   --header "Accept: application/sparql-results+json" | jq -r .boolean
 ```
 
@@ -439,7 +439,7 @@ describe('extractDeterministic', () => {
     const sessionTriples = r.triples.filter((t) =>
       t.object.type === 'uri' &&
       t.predicate === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' &&
-      t.object.value === 'https://predicate.dev/meta#Session',
+      t.object.value === 'https://industriagents.com/predicate/meta#Session',
     );
     expect(sessionTriples).toHaveLength(1);
     expect(sessionTriples[0]!.subject).toBe(`urn:predicate:session:${SESSION}`);
@@ -452,7 +452,7 @@ describe('extractDeterministic', () => {
     const subjects = new Set(r.triples.map((t) => t.subject));
     expect(subjects).toContain('file:///work/auth.ts');
     const modifiedIn = r.triples.find((t) =>
-      t.predicate === 'https://predicate.dev/codebase#modifiedIn',
+      t.predicate === 'https://industriagents.com/predicate/codebase#modifiedIn',
     );
     expect(modifiedIn).toBeDefined();
     expect(modifiedIn!.subject).toBe('file:///work/auth.ts');
@@ -466,11 +466,11 @@ describe('extractDeterministic', () => {
       { type: 'tool_use', name: 'Write', input: { file_path: '/work/new.ts' }, is_error: false, was_new: true },
     ]));
     const createdIn = r.triples.find((t) =>
-      t.predicate === 'https://predicate.dev/codebase#createdIn',
+      t.predicate === 'https://industriagents.com/predicate/codebase#createdIn',
     );
     expect(createdIn).toBeDefined();
     expect(r.triples.find((t) =>
-      t.predicate === 'https://predicate.dev/codebase#modifiedIn',
+      t.predicate === 'https://industriagents.com/predicate/codebase#modifiedIn',
     )).toBeUndefined();
   });
 
@@ -478,12 +478,12 @@ describe('extractDeterministic', () => {
     const ok = extractDeterministic(tx([
       { type: 'tool_use', name: 'Bash', input: { command: 'pnpm test' }, exit_code: 0 },
     ]));
-    expect(ok.triples.find((t) => t.predicate === 'https://predicate.dev/codebase#succeededIn')).toBeDefined();
+    expect(ok.triples.find((t) => t.predicate === 'https://industriagents.com/predicate/codebase#succeededIn')).toBeDefined();
 
     const fail = extractDeterministic(tx([
       { type: 'tool_use', name: 'Bash', input: { command: 'pnpm test' }, exit_code: 1 },
     ]));
-    expect(fail.triples.find((t) => t.predicate === 'https://predicate.dev/codebase#failedIn')).toBeDefined();
+    expect(fail.triples.find((t) => t.predicate === 'https://industriagents.com/predicate/codebase#failedIn')).toBeDefined();
   });
 
   it('Read/Grep/Glob produce no triples (read-only events don\'t represent learning)', () => {
@@ -526,8 +526,8 @@ Create `packages/predicate-agent/src/turn-extractor.ts`:
 ```typescript
 import { createHash } from 'node:crypto';
 
-const META = 'https://predicate.dev/meta#';
-const CB   = 'https://predicate.dev/codebase#';
+const META = 'https://industriagents.com/predicate/meta#';
+const CB   = 'https://industriagents.com/predicate/codebase#';
 const RDF  = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const XSD  = 'http://www.w3.org/2001/XMLSchema#';
 
@@ -722,7 +722,7 @@ describe('extractSemantic', () => {
           triples: [
             {
               subject: 'file:///auth.ts',
-              predicate: 'https://predicate.dev/codebase#hasAuthFlow',
+              predicate: 'https://industriagents.com/predicate/codebase#hasAuthFlow',
               object: { type: 'literal', value: 'true' },
               source: 'urn:predicate:session:ses-x',
               confidence: 0.7,
@@ -1020,7 +1020,7 @@ describe('predicate extract', () => {
     expect(code).toBe(0);
     try {
       const r = await client.select(
-        `PREFIX cb: <https://predicate.dev/codebase#>
+        `PREFIX cb: <https://industriagents.com/predicate/codebase#>
          SELECT (COUNT(*) AS ?n) WHERE {
            GRAPH <kg:abox> {
              <file:///work/auth.ts> cb:modifiedIn <urn:predicate:session:ses-extract>
@@ -1278,7 +1278,7 @@ echo "{\"session_id\":\"ses-smoke\",\"transcript_path\":\"$TX\",\"stop_hook_acti
   | PATH="$(pwd)/.bin:$PATH" predicate extract --from-stdin
 
 curl -fsS http://localhost:3030/predicate/query \
-  --data-urlencode "query=PREFIX cb: <https://predicate.dev/codebase#> SELECT ?s ?p ?o WHERE { GRAPH <kg:abox> { ?s ?p ?o . FILTER (?p IN (cb:modifiedIn, cb:succeededIn)) } }" \
+  --data-urlencode "query=PREFIX cb: <https://industriagents.com/predicate/codebase#> SELECT ?s ?p ?o WHERE { GRAPH <kg:abox> { ?s ?p ?o . FILTER (?p IN (cb:modifiedIn, cb:succeededIn)) } }" \
   --header "Accept: application/sparql-results+json" \
   | jq -r '.results.bindings[] | "\(.s.value) -> \(.p.value) -> \(.o.value)"'
 ```
@@ -1292,8 +1292,8 @@ predicate extract: session=ses-smoke deterministic=7 semantic=0 asserted=7 rejec
 Expected curl output (order may vary):
 
 ```
-file:///work/auth.ts -> https://predicate.dev/codebase#modifiedIn -> urn:predicate:session:ses-smoke
-urn:bash:<hash> -> https://predicate.dev/codebase#succeededIn -> urn:predicate:session:ses-smoke
+file:///work/auth.ts -> https://industriagents.com/predicate/codebase#modifiedIn -> urn:predicate:session:ses-smoke
+urn:bash:<hash> -> https://industriagents.com/predicate/codebase#succeededIn -> urn:predicate:session:ses-smoke
 ```
 
 - [ ] **Step 7: Commit**
@@ -1416,7 +1416,7 @@ echo "exit=$?"
 
 # Verify the extraction landed
 curl -fsS http://localhost:3030/predicate/query \
-  --data-urlencode "query=PREFIX cb: <https://predicate.dev/codebase#> ASK { GRAPH <kg:abox> { <file:///work/x.ts> cb:modifiedIn <urn:predicate:session:ses-stop> } }" \
+  --data-urlencode "query=PREFIX cb: <https://industriagents.com/predicate/codebase#> ASK { GRAPH <kg:abox> { <file:///work/x.ts> cb:modifiedIn <urn:predicate:session:ses-stop> } }" \
   --header "Accept: application/sparql-results+json" | jq -r .boolean
 ```
 
@@ -1588,13 +1588,13 @@ Searched for `TBD`, `TODO`, `implement later`, `add appropriate`, `add validatio
 - `ExtractedTriple` shape from `turn-extractor.ts` (Task 3) matches the shape kg_assert expects (subject, predicate, object{type,value,datatype?}, source, confidence, method). ✅
 - `SemanticTriple` shape (Task 4) is structurally identical to `ExtractedTriple` — both feed `kgAssert` in `extract()` via a spread union type (Task 5 step 3). ✅
 - TBox predicate IRIs used in the extractor exactly match what Task 1 adds:
-  - `codebase:modifiedIn` → `https://predicate.dev/codebase#modifiedIn` ✅
-  - `codebase:createdIn` → `https://predicate.dev/codebase#createdIn` ✅
-  - `codebase:succeededIn` → `https://predicate.dev/codebase#succeededIn` ✅
-  - `codebase:failedIn` → `https://predicate.dev/codebase#failedIn` ✅
-  - `codebase:commandText` → `https://predicate.dev/codebase#commandText` ✅
+  - `codebase:modifiedIn` → `https://industriagents.com/predicate/codebase#modifiedIn` ✅
+  - `codebase:createdIn` → `https://industriagents.com/predicate/codebase#createdIn` ✅
+  - `codebase:succeededIn` → `https://industriagents.com/predicate/codebase#succeededIn` ✅
+  - `codebase:failedIn` → `https://industriagents.com/predicate/codebase#failedIn` ✅
+  - `codebase:commandText` → `https://industriagents.com/predicate/codebase#commandText` ✅
   - `codebase:File` and `codebase:Command` exist after Task 1 ✅
-  - `pred:Session` → `https://predicate.dev/meta#Session` ✅
+  - `pred:Session` → `https://industriagents.com/predicate/meta#Session` ✅
 - Session URN scheme `urn:predicate:session:<id>` consistent across deterministic extractor (Task 3), the SPARQL queries in Task 5/6 smoke tests, and the README.
 - `PREDICATE_RAW_CAPTURE` env var name consistent across Task 2 (CLI), README updates in Task 7, and the `Env:` block in both `capture.ts` help and `index.ts` help. ✅
 - Model ID `claude-haiku-4-5-20251001` in Task 4 step 4 matches Claude's current naming.

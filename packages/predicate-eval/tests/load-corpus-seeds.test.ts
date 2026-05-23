@@ -12,7 +12,7 @@ describe('load-corpus self-seeds the codebase TBox', () => {
     await expect(loadCorpus(adapter)).resolves.not.toThrow();
 
     const filePresent = await adapter.ask(`
-      PREFIX cb: <https://predicate.dev/codebase#>
+      PREFIX cb: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> { ?f a cb:File } }
     `);
     expect(filePresent).toBe(true);

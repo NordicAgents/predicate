@@ -68,7 +68,7 @@ import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const PEERS_GRAPH = 'kg:peers';
 
 interface LdEndpoint { name: string; endpoint: string; description: string }

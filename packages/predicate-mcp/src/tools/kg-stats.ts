@@ -41,7 +41,7 @@ async function unusedConceptRatio(
 async function materializationLatencyP95(client: StorageAdapter): Promise<number> {
   // Select payload strings and parse elapsedMs in JS to avoid heavy SPARQL regex escaping
   const r = await client.select(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?payload WHERE {
       GRAPH <kg:meta> {
         ?e a pred:MaterializationCompleted ;

@@ -154,12 +154,12 @@ For each transcript (= one session URI `S = urn:predicate:session:<id>`):
    }
    WHERE {
      GRAPH <kg:provenance> {
-       << ?s ?p ?o >> <https://predicate.dev/meta#source> "S" .
+       << ?s ?p ?o >> <https://industriagents.com/predicate/meta#source> "S" .
        << ?s ?p ?o >> ?pp ?po .
      }
      FILTER NOT EXISTS {
        GRAPH <kg:provenance> {
-         << ?s ?p ?o >> <https://predicate.dev/meta#source> ?other .
+         << ?s ?p ?o >> <https://industriagents.com/predicate/meta#source> ?other .
          FILTER (?other != "S")
        }
      }

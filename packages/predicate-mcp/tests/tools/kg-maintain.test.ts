@@ -29,7 +29,7 @@ afterAll(async () => {
 async function seedStaleLowConfidence(): Promise<void> {
   const old = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString();
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA {
       GRAPH <kg:abox> {
@@ -65,7 +65,7 @@ describe('kg_maintain (thin reaper)', () => {
     await seedStaleLowConfidence();
     await kgMaintain(client, { archiveCutoff: 0.6, ageDays: 30 });
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?e ?archived WHERE {
         GRAPH <kg:meta> {
           ?e a pred:MaintenanceRun ;
@@ -78,7 +78,7 @@ describe('kg_maintain (thin reaper)', () => {
 
   it('leaves a fresh high-confidence triple untouched', async () => {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:abox> { <urn:test:fresh> <urn:test:p> <urn:test:o> }
@@ -101,7 +101,7 @@ describe('kg_maintain runs the promotion sweeper', () => {
     const id = await proposer.propose({
       kind: 'add-property',
       add: [{
-        s: 'https://predicate.dev/codebase#tempProp',
+        s: 'https://industriagents.com/predicate/codebase#tempProp',
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#ObjectProperty' },
       }],
@@ -122,8 +122,8 @@ describe('kg_maintain runs the OWL fixpoint', () => {
     await client.update(`DROP SILENT GRAPH <kg:inferred>`);
     await client.update(`CREATE SILENT GRAPH <kg:inferred>`);
     await client.update(`
-      PREFIX cb:   <https://predicate.dev/codebase#>
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA { GRAPH <kg:abox> {
         <urn:session:t1> a pred:Session ; pred:at "2026-05-17T00:00:00Z"^^xsd:dateTime .
@@ -136,7 +136,7 @@ describe('kg_maintain runs the OWL fixpoint', () => {
     expect(result.fixpoint).toBeDefined();
     expect(result.fixpoint!.inferredCount).toBeGreaterThan(0);
     const hotspot = await client.ask(`
-      PREFIX cb: <https://predicate.dev/codebase#>
+      PREFIX cb: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:inferred> { <file:///hot.ts> a cb:Hotspot } }
     `);
     expect(hotspot).toBe(true);

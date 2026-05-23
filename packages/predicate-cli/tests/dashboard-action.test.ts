@@ -72,7 +72,7 @@ describe('POST /api/action', () => {
     const id = await proposer.propose({
       kind: 'add-property',
       add: [{
-        s: 'https://predicate.dev/codebase#httpApproveTest',
+        s: 'https://industriagents.com/predicate/codebase#httpApproveTest',
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#ObjectProperty' },
       }],

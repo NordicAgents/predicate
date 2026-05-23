@@ -18,12 +18,12 @@ async function seedCapture(
   sessionId?: string,
 ): Promise<void> {
   const c = `<urn:predicate:capture:${id}>`;
-  let triples = `${c} a <https://predicate.dev/meta#ToolCall> .
-                 ${c} <https://predicate.dev/meta#toolName> "${toolName}" .
-                 ${c} <https://predicate.dev/meta#phase>    "${phase}" .
-                 ${c} <https://predicate.dev/meta#at>       "${at}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .`;
+  let triples = `${c} a <https://industriagents.com/predicate/meta#ToolCall> .
+                 ${c} <https://industriagents.com/predicate/meta#toolName> "${toolName}" .
+                 ${c} <https://industriagents.com/predicate/meta#phase>    "${phase}" .
+                 ${c} <https://industriagents.com/predicate/meta#at>       "${at}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .`;
   if (sessionId) {
-    triples += `\n${c} <https://predicate.dev/meta#sessionId> "${sessionId}" .`;
+    triples += `\n${c} <https://industriagents.com/predicate/meta#sessionId> "${sessionId}" .`;
   }
   await client.update(`INSERT DATA { GRAPH <kg:usage> { ${triples} } }`);
 }

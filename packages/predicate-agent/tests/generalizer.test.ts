@@ -33,7 +33,7 @@ describe('Generalizer', () => {
 
     const proposalIri = result.proposals[0]!.proposalId;
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?kind WHERE { GRAPH <kg:tbox-staging> { <${proposalIri}> pred:kind ?kind } }
     `);
     expect(r.results.bindings[0]!.kind!.value).toBe('add-class');
@@ -90,12 +90,12 @@ describe('Generalizer', () => {
 describe('Generalizer toggle (v2.0)', () => {
   async function setLearningEnabled(value: boolean): Promise<void> {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       DELETE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
       WHERE  { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
     `);
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       INSERT DATA { GRAPH <kg:meta> {
         <urn:predicate:config> pred:schemaLearningEnabled "${value}"^^<http://www.w3.org/2001/XMLSchema#boolean> .
       } }
@@ -117,7 +117,7 @@ describe('Generalizer toggle (v2.0)', () => {
 
   it('runs normally when the toggle is absent (defaults to enabled)', async () => {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       DELETE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
       WHERE  { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
     `);

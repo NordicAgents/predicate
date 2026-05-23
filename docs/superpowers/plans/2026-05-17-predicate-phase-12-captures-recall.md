@@ -69,7 +69,7 @@ Options:
 }
 
 async function fetchCaptures(client: SparqlClient, opts: { limit: number; tool?: string }): Promise<CaptureRow[]> {
-  const META = 'https://predicate.dev/meta#';
+  const META = 'https://industriagents.com/predicate/meta#';
   const toolFilter = opts.tool
     ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")`
     : '';
@@ -190,8 +190,8 @@ function escapeSparqlLiteral(s: string): string {
 }
 
 async function searchFiles(client: SparqlClient, query: string, limit: number): Promise<RecallResult['files']> {
-  const CB = 'https://predicate.dev/codebase#';
-  const META = 'https://predicate.dev/meta#';
+  const CB = 'https://industriagents.com/predicate/codebase#';
+  const META = 'https://industriagents.com/predicate/meta#';
   const r = await client.select(
     `PREFIX cb:   <${CB}>
      PREFIX pred: <${META}>
@@ -215,7 +215,7 @@ async function searchFiles(client: SparqlClient, query: string, limit: number): 
 }
 
 async function searchCommands(client: SparqlClient, query: string, limit: number): Promise<RecallResult['commands']> {
-  const CB = 'https://predicate.dev/codebase#';
+  const CB = 'https://industriagents.com/predicate/codebase#';
   const r = await client.select(
     `PREFIX cb: <${CB}>
      SELECT ?text
@@ -338,8 +338,8 @@ For substring-match recall over session history, call `predicate recall`
 "what did I work on related to X?" or "did I ever run command Y?"
 
 \`\`\`sparql
-PREFIX cb:   <https://predicate.dev/codebase#>
-PREFIX pred: <https://predicate.dev/meta#>
+PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+PREFIX pred: <https://industriagents.com/predicate/meta#>
 SELECT ?file (COUNT(DISTINCT ?session) AS ?n) (MAX(?at) AS ?lastAt)
 WHERE {
   GRAPH <kg:abox> {

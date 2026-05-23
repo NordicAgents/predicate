@@ -74,7 +74,7 @@ import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const PEERS_GRAPH = 'kg:peers';
 
 interface PeerRow {
@@ -238,7 +238,7 @@ export async function exportSessions(args: string[]): Promise<number> {
   const exportGraph = `urn:predicate:export:${encodeURIComponent(user)}:${new Date().toISOString()}`;
 
   const query = `
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     CONSTRUCT { ?s ?p ?o }
     WHERE {
       GRAPH <kg:abox> {
@@ -335,7 +335,7 @@ Modify `packages/predicate-mcp/src/tools/kg-ask.ts`. Read the current implementa
 if (input.includeRemote) {
   const peersGraph = 'kg:peers';
   const peers = (await client.select(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      SELECT ?name ?endpoint WHERE { GRAPH <${peersGraph}> { ?p a pred:Peer ; pred:peerName ?name ; pred:peerEndpoint ?endpoint } }`,
   )).results.bindings;
 

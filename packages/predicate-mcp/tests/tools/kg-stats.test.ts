@@ -63,7 +63,7 @@ describe('kg_stats', () => {
   it('unusedConceptRatio drops when an abox instance is typed as a tbox class', async () => {
     await client.update(`
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX c:   <https://predicate.dev/codebase#>
+      PREFIX c:   <https://industriagents.com/predicate/codebase#>
       INSERT DATA { GRAPH <kg:abox> { <urn:x> rdf:type c:File } }
     `);
     const s = await kgStats(client);

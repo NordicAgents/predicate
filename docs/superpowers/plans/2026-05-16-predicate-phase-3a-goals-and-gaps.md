@@ -313,7 +313,7 @@ describe('GoalStore', () => {
     expect(readBack?.statement).toBe('why did login break');
 
     const events = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?e WHERE { GRAPH <kg:meta> { ?e a pred:GoalCreated } }
     `);
     expect(events.results.bindings).toHaveLength(1);
@@ -328,7 +328,7 @@ describe('GoalStore', () => {
     expect(final?.status).toBe('done');
 
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:meta> { ?e a pred:GoalStatusChanged } }
     `);
     expect(parseInt(r.results.bindings[0]!.n!.value, 10)).toBe(2);
@@ -368,7 +368,7 @@ import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { escapeLiteral, escapeIRI } from 'predicate-mcp/src/sparql/escape.js';
 import type { Goal, GoalStatus } from './types.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 function newGoalId(): string {
   const ts = Date.now().toString(36);
@@ -723,7 +723,7 @@ The mapping kind → required predicates:
 | `find-symbol-in-file` | `:declaredIn` |
 | `unknown` | (no predicates inferable) |
 
-(All `:` prefixes are `https://predicate.dev/codebase#`.)
+(All `:` prefixes are `https://industriagents.com/predicate/codebase#`.)
 
 **Files:**
 - Create: `packages/predicate-agent/src/gap-detector.ts`
@@ -804,7 +804,7 @@ describe('GapDetector', () => {
   it('reports answerable=false and lists missing predicates when TBox lacks them', async () => {
     // Drop :calls from kg:tbox to simulate a missing predicate
     await client.update(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       DELETE { GRAPH <kg:tbox> { c:calls ?p ?o } }
       INSERT { GRAPH <kg:meta> { <urn:test:saved-calls> ?p ?o } }
       WHERE  { GRAPH <kg:tbox> { c:calls ?p ?o } }
@@ -815,7 +815,7 @@ describe('GapDetector', () => {
     };
     const r = await detector.detect(sq);
     expect(r.answerable).toBe(false);
-    expect(r.missingPredicates.map((m) => m.iri)).toContain('https://predicate.dev/codebase#calls');
+    expect(r.missingPredicates.map((m) => m.iri)).toContain('https://industriagents.com/predicate/codebase#calls');
 
     // Restore :calls so subsequent tests see it. Re-load the TBox.
     await client.update(`DROP SILENT GRAPH <kg:tbox>`);
@@ -852,7 +852,7 @@ import type { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { escapeIRI } from 'predicate-mcp/src/sparql/escape.js';
 import type { GapReport, MissingPredicate, SubQuestion } from './types.js';
 
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 const REQUIRED_PREDICATES: Record<string, string[]> = {
   'why-broken':                [`${C}dependsOn`, `${C}lastModifiedIn`],
@@ -1011,7 +1011,7 @@ describe('researchGoal', () => {
 
   it('reports gaps when the TBox is missing a required predicate', async () => {
     await client.update(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       DELETE { GRAPH <kg:tbox> { c:calls ?p ?o } }
       INSERT { GRAPH <kg:meta> { <urn:test:saved> ?p ?o } }
       WHERE  { GRAPH <kg:tbox> { c:calls ?p ?o } }
@@ -1022,7 +1022,7 @@ describe('researchGoal', () => {
     });
     expect(plan.gaps[0]!.answerable).toBe(false);
     expect(plan.gaps[0]!.missingPredicates[0]!.iri)
-      .toBe('https://predicate.dev/codebase#calls');
+      .toBe('https://industriagents.com/predicate/codebase#calls');
     // Restore the predicate so later tests pass.
     await reset('kg:tbox');
     await loadTbox('predicate-ontology/tbox/codebase.ttl');
@@ -1032,12 +1032,12 @@ describe('researchGoal', () => {
   it('the created goal exists in kg:goals with GoalCreated in kg:meta', async () => {
     const plan = await researchGoal(client, { goal: 'why did x break', source: 'user' });
     const ok = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:goals> { <${plan.goalId}> a pred:Goal } }
     `);
     expect(ok).toBe(true);
     const evt = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:meta> { ?e a pred:GoalCreated ; pred:goal <${plan.goalId}> } }
     `);
     expect(evt).toBe(true);

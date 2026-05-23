@@ -392,7 +392,7 @@ import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 import { deleteExtractedSlice } from '../src/commands/replay-rebuild.js';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);
@@ -450,7 +450,7 @@ Create `packages/predicate-cli/src/commands/replay-rebuild.ts`:
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 /**
  * Delete the extraction-derived slice for one session from kg:abox + kg:provenance.
@@ -528,7 +528,7 @@ import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 import { extract } from '../src/commands/extract.js';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);

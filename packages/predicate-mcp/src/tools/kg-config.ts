@@ -1,7 +1,7 @@
 import type { StorageAdapter } from '../storage/index.js';
 import { escapeLiteral } from '../sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const CONFIG_URI = 'urn:predicate:config';
 
 // Map external key (kebab-case) ↔ internal property (camelCase)

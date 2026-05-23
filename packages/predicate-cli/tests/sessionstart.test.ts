@@ -36,7 +36,7 @@ describe('predicate sessionstart', () => {
     const client = getAdapter();
     await client.update(`
       INSERT DATA { GRAPH <kg:abox> {
-        <urn:predicate:session:test-prior> a <https://predicate.dev/meta#Session> .
+        <urn:predicate:session:test-prior> a <https://industriagents.com/predicate/meta#Session> .
       } }
     `);
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -48,7 +48,7 @@ describe('predicate sessionstart', () => {
     } finally {
       await client.update(`
         DELETE DATA { GRAPH <kg:abox> {
-          <urn:predicate:session:test-prior> a <https://predicate.dev/meta#Session> .
+          <urn:predicate:session:test-prior> a <https://industriagents.com/predicate/meta#Session> .
         } }
       `);
     }
@@ -57,7 +57,7 @@ describe('predicate sessionstart', () => {
   it('includes ontology name in banner when init config exists', async () => {
     const client = getAdapter();
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       INSERT DATA { GRAPH <kg:meta> {
         <urn:predicate:config> a pred:Config ; pred:initOntology "codebase" .
       } }
@@ -69,7 +69,7 @@ describe('predicate sessionstart', () => {
       expect(line).toContain('(codebase ontology)');
     } finally {
       await client.update(`
-        PREFIX pred: <https://predicate.dev/meta#>
+        PREFIX pred: <https://industriagents.com/predicate/meta#>
         DELETE WHERE { GRAPH <kg:meta> { <urn:predicate:config> ?p ?o } }
       `);
     }

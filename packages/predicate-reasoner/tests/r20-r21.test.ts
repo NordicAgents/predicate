@@ -5,7 +5,7 @@ import { FusekiConstructAdapter } from '../src/index.js';
 
 const client = getAdapter();
 
-const J = 'https://predicate.dev/judgment#';
+const J = 'https://industriagents.com/predicate/judgment#';
 
 // Isolated abox/inferred graphs for r20 tests — avoids colliding with shared kg:abox / kg:inferred.
 // Provenance MUST stay in kg:provenance because closureEligible hardcodes that graph.
@@ -35,7 +35,7 @@ afterAll(async () => {
 /** Insert a triple into R20_ABOX with a kg:provenance entry so closureEligible includes it. */
 async function withProv(s: string, p: string, o: string, conf = 1): Promise<void> {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA {
       GRAPH <${R20_ABOX}>   { ${s} ${p} ${o} . }
@@ -58,11 +58,11 @@ beforeEach(resetR20);
 describe('judgment overlay', () => {
   it('loads j:settledAs as a ConflictFunctionalProperty (not owl:FunctionalProperty)', async () => {
     const isMarker = await client.ask(`
-      PREFIX j: <https://predicate.dev/judgment#>
+      PREFIX j: <https://industriagents.com/predicate/judgment#>
       ASK { GRAPH <kg:tbox> { j:settledAs a j:ConflictFunctionalProperty } }
     `);
     const isOwlFunctional = await client.ask(`
-      PREFIX j:   <https://predicate.dev/judgment#>
+      PREFIX j:   <https://industriagents.com/predicate/judgment#>
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       ASK { GRAPH <kg:tbox> { j:settledAs a owl:FunctionalProperty } }
     `);

@@ -2,13 +2,13 @@ import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 
-const J = 'https://predicate.dev/judgment#';
-const TOP = 'https://predicate.dev/top#';
+const J = 'https://industriagents.com/predicate/judgment#';
+const TOP = 'https://industriagents.com/predicate/top#';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
-const cb = 'https://predicate.dev/corpus/codebase#';
-const ops = 'https://predicate.dev/corpus/ops#';
-const per = 'https://predicate.dev/corpus/personal#';
+const cb = 'https://industriagents.com/predicate/corpus/codebase#';
+const ops = 'https://industriagents.com/predicate/corpus/ops#';
+const per = 'https://industriagents.com/predicate/corpus/personal#';
 
 type Obj = { type: 'uri' | 'literal'; value: string };
 function uri(v: string): Obj { return { type: 'uri', value: v }; }

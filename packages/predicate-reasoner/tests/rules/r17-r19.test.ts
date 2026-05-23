@@ -35,7 +35,7 @@ async function inferredHas(query: string): Promise<boolean> {
 describe('R17 hotspot', () => {
   it('derives codebase:Hotspot for files modified in >=3 distinct sessions', async () => {
     await client.update(`
-      PREFIX cb: <https://predicate.dev/codebase#>
+      PREFIX cb: <https://industriagents.com/predicate/codebase#>
       INSERT DATA { GRAPH <${cfg.aboxGraphs[0]}> {
         <file:///a.ts> cb:modifiedIn <urn:session:1> , <urn:session:2> , <urn:session:3> .
         <file:///b.ts> cb:modifiedIn <urn:session:1> , <urn:session:2> .
@@ -43,11 +43,11 @@ describe('R17 hotspot', () => {
     `);
     await runFixpoint(client, RULES, cfg);
     expect(
-      await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+      await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
         ASK { GRAPH <${cfg.inferredGraph}> { <file:///a.ts> a cb:Hotspot } }`),
     ).toBe(true);
     expect(
-      await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+      await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
         ASK { GRAPH <${cfg.inferredGraph}> { <file:///b.ts> a cb:Hotspot } }`),
     ).toBe(false);
   });
@@ -56,7 +56,7 @@ describe('R17 hotspot', () => {
 describe('R18 flaky command', () => {
   it('derives codebase:FlakyCommand for commands that failed in >=2 distinct sessions', async () => {
     await client.update(`
-      PREFIX cb: <https://predicate.dev/codebase#>
+      PREFIX cb: <https://industriagents.com/predicate/codebase#>
       INSERT DATA { GRAPH <${cfg.aboxGraphs[0]}> {
         <urn:bash:flaky> cb:failedIn <urn:session:1> , <urn:session:2> .
         <urn:bash:rare>  cb:failedIn <urn:session:1> .
@@ -64,11 +64,11 @@ describe('R18 flaky command', () => {
     `);
     await runFixpoint(client, RULES, cfg);
     expect(
-      await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+      await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
         ASK { GRAPH <${cfg.inferredGraph}> { <urn:bash:flaky> a cb:FlakyCommand } }`),
     ).toBe(true);
     expect(
-      await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+      await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
         ASK { GRAPH <${cfg.inferredGraph}> { <urn:bash:rare>  a cb:FlakyCommand } }`),
     ).toBe(false);
   });
@@ -77,8 +77,8 @@ describe('R18 flaky command', () => {
 describe('R19 active file', () => {
   it('derives codebase:ActiveFile only for files modified in the most-recent session', async () => {
     await client.update(`
-      PREFIX cb:   <https://predicate.dev/codebase#>
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA { GRAPH <${cfg.aboxGraphs[0]}> {
         <urn:session:old>  a pred:Session ; pred:at "2026-01-01T00:00:00Z"^^xsd:dateTime .
@@ -89,11 +89,11 @@ describe('R19 active file', () => {
     `);
     await runFixpoint(client, RULES, cfg);
     expect(
-      await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+      await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
         ASK { GRAPH <${cfg.inferredGraph}> { <file:///new.ts> a cb:ActiveFile } }`),
     ).toBe(true);
     expect(
-      await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+      await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
         ASK { GRAPH <${cfg.inferredGraph}> { <file:///old.ts> a cb:ActiveFile } }`),
     ).toBe(false);
   });

@@ -8,7 +8,7 @@ import type {
   DeltaQuad, PromotionDecision, SweeperResult, Term,
 } from './types.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 interface ProposalRow {
   id: string;

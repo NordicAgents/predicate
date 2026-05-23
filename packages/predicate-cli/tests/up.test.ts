@@ -31,13 +31,13 @@ describe('predicate up — v2.0 legacy migration', () => {
   it('auto-adopts as codebase when kg:tbox has codebase:File but no config', async () => {
     // Simulate v1.13 state: codebase.ttl loaded, no config
     await client.update(`
-      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX cb:  <https://industriagents.com/predicate/codebase#>
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       INSERT DATA { GRAPH <kg:tbox> { cb:File a owl:Class } }
     `);
     await up();
     const configured = await client.ask(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        ASK { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology "codebase" } }`,
     );
     expect(configured).toBe(true);
@@ -46,21 +46,21 @@ describe('predicate up — v2.0 legacy migration', () => {
     // Stop-hook extractor's pred:sessionId / pred:at triples get rejected as
     // undeclared on every session.
     const hasMeta = await client.ask(
-      `ASK { GRAPH <kg:tbox> { <https://predicate.dev/meta#sessionId> ?p ?o } }`,
+      `ASK { GRAPH <kg:tbox> { <https://industriagents.com/predicate/meta#sessionId> ?p ?o } }`,
     );
     expect(hasMeta).toBe(true);
   });
 
   it('skips init when config already exists', async () => {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       INSERT DATA { GRAPH <kg:meta> {
         <urn:predicate:config> a pred:Config ; pred:initOntology "foaf" .
       } }
     `);
     await up();
     const r = await client.select(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        SELECT ?o WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology ?o } }`,
     );
     expect(r.results.bindings[0]!.o!.value).toBe('foaf');  // unchanged

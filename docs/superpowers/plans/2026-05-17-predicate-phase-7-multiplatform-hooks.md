@@ -191,7 +191,7 @@ Create `packages/predicate-cli/src/commands/sessionstart.ts`:
 import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const OWL = 'http://www.w3.org/2002/07/owl#';
 
 export async function sessionstart(): Promise<number> {

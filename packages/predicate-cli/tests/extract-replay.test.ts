@@ -15,7 +15,7 @@ vi.mock('@anthropic-ai/sdk', () => ({
 import { extract } from '../src/commands/extract.js';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);

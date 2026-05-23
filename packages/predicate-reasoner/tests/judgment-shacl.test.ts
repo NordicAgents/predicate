@@ -12,8 +12,8 @@ const ont = readFileSync(join(CATALOG, 'judgment.ttl'), 'utf8');
 describe('judgment SHACL', () => {
   it('fails a judgment with no j:basedOn', async () => {
     const data = `${ont}
-      @prefix j: <https://predicate.dev/judgment#> .
-      @prefix ex: <https://predicate.dev/corpus/x#> .
+      @prefix j: <https://industriagents.com/predicate/judgment#> .
+      @prefix ex: <https://industriagents.com/predicate/corpus/x#> .
       ex:j1 a j:Assessment ; j:rationale "fragile" ; j:about ex:svc .`;
     const r = await runShacl(data, shapes);
     expect(r.ok).toBe(false);
@@ -22,8 +22,8 @@ describe('judgment SHACL', () => {
 
   it('passes a well-formed judgment', async () => {
     const data = `${ont}
-      @prefix j: <https://predicate.dev/judgment#> .
-      @prefix ex: <https://predicate.dev/corpus/x#> .
+      @prefix j: <https://industriagents.com/predicate/judgment#> .
+      @prefix ex: <https://industriagents.com/predicate/corpus/x#> .
       ex:j2 a j:Assessment ; j:rationale "fragile" ; j:about ex:svc ; j:basedOn ex:incident1 .`;
     const r = await runShacl(data, shapes);
     expect(r.ok).toBe(true);

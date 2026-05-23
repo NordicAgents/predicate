@@ -1,7 +1,7 @@
 import type { Rule, RuleConfig } from './types.js';
 import type { Quad } from '../types.js';
 
-const J = 'https://predicate.dev/judgment#';
+const J = 'https://industriagents.com/predicate/judgment#';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 const UNRESOLVED = `${J}UnresolvedConflict`;
 const ABOUT = `${J}about`;

@@ -3,7 +3,7 @@ import { escapeIRI, escapeLiteral } from '../../src/sparql/escape.js';
 
 describe('escapeIRI', () => {
   it('wraps a valid IRI', () => {
-    expect(escapeIRI('https://predicate.dev/x#Foo')).toBe('<https://predicate.dev/x#Foo>');
+    expect(escapeIRI('https://industriagents.com/predicate/x#Foo')).toBe('<https://industriagents.com/predicate/x#Foo>');
   });
   it('rejects an IRI containing >', () => {
     expect(() => escapeIRI('http://x/>evil')).toThrow();

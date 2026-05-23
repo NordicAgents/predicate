@@ -45,7 +45,7 @@ describe('extractSemantic', () => {
           triples: [
             {
               subject: 'file:///auth.ts',
-              predicate: 'https://predicate.dev/codebase#hasAuthFlow',
+              predicate: 'https://industriagents.com/predicate/codebase#hasAuthFlow',
               object: { type: 'literal', value: 'true' },
               source: 'urn:predicate:session:ses-x',
               confidence: 0.7,

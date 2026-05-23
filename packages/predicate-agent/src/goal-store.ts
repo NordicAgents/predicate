@@ -2,7 +2,7 @@ import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeLiteral, escapeIRI } from 'predicate-mcp/src/sparql/escape.js';
 import type { Goal, GoalStatus } from './types.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 function newGoalId(): string {
   const ts = Date.now().toString(36);

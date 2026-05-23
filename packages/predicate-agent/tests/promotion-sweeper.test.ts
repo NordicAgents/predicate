@@ -8,7 +8,7 @@ import { SchemaProposer } from '../src/schema-proposer.js';
 import { PromotionSweeper } from '../src/promotion-sweeper.js';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 
 let promotedDir: string;
 
@@ -24,7 +24,7 @@ async function reset(g: string): Promise<void> {
 
 async function recordUsage(sparql: string): Promise<void> {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:usage> {
       <urn:test:usage:${Math.random().toString(36).slice(2, 8)}> a pred:Query ;
@@ -93,7 +93,7 @@ describe('PromotionSweeper', () => {
     expect(stillThere).toBe(false);
 
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?e WHERE {
         GRAPH <kg:meta> {
           ?e a pred:SchemaRejected ;
@@ -142,12 +142,12 @@ describe('PromotionSweeper', () => {
     expect(existsSync(decision!.turtleFile!)).toBe(true);
 
     const promoted = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:meta> { ?e a pred:SchemaPromoted ; pred:goal <${id}> } }
     `);
     expect(promoted).toBe(true);
     const advanced = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:meta> { ?e a pred:TBoxVersionAdvanced } }
     `);
     expect(advanced).toBe(true);

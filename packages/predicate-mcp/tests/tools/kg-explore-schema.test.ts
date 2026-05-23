@@ -19,18 +19,18 @@ beforeAll(async () => {
 
 describe('kg_explore_schema', () => {
   it('returns the Function class slice', async () => {
-    const slice = await kgExploreSchema(client, 'https://predicate.dev/codebase#Function');
-    expect(slice.classes.map((c) => c.iri)).toContain('https://predicate.dev/codebase#Function');
+    const slice = await kgExploreSchema(client, 'https://industriagents.com/predicate/codebase#Function');
+    expect(slice.classes.map((c) => c.iri)).toContain('https://industriagents.com/predicate/codebase#Function');
     expect(slice.classes.find((c) => c.iri.endsWith('#Function'))?.subClassOf).toContain(
-      'https://predicate.dev/codebase#Symbol',
+      'https://industriagents.com/predicate/codebase#Symbol',
     );
     const propIris = slice.properties.map((p) => p.iri);
-    expect(propIris).toContain('https://predicate.dev/codebase#calls');
-    expect(propIris).toContain('https://predicate.dev/codebase#reads');
+    expect(propIris).toContain('https://industriagents.com/predicate/codebase#calls');
+    expect(propIris).toContain('https://industriagents.com/predicate/codebase#reads');
   });
 
   it('returns empty arrays for an unknown concept', async () => {
-    const slice = await kgExploreSchema(client, 'https://predicate.dev/codebase#NotAThing');
+    const slice = await kgExploreSchema(client, 'https://industriagents.com/predicate/codebase#NotAThing');
     expect(slice.classes).toEqual([]);
     expect(slice.properties).toEqual([]);
   });

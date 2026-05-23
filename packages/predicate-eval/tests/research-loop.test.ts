@@ -69,17 +69,17 @@ describe('research loop end-to-end against the demo corpus', () => {
     expect(total).toBeGreaterThanOrEqual(6);
 
     const importOk = await client.ask(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/auth.ts> c:imports <https://predicate.dev/codebase/jwt.ts>
+        <https://industriagents.com/predicate/codebase/auth.ts> c:imports <https://industriagents.com/predicate/codebase/jwt.ts>
       } }
     `);
     expect(importOk).toBe(true);
 
     const envReadOk = await client.ask(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/jwt.ts#verifyJwt> c:reads <https://predicate.dev/codebase/env/JWT_SECRET>
+        <https://industriagents.com/predicate/codebase/jwt.ts#verifyJwt> c:reads <https://industriagents.com/predicate/codebase/env/JWT_SECRET>
       } }
     `);
     expect(envReadOk).toBe(true);

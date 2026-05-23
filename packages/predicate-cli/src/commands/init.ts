@@ -7,7 +7,7 @@ import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { bootstrapGraphs } from 'predicate-server/src/index.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const CONFIG_URI = 'urn:predicate:config';
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
@@ -125,8 +125,8 @@ async function writeConfig(
 }
 
 function validateUserUpload(turtle: string): { ok: boolean; error?: string } {
-  if (/https?:\/\/predicate\.dev\/meta#/.test(turtle)) {
-    return { ok: false, error: `Uploaded ontology uses the reserved 'pred:' namespace (https://predicate.dev/meta#). Rename or remove those triples.` };
+  if (/https?:\/\/industriagents\.com\/predicate\/meta#/.test(turtle)) {
+    return { ok: false, error: `Uploaded ontology uses the reserved 'pred:' namespace (https://industriagents.com/predicate/meta#). Rename or remove those triples.` };
   }
   return { ok: true };
 }

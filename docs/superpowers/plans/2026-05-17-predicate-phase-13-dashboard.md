@@ -109,8 +109,8 @@ function shortFile(f) { return f.replace(/^file:\/\//, '').split('/').slice(-3).
 
 async function loadStats() {
   const q = `
-    PREFIX pred: <https://predicate.dev/meta#>
-    PREFIX cb:   <https://predicate.dev/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    PREFIX cb:   <https://industriagents.com/predicate/codebase#>
     SELECT
       (COUNT(DISTINCT ?session) AS ?sessions)
       (COUNT(DISTINCT ?file) AS ?files)
@@ -138,8 +138,8 @@ async function loadStats() {
 
 async function loadSessions() {
   const q = `
-    PREFIX pred: <https://predicate.dev/meta#>
-    PREFIX cb:   <https://predicate.dev/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
+    PREFIX cb:   <https://industriagents.com/predicate/codebase#>
     SELECT ?sid ?at
       (COUNT(DISTINCT ?file) AS ?nFiles)
       (COUNT(DISTINCT ?ok)   AS ?nOk)
@@ -168,7 +168,7 @@ async function loadSessions() {
 
 async function loadDerived(varName, klass, predicate, divId, label, empty) {
   const q = `
-    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
     SELECT ?${varName} (COUNT(DISTINCT ?session) AS ?n)
     WHERE {
       { GRAPH <kg:inferred> { ?${varName} a cb:${klass} } }

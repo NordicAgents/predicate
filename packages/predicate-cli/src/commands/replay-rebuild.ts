@@ -2,7 +2,7 @@ import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { OxigraphAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI, escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 type SparqlBinding = { type: string; value: string; datatype?: string };
 

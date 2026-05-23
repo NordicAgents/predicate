@@ -25,10 +25,10 @@ async function main(): Promise<void> {
 
   // Minimal sample so validation isn't a no-op
   await client.update(`
-    PREFIX c:   <https://predicate.dev/codebase#>
+    PREFIX c:   <https://industriagents.com/predicate/codebase#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     INSERT DATA { GRAPH <kg:abox-ci-sample> {
-      <https://predicate.dev/codebase/auth.ts> rdf:type c:File ;
+      <https://industriagents.com/predicate/codebase/auth.ts> rdf:type c:File ;
         c:path "auth.ts" .
     } }
   `);

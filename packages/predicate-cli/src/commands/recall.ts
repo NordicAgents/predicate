@@ -50,8 +50,8 @@ async function searchFiles(
   query: string,
   limit: number,
 ): Promise<RecallResult['files']> {
-  const CB = 'https://predicate.dev/codebase#';
-  const META = 'https://predicate.dev/meta#';
+  const CB = 'https://industriagents.com/predicate/codebase#';
+  const META = 'https://industriagents.com/predicate/meta#';
   const r = await client.select(
     `PREFIX cb:   <${CB}>
      PREFIX pred: <${META}>
@@ -79,7 +79,7 @@ async function searchCommands(
   query: string,
   limit: number,
 ): Promise<RecallResult['commands']> {
-  const CB = 'https://predicate.dev/codebase#';
+  const CB = 'https://industriagents.com/predicate/codebase#';
   const r = await client.select(
     `PREFIX cb: <${CB}>
      SELECT ?text

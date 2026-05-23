@@ -397,7 +397,7 @@ git commit -m "feat(server): Fuseki/TDB2 with 8 named graphs and bootstrap scrip
 - [ ] **Step 1: Write `packages/predicate-ontology/tbox/codebase.ttl`**
 
 ```turtle
-@prefix :       <https://predicate.dev/codebase#> .
+@prefix :       <https://industriagents.com/predicate/codebase#> .
 @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:    <http://www.w3.org/2002/07/owl#> .
@@ -490,7 +490,7 @@ Expected: triple count ≥ 40.
 
 ```turtle
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
-@prefix :     <https://predicate.dev/codebase#> .
+@prefix :     <https://industriagents.com/predicate/codebase#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 
 :FileShape a sh:NodeShape ;
@@ -762,7 +762,7 @@ import { escapeIRI, escapeLiteral } from '../../src/sparql/escape.js';
 
 describe('escapeIRI', () => {
   it('wraps a valid IRI', () => {
-    expect(escapeIRI('https://predicate.dev/x#Foo')).toBe('<https://predicate.dev/x#Foo>');
+    expect(escapeIRI('https://industriagents.com/predicate/x#Foo')).toBe('<https://industriagents.com/predicate/x#Foo>');
   });
   it('rejects an IRI containing >', () => {
     expect(() => escapeIRI('http://x/>evil')).toThrow();
@@ -1063,18 +1063,18 @@ beforeAll(async () => {
 
 describe('kg_explore_schema', () => {
   it('returns the Function class slice', async () => {
-    const slice = await kgExploreSchema(client, 'https://predicate.dev/codebase#Function');
-    expect(slice.classes.map((c) => c.iri)).toContain('https://predicate.dev/codebase#Function');
+    const slice = await kgExploreSchema(client, 'https://industriagents.com/predicate/codebase#Function');
+    expect(slice.classes.map((c) => c.iri)).toContain('https://industriagents.com/predicate/codebase#Function');
     expect(slice.classes.find((c) => c.iri.endsWith('#Function'))?.subClassOf).toContain(
-      'https://predicate.dev/codebase#Symbol',
+      'https://industriagents.com/predicate/codebase#Symbol',
     );
     const propIris = slice.properties.map((p) => p.iri);
-    expect(propIris).toContain('https://predicate.dev/codebase#calls');
-    expect(propIris).toContain('https://predicate.dev/codebase#reads');
+    expect(propIris).toContain('https://industriagents.com/predicate/codebase#calls');
+    expect(propIris).toContain('https://industriagents.com/predicate/codebase#reads');
   });
 
   it('returns empty arrays for an unknown concept', async () => {
-    const slice = await kgExploreSchema(client, 'https://predicate.dev/codebase#NotAThing');
+    const slice = await kgExploreSchema(client, 'https://industriagents.com/predicate/codebase#NotAThing');
     expect(slice.classes).toEqual([]);
     expect(slice.properties).toEqual([]);
   });
@@ -1264,39 +1264,39 @@ beforeEach(async () => {
 describe('kg_assert', () => {
   it('writes the triple to kg:abox', async () => {
     await kgAssert(client, {
-      subject: 'https://predicate.dev/codebase/auth.ts',
-      predicate: 'https://predicate.dev/codebase#imports',
-      object: { type: 'uri', value: 'https://predicate.dev/codebase/jwt.ts' },
+      subject: 'https://industriagents.com/predicate/codebase/auth.ts',
+      predicate: 'https://industriagents.com/predicate/codebase#imports',
+      object: { type: 'uri', value: 'https://industriagents.com/predicate/codebase/jwt.ts' },
       source: 'file:///repo/auth.ts:3',
       confidence: 0.95,
       method: 'static-import-parse',
     });
     const ok = await client.ask(`
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/auth.ts>
-        <https://predicate.dev/codebase#imports>
-        <https://predicate.dev/codebase/jwt.ts> } }
+        <https://industriagents.com/predicate/codebase/auth.ts>
+        <https://industriagents.com/predicate/codebase#imports>
+        <https://industriagents.com/predicate/codebase/jwt.ts> } }
     `);
     expect(ok).toBe(true);
   });
 
   it('writes RDF-star provenance with source + confidence', async () => {
     await kgAssert(client, {
-      subject: 'https://predicate.dev/codebase/a',
-      predicate: 'https://predicate.dev/codebase#imports',
-      object: { type: 'uri', value: 'https://predicate.dev/codebase/b' },
+      subject: 'https://industriagents.com/predicate/codebase/a',
+      predicate: 'https://industriagents.com/predicate/codebase#imports',
+      object: { type: 'uri', value: 'https://industriagents.com/predicate/codebase/b' },
       source: 'file:///r/a:1',
       confidence: 0.7,
       method: 'parse',
     });
     const r = await client.select(`
       PREFIX prov: <http://www.w3.org/ns/prov#>
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?src ?conf ?method WHERE {
         GRAPH <kg:provenance> {
-          <<<https://predicate.dev/codebase/a>
-             <https://predicate.dev/codebase#imports>
-             <https://predicate.dev/codebase/b>>>
+          <<<https://industriagents.com/predicate/codebase/a>
+             <https://industriagents.com/predicate/codebase#imports>
+             <https://industriagents.com/predicate/codebase/b>>>
             pred:source ?src ;
             pred:confidence ?conf ;
             pred:method ?method .
@@ -1321,8 +1321,8 @@ describe('kg_assert', () => {
 
   it('writes a literal object correctly', async () => {
     await kgAssert(client, {
-      subject: 'https://predicate.dev/codebase/c1',
-      predicate: 'https://predicate.dev/codebase#sha',
+      subject: 'https://industriagents.com/predicate/codebase/c1',
+      predicate: 'https://industriagents.com/predicate/codebase#sha',
       object: { type: 'literal', value: 'abc123' },
       source: 'git',
       confidence: 1.0,
@@ -1330,8 +1330,8 @@ describe('kg_assert', () => {
     });
     const ok = await client.ask(`
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/c1>
-        <https://predicate.dev/codebase#sha> "abc123" } }
+        <https://industriagents.com/predicate/codebase/c1>
+        <https://industriagents.com/predicate/codebase#sha> "abc123" } }
     `);
     expect(ok).toBe(true);
   });
@@ -1399,7 +1399,7 @@ export async function kgAssert(client: SparqlClient, t: Triple): Promise<void> {
   const p = escapeIRI(t.predicate);
   const o = renderObject(t.object);
 
-  const META_NS = 'https://predicate.dev/meta#';
+  const META_NS = 'https://industriagents.com/predicate/meta#';
   const aboxG = escapeIRI(GRAPH.abox);
   const provG = escapeIRI(GRAPH.provenance);
   const star = `<< ${s} ${p} ${o} >>`;
@@ -1463,7 +1463,7 @@ import { resolve } from 'node:path';
 
 const cfg = loadConfig();
 const client = new SparqlClient(cfg);
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 async function reset(g: string) {
   await client.update(`DROP SILENT GRAPH <${g}>`);
@@ -1488,9 +1488,9 @@ beforeEach(async () => {
   await reset('kg:provenance');
   await reset('kg:usage');
   await kgAssert(client, {
-    subject: 'https://predicate.dev/codebase/auth.ts',
+    subject: 'https://industriagents.com/predicate/codebase/auth.ts',
     predicate: `${C}imports`,
-    object: { type: 'uri', value: 'https://predicate.dev/codebase/jwt.ts' },
+    object: { type: 'uri', value: 'https://industriagents.com/predicate/codebase/jwt.ts' },
     source: 'parse', confidence: 1, method: 'parse',
   });
 });
@@ -1502,20 +1502,20 @@ describe('kg_ask', () => {
       sparql: `
         PREFIX c: <${C}>
         SELECT ?o WHERE { GRAPH <kg:abox> {
-          <https://predicate.dev/codebase/auth.ts> c:imports ?o } }
+          <https://industriagents.com/predicate/codebase/auth.ts> c:imports ?o } }
       `,
     });
     expect(r.bindings).toHaveLength(1);
-    expect(r.bindings[0]!.o!.value).toBe('https://predicate.dev/codebase/jwt.ts');
+    expect(r.bindings[0]!.o!.value).toBe('https://industriagents.com/predicate/codebase/jwt.ts');
     expect(r.truncated).toBe(false);
   });
 
   it('truncates results to maxRows and sets truncated flag', async () => {
     for (let i = 0; i < 5; i++) {
       await kgAssert(client, {
-        subject: `https://predicate.dev/codebase/auth.ts`,
+        subject: `https://industriagents.com/predicate/codebase/auth.ts`,
         predicate: `${C}imports`,
-        object: { type: 'uri', value: `https://predicate.dev/codebase/dep${i}.ts` },
+        object: { type: 'uri', value: `https://industriagents.com/predicate/codebase/dep${i}.ts` },
         source: 'p', confidence: 1, method: 'p',
       });
     }
@@ -1524,7 +1524,7 @@ describe('kg_ask', () => {
       sparql: `
         PREFIX c: <${C}>
         SELECT ?o WHERE { GRAPH <kg:abox> {
-          <https://predicate.dev/codebase/auth.ts> c:imports ?o } }
+          <https://industriagents.com/predicate/codebase/auth.ts> c:imports ?o } }
       `,
       maxRows: 3,
     });
@@ -1612,7 +1612,7 @@ async function logUsage(
 ): Promise<void> {
   const usage = escapeIRI(GRAPH.usage);
   const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META = 'https://predicate.dev/meta#';
+  const META = 'https://industriagents.com/predicate/meta#';
   await client.update(`
     PREFIX pred: <${META}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
@@ -1946,8 +1946,8 @@ import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 
-const C = 'https://predicate.dev/codebase#';
-const DOM = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase#';
+const DOM = 'https://industriagents.com/predicate/codebase';
 const ROOT = join(import.meta.dirname, '..', 'fixtures', 'demo-corpus');
 
 function iriForFile(name: string): string { return `${DOM}/${name}`; }
@@ -2031,7 +2031,7 @@ import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { kgAsk } from 'predicate-mcp/src/tools/kg-ask.js';
 
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 const questions: { q: string; sparql: string }[] = [
   {
@@ -2039,7 +2039,7 @@ const questions: { q: string; sparql: string }[] = [
     sparql: `
       PREFIX c: <${C}>
       SELECT ?dep WHERE { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/auth.ts> c:imports ?dep } }
+        <https://industriagents.com/predicate/codebase/auth.ts> c:imports ?dep } }
     `,
   },
   {
@@ -2047,9 +2047,9 @@ const questions: { q: string; sparql: string }[] = [
     sparql: `
       PREFIX c: <${C}>
       SELECT ?dep WHERE {
-        { GRAPH <kg:abox> { <https://predicate.dev/codebase/auth.ts> c:imports ?dep } }
+        { GRAPH <kg:abox> { <https://industriagents.com/predicate/codebase/auth.ts> c:imports ?dep } }
         UNION
-        { GRAPH <kg:inferred> { <https://predicate.dev/codebase/auth.ts> c:dependsOn ?dep } }
+        { GRAPH <kg:inferred> { <https://industriagents.com/predicate/codebase/auth.ts> c:dependsOn ?dep } }
       }
     `,
   },
@@ -2058,7 +2058,7 @@ const questions: { q: string; sparql: string }[] = [
     sparql: `
       PREFIX c: <${C}>
       SELECT ?fn ?env WHERE { GRAPH <kg:abox> {
-        ?fn c:declaredIn <https://predicate.dev/codebase/jwt.ts> ;
+        ?fn c:declaredIn <https://industriagents.com/predicate/codebase/jwt.ts> ;
             c:reads ?env } }
     `,
   },
@@ -2100,21 +2100,21 @@ describe('end-to-end demo', () => {
   it('auth.ts imports jwt.ts is asserted', async () => {
     const ok = await client.ask(`
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/auth.ts>
-        <https://predicate.dev/codebase#imports>
-        <https://predicate.dev/codebase/jwt.ts> } }
+        <https://industriagents.com/predicate/codebase/auth.ts>
+        <https://industriagents.com/predicate/codebase#imports>
+        <https://industriagents.com/predicate/codebase/jwt.ts> } }
     `);
     expect(ok).toBe(true);
   });
 
   it('verifyJwt reads JWT_SECRET (with confidence < 1)', async () => {
     const r = await client.select(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       SELECT ?env WHERE { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/jwt.ts#verifyJwt> c:reads ?env } }
+        <https://industriagents.com/predicate/codebase/jwt.ts#verifyJwt> c:reads ?env } }
     `);
     expect(r.results.bindings.map((b) => b.env!.value)).toContain(
-      'https://predicate.dev/codebase/env/JWT_SECRET',
+      'https://industriagents.com/predicate/codebase/env/JWT_SECRET',
     );
   });
 });
@@ -2239,11 +2239,11 @@ kg_explore_schema("Function")     # learn :calls, :declaredIn, :reads
 kg_ask(
   question="What does login depend on?",
   sparql="""
-    PREFIX c: <https://predicate.dev/codebase#>
+    PREFIX c: <https://industriagents.com/predicate/codebase#>
     SELECT ?dep WHERE {
-      { GRAPH <kg:abox> { <https://predicate.dev/codebase/auth.ts#login> c:reads|c:calls ?dep } }
+      { GRAPH <kg:abox> { <https://industriagents.com/predicate/codebase/auth.ts#login> c:reads|c:calls ?dep } }
       UNION
-      { GRAPH <kg:inferred> { <https://predicate.dev/codebase/auth.ts#login> c:dependsOn ?dep } }
+      { GRAPH <kg:inferred> { <https://industriagents.com/predicate/codebase/auth.ts#login> c:dependsOn ?dep } }
     }
   """
 )
@@ -2257,7 +2257,7 @@ kg_explore_schema("calls")
 kg_ask(
   question="What calls validateToken transitively?",
   sparql="""
-    PREFIX c: <https://predicate.dev/codebase#>
+    PREFIX c: <https://industriagents.com/predicate/codebase#>
     SELECT ?caller WHERE {
       GRAPH <kg:inferred> { ?caller c:calls* <...#validateToken> }
     }
@@ -2271,7 +2271,7 @@ kg_ask(
 kg_ask(
   question="Any disjoint-class violations?",
   sparql="""
-    PREFIX c: <https://predicate.dev/codebase#>
+    PREFIX c: <https://industriagents.com/predicate/codebase#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     SELECT ?x ?a ?b WHERE {
       GRAPH <kg:inferred> { ?x a ?a, ?b }
@@ -2288,7 +2288,7 @@ kg_ask(
 # kg_explore_schema reveals: no :owns property exists
 kg_propose_schema(
   delta="""
-    @prefix c: <https://predicate.dev/codebase#> .
+    @prefix c: <https://industriagents.com/predicate/codebase#> .
     c:Service a owl:Class .
     c:owns a owl:ObjectProperty ;
       rdfs:domain c:Service ; rdfs:range c:Endpoint .
@@ -2329,7 +2329,7 @@ if ! curl -fsS "$FUSEKI/\$/ping" >/dev/null 2>&1; then
 fi
 
 GOALS=$(curl -fsS "$FUSEKI/$DS/query" \
-  --data-urlencode "query=PREFIX pred: <https://predicate.dev/meta#>
+  --data-urlencode "query=PREFIX pred: <https://industriagents.com/predicate/meta#>
   SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:goals> { ?g pred:status \"active\" } }" \
   --header "Accept: application/sparql-results+json" \
   | jq -r '.results.bindings[0].n.value // "0"')

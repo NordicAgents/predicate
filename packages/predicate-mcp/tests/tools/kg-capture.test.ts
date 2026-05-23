@@ -12,7 +12,7 @@ async function reset(): Promise<void> {
 
 async function captureCount(): Promise<number> {
   const r = await client.select(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      SELECT (COUNT(*) AS ?n) WHERE {
        GRAPH <kg:usage> { ?c a pred:ToolCall }
      }`,
@@ -48,7 +48,7 @@ describe('kg_capture', () => {
         phase: 'post',
       });
       const stored = await client.select(
-        `PREFIX pred: <https://predicate.dev/meta#>
+        `PREFIX pred: <https://industriagents.com/predicate/meta#>
          SELECT ?input ?output WHERE {
            GRAPH <kg:usage> {
              <${result.captureId}> pred:toolInput ?input ;
@@ -75,7 +75,7 @@ describe('kg_capture', () => {
       phase: 'pre',
     });
     const r = await client.select(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        SELECT (BOUND(?o) AS ?hasOutput) WHERE {
          GRAPH <kg:usage> {
            <${result.captureId}> pred:phase "pre" .

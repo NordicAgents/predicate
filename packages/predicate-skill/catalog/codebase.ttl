@@ -1,4 +1,4 @@
-@prefix :       <https://predicate.dev/codebase#> .
+@prefix :       <https://industriagents.com/predicate/codebase#> .
 @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:    <http://www.w3.org/2002/07/owl#> .
@@ -79,14 +79,14 @@
               rdfs:label "The literal command string." .
 
 :modifiedIn   a owl:ObjectProperty ;
-              rdfs:domain :File ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:domain :File ; rdfs:range <https://industriagents.com/predicate/meta#Session> ;
               rdfs:label "File was modified during this session." .
 :createdIn    a owl:ObjectProperty ;
-              rdfs:domain :File ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:domain :File ; rdfs:range <https://industriagents.com/predicate/meta#Session> ;
               rdfs:label "File was newly created in this session." .
 :succeededIn  a owl:ObjectProperty ;
-              rdfs:domain :Command ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:domain :Command ; rdfs:range <https://industriagents.com/predicate/meta#Session> ;
               rdfs:label "Command exited 0 in this session." .
 :failedIn     a owl:ObjectProperty ;
-              rdfs:domain :Command ; rdfs:range <https://predicate.dev/meta#Session> ;
+              rdfs:domain :Command ; rdfs:range <https://industriagents.com/predicate/meta#Session> ;
               rdfs:label "Command exited non-zero in this session." .

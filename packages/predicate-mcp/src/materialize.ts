@@ -3,7 +3,7 @@ import { runFixpoint } from 'predicate-reasoner/src/fixpoint.js';
 import { RULES } from 'predicate-reasoner/src/rules/index.js';
 
 const STATE = 'urn:predicate:materialization-state';
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 // Presence-based marker: the triple's presence means "ABox changed since the
 // inferred graph was last materialized". Absent means clean. Re-inserting the

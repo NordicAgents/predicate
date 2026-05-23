@@ -36708,7 +36708,7 @@ var OxigraphAdapter = class {
    * @param proposalId  The IRI of the proposal whose annotation quads should be removed
    */
   deleteRdfStarAnnotationsForProposal(graphIri, proposalId) {
-    const PROPOSAL_PRED = "https://predicate.dev/meta#proposalId";
+    const PROPOSAL_PRED = "https://industriagents.com/predicate/meta#proposalId";
     const graphNode = namedNode(graphIri);
     const proposalNode = namedNode(proposalId);
     const annotationQuads = [
@@ -37543,7 +37543,7 @@ function closureEligible(s2, p2, o2, cfg) {
       GRAPH <${g2}> { ${s2} ${p2} ${o2} }
       FILTER EXISTS {
         GRAPH <kg:provenance> {
-          << ${s2} ${p2} ${o2} >> <https://predicate.dev/meta#confidence> ?conf .
+          << ${s2} ${p2} ${o2} >> <https://industriagents.com/predicate/meta#confidence> ?conf .
           FILTER (?conf >= ${cfg.closureCutoff})
         }
       }
@@ -37968,7 +37968,7 @@ var r17 = {
   insertWhere: (cfg) => {
     const abox = cfg.aboxGraphs[0] ?? "kg:abox";
     return `
-      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX cb:  <https://industriagents.com/predicate/codebase#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       INSERT { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:Hotspot } }
       WHERE {
@@ -37992,7 +37992,7 @@ var r18 = {
   insertWhere: (cfg) => {
     const abox = cfg.aboxGraphs[0] ?? "kg:abox";
     return `
-      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX cb:  <https://industriagents.com/predicate/codebase#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       INSERT { GRAPH <${cfg.inferredGraph}> { ?cmd rdf:type cb:FlakyCommand } }
       WHERE {
@@ -38015,8 +38015,8 @@ var r19 = {
   insertWhere: (cfg) => {
     const abox = cfg.aboxGraphs[0] ?? "kg:abox";
     return `
-      PREFIX cb:   <https://predicate.dev/codebase#>
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       INSERT { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:ActiveFile } }
       WHERE {
@@ -38036,7 +38036,7 @@ var r19 = {
 };
 
 // ../predicate-reasoner/src/rules/r20-current-judgment.ts
-var J = "https://predicate.dev/judgment#";
+var J = "https://industriagents.com/predicate/judgment#";
 var r20 = {
   id: "r20-current-judgment",
   name: "j:Current \u2014 a judgment with no j:supersededBy",
@@ -38060,7 +38060,7 @@ var r20 = {
 };
 
 // ../predicate-reasoner/src/rules/r21-unresolved-conflict.ts
-var J2 = "https://predicate.dev/judgment#";
+var J2 = "https://industriagents.com/predicate/judgment#";
 var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 var UNRESOLVED = `${J2}UnresolvedConflict`;
 var ABOUT = `${J2}about`;
@@ -38178,7 +38178,7 @@ var RULES = [
 
 // ../predicate-mcp/src/materialize.ts
 var STATE = "urn:predicate:materialization-state";
-var META = "https://predicate.dev/meta#";
+var META = "https://industriagents.com/predicate/meta#";
 async function markAboxDirty(client) {
   await client.update(
     `PREFIX pred: <${META}> INSERT DATA { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty true } }`
@@ -38231,7 +38231,7 @@ async function kgAsk(client, input) {
 async function logUsage(client, question, sparql, rowCount, elapsedMs) {
   const usage = escapeIRI(GRAPH.usage);
   const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META7 = "https://predicate.dev/meta#";
+  const META7 = "https://industriagents.com/predicate/meta#";
   await client.update(`
     PREFIX pred: <${META7}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
@@ -38306,7 +38306,7 @@ async function kgAssert(client, t2) {
   const s2 = escapeIRI(t2.subject);
   const p2 = escapeIRI(t2.predicate);
   const o2 = renderObject(t2.object);
-  const META_NS = "https://predicate.dev/meta#";
+  const META_NS = "https://industriagents.com/predicate/meta#";
   const aboxG = escapeIRI(GRAPH.abox);
   const provG = escapeIRI(GRAPH.provenance);
   const star = `<< ${s2} ${p2} ${o2} >>`;
@@ -43285,7 +43285,7 @@ async function unsatisfiableClasses(client, tboxView, inferred) {
 }
 
 // ../predicate-reasoner/src/explain.ts
-var META2 = "https://predicate.dev/meta#";
+var META2 = "https://industriagents.com/predicate/meta#";
 var MAX_DEPTH = 8;
 function quadKey(q2) {
   const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
@@ -43416,7 +43416,7 @@ async function kgExplain(client, input) {
 }
 
 // ../predicate-agent/src/goal-store.ts
-var META3 = "https://predicate.dev/meta#";
+var META3 = "https://industriagents.com/predicate/meta#";
 function newGoalId() {
   const ts = Date.now().toString(36);
   const rand = Math.random().toString(36).slice(2, 8);
@@ -47317,7 +47317,7 @@ var SemanticDecomposer = class {
 };
 
 // ../predicate-agent/src/gap-detector.ts
-var C2 = "https://predicate.dev/codebase#";
+var C2 = "https://industriagents.com/predicate/codebase#";
 var REQUIRED_PREDICATES = {
   "why-broken": [`${C2}dependsOn`, `${C2}lastModifiedIn`],
   "find-callers": [`${C2}calls`],
@@ -47495,7 +47495,7 @@ var DocsResearchSource = class {
 
 // ../predicate-agent/src/extractor.ts
 import { basename as basename2 } from "node:path";
-var C3 = "https://predicate.dev/codebase";
+var C3 = "https://industriagents.com/predicate/codebase";
 var RDF_TYPE3 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fileIri(uri) {
   const path2 = uri.replace(/^file:\/\//, "");
@@ -47618,7 +47618,7 @@ var EnvVarExtractor = class {
 };
 
 // ../predicate-agent/src/schema-proposer.ts
-var META4 = "https://predicate.dev/meta#";
+var META4 = "https://industriagents.com/predicate/meta#";
 var DEFAULT_TTL_DAYS = 7;
 function newProposalId() {
   const ts = Date.now().toString(36);
@@ -47693,7 +47693,7 @@ var SchemaProposer = class {
 // ../predicate-agent/src/promotion-sweeper.ts
 import { writeFileSync as writeFileSync2, mkdirSync } from "node:fs";
 import { resolve as resolve2 } from "node:path";
-var META5 = "https://predicate.dev/meta#";
+var META5 = "https://industriagents.com/predicate/meta#";
 function newEventId3(kind2) {
   return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -48065,7 +48065,7 @@ var Generalizer = class {
   k;
   async isSchemaLearningEnabled() {
     const r2 = await this.client.select(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        SELECT ?v WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?v } }`
     );
     const b2 = r2.results.bindings[0];
@@ -48148,7 +48148,7 @@ var Generalizer = class {
 };
 
 // ../predicate-mcp/src/tools/kg-maintain.ts
-var META6 = "https://predicate.dev/meta#";
+var META6 = "https://industriagents.com/predicate/meta#";
 async function kgMaintain(client, input = {}) {
   const archiveCutoff = input.archiveCutoff ?? 0.6;
   const ageDays = input.ageDays ?? 30;
@@ -48374,7 +48374,7 @@ async function unusedConceptRatio(client, classCount) {
 }
 async function materializationLatencyP95(client) {
   const r2 = await client.select(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?payload WHERE {
       GRAPH <kg:meta> {
         ?e a pred:MaterializationCompleted ;
@@ -48417,7 +48417,7 @@ async function kgStats(client) {
 }
 
 // ../predicate-mcp/src/tools/kg-extract-judgments.ts
-var J4 = "https://predicate.dev/judgment#";
+var J4 = "https://industriagents.com/predicate/judgment#";
 var BRIEF = [
   "Distill JUDGMENTS from this session \u2014 reconciled conclusions with no live source.",
   "For each decision, standing preference, qualitative assessment, or reconciliation you made:",

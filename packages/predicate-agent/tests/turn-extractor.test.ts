@@ -39,7 +39,7 @@ describe('extractDeterministic', () => {
     const sessionTriples = r.triples.filter((t) =>
       t.object.type === 'uri' &&
       t.predicate === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' &&
-      t.object.value === 'https://predicate.dev/meta#Session',
+      t.object.value === 'https://industriagents.com/predicate/meta#Session',
     );
     expect(sessionTriples).toHaveLength(1);
     expect(sessionTriples[0]!.subject).toBe(`urn:predicate:session:${SESSION}`);
@@ -53,7 +53,7 @@ describe('extractDeterministic', () => {
     const subjects = new Set(r.triples.map((t) => t.subject));
     expect(subjects).toContain('file:///work/auth.ts');
     const modifiedIn = r.triples.find((t) =>
-      t.predicate === 'https://predicate.dev/codebase#modifiedIn',
+      t.predicate === 'https://industriagents.com/predicate/codebase#modifiedIn',
     );
     expect(modifiedIn).toBeDefined();
     expect(modifiedIn!.subject).toBe('file:///work/auth.ts');
@@ -68,7 +68,7 @@ describe('extractDeterministic', () => {
       toolResult('t1', { isError: true }),
     ]));
     expect(r.triples.find((t) =>
-      t.predicate === 'https://predicate.dev/codebase#modifiedIn',
+      t.predicate === 'https://industriagents.com/predicate/codebase#modifiedIn',
     )).toBeUndefined();
   });
 
@@ -77,8 +77,8 @@ describe('extractDeterministic', () => {
       assistant({ id: 't1', name: 'Bash', input: { command: 'pnpm test' } }),
       toolResult('t1'),
     ]));
-    expect(r.triples.find((t) => t.predicate === 'https://predicate.dev/codebase#succeededIn')).toBeDefined();
-    expect(r.triples.find((t) => t.predicate === 'https://predicate.dev/codebase#failedIn')).toBeUndefined();
+    expect(r.triples.find((t) => t.predicate === 'https://industriagents.com/predicate/codebase#succeededIn')).toBeDefined();
+    expect(r.triples.find((t) => t.predicate === 'https://industriagents.com/predicate/codebase#failedIn')).toBeUndefined();
   });
 
   it('Bash with is_error tool_result emits codebase:failedIn', () => {
@@ -86,8 +86,8 @@ describe('extractDeterministic', () => {
       assistant({ id: 't1', name: 'Bash', input: { command: 'pnpm test' } }),
       toolResult('t1', { isError: true }),
     ]));
-    expect(r.triples.find((t) => t.predicate === 'https://predicate.dev/codebase#failedIn')).toBeDefined();
-    expect(r.triples.find((t) => t.predicate === 'https://predicate.dev/codebase#succeededIn')).toBeUndefined();
+    expect(r.triples.find((t) => t.predicate === 'https://industriagents.com/predicate/codebase#failedIn')).toBeDefined();
+    expect(r.triples.find((t) => t.predicate === 'https://industriagents.com/predicate/codebase#succeededIn')).toBeUndefined();
   });
 
   it('Read/Grep/Glob produce no triples (read-only ops aren\'t learning)', () => {
@@ -132,7 +132,7 @@ describe('extractDeterministic', () => {
     ]));
     const files = new Set(
       r.triples
-        .filter((t) => t.predicate === 'https://predicate.dev/codebase#modifiedIn')
+        .filter((t) => t.predicate === 'https://industriagents.com/predicate/codebase#modifiedIn')
         .map((t) => t.subject),
     );
     expect(files).toEqual(new Set(['file:///a.ts', 'file:///b.ts']));

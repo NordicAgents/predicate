@@ -8,7 +8,7 @@ describe('schema-evolution types', () => {
     const d: SchemaDelta = {
       kind: 'add-class',
       add: [{
-        s: 'https://predicate.dev/codebase#Service',
+        s: 'https://industriagents.com/predicate/codebase#Service',
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#Class' },
       }],

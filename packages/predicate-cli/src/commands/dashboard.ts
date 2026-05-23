@@ -130,7 +130,7 @@ async function runAction(req: IncomingMessage, res: ServerResponse): Promise<voi
 
 async function fetchDigest(fusekiUrl: string, dataset: string): Promise<Digest> {
   const sparql = `
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sessions ?sessionsMaxAt ?staging ?inferred
     WHERE {
       { SELECT (COUNT(DISTINCT ?s) AS ?sessions) (COALESCE(MAX(?at), "") AS ?sessionsMaxAt)

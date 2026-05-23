@@ -4,7 +4,7 @@ import type {
 } from './types.js';
 import type { Rule } from './rules/types.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const MAX_DEPTH = 8;
 
 function quadKey(q: Quad): string {

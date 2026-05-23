@@ -6,7 +6,7 @@ import { SchemaProposer } from 'predicate-agent/src/index.js';
 import { kgMaintain } from 'predicate-mcp/src/tools/kg-maintain.js';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 const propIri = `${C}#owns_evol`;
 
 async function reset(g: string): Promise<void> {
@@ -16,7 +16,7 @@ async function reset(g: string): Promise<void> {
 
 async function recordUsage(sparql: string): Promise<void> {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:usage> {
       <urn:test:usage:${Math.random().toString(36).slice(2, 8)}> a pred:Query ;

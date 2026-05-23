@@ -93,7 +93,7 @@ Two small fixes to the Phase 1 codebase are prerequisites — they unblock Phase
 - [ ] **Step 1: Write `packages/predicate-ontology/meta/predicate-meta.ttl`**
 
 ```turtle
-@prefix pred: <https://predicate.dev/meta#> .
+@prefix pred: <https://industriagents.com/predicate/meta#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
@@ -190,7 +190,7 @@ without a graph join.
 pnpm -w fuseki:nuke
 pnpm -w fuseki:up
 curl -fsS "http://localhost:3030/predicate/query" \
-  --data-urlencode "query=PREFIX pred: <https://predicate.dev/meta#>
+  --data-urlencode "query=PREFIX pred: <https://industriagents.com/predicate/meta#>
                     ASK { GRAPH <kg:tbox> { pred:Event a <http://www.w3.org/2002/07/owl#Class> } }" \
   --header "Accept: application/sparql-results+json"
 ```
@@ -221,7 +221,7 @@ describe('kg_assert TBox-membership check', () => {
     await expect(
       kgAssert(client, {
         subject: 'urn:test:a',
-        predicate: 'https://predicate.dev/codebase#totallyMadeUp',
+        predicate: 'https://industriagents.com/predicate/codebase#totallyMadeUp',
         object: { type: 'uri', value: 'urn:test:b' },
         source: 'test', confidence: 1, method: 'test',
       }),
@@ -232,13 +232,13 @@ describe('kg_assert TBox-membership check', () => {
     await kgAssert(client, {
       subject: 'urn:test:c',
       predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: { type: 'uri', value: 'https://predicate.dev/codebase#File' },
+      object: { type: 'uri', value: 'https://industriagents.com/predicate/codebase#File' },
       source: 'test', confidence: 1, method: 'test',
     });
     const ok = await client.ask(`
       ASK { GRAPH <kg:abox> { <urn:test:c>
             <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-            <https://predicate.dev/codebase#File> } }
+            <https://industriagents.com/predicate/codebase#File> } }
     `);
     expect(ok).toBe(true);
   });
@@ -247,12 +247,12 @@ describe('kg_assert TBox-membership check', () => {
     await client.update(`
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       INSERT DATA { GRAPH <kg:tbox-staging> {
-        <https://predicate.dev/codebase#stagedProp> a owl:ObjectProperty .
+        <https://industriagents.com/predicate/codebase#stagedProp> a owl:ObjectProperty .
       } }
     `);
     await kgAssert(client, {
       subject: 'urn:test:d',
-      predicate: 'https://predicate.dev/codebase#stagedProp',
+      predicate: 'https://industriagents.com/predicate/codebase#stagedProp',
       object: { type: 'uri', value: 'urn:test:e' },
       source: 'test', confidence: 1, method: 'test',
     });
@@ -658,7 +658,7 @@ export function closureEligible(
       GRAPH <${g}> { ${s} ${p} ${o} }
       FILTER EXISTS {
         GRAPH <kg:provenance> {
-          << ${s} ${p} ${o} >> <https://predicate.dev/meta#confidence> ?conf .
+          << ${s} ${p} ${o} >> <https://industriagents.com/predicate/meta#confidence> ?conf .
           FILTER (?conf >= ${cfg.closureCutoff})
         }
       }
@@ -1197,7 +1197,7 @@ async function reset(g: string) {
 
 async function withProv(s: string, p: string, o: string, conf: number) {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA {
       GRAPH <${A}> { ${s} ${p} ${o} . }
@@ -1469,7 +1469,7 @@ async function reset(g: string) {
 }
 async function withProv(s: string, p: string, o: string, conf = 1) {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA {
       GRAPH <${A}>             { ${s} ${p} ${o} . }
@@ -1823,7 +1823,7 @@ async function reset(g: string) {
 }
 async function withProv(s: string, p: string, o: string, conf = 1) {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA {
       GRAPH <${A}>          { ${s} ${p} ${o} . }
@@ -2344,7 +2344,7 @@ import type {
 } from './types.js';
 import type { Rule } from './rules/types.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const MAX_DEPTH = 8;
 
 function quadKey(q: Quad): string {
@@ -2462,7 +2462,7 @@ beforeAll(async () => {
     PREFIX ex:   <https://ex/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX owl:  <http://www.w3.org/2002/07/owl#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA {
       GRAPH <kg:tbox> {
@@ -2648,7 +2648,7 @@ beforeEach(async () => {
 async function seedStaleLowConfidence() {
   const old = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString();
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA {
       GRAPH <kg:abox> {
@@ -2684,7 +2684,7 @@ describe('kg_maintain (thin reaper)', () => {
     await seedStaleLowConfidence();
     await kgMaintain(client, { archiveCutoff: 0.6, ageDays: 30 });
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?e ?archived WHERE {
         GRAPH <kg:meta> {
           ?e a pred:MaintenanceRun ;
@@ -2697,7 +2697,7 @@ describe('kg_maintain (thin reaper)', () => {
 
   it('leaves a fresh high-confidence triple untouched', async () => {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA {
         GRAPH <kg:abox> { <urn:test:fresh> <urn:test:p> <urn:test:o> }
@@ -2728,7 +2728,7 @@ Expected: FAIL — module not found.
 import { SparqlClient } from '../sparql/client.js';
 import { escapeLiteral } from '../sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 export interface MaintainInput {
   archiveCutoff?: number;   // default 0.6
@@ -2878,10 +2878,10 @@ async function main(): Promise<void> {
 
   // Minimal sample so validation isn't a no-op
   await client.update(`
-    PREFIX c:   <https://predicate.dev/codebase#>
+    PREFIX c:   <https://industriagents.com/predicate/codebase#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     INSERT DATA { GRAPH <kg:abox-ci-sample> {
-      <https://predicate.dev/codebase/auth.ts> rdf:type c:File ;
+      <https://industriagents.com/predicate/codebase/auth.ts> rdf:type c:File ;
         c:path "auth.ts" .
     } }
   `);
@@ -3014,7 +3014,7 @@ Expected output for the *second* question (transitive deps via `kg:inferred`):
 ```
 Q: Transitive deps of auth.ts via the inferred graph
    rows=1 truncated=false
-    { dep: 'https://predicate.dev/codebase/jwt.ts' }
+    { dep: 'https://industriagents.com/predicate/codebase/jwt.ts' }
 ```
 
 If this returns zero rows, the reasoner did not infer `dependsOn` from `imports` (which is `rdfs:subPropertyOf :dependsOn` in the seed TBox). Check that rule `r02` is firing and that `kg:inferred` is populated. The materialization is *not* automatic in the demo — you need to trigger it. Run:
@@ -3048,9 +3048,9 @@ node -e "
   const {loadConfig}=require('./packages/predicate-mcp/dist/config.js');
   const {kgExplain}=require('./packages/predicate-mcp/dist/tools/kg-explain.js');
   kgExplain(new SparqlClient(loadConfig()),{
-    subject:'https://predicate.dev/codebase/auth.ts',
-    predicate:'https://predicate.dev/codebase#dependsOn',
-    object:{type:'uri',value:'https://predicate.dev/codebase/jwt.ts'}
+    subject:'https://industriagents.com/predicate/codebase/auth.ts',
+    predicate:'https://industriagents.com/predicate/codebase#dependsOn',
+    object:{type:'uri',value:'https://industriagents.com/predicate/codebase/jwt.ts'}
   }).then(r=>console.log(JSON.stringify(r,null,2))).catch(e=>{console.error(e);process.exit(1)});
 "
 ```

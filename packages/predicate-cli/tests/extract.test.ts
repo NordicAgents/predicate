@@ -67,7 +67,7 @@ describe('predicate extract', () => {
     expect(code).toBe(0);
     try {
       const r = await client.select(
-        `PREFIX cb: <https://predicate.dev/codebase#>
+        `PREFIX cb: <https://industriagents.com/predicate/codebase#>
          SELECT (COUNT(*) AS ?n) WHERE {
            GRAPH <kg:abox> {
              <file:///work/auth.ts> cb:modifiedIn <urn:predicate:session:ses-extract>
@@ -119,7 +119,7 @@ describe('predicate extract', () => {
     expect(code).toBe(0);
     try {
       const r = await client.select(
-        `PREFIX cb: <https://predicate.dev/codebase#>
+        `PREFIX cb: <https://industriagents.com/predicate/codebase#>
          SELECT (COUNT(*) AS ?n) WHERE {
            GRAPH <kg:abox> {
              <file:///work/gem.ts> cb:modifiedIn <urn:predicate:session:ses-gemini-extract>

@@ -26,7 +26,7 @@ export class Generalizer {
 
   private async isSchemaLearningEnabled(): Promise<boolean> {
     const r = await this.client.select(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        SELECT ?v WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?v } }`,
     );
     const b = r.results.bindings[0];

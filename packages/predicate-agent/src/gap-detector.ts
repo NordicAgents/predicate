@@ -2,7 +2,7 @@ import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { escapeIRI } from 'predicate-mcp/src/sparql/escape.js';
 import type { GapReport, MissingPredicate, SubQuestion } from './types.js';
 
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 const REQUIRED_PREDICATES: Record<string, string[]> = {
   'why-broken':                [`${C}dependsOn`, `${C}lastModifiedIn`],

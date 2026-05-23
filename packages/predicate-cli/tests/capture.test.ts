@@ -13,7 +13,7 @@ async function reset(): Promise<void> {
 
 async function captureCount(): Promise<number> {
   const r = await client.select(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:usage> { ?c a pred:ToolCall } }`,
   );
   return parseInt(r.results.bindings[0]!.n!.value, 10);

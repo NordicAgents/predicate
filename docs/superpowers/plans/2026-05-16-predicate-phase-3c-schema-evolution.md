@@ -150,7 +150,7 @@ describe('schema-evolution types', () => {
     const d: SchemaDelta = {
       kind: 'add-class',
       add: [{
-        s: 'https://predicate.dev/codebase#Service',
+        s: 'https://industriagents.com/predicate/codebase#Service',
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#Class' },
       }],
@@ -255,7 +255,7 @@ beforeEach(async () => {
 });
 
 describe('SchemaProposer', () => {
-  const C = 'https://predicate.dev/codebase';
+  const C = 'https://industriagents.com/predicate/codebase';
 
   const addServiceDelta: SchemaDelta = {
     kind: 'add-class',
@@ -285,7 +285,7 @@ describe('SchemaProposer', () => {
 
     // Each triple should be tagged with the proposal id via RDF-star
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT (COUNT(*) AS ?n) WHERE {
         GRAPH <kg:tbox-staging> {
           << <${C}#Service> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> >>
@@ -302,7 +302,7 @@ describe('SchemaProposer', () => {
       motivatingGoal: `${C}/goals/G-123`,
     });
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?just ?goal ?expires WHERE {
         GRAPH <kg:tbox-staging> {
           <${id}> pred:justification ?just ;
@@ -318,7 +318,7 @@ describe('SchemaProposer', () => {
   it('emits a pred:SchemaProposed event in kg:meta', async () => {
     const id = await proposer.propose(addServiceDelta, { justification: 'x' });
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?e WHERE {
         GRAPH <kg:meta> {
           ?e a pred:SchemaProposed ;
@@ -343,7 +343,7 @@ describe('SchemaProposer', () => {
     expect(id).toMatch(/^urn:predicate:proposal:/);
     // Parent is recorded in the proposal meta
     const ok = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:tbox-staging> { <${id}> pred:parent <${C}#Service> } }
     `);
     expect(ok).toBe(true);
@@ -362,12 +362,12 @@ describe('SchemaProposer', () => {
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#ObjectProperty' },
       }],
-      migration: 'DELETE { ?s <https://predicate.dev/codebase#oldProp> ?o } INSERT { ?s <https://predicate.dev/codebase#newProp> ?o } WHERE { ?s <https://predicate.dev/codebase#oldProp> ?o }',
+      migration: 'DELETE { ?s <https://industriagents.com/predicate/codebase#oldProp> ?o } INSERT { ?s <https://industriagents.com/predicate/codebase#newProp> ?o } WHERE { ?s <https://industriagents.com/predicate/codebase#oldProp> ?o }',
     };
     const id = await proposer.propose(delta, { justification: 'rename' });
     // Migration is recorded on the proposal meta
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?m WHERE { GRAPH <kg:tbox-staging> { <${id}> pred:migration ?m } }
     `);
     expect(r.results.bindings[0]!.m!.value).toContain('INSERT');
@@ -392,7 +392,7 @@ import type {
   DeltaQuad, ProposalMeta, SchemaDelta, Term,
 } from './types.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const DEFAULT_TTL_DAYS = 7;
 
 function newProposalId(): string {
@@ -565,7 +565,7 @@ describe('kg_propose_schema wired in MCP registry', () => {
       delta: {
         kind: 'add-class',
         add: [{
-          s: 'https://predicate.dev/codebase#Service',
+          s: 'https://industriagents.com/predicate/codebase#Service',
           p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
           o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#Class' },
         }],
@@ -575,7 +575,7 @@ describe('kg_propose_schema wired in MCP registry', () => {
     expect(result.proposalId).toMatch(/^urn:predicate:proposal:/);
     const ok = await client.ask(`
       ASK { GRAPH <kg:tbox-staging> {
-        <https://predicate.dev/codebase#Service>
+        <https://industriagents.com/predicate/codebase#Service>
         <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
         <http://www.w3.org/2002/07/owl#Class>
       } }
@@ -768,7 +768,7 @@ import { SchemaProposer } from '../src/schema-proposer.js';
 import { PromotionSweeper } from '../src/promotion-sweeper.js';
 
 const client = new SparqlClient(loadConfig());
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 const PROMOTED_DIR = resolve(
   import.meta.dirname, '../../predicate-ontology/tbox/promoted',
 );
@@ -780,7 +780,7 @@ async function reset(g: string): Promise<void> {
 
 async function recordUsage(sparql: string): Promise<void> {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:usage> {
       <urn:test:usage:${Math.random().toString(36).slice(2, 8)}> a pred:Query ;
@@ -852,7 +852,7 @@ describe('PromotionSweeper', () => {
 
     // SchemaRejected event should be in kg:meta
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?e WHERE {
         GRAPH <kg:meta> {
           ?e a pred:SchemaRejected ;
@@ -906,12 +906,12 @@ describe('PromotionSweeper', () => {
 
     // SchemaPromoted + TBoxVersionAdvanced events
     const promoted = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:meta> { ?e a pred:SchemaPromoted ; pred:goal <${id}> } }
     `);
     expect(promoted).toBe(true);
     const advanced = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:meta> { ?e a pred:TBoxVersionAdvanced } }
     `);
     expect(advanced).toBe(true);
@@ -950,7 +950,7 @@ import type {
   DeltaQuad, PromotionDecision, SweeperResult, Term,
 } from './types.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 interface ProposalRow {
   id: string;
@@ -1307,7 +1307,7 @@ describe('kg_maintain runs the promotion sweeper', () => {
     const id = await proposer.propose({
       kind: 'add-property',
       add: [{
-        s: 'https://predicate.dev/codebase#tempProp',
+        s: 'https://industriagents.com/predicate/codebase#tempProp',
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#ObjectProperty' },
       }],
@@ -1341,7 +1341,7 @@ import { SparqlClient } from '../sparql/client.js';
 import { escapeLiteral } from '../sparql/escape.js';
 import { PromotionSweeper, type SweeperResult } from 'predicate-agent/src/index.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 export interface MaintainInput {
   archiveCutoff?: number;
@@ -1466,7 +1466,7 @@ import { SchemaProposer } from 'predicate-agent/src/index.js';
 import { kgMaintain } from 'predicate-mcp/src/tools/kg-maintain.js';
 
 const client = new SparqlClient(loadConfig());
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 const propIri = `${C}#owns_evol`;
 
 async function reset(g: string): Promise<void> {
@@ -1476,7 +1476,7 @@ async function reset(g: string): Promise<void> {
 
 async function recordUsage(sparql: string): Promise<void> {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:usage> {
       <urn:test:usage:${Math.random().toString(36).slice(2, 8)}> a pred:Query ;

@@ -13,17 +13,17 @@ async function reset(): Promise<void> {
 async function seed(sessionId: string, files: number, ok: number, bad: number): Promise<void> {
   const s = `<urn:predicate:session:${sessionId}>`;
   const at = new Date().toISOString();
-  let triples = `${s} a <https://predicate.dev/meta#Session> .
-                 ${s} <https://predicate.dev/meta#sessionId> "${sessionId}" .
-                 ${s} <https://predicate.dev/meta#at> "${at}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .`;
+  let triples = `${s} a <https://industriagents.com/predicate/meta#Session> .
+                 ${s} <https://industriagents.com/predicate/meta#sessionId> "${sessionId}" .
+                 ${s} <https://industriagents.com/predicate/meta#at> "${at}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .`;
   for (let i = 0; i < files; i++) {
-    triples += `\n<file:///${sessionId}/f${i}.ts> <https://predicate.dev/codebase#modifiedIn> ${s} .`;
+    triples += `\n<file:///${sessionId}/f${i}.ts> <https://industriagents.com/predicate/codebase#modifiedIn> ${s} .`;
   }
   for (let i = 0; i < ok; i++) {
-    triples += `\n<urn:bash:${sessionId}o${i}> <https://predicate.dev/codebase#succeededIn> ${s} .`;
+    triples += `\n<urn:bash:${sessionId}o${i}> <https://industriagents.com/predicate/codebase#succeededIn> ${s} .`;
   }
   for (let i = 0; i < bad; i++) {
-    triples += `\n<urn:bash:${sessionId}b${i}> <https://predicate.dev/codebase#failedIn> ${s} .`;
+    triples += `\n<urn:bash:${sessionId}b${i}> <https://industriagents.com/predicate/codebase#failedIn> ${s} .`;
   }
   await client.update(`INSERT DATA { GRAPH <kg:abox> { ${triples} } }`);
 }

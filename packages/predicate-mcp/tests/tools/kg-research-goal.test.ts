@@ -108,9 +108,9 @@ describe('kg_research_goal with executeResearch=true', () => {
     expect(total).toBeGreaterThan(0);
 
     const ok = await client.ask(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/a.ts> c:imports <https://predicate.dev/codebase/b.ts>
+        <https://industriagents.com/predicate/codebase/a.ts> c:imports <https://industriagents.com/predicate/codebase/b.ts>
       } }
     `);
     expect(ok).toBe(true);

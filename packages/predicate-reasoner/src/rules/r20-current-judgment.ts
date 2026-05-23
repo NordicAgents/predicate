@@ -1,6 +1,6 @@
 import type { Rule, RuleConfig } from './types.js';
 
-const J = 'https://predicate.dev/judgment#';
+const J = 'https://industriagents.com/predicate/judgment#';
 
 export const r20: Rule = {
   id: 'r20-current-judgment',

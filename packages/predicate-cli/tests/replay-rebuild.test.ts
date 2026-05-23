@@ -4,7 +4,7 @@ import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 import { deleteExtractedSlice } from '../src/commands/replay-rebuild.js';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);

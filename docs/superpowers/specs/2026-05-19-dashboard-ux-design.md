@@ -123,7 +123,7 @@ If a query fails, the section shows a one-line error and the rest of the panel s
 ### SPARQL
 
 ```sparql
-PREFIX pred: <https://predicate.dev/meta#>
+PREFIX pred: <https://industriagents.com/predicate/meta#>
 SELECT ?id ?kind ?justification ?motivatingGoal ?proposedAt ?expiresAt ?useCount
 WHERE {
   GRAPH <kg:tbox-staging> {
@@ -143,7 +143,7 @@ LIMIT 50
 The threshold for the use-count column comes from `kg:meta`:
 
 ```sparql
-PREFIX pred: <https://predicate.dev/meta#>
+PREFIX pred: <https://industriagents.com/predicate/meta#>
 SELECT ?n WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:promotionUseThreshold ?n } }
 ```
 

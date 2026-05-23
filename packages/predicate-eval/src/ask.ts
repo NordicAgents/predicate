@@ -1,7 +1,7 @@
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAsk } from 'predicate-mcp/src/tools/kg-ask.js';
 
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 const questions: { q: string; sparql: string }[] = [
   {
@@ -9,7 +9,7 @@ const questions: { q: string; sparql: string }[] = [
     sparql: `
       PREFIX c: <${C}>
       SELECT ?dep WHERE { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/auth.ts> c:imports ?dep } }
+        <https://industriagents.com/predicate/codebase/auth.ts> c:imports ?dep } }
     `,
   },
   {
@@ -17,18 +17,18 @@ const questions: { q: string; sparql: string }[] = [
     sparql: `
       PREFIX c: <${C}>
       SELECT ?dep WHERE {
-        { GRAPH <kg:abox> { <https://predicate.dev/codebase/auth.ts> c:imports ?dep } }
+        { GRAPH <kg:abox> { <https://industriagents.com/predicate/codebase/auth.ts> c:imports ?dep } }
         UNION
-        { GRAPH <kg:inferred> { <https://predicate.dev/codebase/auth.ts> c:dependsOn ?dep } }
+        { GRAPH <kg:inferred> { <https://industriagents.com/predicate/codebase/auth.ts> c:dependsOn ?dep } }
       }
     `,
   },
   {
     q: 'Which functions in jwt.ts read which env vars?',
     sparql: `
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       SELECT ?fn ?env WHERE { GRAPH <kg:abox> {
-        ?fn c:declaredIn <https://predicate.dev/codebase/jwt.ts> ;
+        ?fn c:declaredIn <https://industriagents.com/predicate/codebase/jwt.ts> ;
             c:reads ?env } }
     `,
   },

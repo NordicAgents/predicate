@@ -61,7 +61,7 @@ describe('GapDetector', () => {
   it('reports answerable=false and lists missing predicates when TBox lacks them', async () => {
     // Drop :calls from kg:tbox to simulate a missing predicate
     await client.update(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       DELETE { GRAPH <kg:tbox> { c:calls ?p ?o } }
       INSERT { GRAPH <kg:meta> { <urn:test:saved-calls> ?p ?o } }
       WHERE  { GRAPH <kg:tbox> { c:calls ?p ?o } }
@@ -72,7 +72,7 @@ describe('GapDetector', () => {
     };
     const r = await detector.detect(sq);
     expect(r.answerable).toBe(false);
-    expect(r.missingPredicates.map((m) => m.iri)).toContain('https://predicate.dev/codebase#calls');
+    expect(r.missingPredicates.map((m) => m.iri)).toContain('https://industriagents.com/predicate/codebase#calls');
 
     // Restore :calls so subsequent tests see it. Re-load the TBox.
     await client.update(`DROP SILENT GRAPH <kg:tbox>`);

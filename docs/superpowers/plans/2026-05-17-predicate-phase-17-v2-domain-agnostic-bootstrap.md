@@ -60,7 +60,7 @@ If the current version isn't 0.7.0, adapt the source value but bump to 0.8.0.
 ```bash
 ( cd packages/predicate-server && bash scripts/bootstrap-graphs.sh ) 2>&1 | tail -3
 curl -fsS http://localhost:3030/predicate/query \
-  --data-urlencode "query=PREFIX pred: <https://predicate.dev/meta#> ASK { GRAPH <kg:tbox> { pred:Config a <http://www.w3.org/2002/07/owl#Class> . pred:schemaLearningEnabled a <http://www.w3.org/2002/07/owl#DatatypeProperty> } }" \
+  --data-urlencode "query=PREFIX pred: <https://industriagents.com/predicate/meta#> ASK { GRAPH <kg:tbox> { pred:Config a <http://www.w3.org/2002/07/owl#Class> . pred:schemaLearningEnabled a <http://www.w3.org/2002/07/owl#DatatypeProperty> } }" \
   --header "Accept: application/sparql-results+json" | jq -r .boolean
 ```
 
@@ -108,7 +108,7 @@ rmdir packages/predicate-ontology/tbox packages/predicate-ontology/shapes 2>/dev
 - [ ] **Step 2: Create top.ttl**
 
 ```turtle
-@prefix :     <https://predicate.dev/top#> .
+@prefix :     <https://industriagents.com/predicate/top#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
@@ -527,7 +527,7 @@ Create `packages/predicate-mcp/src/tools/kg-config.ts`:
 import { SparqlClient } from '../sparql/client.js';
 import { escapeLiteral } from '../sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const CONFIG_URI = 'urn:predicate:config';
 
 // Map external key (kebab-case) ↔ internal property (camelCase)
@@ -725,12 +725,12 @@ describe('Generalizer toggle (v2.0)', () => {
 
   async function setLearningEnabled(value: boolean): Promise<void> {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       DELETE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
       WHERE  { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
     `);
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       INSERT DATA { GRAPH <kg:meta> {
         <urn:predicate:config> pred:schemaLearningEnabled "${value}"^^<http://www.w3.org/2001/XMLSchema#boolean> .
       } }
@@ -752,7 +752,7 @@ describe('Generalizer toggle (v2.0)', () => {
 
   it('runs normally when the toggle is absent (defaults to enabled)', async () => {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       DELETE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
       WHERE  { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?o } }
     `);
@@ -777,7 +777,7 @@ In `packages/predicate-agent/src/generalizer.ts`, locate the existing `run()` me
 ```typescript
 private async isSchemaLearningEnabled(): Promise<boolean> {
   const r = await this.client.select(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      SELECT ?v WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?v } }`,
   );
   const b = r.results.bindings[0];
@@ -902,7 +902,7 @@ EOF
 
 `packages/predicate-cli/tests/fixtures/bad-prefix.ttl`:
 ```turtle
-@prefix pred: <https://predicate.dev/meta#> .
+@prefix pred: <https://industriagents.com/predicate/meta#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 pred:HijackedClass a owl:Class .
 ```
@@ -942,7 +942,7 @@ async function fullReset(): Promise<void> {
 
 async function configExists(): Promise<boolean> {
   return client.ask(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      ASK { GRAPH <kg:meta> { <urn:predicate:config> a pred:Config } }`,
   );
 }
@@ -966,7 +966,7 @@ describe('predicate init', () => {
     expect(code).toBe(0);
     expect(await configExists()).toBe(true);
     const cb = await client.ask(
-      `PREFIX cb: <https://predicate.dev/codebase#>
+      `PREFIX cb: <https://industriagents.com/predicate/codebase#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
        ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
     );
@@ -994,7 +994,7 @@ describe('predicate init', () => {
     const code = await init(['--mode', 'empty']);
     expect(code).toBe(0);
     const top = await client.ask(
-      `ASK { GRAPH <kg:tbox> { <https://predicate.dev/top#Thing> a <http://www.w3.org/2002/07/owl#Class> } }`,
+      `ASK { GRAPH <kg:tbox> { <https://industriagents.com/predicate/top#Thing> a <http://www.w3.org/2002/07/owl#Class> } }`,
     );
     expect(top).toBe(true);
   });
@@ -1012,7 +1012,7 @@ describe('predicate init', () => {
     const code = await init(['--mode', 'community', '--ontology', 'codebase', '--force']);
     expect(code).toBe(0);
     const cb = await client.ask(
-      `PREFIX cb: <https://predicate.dev/codebase#>
+      `PREFIX cb: <https://industriagents.com/predicate/codebase#>
        PREFIX owl: <http://www.w3.org/2002/07/owl#>
        ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
     );
@@ -1059,7 +1059,7 @@ import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const CONFIG_URI = 'urn:predicate:config';
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
@@ -1161,8 +1161,8 @@ async function writeConfig(
 
 function validateUserUpload(turtle: string): { ok: boolean; error?: string } {
   // Reject any usage of the pred: namespace
-  if (/https?:\/\/predicate\.dev\/meta#/.test(turtle)) {
-    return { ok: false, error: `Uploaded ontology uses the reserved 'pred:' namespace (https://predicate.dev/meta#). Rename or remove those triples.` };
+  if (/https?:\/\/industriagents\.com\/predicate\/meta#/.test(turtle)) {
+    return { ok: false, error: `Uploaded ontology uses the reserved 'pred:' namespace (https://industriagents.com/predicate/meta#). Rename or remove those triples.` };
   }
   return { ok: true };
 }
@@ -1446,13 +1446,13 @@ describe('predicate up — v2.0 legacy migration', () => {
   it('auto-adopts as codebase when kg:tbox has codebase:File but no config', async () => {
     // Simulate v1.13 state: codebase.ttl loaded, no config
     await client.update(`
-      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX cb:  <https://industriagents.com/predicate/codebase#>
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       INSERT DATA { GRAPH <kg:tbox> { cb:File a owl:Class } }
     `);
     await up();
     const configured = await client.ask(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        ASK { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology "codebase" } }`,
     );
     expect(configured).toBe(true);
@@ -1460,14 +1460,14 @@ describe('predicate up — v2.0 legacy migration', () => {
 
   it('skips init when config already exists', async () => {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       INSERT DATA { GRAPH <kg:meta> {
         <urn:predicate:config> a pred:Config ; pred:initOntology "foaf" .
       } }
     `);
     await up();
     const r = await client.select(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        SELECT ?o WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:initOntology ?o } }`,
     );
     expect(r.results.bindings[0]!.o!.value).toBe('foaf');  // unchanged
@@ -1494,7 +1494,7 @@ import { loadConfig } from 'predicate-mcp/src/config.js';
 import { escapeLiteral } from 'predicate-mcp/src/sparql/escape.js';
 import { init } from './init.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const CONFIG_URI = 'urn:predicate:config';
 
 async function checkConfigExists(client: SparqlClient): Promise<boolean> {
@@ -1506,7 +1506,7 @@ async function checkConfigExists(client: SparqlClient): Promise<boolean> {
 
 async function detectLegacyCodebase(client: SparqlClient): Promise<boolean> {
   return client.ask(`
-    PREFIX cb:  <https://predicate.dev/codebase#>
+    PREFIX cb:  <https://industriagents.com/predicate/codebase#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }
   `);
@@ -1591,7 +1591,7 @@ Add to `packages/predicate-cli/tests/sessionstart.test.ts` (within the existing 
 it('includes ontology name in banner when init config exists', async () => {
   const client = new SparqlClient(loadConfig());
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     INSERT DATA { GRAPH <kg:meta> {
       <urn:predicate:config> a pred:Config ; pred:initOntology "codebase" .
     } }
@@ -1603,7 +1603,7 @@ it('includes ontology name in banner when init config exists', async () => {
     expect(line).toContain('(codebase ontology)');
   } finally {
     await client.update(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       DELETE WHERE { GRAPH <kg:meta> { <urn:predicate:config> ?p ?o } }
     `);
   }
@@ -1662,7 +1662,7 @@ const CATALOG = join(here, '..', '..', '..', 'predicate-ontology', 'catalog');
 export async function withCodebaseTBox(client: SparqlClient = new SparqlClient(loadConfig())): Promise<void> {
   // Idempotent: only load if cb:File isn't already present.
   const present = await client.ask(`
-    PREFIX cb:  <https://predicate.dev/codebase#>
+    PREFIX cb:  <https://industriagents.com/predicate/codebase#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }
   `);
@@ -1827,7 +1827,7 @@ Modify `packages/predicate-skill/dashboard/index.html`. Find the existing header
 
 ```javascript
 const cfg = await ask(`
-  PREFIX pred: <https://predicate.dev/meta#>
+  PREFIX pred: <https://industriagents.com/predicate/meta#>
   SELECT ?ontology ?learning WHERE {
     GRAPH <kg:meta> {
       OPTIONAL { <urn:predicate:config> pred:initOntology ?ontology }

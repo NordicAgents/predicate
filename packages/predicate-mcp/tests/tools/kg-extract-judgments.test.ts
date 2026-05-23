@@ -5,7 +5,7 @@ import { kgExtractJudgments } from '../../src/tools/kg-extract-judgments.js';
 import { kgAssert } from '../../src/tools/kg-assert.js';
 
 const client = getAdapter();
-const J = 'https://predicate.dev/judgment#';
+const J = 'https://industriagents.com/predicate/judgment#';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
 beforeAll(async () => {

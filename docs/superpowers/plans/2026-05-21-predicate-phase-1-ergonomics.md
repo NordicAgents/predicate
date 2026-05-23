@@ -46,7 +46,7 @@ import { markAboxDirty, isAboxDirty, clearAboxDirty, materializeIfDirty } from '
 
 const TBOX = `
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix cb: <https://predicate.dev/codebase#> .
+@prefix cb: <https://industriagents.com/predicate/codebase#> .
 cb:calls a owl:ObjectProperty , owl:TransitiveProperty .
 `;
 
@@ -71,8 +71,8 @@ describe('materializeIfDirty', () => {
   it('reasons once when dirty and reports it ran; no-op when clean', async () => {
     const client = new OxigraphAdapter({ storePath: ':memory:' });
     await client.loadTurtle(TBOX, 'kg:tbox');
-    const F = 'https://predicate.dev/codebase/x#';
-    const C = 'https://predicate.dev/codebase#calls';
+    const F = 'https://industriagents.com/predicate/codebase/x#';
+    const C = 'https://industriagents.com/predicate/codebase#calls';
     await client.update(`INSERT DATA { GRAPH <kg:abox> {
       <${F}a> <${C}> <${F}b> . <${F}b> <${C}> <${F}c> . } }`);
     await markAboxDirty(client);
@@ -102,7 +102,7 @@ import { runFixpoint } from 'predicate-reasoner/src/fixpoint.js';
 import { RULES } from 'predicate-reasoner/src/rules/index.js';
 
 const STATE = 'urn:predicate:materialization-state';
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 // Presence-based marker: the triple's presence means "ABox changed since the
 // inferred graph was last materialized". Absent means clean. Re-inserting the
@@ -175,11 +175,11 @@ import { isAboxDirty } from '../src/materialize.js';
 
 const TBOX = `
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix cb: <https://predicate.dev/codebase#> .
+@prefix cb: <https://industriagents.com/predicate/codebase#> .
 cb:calls a owl:ObjectProperty , owl:TransitiveProperty .
 `;
-const C = 'https://predicate.dev/codebase#calls';
-const F = 'https://predicate.dev/codebase/x#';
+const C = 'https://industriagents.com/predicate/codebase#calls';
+const F = 'https://industriagents.com/predicate/codebase/x#';
 const assert = (client: OxigraphAdapter, s: string, o: string) =>
   kgAssert(client, { subject: s, predicate: C, object: { type: 'uri', value: o },
     source: 't', confidence: 0.95, method: 'm' });
@@ -290,7 +290,7 @@ describe('kg_ask without a question', () => {
       sparql: `SELECT ?s WHERE { GRAPH <kg:abox> { ?s <urn:p> <urn:o> } }`,
     });
     expect(r.bindings.map((b) => b['s']!.value)).toContain('urn:s');
-    const log = await client.ask(`PREFIX pred: <https://predicate.dev/meta#> ASK { GRAPH <kg:usage> { ?q a pred:Query } }`);
+    const log = await client.ask(`PREFIX pred: <https://industriagents.com/predicate/meta#> ASK { GRAPH <kg:usage> { ?q a pred:Query } }`);
     expect(log).toBe(true);
   });
 });

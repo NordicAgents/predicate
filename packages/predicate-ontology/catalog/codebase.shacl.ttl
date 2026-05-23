@@ -1,5 +1,5 @@
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
-@prefix :     <https://predicate.dev/codebase#> .
+@prefix :     <https://industriagents.com/predicate/codebase#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 
 :FileShape a sh:NodeShape ;

@@ -16,7 +16,7 @@ async function reset(g: string): Promise<void> {
 
 async function withProv(s: string, p: string, o: string, conf: number): Promise<void> {
   await client.update(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA {
       GRAPH <${A}>          { ${s} ${p} ${o} . }

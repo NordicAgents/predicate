@@ -31,7 +31,7 @@ describe('GoalStore', () => {
     expect(readBack?.statement).toBe('why did login break');
 
     const events = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?e WHERE { GRAPH <kg:meta> { ?e a pred:GoalCreated } }
     `);
     expect(events.results.bindings).toHaveLength(1);
@@ -46,7 +46,7 @@ describe('GoalStore', () => {
     expect(final?.status).toBe('done');
 
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:meta> { ?e a pred:GoalStatusChanged } }
     `);
     expect(parseInt(r.results.bindings[0]!.n!.value, 10)).toBe(2);

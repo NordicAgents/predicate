@@ -172,7 +172,7 @@ Existing `PromotionSweeper` and `Generalizer` classes gain a precheck:
 ```typescript
 private async isSchemaLearningEnabled(client: SparqlClient): Promise<boolean> {
   return client.ask(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      ASK { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled true } }`,
   );
 }
@@ -221,7 +221,7 @@ export async function up(): Promise<number> {
 
   // 4. Sniff for v1.13 legacy state
   const isLegacy = await client.ask(
-    `PREFIX cb: <https://predicate.dev/codebase#>
+    `PREFIX cb: <https://industriagents.com/predicate/codebase#>
      PREFIX owl: <http://www.w3.org/2002/07/owl#>
      ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }`,
   );
@@ -348,7 +348,7 @@ $ predicate init --mode empty
 
 ### Migration sniff false-positives
 
-The v1.13 detection `ASK { <https://predicate.dev/codebase#File> a owl:Class }` could match someone who *uploaded* an ontology that happened to declare that IRI. Mitigation: check that `<urn:predicate:config>` is also absent before treating it as legacy. The failure mode is benign (mode marked as codebase instead of upload; user can `init --force` to fix).
+The v1.13 detection `ASK { <https://industriagents.com/predicate/codebase#File> a owl:Class }` could match someone who *uploaded* an ontology that happened to declare that IRI. Mitigation: check that `<urn:predicate:config>` is also absent before treating it as legacy. The failure mode is benign (mode marked as codebase instead of upload; user can `init --force` to fix).
 
 ## Testing strategy
 

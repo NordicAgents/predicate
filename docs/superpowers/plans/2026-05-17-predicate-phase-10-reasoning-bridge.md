@@ -46,7 +46,7 @@ Modify `packages/predicate-ontology/meta/version.json`: bump `"version": "0.4.0"
 
 Reload: `cd packages/predicate-server && bash scripts/bootstrap-graphs.sh`.
 
-Verify: `curl http://localhost:3030/predicate/query --data-urlencode "query=PREFIX cb: <https://predicate.dev/codebase#> ASK { GRAPH <kg:tbox> { cb:Hotspot a <http://www.w3.org/2002/07/owl#Class> } }" --header "Accept: application/sparql-results+json" | jq -r .boolean` → `true`.
+Verify: `curl http://localhost:3030/predicate/query --data-urlencode "query=PREFIX cb: <https://industriagents.com/predicate/codebase#> ASK { GRAPH <kg:tbox> { cb:Hotspot a <http://www.w3.org/2002/07/owl#Class> } }" --header "Accept: application/sparql-results+json" | jq -r .boolean` → `true`.
 
 Commit: `feat(ontology): add Hotspot/FlakyCommand/ActiveFile classes`.
 
@@ -63,7 +63,7 @@ export const r17: Rule = {
   id: 'r17-hotspot',
   name: 'codebase:Hotspot — file modified in ≥3 sessions',
   insertWhere: (cfg: RuleConfig) => `
-    PREFIX cb:  <https://predicate.dev/codebase#>
+    PREFIX cb:  <https://industriagents.com/predicate/codebase#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     INSERT { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:Hotspot } }
     WHERE {
@@ -94,7 +94,7 @@ export const r18: Rule = {
   id: 'r18-flaky-command',
   name: 'codebase:FlakyCommand — command failed in ≥2 sessions',
   insertWhere: (cfg: RuleConfig) => `
-    PREFIX cb:  <https://predicate.dev/codebase#>
+    PREFIX cb:  <https://industriagents.com/predicate/codebase#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     INSERT { GRAPH <${cfg.inferredGraph}> { ?cmd rdf:type cb:FlakyCommand } }
     WHERE {
@@ -121,8 +121,8 @@ export const r19: Rule = {
   id: 'r19-active-file',
   name: 'codebase:ActiveFile — file modified in the most recent session',
   insertWhere: (cfg: RuleConfig) => `
-    PREFIX cb:   <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     INSERT { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:ActiveFile } }
     WHERE {
@@ -185,16 +185,16 @@ describe('R17 hotspot', () => {
 
   it('derives codebase:Hotspot for files modified in ≥3 distinct sessions', async () => {
     await client.update(`
-      PREFIX cb: <https://predicate.dev/codebase#>
+      PREFIX cb: <https://industriagents.com/predicate/codebase#>
       INSERT DATA { GRAPH <kg:abox> {
         <file:///a.ts> cb:modifiedIn <urn:session:1> ; cb:modifiedIn <urn:session:2> ; cb:modifiedIn <urn:session:3> .
         <file:///b.ts> cb:modifiedIn <urn:session:1> ; cb:modifiedIn <urn:session:2> .
       } }
     `);
     await runFixpoint(client, RULES, cfg);
-    expect(await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+    expect(await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
                               SELECT * WHERE { GRAPH <kg:inferred> { <file:///a.ts> a cb:Hotspot } }`)).toBe(true);
-    expect(await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+    expect(await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
                               SELECT * WHERE { GRAPH <kg:inferred> { <file:///b.ts> a cb:Hotspot } }`)).toBe(false);
   });
 });
@@ -204,16 +204,16 @@ describe('R18 flaky command', () => {
 
   it('derives codebase:FlakyCommand for commands that failed in ≥2 distinct sessions', async () => {
     await client.update(`
-      PREFIX cb: <https://predicate.dev/codebase#>
+      PREFIX cb: <https://industriagents.com/predicate/codebase#>
       INSERT DATA { GRAPH <kg:abox> {
         <urn:bash:flaky> cb:failedIn <urn:session:1> ; cb:failedIn <urn:session:2> .
         <urn:bash:rare>  cb:failedIn <urn:session:1> .
       } }
     `);
     await runFixpoint(client, RULES, cfg);
-    expect(await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+    expect(await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
                               SELECT * WHERE { GRAPH <kg:inferred> { <urn:bash:flaky> a cb:FlakyCommand } }`)).toBe(true);
-    expect(await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+    expect(await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
                               SELECT * WHERE { GRAPH <kg:inferred> { <urn:bash:rare>  a cb:FlakyCommand } }`)).toBe(false);
   });
 });
@@ -223,8 +223,8 @@ describe('R19 active file', () => {
 
   it('derives codebase:ActiveFile only for files modified in the most-recent session', async () => {
     await client.update(`
-      PREFIX cb:   <https://predicate.dev/codebase#>
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA { GRAPH <kg:abox> {
         <urn:session:old>  a pred:Session ; pred:at "2026-01-01T00:00:00Z"^^xsd:dateTime .
@@ -234,9 +234,9 @@ describe('R19 active file', () => {
       } }
     `);
     await runFixpoint(client, RULES, cfg);
-    expect(await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+    expect(await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
                               SELECT * WHERE { GRAPH <kg:inferred> { <file:///new.ts> a cb:ActiveFile } }`)).toBe(true);
-    expect(await inferredHas(`PREFIX cb: <https://predicate.dev/codebase#>
+    expect(await inferredHas(`PREFIX cb: <https://industriagents.com/predicate/codebase#>
                               SELECT * WHERE { GRAPH <kg:inferred> { <file:///old.ts> a cb:ActiveFile } }`)).toBe(false);
   });
 });
@@ -286,8 +286,8 @@ it('runs the OWL fixpoint after sweep — derives Hotspot/FlakyCommand/ActiveFil
   await client.update(`DROP SILENT GRAPH <kg:abox>`);
   await client.update(`CREATE SILENT GRAPH <kg:abox>`);
   await client.update(`
-    PREFIX cb:   <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     INSERT DATA { GRAPH <kg:abox> {
       <urn:session:t1> a pred:Session ; pred:at "2026-05-17T00:00:00Z"^^xsd:dateTime .
@@ -300,7 +300,7 @@ it('runs the OWL fixpoint after sweep — derives Hotspot/FlakyCommand/ActiveFil
   expect(result.fixpoint).toBeDefined();
   expect(result.fixpoint!.inferredCount).toBeGreaterThan(0);
   const hotspot = await client.select(
-    `PREFIX cb: <https://predicate.dev/codebase#>
+    `PREFIX cb: <https://industriagents.com/predicate/codebase#>
      ASK { GRAPH <kg:inferred> { <file:///hot.ts> a cb:Hotspot } }`,
   );
   expect((hotspot as unknown as { boolean: boolean }).boolean).toBe(true);
@@ -326,7 +326,7 @@ The reasoner derives additional classes on top of the raw action data
 Query them directly via `kg:inferred`:
 
 \`\`\`sparql
-PREFIX cb: <https://predicate.dev/codebase#>
+PREFIX cb: <https://industriagents.com/predicate/codebase#>
 SELECT ?file WHERE { GRAPH <kg:inferred> { ?file a cb:Hotspot } }
 \`\`\`
 ```

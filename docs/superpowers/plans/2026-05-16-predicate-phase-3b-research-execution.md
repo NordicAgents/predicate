@@ -372,9 +372,9 @@ The three extractors:
 | `EnvVarExtractor` | `find-readers-of`, `find-dependencies` | `<env> rdf:type :EnvVar`, `<fn> :reads <env>` | 1.0 / 0.6 (heuristic association) |
 
 The IRI scheme matches what Phase 1 used in `predicate-eval/src/load-corpus.ts`:
-- `https://predicate.dev/codebase/<fileBasename>` for file IRIs
-- `https://predicate.dev/codebase/<fileBasename>#<sym>` for symbol IRIs
-- `https://predicate.dev/codebase/env/<NAME>` for env-var IRIs
+- `https://industriagents.com/predicate/codebase/<fileBasename>` for file IRIs
+- `https://industriagents.com/predicate/codebase/<fileBasename>#<sym>` for symbol IRIs
+- `https://industriagents.com/predicate/codebase/env/<NAME>` for env-var IRIs
 
 **Files:**
 - Create: `packages/predicate-agent/src/extractor.ts`
@@ -393,7 +393,7 @@ function artifact(uri: string, content: string): ResearchArtifact {
   return { source: 'docs', uri, content, metadata: {} };
 }
 
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
 describe('ImportExtractor', () => {
@@ -516,7 +516,7 @@ Expected: FAIL — module not found.
 import { basename } from 'node:path';
 import type { CandidateTriple, ResearchArtifact, SubQuestionIntent } from './types.js';
 
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
 function fileIri(uri: string): { iri: string; basename: string } {
@@ -721,9 +721,9 @@ describe('researchGoal with executeResearch=true', () => {
     expect(total).toBeGreaterThanOrEqual(6);
 
     const ok = await client.ask(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/auth.ts> c:imports <https://predicate.dev/codebase/jwt.ts>
+        <https://industriagents.com/predicate/codebase/auth.ts> c:imports <https://industriagents.com/predicate/codebase/jwt.ts>
       } }
     `);
     expect(ok).toBe(true);
@@ -1045,9 +1045,9 @@ describe('kg_research_goal with executeResearch=true', () => {
     expect(total).toBeGreaterThan(0);
 
     const ok = await client.ask(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/a.ts> c:imports <https://predicate.dev/codebase/b.ts>
+        <https://industriagents.com/predicate/codebase/a.ts> c:imports <https://industriagents.com/predicate/codebase/b.ts>
       } }
     `);
     expect(ok).toBe(true);
@@ -1126,17 +1126,17 @@ describe('research loop end-to-end against the demo corpus', () => {
     expect(total).toBeGreaterThanOrEqual(6);
 
     const importOk = await client.ask(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/auth.ts> c:imports <https://predicate.dev/codebase/jwt.ts>
+        <https://industriagents.com/predicate/codebase/auth.ts> c:imports <https://industriagents.com/predicate/codebase/jwt.ts>
       } }
     `);
     expect(importOk).toBe(true);
 
     const envReadOk = await client.ask(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/jwt.ts#verifyJwt> c:reads <https://predicate.dev/codebase/env/JWT_SECRET>
+        <https://industriagents.com/predicate/codebase/jwt.ts#verifyJwt> c:reads <https://industriagents.com/predicate/codebase/env/JWT_SECRET>
       } }
     `);
     expect(envReadOk).toBe(true);

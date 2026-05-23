@@ -1,7 +1,7 @@
 import { basename } from 'node:path';
 import type { CandidateTriple, ResearchArtifact, SubQuestionIntent } from './types.js';
 
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
 function fileIri(uri: string): { iri: string; basename: string } {

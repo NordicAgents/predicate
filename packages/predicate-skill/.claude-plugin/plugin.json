@@ -1,6 +1,6 @@
 {
   "name": "predicate",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "description": "Local reasoning knowledge graph (RDF/OWL) for AI agents — 9 kg_* MCP tools + cross-platform Stop-hook turn extraction (Claude Code + Codex CLI + Gemini CLI) + reasoning bridge for action data. Disk-backed native Oxigraph by default, in-process WASM fallback.",
   "author": {
     "name": "Nordic Agents Research",

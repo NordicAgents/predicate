@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 
-const META = 'https://predicate.dev/meta#';
-const CB   = 'https://predicate.dev/codebase#';
+const META = 'https://industriagents.com/predicate/meta#';
+const CB   = 'https://industriagents.com/predicate/codebase#';
 const RDF  = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const XSD  = 'http://www.w3.org/2001/XMLSchema#';
 

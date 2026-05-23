@@ -2,7 +2,7 @@ import type { StorageAdapter } from '../storage/index.js';
 import { GRAPH } from '../graphs.js';
 import { escapeIRI, escapeLiteral } from '../sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 export interface CaptureInput {
   toolName: string;

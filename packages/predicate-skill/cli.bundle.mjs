@@ -600,7 +600,7 @@ var init_oxigraph = __esm({
        * @param proposalId  The IRI of the proposal whose annotation quads should be removed
        */
       deleteRdfStarAnnotationsForProposal(graphIri, proposalId) {
-        const PROPOSAL_PRED = "https://predicate.dev/meta#proposalId";
+        const PROPOSAL_PRED = "https://industriagents.com/predicate/meta#proposalId";
         const graphNode = namedNode(graphIri);
         const proposalNode = namedNode(proposalId);
         const annotationQuads = [
@@ -18341,7 +18341,7 @@ import { join as join7, dirname as dirname3, resolve as resolve3 } from "node:pa
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { createInterface } from "node:readline/promises";
 init_src();
-var META = "https://predicate.dev/meta#";
+var META = "https://industriagents.com/predicate/meta#";
 var CONFIG_URI = "urn:predicate:config";
 var MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 function parseFlag(args, name) {
@@ -18433,8 +18433,8 @@ async function writeConfig(client, mode, ontology) {
   `);
 }
 function validateUserUpload(turtle) {
-  if (/https?:\/\/predicate\.dev\/meta#/.test(turtle)) {
-    return { ok: false, error: `Uploaded ontology uses the reserved 'pred:' namespace (https://predicate.dev/meta#). Rename or remove those triples.` };
+  if (/https?:\/\/industriagents\.com\/predicate\/meta#/.test(turtle)) {
+    return { ok: false, error: `Uploaded ontology uses the reserved 'pred:' namespace (https://industriagents.com/predicate/meta#). Rename or remove those triples.` };
   }
   return { ok: true };
 }
@@ -18585,7 +18585,7 @@ async function init(args) {
 }
 
 // ../predicate-cli/src/commands/up.ts
-var META2 = "https://predicate.dev/meta#";
+var META2 = "https://industriagents.com/predicate/meta#";
 var CONFIG_URI2 = "urn:predicate:config";
 async function checkConfigExists2(client) {
   return client.ask(`
@@ -18595,7 +18595,7 @@ async function checkConfigExists2(client) {
 }
 async function detectLegacyCodebase(client) {
   return client.ask(`
-    PREFIX cb:  <https://predicate.dev/codebase#>
+    PREFIX cb:  <https://industriagents.com/predicate/codebase#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }
   `);
@@ -18942,7 +18942,7 @@ async function unusedConceptRatio(client, classCount) {
 }
 async function materializationLatencyP95(client) {
   const r2 = await client.select(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?payload WHERE {
       GRAPH <kg:meta> {
         ?e a pred:MaterializationCompleted ;
@@ -19007,7 +19007,7 @@ async function stats() {
 
 // ../predicate-cli/src/commands/sessionstart.ts
 init_storage();
-var META3 = "https://predicate.dev/meta#";
+var META3 = "https://industriagents.com/predicate/meta#";
 var OWL = "http://www.w3.org/2002/07/owl#";
 async function sessionstart() {
   const client = getAdapter();
@@ -22657,7 +22657,7 @@ var { HUMAN_PROMPT, AI_PROMPT } = Anthropic;
 var sdk_default = Anthropic;
 
 // ../predicate-agent/src/gap-detector.ts
-var C2 = "https://predicate.dev/codebase#";
+var C2 = "https://industriagents.com/predicate/codebase#";
 var REQUIRED_PREDICATES = {
   "why-broken": [`${C2}dependsOn`, `${C2}lastModifiedIn`],
   "find-callers": [`${C2}calls`],
@@ -22784,7 +22784,7 @@ function closureEligible(s2, p2, o2, cfg) {
       GRAPH <${g2}> { ${s2} ${p2} ${o2} }
       FILTER EXISTS {
         GRAPH <kg:provenance> {
-          << ${s2} ${p2} ${o2} >> <https://predicate.dev/meta#confidence> ?conf .
+          << ${s2} ${p2} ${o2} >> <https://industriagents.com/predicate/meta#confidence> ?conf .
           FILTER (?conf >= ${cfg.closureCutoff})
         }
       }
@@ -23209,7 +23209,7 @@ var r17 = {
   insertWhere: (cfg) => {
     const abox = cfg.aboxGraphs[0] ?? "kg:abox";
     return `
-      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX cb:  <https://industriagents.com/predicate/codebase#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       INSERT { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:Hotspot } }
       WHERE {
@@ -23233,7 +23233,7 @@ var r18 = {
   insertWhere: (cfg) => {
     const abox = cfg.aboxGraphs[0] ?? "kg:abox";
     return `
-      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX cb:  <https://industriagents.com/predicate/codebase#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       INSERT { GRAPH <${cfg.inferredGraph}> { ?cmd rdf:type cb:FlakyCommand } }
       WHERE {
@@ -23256,8 +23256,8 @@ var r19 = {
   insertWhere: (cfg) => {
     const abox = cfg.aboxGraphs[0] ?? "kg:abox";
     return `
-      PREFIX cb:   <https://predicate.dev/codebase#>
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX cb:   <https://industriagents.com/predicate/codebase#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       INSERT { GRAPH <${cfg.inferredGraph}> { ?file rdf:type cb:ActiveFile } }
       WHERE {
@@ -23277,7 +23277,7 @@ var r19 = {
 };
 
 // ../predicate-reasoner/src/rules/r20-current-judgment.ts
-var J2 = "https://predicate.dev/judgment#";
+var J2 = "https://industriagents.com/predicate/judgment#";
 var r20 = {
   id: "r20-current-judgment",
   name: "j:Current \u2014 a judgment with no j:supersededBy",
@@ -23301,7 +23301,7 @@ var r20 = {
 };
 
 // ../predicate-reasoner/src/rules/r21-unresolved-conflict.ts
-var J3 = "https://predicate.dev/judgment#";
+var J3 = "https://industriagents.com/predicate/judgment#";
 var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 var UNRESOLVED = `${J3}UnresolvedConflict`;
 var ABOUT = `${J3}about`;
@@ -23419,7 +23419,7 @@ var RULES = [
 
 // ../predicate-mcp/src/materialize.ts
 var STATE = "urn:predicate:materialization-state";
-var META4 = "https://predicate.dev/meta#";
+var META4 = "https://industriagents.com/predicate/meta#";
 async function markAboxDirty(client) {
   await client.update(
     `PREFIX pred: <${META4}> INSERT DATA { GRAPH <kg:meta> { <${STATE}> pred:aboxDirty true } }`
@@ -23486,7 +23486,7 @@ async function kgAssert(client, t2) {
   const s2 = escapeIRI(t2.subject);
   const p2 = escapeIRI(t2.predicate);
   const o2 = renderObject(t2.object);
-  const META_NS = "https://predicate.dev/meta#";
+  const META_NS = "https://industriagents.com/predicate/meta#";
   const aboxG = escapeIRI(GRAPH.abox);
   const provG = escapeIRI(GRAPH.provenance);
   const star = `<< ${s2} ${p2} ${o2} >>`;
@@ -23507,7 +23507,7 @@ async function kgAssert(client, t2) {
 }
 
 // ../predicate-agent/src/schema-proposer.ts
-var META5 = "https://predicate.dev/meta#";
+var META5 = "https://industriagents.com/predicate/meta#";
 var DEFAULT_TTL_DAYS = 7;
 function newProposalId() {
   const ts = Date.now().toString(36);
@@ -28543,7 +28543,7 @@ async function unsatisfiableClasses(client, tboxView, inferred) {
 }
 
 // ../predicate-reasoner/src/explain.ts
-var META6 = "https://predicate.dev/meta#";
+var META6 = "https://industriagents.com/predicate/meta#";
 var MAX_DEPTH = 8;
 function quadKey(q2) {
   const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
@@ -28658,7 +28658,7 @@ var FusekiConstructAdapter = class {
 };
 
 // ../predicate-agent/src/promotion-sweeper.ts
-var META7 = "https://predicate.dev/meta#";
+var META7 = "https://industriagents.com/predicate/meta#";
 function newEventId2(kind2) {
   return `urn:predicate:event:${kind2}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -29030,7 +29030,7 @@ var Generalizer = class {
   k;
   async isSchemaLearningEnabled() {
     const r2 = await this.client.select(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        SELECT ?v WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:schemaLearningEnabled ?v } }`
     );
     const b2 = r2.results.bindings[0];
@@ -29167,7 +29167,7 @@ function pickStr(o2, keys) {
 }
 
 // ../predicate-mcp/src/tools/kg-maintain.ts
-var META8 = "https://predicate.dev/meta#";
+var META8 = "https://industriagents.com/predicate/meta#";
 async function kgMaintain(client, input = {}) {
   const archiveCutoff = input.archiveCutoff ?? 0.6;
   const ageDays = input.ageDays ?? 30;
@@ -29284,7 +29284,7 @@ init_storage();
 
 // ../predicate-mcp/src/tools/kg-capture.ts
 init_graphs();
-var META9 = "https://predicate.dev/meta#";
+var META9 = "https://industriagents.com/predicate/meta#";
 function truncate(s2, max) {
   if (s2.length <= max) return s2;
   const extra = s2.length - max;
@@ -29441,7 +29441,7 @@ import { basename as basename2, join as join9 } from "node:path";
 
 // ../predicate-cli/src/commands/replay-rebuild.ts
 init_storage();
-var META10 = "https://predicate.dev/meta#";
+var META10 = "https://industriagents.com/predicate/meta#";
 function renderObject2(o2) {
   if (o2.type === "uri") return escapeIRI(o2.value);
   return o2.datatype ? `${escapeLiteral(o2.value)}^^${escapeIRI(o2.datatype)}` : escapeLiteral(o2.value);
@@ -29508,8 +29508,8 @@ async function deleteExtractedSlice(client, sessionId) {
 
 // ../predicate-agent/src/turn-extractor.ts
 import { createHash as createHash4 } from "node:crypto";
-var META11 = "https://predicate.dev/meta#";
-var CB = "https://predicate.dev/codebase#";
+var META11 = "https://industriagents.com/predicate/meta#";
+var CB = "https://industriagents.com/predicate/codebase#";
 var RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 var XSD = "http://www.w3.org/2001/XMLSchema#";
 function uri(value) {
@@ -29987,8 +29987,8 @@ Options:
 `);
 }
 async function fetchSessions(client, limit) {
-  const META14 = "https://predicate.dev/meta#";
-  const CB2 = "https://predicate.dev/codebase#";
+  const META14 = "https://industriagents.com/predicate/meta#";
+  const CB2 = "https://industriagents.com/predicate/codebase#";
   const rows = await client.select(
     `PREFIX pred: <${META14}>
      PREFIX cb:   <${CB2}>
@@ -30081,7 +30081,7 @@ Options:
 `);
 }
 async function fetchCaptures(client, opts) {
-  const META14 = "https://predicate.dev/meta#";
+  const META14 = "https://industriagents.com/predicate/meta#";
   const toolFilter = opts.tool ? `FILTER (?tool = "${opts.tool.replace(/"/g, '\\"')}")` : "";
   const r2 = await client.select(
     `PREFIX pred: <${META14}>
@@ -30182,8 +30182,8 @@ function escapeSparqlLiteral(s2) {
   return s2.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 async function searchFiles(client, query, limit) {
-  const CB2 = "https://predicate.dev/codebase#";
-  const META14 = "https://predicate.dev/meta#";
+  const CB2 = "https://industriagents.com/predicate/codebase#";
+  const META14 = "https://industriagents.com/predicate/meta#";
   const r2 = await client.select(
     `PREFIX cb:   <${CB2}>
      PREFIX pred: <${META14}>
@@ -30206,7 +30206,7 @@ async function searchFiles(client, query, limit) {
   }));
 }
 async function searchCommands(client, query, limit) {
-  const CB2 = "https://predicate.dev/codebase#";
+  const CB2 = "https://industriagents.com/predicate/codebase#";
   const r2 = await client.select(
     `PREFIX cb: <${CB2}>
      SELECT ?text
@@ -30419,7 +30419,7 @@ async function runAction(req, res) {
 }
 async function fetchDigest(fusekiUrl, dataset2) {
   const sparql = `
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sessions ?sessionsMaxAt ?staging ?inferred
     WHERE {
       { SELECT (COUNT(DISTINCT ?s) AS ?sessions) (COALESCE(MAX(?at), "") AS ?sessionsMaxAt)
@@ -30593,7 +30593,7 @@ async function dashboard(args) {
 
 // ../predicate-cli/src/commands/schema.ts
 init_storage();
-var META12 = "https://predicate.dev/meta#";
+var META12 = "https://industriagents.com/predicate/meta#";
 var PROPOSAL_IRI2 = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
 function help8() {
   console.log(`predicate schema <verb> [args]
@@ -30714,7 +30714,7 @@ async function schema(args) {
 init_storage();
 
 // ../predicate-mcp/src/tools/kg-config.ts
-var META13 = "https://predicate.dev/meta#";
+var META13 = "https://industriagents.com/predicate/meta#";
 var CONFIG_URI3 = "urn:predicate:config";
 var KEY_TO_PROP = {
   "schema-learning": { prop: "schemaLearningEnabled", type: "boolean" },
@@ -30973,7 +30973,7 @@ async function install(args) {
 }
 
 // ../predicate-cli/src/index.ts
-var VERSION2 = true ? "2.7.1" : "0.0.0-dev";
+var VERSION2 = true ? "2.8.0" : "0.0.0-dev";
 function help10() {
   console.log(`predicate <command>
 

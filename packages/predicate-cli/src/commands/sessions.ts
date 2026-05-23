@@ -36,8 +36,8 @@ Options:
 }
 
 async function fetchSessions(client: StorageAdapter, limit: number): Promise<SessionRow[]> {
-  const META = 'https://predicate.dev/meta#';
-  const CB   = 'https://predicate.dev/codebase#';
+  const META = 'https://industriagents.com/predicate/meta#';
+  const CB   = 'https://industriagents.com/predicate/codebase#';
   const rows = await client.select(
     `PREFIX pred: <${META}>
      PREFIX cb:   <${CB}>

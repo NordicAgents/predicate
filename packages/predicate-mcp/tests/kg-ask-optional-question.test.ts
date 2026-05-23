@@ -10,7 +10,7 @@ describe('kg_ask without a question', () => {
       sparql: `SELECT ?s WHERE { GRAPH <kg:abox> { ?s <urn:p> <urn:o> } }`,
     });
     expect(r.bindings.map((b) => b['s']!.value)).toContain('urn:s');
-    const log = await client.ask(`PREFIX pred: <https://predicate.dev/meta#> ASK { GRAPH <kg:usage> { ?q a pred:Query } }`);
+    const log = await client.ask(`PREFIX pred: <https://industriagents.com/predicate/meta#> ASK { GRAPH <kg:usage> { ?q a pred:Query } }`);
     expect(log).toBe(true);
   });
 });

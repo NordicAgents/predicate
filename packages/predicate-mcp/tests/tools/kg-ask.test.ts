@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase#';
+const C = 'https://industriagents.com/predicate/codebase#';
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);
@@ -28,9 +28,9 @@ beforeEach(async () => {
   await reset('kg:provenance');
   await reset('kg:usage');
   await kgAssert(client, {
-    subject: 'https://predicate.dev/codebase/auth.ts',
+    subject: 'https://industriagents.com/predicate/codebase/auth.ts',
     predicate: `${C}imports`,
-    object: { type: 'uri', value: 'https://predicate.dev/codebase/jwt.ts' },
+    object: { type: 'uri', value: 'https://industriagents.com/predicate/codebase/jwt.ts' },
     source: 'parse', confidence: 1, method: 'parse',
   });
 });
@@ -42,20 +42,20 @@ describe('kg_ask', () => {
       sparql: `
         PREFIX c: <${C}>
         SELECT ?o WHERE { GRAPH <kg:abox> {
-          <https://predicate.dev/codebase/auth.ts> c:imports ?o } }
+          <https://industriagents.com/predicate/codebase/auth.ts> c:imports ?o } }
       `,
     });
     expect(r.bindings).toHaveLength(1);
-    expect(r.bindings[0]!.o!.value).toBe('https://predicate.dev/codebase/jwt.ts');
+    expect(r.bindings[0]!.o!.value).toBe('https://industriagents.com/predicate/codebase/jwt.ts');
     expect(r.truncated).toBe(false);
   });
 
   it('truncates results to maxRows and sets truncated flag', async () => {
     for (let i = 0; i < 5; i++) {
       await kgAssert(client, {
-        subject: `https://predicate.dev/codebase/auth.ts`,
+        subject: `https://industriagents.com/predicate/codebase/auth.ts`,
         predicate: `${C}imports`,
-        object: { type: 'uri', value: `https://predicate.dev/codebase/dep${i}.ts` },
+        object: { type: 'uri', value: `https://industriagents.com/predicate/codebase/dep${i}.ts` },
         source: 'p', confidence: 1, method: 'p',
       });
     }
@@ -64,7 +64,7 @@ describe('kg_ask', () => {
       sparql: `
         PREFIX c: <${C}>
         SELECT ?o WHERE { GRAPH <kg:abox> {
-          <https://predicate.dev/codebase/auth.ts> c:imports ?o } }
+          <https://industriagents.com/predicate/codebase/auth.ts> c:imports ?o } }
       `,
       maxRows: 3,
     });

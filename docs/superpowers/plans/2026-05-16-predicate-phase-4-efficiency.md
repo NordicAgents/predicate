@@ -152,7 +152,7 @@ describe('kg_stats', () => {
   it('unusedConceptRatio drops when an abox instance is typed as a tbox class', async () => {
     await client.update(`
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX c:   <https://predicate.dev/codebase#>
+      PREFIX c:   <https://industriagents.com/predicate/codebase#>
       INSERT DATA { GRAPH <kg:abox> { <urn:x> rdf:type c:File } }
     `);
     const s = await kgStats(client);
@@ -222,7 +222,7 @@ async function materializationLatencyP95(client: SparqlClient): Promise<number> 
   // in v1, but the contract is wired so future phases can add them without
   // touching kg_stats). Returns 0 when no such events exist.
   const r = await client.select(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?ms WHERE {
       GRAPH <kg:meta> {
         ?e a pred:MaterializationCompleted ;
@@ -429,7 +429,7 @@ describe('Generalizer', () => {
     // The proposal landed in kg:tbox-staging
     const proposalIri = result.proposals[0]!.proposalId;
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?kind WHERE { GRAPH <kg:tbox-staging> { <${proposalIri}> pred:kind ?kind } }
     `);
     expect(r.results.bindings[0]!.kind!.value).toBe('add-class');
@@ -676,7 +676,7 @@ import {
   Generalizer, type GeneralizerResult,
 } from 'predicate-agent/src/index.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 export interface MaintainInput {
   archiveCutoff?: number;

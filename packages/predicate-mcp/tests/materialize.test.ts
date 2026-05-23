@@ -5,7 +5,7 @@ import { kgAssert } from '../src/tools/kg-assert.js';
 
 const TBOX = `
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix cb: <https://predicate.dev/codebase#> .
+@prefix cb: <https://industriagents.com/predicate/codebase#> .
 cb:calls a owl:ObjectProperty , owl:TransitiveProperty .
 `;
 
@@ -30,8 +30,8 @@ describe('materializeIfDirty', () => {
   it('reasons once when dirty and reports it ran; no-op when clean', async () => {
     const client = new OxigraphAdapter({ storePath: ':memory:' });
     await client.loadTurtle(TBOX, 'kg:tbox');
-    const F = 'https://predicate.dev/codebase/x#';
-    const C = 'https://predicate.dev/codebase#calls';
+    const F = 'https://industriagents.com/predicate/codebase/x#';
+    const C = 'https://industriagents.com/predicate/codebase#calls';
     const assert = (s: string, o: string) =>
       kgAssert(client, { subject: s, predicate: C, object: { type: 'uri', value: o },
         source: 't', confidence: 0.95, method: 'm' });

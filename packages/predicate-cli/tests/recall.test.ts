@@ -12,15 +12,15 @@ async function reset(): Promise<void> {
 
 async function seedSession(sessionId: string, at: string): Promise<void> {
   const s = `<urn:predicate:session:${sessionId}>`;
-  const triples = `${s} a <https://predicate.dev/meta#Session> .
-                   ${s} <https://predicate.dev/meta#sessionId> "${sessionId}" .
-                   ${s} <https://predicate.dev/meta#at> "${at}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .`;
+  const triples = `${s} a <https://industriagents.com/predicate/meta#Session> .
+                   ${s} <https://industriagents.com/predicate/meta#sessionId> "${sessionId}" .
+                   ${s} <https://industriagents.com/predicate/meta#at> "${at}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .`;
   await client.update(`INSERT DATA { GRAPH <kg:abox> { ${triples} } }`);
 }
 
 async function seedFileModified(fileIri: string, sessionId: string): Promise<void> {
   const s = `<urn:predicate:session:${sessionId}>`;
-  const triples = `<${fileIri}> <https://predicate.dev/codebase#modifiedIn> ${s} .`;
+  const triples = `<${fileIri}> <https://industriagents.com/predicate/codebase#modifiedIn> ${s} .`;
   await client.update(`INSERT DATA { GRAPH <kg:abox> { ${triples} } }`);
 }
 
@@ -32,13 +32,13 @@ async function seedCommand(
 ): Promise<void> {
   const c = `<urn:predicate:cmd:${cmdId}>`;
   const escaped = text.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-  let triples = `${c} a <https://predicate.dev/codebase#Command> .
-                 ${c} <https://predicate.dev/codebase#commandText> "${escaped}" .`;
+  let triples = `${c} a <https://industriagents.com/predicate/codebase#Command> .
+                 ${c} <https://industriagents.com/predicate/codebase#commandText> "${escaped}" .`;
   for (const sid of okSessions) {
-    triples += `\n${c} <https://predicate.dev/codebase#succeededIn> <urn:predicate:session:${sid}> .`;
+    triples += `\n${c} <https://industriagents.com/predicate/codebase#succeededIn> <urn:predicate:session:${sid}> .`;
   }
   for (const sid of badSessions) {
-    triples += `\n${c} <https://predicate.dev/codebase#failedIn> <urn:predicate:session:${sid}> .`;
+    triples += `\n${c} <https://industriagents.com/predicate/codebase#failedIn> <urn:predicate:session:${sid}> .`;
   }
   await client.update(`INSERT DATA { GRAPH <kg:abox> { ${triples} } }`);
 }

@@ -16,7 +16,7 @@ beforeEach(async () => {
 });
 
 describe('SchemaProposer', () => {
-  const C = 'https://predicate.dev/codebase';
+  const C = 'https://industriagents.com/predicate/codebase';
 
   const addServiceDelta: SchemaDelta = {
     kind: 'add-class',
@@ -45,7 +45,7 @@ describe('SchemaProposer', () => {
     expect(ok).toBe(true);
 
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT (COUNT(*) AS ?n) WHERE {
         GRAPH <kg:tbox-staging> {
           << <${C}#Service> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> >>
@@ -62,7 +62,7 @@ describe('SchemaProposer', () => {
       motivatingGoal: `${C}/goals/G-123`,
     });
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?just ?goal ?expires WHERE {
         GRAPH <kg:tbox-staging> {
           <${id}> pred:justification ?just ;
@@ -78,7 +78,7 @@ describe('SchemaProposer', () => {
   it('emits a pred:SchemaProposed event in kg:meta', async () => {
     const id = await proposer.propose(addServiceDelta, { justification: 'x' });
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?e WHERE {
         GRAPH <kg:meta> {
           ?e a pred:SchemaProposed ;
@@ -102,7 +102,7 @@ describe('SchemaProposer', () => {
     const id = await proposer.propose(delta, { justification: 'split services' });
     expect(id).toMatch(/^urn:predicate:proposal:/);
     const ok = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:tbox-staging> { <${id}> pred:parent <${C}#Service> } }
     `);
     expect(ok).toBe(true);
@@ -121,11 +121,11 @@ describe('SchemaProposer', () => {
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#ObjectProperty' },
       }],
-      migration: 'DELETE { ?s <https://predicate.dev/codebase#oldProp> ?o } INSERT { ?s <https://predicate.dev/codebase#newProp> ?o } WHERE { ?s <https://predicate.dev/codebase#oldProp> ?o }',
+      migration: 'DELETE { ?s <https://industriagents.com/predicate/codebase#oldProp> ?o } INSERT { ?s <https://industriagents.com/predicate/codebase#newProp> ?o } WHERE { ?s <https://industriagents.com/predicate/codebase#oldProp> ?o }',
     };
     const id = await proposer.propose(delta, { justification: 'rename' });
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?m WHERE { GRAPH <kg:tbox-staging> { <${id}> pred:migration ?m } }
     `);
     expect(r.results.bindings[0]!.m!.value).toContain('INSERT');

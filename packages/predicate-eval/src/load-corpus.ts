@@ -5,8 +5,8 @@ import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 import { withCodebaseTBox } from 'predicate-mcp/tests/fixtures/with-codebase.js';
 
-const C = 'https://predicate.dev/codebase#';
-const DOM = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase#';
+const DOM = 'https://industriagents.com/predicate/codebase';
 const ROOT = join(import.meta.dirname, '..', 'fixtures', 'demo-corpus');
 
 function iriForFile(name: string): string { return `${DOM}/${name}`; }

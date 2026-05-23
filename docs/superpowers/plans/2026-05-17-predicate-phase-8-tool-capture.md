@@ -152,7 +152,7 @@ Expected: `bootstrap complete` on last line. (The script appends to kg:tbox; dup
 
 ```bash
 curl -fsS http://localhost:3030/predicate/query \
-  --data-urlencode "query=PREFIX pred: <https://predicate.dev/meta#> ASK { GRAPH <kg:tbox> { pred:ToolCall a <http://www.w3.org/2002/07/owl#Class> } }" \
+  --data-urlencode "query=PREFIX pred: <https://industriagents.com/predicate/meta#> ASK { GRAPH <kg:tbox> { pred:ToolCall a <http://www.w3.org/2002/07/owl#Class> } }" \
   --header "Accept: application/sparql-results+json" | jq -r .boolean
 ```
 
@@ -202,7 +202,7 @@ async function reset(): Promise<void> {
 
 async function captureCount(): Promise<number> {
   const r = await client.select(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      SELECT (COUNT(*) AS ?n) WHERE {
        GRAPH <kg:usage> { ?c a pred:ToolCall }
      }`,
@@ -238,7 +238,7 @@ describe('kg_capture', () => {
         phase: 'post',
       });
       const stored = await client.select(
-        `PREFIX pred: <https://predicate.dev/meta#>
+        `PREFIX pred: <https://industriagents.com/predicate/meta#>
          SELECT ?input ?output WHERE {
            GRAPH <kg:usage> {
              <${result.captureId}> pred:toolInput ?input ;
@@ -265,7 +265,7 @@ describe('kg_capture', () => {
       phase: 'pre',
     });
     const r = await client.select(
-      `PREFIX pred: <https://predicate.dev/meta#>
+      `PREFIX pred: <https://industriagents.com/predicate/meta#>
        SELECT (BOUND(?o) AS ?hasOutput) WHERE {
          GRAPH <kg:usage> {
            <${result.captureId}> pred:phase "pre" .
@@ -303,7 +303,7 @@ import { SparqlClient } from '../sparql/client.js';
 import { GRAPH } from '../graphs.js';
 import { escapeIRI, escapeLiteral } from '../sparql/escape.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 export interface CaptureInput {
   toolName: string;
@@ -517,7 +517,7 @@ async function reset(): Promise<void> {
 
 async function captureCount(): Promise<number> {
   const r = await client.select(
-    `PREFIX pred: <https://predicate.dev/meta#>
+    `PREFIX pred: <https://industriagents.com/predicate/meta#>
      SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:usage> { ?c a pred:ToolCall } }`,
   );
   return parseInt(r.results.bindings[0]!.n!.value, 10);
@@ -775,7 +775,7 @@ pnpm --filter predicate-skill run bundle
 node packages/predicate-skill/cli.bundle.mjs capture --tool Read --phase post --input '{"file_path":"/foo.ts"}'
 # Expected: no output, exit 0
 curl -fsS http://localhost:3030/predicate/query \
-  --data-urlencode "query=PREFIX pred: <https://predicate.dev/meta#> SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:usage> { ?c a pred:ToolCall } }" \
+  --data-urlencode "query=PREFIX pred: <https://industriagents.com/predicate/meta#> SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:usage> { ?c a pred:ToolCall } }" \
   --header "Accept: application/sparql-results+json" | jq -r '.results.bindings[0].n.value'
 ```
 
@@ -863,7 +863,7 @@ Expected: `exit=0`. Verify the capture landed:
 
 ```bash
 curl -fsS http://localhost:3030/predicate/query \
-  --data-urlencode "query=PREFIX pred: <https://predicate.dev/meta#> SELECT ?phase WHERE { GRAPH <kg:usage> { ?c a pred:ToolCall ; pred:phase ?phase ; pred:sessionId \"ses-test\" } } ORDER BY DESC(?phase) LIMIT 1" \
+  --data-urlencode "query=PREFIX pred: <https://industriagents.com/predicate/meta#> SELECT ?phase WHERE { GRAPH <kg:usage> { ?c a pred:ToolCall ; pred:phase ?phase ; pred:sessionId \"ses-test\" } } ORDER BY DESC(?phase) LIMIT 1" \
   --header "Accept: application/sparql-results+json" | jq -r '.results.bindings[0].phase.value'
 ```
 
@@ -942,7 +942,7 @@ Expected: `exit=0`. Verify:
 
 ```bash
 curl -fsS http://localhost:3030/predicate/query \
-  --data-urlencode "query=PREFIX pred: <https://predicate.dev/meta#> SELECT ?phase ?output WHERE { GRAPH <kg:usage> { ?c a pred:ToolCall ; pred:phase ?phase ; pred:sessionId \"ses-post\" ; pred:toolOutput ?output } } LIMIT 1" \
+  --data-urlencode "query=PREFIX pred: <https://industriagents.com/predicate/meta#> SELECT ?phase ?output WHERE { GRAPH <kg:usage> { ?c a pred:ToolCall ; pred:phase ?phase ; pred:sessionId \"ses-post\" ; pred:toolOutput ?output } } LIMIT 1" \
   --header "Accept: application/sparql-results+json" | jq -r '.results.bindings[0] | .phase.value + " | " + .output.value'
 ```
 

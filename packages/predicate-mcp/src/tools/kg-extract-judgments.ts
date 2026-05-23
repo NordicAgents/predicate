@@ -2,7 +2,7 @@ import type { StorageAdapter } from '../storage/index.js';
 import { kgExploreSchema, type SchemaSlice, type ClassSlice, type PropertySlice } from './kg-explore-schema.js';
 import { escapeIRI } from '../sparql/escape.js';
 
-const J = 'https://predicate.dev/judgment#';
+const J = 'https://industriagents.com/predicate/judgment#';
 
 export interface JudgmentSummary {
   judgment: string;   // the j:Judgment IRI

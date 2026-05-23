@@ -57,7 +57,7 @@ import { SchemaProposer } from '../src/schema-proposer.js';
 import { PromotionSweeper } from '../src/promotion-sweeper.js';
 
 const client = new SparqlClient(loadConfig());
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);
@@ -93,7 +93,7 @@ describe('PromotionSweeper.promoteById', () => {
     expect(result.outcome).toBe('promoted');
 
     const events = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?actor WHERE {
         GRAPH <kg:meta> {
           ?e a pred:SchemaPromoted ; pred:actor ?actor ; pred:goal <${id}> .
@@ -233,13 +233,13 @@ describe('PromotionSweeper.rejectById', () => {
     expect(result.outcome).toBe('rejected-expired');
 
     const stillThere = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:tbox-staging> { <${id}> a pred:Proposal } }
     `);
     expect(stillThere).toBe(false);
 
     const events = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?actor ?payload WHERE {
         GRAPH <kg:meta> {
           ?e a pred:SchemaRejected ; pred:actor ?actor ; pred:goal <${id}> ; pred:payload ?payload .
@@ -300,7 +300,7 @@ import { SchemaProposer } from 'predicate-agent/src/schema-proposer.js';
 import { schema } from '../src/commands/schema.js';
 
 const client = new SparqlClient(loadConfig());
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 
 async function reset(g: string): Promise<void> {
   await client.update(`DROP SILENT GRAPH <${g}>`);
@@ -415,7 +415,7 @@ import { SparqlClient } from 'predicate-mcp/src/sparql/client.js';
 import { loadConfig } from 'predicate-mcp/src/config.js';
 import { PromotionSweeper } from 'predicate-agent/src/promotion-sweeper.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const PROPOSAL_IRI = /^[A-Za-z][A-Za-z0-9+.\-]*:[A-Za-z0-9:_./#\-]+$/;
 
 function help(): void {
@@ -619,7 +619,7 @@ describe('POST /api/action', () => {
     const id = await proposer.propose({
       kind: 'add-property',
       add: [{
-        s: 'https://predicate.dev/codebase#httpApproveTest',
+        s: 'https://industriagents.com/predicate/codebase#httpApproveTest',
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#ObjectProperty' },
       }],
@@ -821,7 +821,7 @@ describe('GET /api/events', () => {
     await proposer.propose({
       kind: 'add-property',
       add: [{
-        s: 'https://predicate.dev/codebase#sseTest',
+        s: 'https://industriagents.com/predicate/codebase#sseTest',
         p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#ObjectProperty' },
       }],
@@ -862,7 +862,7 @@ b) Add the digest query helper:
 ```typescript
 async function fetchDigest(fusekiUrl: string, dataset: string): Promise<Digest> {
   const sparql = `
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sessions ?sessionsMaxAt ?staging ?inferred
     WHERE {
       { SELECT (COUNT(DISTINCT ?s) AS ?sessions) (COALESCE(MAX(?at), "") AS ?sessionsMaxAt)
@@ -1150,12 +1150,12 @@ function ttlString(expiresAtIso) {
 
 async function loadStaging() {
   const threshold = await ask(`
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?n WHERE { GRAPH <kg:meta> { <urn:predicate:config> pred:promotionUseThreshold ?n } }
   `).then(b => b[0] ? parseInt(b[0].n.value, 10) : 3).catch(() => 3);
 
   const q = `
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?id ?kind ?justification ?expiresAt ?useCount
     WHERE {
       GRAPH <kg:tbox-staging> {
@@ -1447,15 +1447,15 @@ function loadFromHash() {
 
 async function loadSessionPanel(sid) {
   const filesQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?file WHERE {
       GRAPH <kg:abox> { ?s a pred:Session ; pred:sessionId "${sid.replace(/"/g,'\\"')}" . ?file cb:modifiedIn ?s }
     } LIMIT 100
   `;
   const cmdsQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?cmd ?text ?status WHERE {
       GRAPH <kg:abox> {
         ?s a pred:Session ; pred:sessionId "${sid.replace(/"/g,'\\"')}" .
@@ -1488,8 +1488,8 @@ async function loadSessionPanel(sid) {
 
 async function loadFilePanel(fileIri) {
   const q = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sid ?at WHERE {
       GRAPH <kg:abox> {
         <${fileIri}> cb:modifiedIn ?s .
@@ -1498,7 +1498,7 @@ async function loadFilePanel(fileIri) {
     } ORDER BY DESC(?at) LIMIT 50
   `;
   const klassQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
     SELECT ?k WHERE { GRAPH <kg:inferred> { <${fileIri}> a ?k FILTER (?k IN (cb:Hotspot, cb:ActiveFile)) } }
   `;
   const [sessions, klasses] = await Promise.all([ask(q).catch(() => []), ask(klassQ).catch(() => [])]);
@@ -1518,8 +1518,8 @@ async function loadFilePanel(fileIri) {
 
 async function loadCommandPanel(cmdIri) {
   const okQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sid ?at WHERE {
       GRAPH <kg:abox> {
         <${cmdIri}> cb:succeededIn ?s . ?s pred:sessionId ?sid ; pred:at ?at .
@@ -1527,8 +1527,8 @@ async function loadCommandPanel(cmdIri) {
     } ORDER BY DESC(?at) LIMIT 30
   `;
   const badQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
-    PREFIX pred: <https://predicate.dev/meta#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
+    PREFIX pred: <https://industriagents.com/predicate/meta#>
     SELECT ?sid ?at WHERE {
       GRAPH <kg:abox> {
         <${cmdIri}> cb:failedIn ?s . ?s pred:sessionId ?sid ; pred:at ?at .
@@ -1536,7 +1536,7 @@ async function loadCommandPanel(cmdIri) {
     } ORDER BY DESC(?at) LIMIT 30
   `;
   const flakyQ = `
-    PREFIX cb: <https://predicate.dev/codebase#>
+    PREFIX cb: <https://industriagents.com/predicate/codebase#>
     ASK { GRAPH <kg:inferred> { <${cmdIri}> a cb:FlakyCommand } }
   `;
   const [oks, bads, flakyResp] = await Promise.all([

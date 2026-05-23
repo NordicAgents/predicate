@@ -10,7 +10,7 @@ const CATALOG = join(here, '..', '..', '..', 'predicate-ontology', 'catalog');
 export async function withCodebaseTBox(client: StorageAdapter = getAdapter()): Promise<void> {
   // Idempotent: only load if cb:File isn't already present.
   const present = await client.ask(`
-    PREFIX cb:  <https://predicate.dev/codebase#>
+    PREFIX cb:  <https://industriagents.com/predicate/codebase#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     ASK { GRAPH <kg:tbox> { cb:File a owl:Class } }
   `);

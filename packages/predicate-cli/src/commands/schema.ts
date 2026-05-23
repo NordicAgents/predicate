@@ -1,7 +1,7 @@
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { PromotionSweeper } from 'predicate-agent/src/promotion-sweeper.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const PROPOSAL_IRI = /^[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9:_./#-]+$/;
 
 function help(): void {

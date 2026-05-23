@@ -27,7 +27,7 @@ describe('kg_propose_schema wired in MCP registry', () => {
       delta: {
         kind: 'add-class',
         add: [{
-          s: 'https://predicate.dev/codebase#Service',
+          s: 'https://industriagents.com/predicate/codebase#Service',
           p: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
           o: { type: 'uri', value: 'http://www.w3.org/2002/07/owl#Class' },
         }],
@@ -37,7 +37,7 @@ describe('kg_propose_schema wired in MCP registry', () => {
     expect(result.proposalId).toMatch(/^urn:predicate:proposal:/);
     const ok = await client.ask(`
       ASK { GRAPH <kg:tbox-staging> {
-        <https://predicate.dev/codebase#Service>
+        <https://industriagents.com/predicate/codebase#Service>
         <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
         <http://www.w3.org/2002/07/owl#Class>
       } }

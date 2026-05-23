@@ -6,11 +6,11 @@ import { isAboxDirty } from '../src/materialize.js';
 
 const TBOX = `
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix cb: <https://predicate.dev/codebase#> .
+@prefix cb: <https://industriagents.com/predicate/codebase#> .
 cb:calls a owl:ObjectProperty , owl:TransitiveProperty .
 `;
-const C = 'https://predicate.dev/codebase#calls';
-const F = 'https://predicate.dev/codebase/x#';
+const C = 'https://industriagents.com/predicate/codebase#calls';
+const F = 'https://industriagents.com/predicate/codebase/x#';
 const assert = (client: OxigraphAdapter, s: string, o: string) =>
   kgAssert(client, { subject: s, predicate: C, object: { type: 'uri', value: o },
     source: 't', confidence: 0.95, method: 'm' });

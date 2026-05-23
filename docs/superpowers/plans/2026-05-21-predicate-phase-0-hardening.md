@@ -487,7 +487,7 @@ import { kgExploreSchema } from '../src/tools/kg-explore-schema.js';
 const TBOX = `
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix cb: <https://predicate.dev/codebase#> .
+@prefix cb: <https://industriagents.com/predicate/codebase#> .
 cb:Function a owl:Class ; rdfs:label "Function" .
 cb:EnvVar   a owl:Class ; rdfs:label "EnvVar" .
 cb:reads a owl:ObjectProperty ; rdfs:domain cb:Function ; rdfs:range cb:EnvVar ; rdfs:label "reads env var" .
@@ -502,9 +502,9 @@ describe('kgExploreSchema concept resolution', () => {
 
   it('resolves a property by its local name even when the label differs', async () => {
     const slice = await kgExploreSchema(client, 'reads');
-    expect(slice.concept).toBe('https://predicate.dev/codebase#EnvVar');
+    expect(slice.concept).toBe('https://industriagents.com/predicate/codebase#EnvVar');
     // 'reads' resolves to the property IRI; the slice lists it among properties.
-    expect(slice.properties.map((p) => p.iri)).toContain('https://predicate.dev/codebase#reads');
+    expect(slice.properties.map((p) => p.iri)).toContain('https://industriagents.com/predicate/codebase#reads');
   });
 
   it('returns an empty slice (no throw) for an unknown concept', async () => {
@@ -515,7 +515,7 @@ describe('kgExploreSchema concept resolution', () => {
 
   it('still resolves a class by label', async () => {
     const slice = await kgExploreSchema(client, 'Function');
-    expect(slice.concept).toBe('https://predicate.dev/codebase#Function');
+    expect(slice.concept).toBe('https://industriagents.com/predicate/codebase#Function');
   });
 });
 ```
@@ -654,7 +654,7 @@ Expected: FAIL — `r.rejected` > 0 (codebase predicates not declared).
 In `packages/predicate-ontology/meta/predicate-meta.ttl`, add a `cb:` prefix line near the top prefix block:
 
 ```ttl
-@prefix cb:   <https://predicate.dev/codebase#> .
+@prefix cb:   <https://industriagents.com/predicate/codebase#> .
 ```
 
 Then append this block at the end of the file (after the bootstrap/init config section):
@@ -726,7 +726,7 @@ describe('materialization latency metric', () => {
     await client.update('CREATE SILENT GRAPH <kg:meta>');
     await kgMaintain(client, {});
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:meta> { ?e a pred:MaterializationCompleted } }
     `);
     expect(parseInt(r.results.bindings[0]!.n!.value, 10)).toBe(1);

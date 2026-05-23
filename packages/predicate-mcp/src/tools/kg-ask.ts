@@ -52,7 +52,7 @@ async function logUsage(
 ): Promise<void> {
   const usage = escapeIRI(GRAPH.usage);
   const id = `urn:predicate:usage:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const META = 'https://predicate.dev/meta#';
+  const META = 'https://industriagents.com/predicate/meta#';
   await client.update(`
     PREFIX pred: <${META}>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>

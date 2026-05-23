@@ -5,7 +5,7 @@ import { FusekiConstructAdapter } from '../src/index.js';
 import { kgAssert } from 'predicate-mcp/src/tools/kg-assert.js';
 
 const client = getAdapter();
-const J = 'https://predicate.dev/judgment#';
+const J = 'https://industriagents.com/predicate/judgment#';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 const adapter = new FusekiConstructAdapter(client);
 

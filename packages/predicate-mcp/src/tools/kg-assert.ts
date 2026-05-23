@@ -77,7 +77,7 @@ export async function kgAssert(client: StorageAdapter, t: Triple): Promise<void>
   const p = escapeIRI(t.predicate);
   const o = renderObject(t.object);
 
-  const META_NS = 'https://predicate.dev/meta#';
+  const META_NS = 'https://industriagents.com/predicate/meta#';
   const aboxG = escapeIRI(GRAPH.abox);
   const provG = escapeIRI(GRAPH.provenance);
   const star = `<< ${s} ${p} ${o} >>`;

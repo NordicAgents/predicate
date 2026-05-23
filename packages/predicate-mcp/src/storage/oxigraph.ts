@@ -265,7 +265,7 @@ export class OxigraphAdapter implements StorageAdapter {
    * @param proposalId  The IRI of the proposal whose annotation quads should be removed
    */
   deleteRdfStarAnnotationsForProposal(graphIri: string, proposalId: string): void {
-    const PROPOSAL_PRED = 'https://predicate.dev/meta#proposalId';
+    const PROPOSAL_PRED = 'https://industriagents.com/predicate/meta#proposalId';
     const graphNode = namedNode(graphIri);
     const proposalNode = namedNode(proposalId);
 

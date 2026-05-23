@@ -4,7 +4,7 @@ import type {
   DeltaQuad, ProposalMeta, SchemaDelta, Term,
 } from './types.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 const DEFAULT_TTL_DAYS = 7;
 
 function newProposalId(): string {

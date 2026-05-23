@@ -8,7 +8,7 @@ export const r18: Rule = {
   insertWhere: (cfg: RuleConfig) => {
     const abox = cfg.aboxGraphs[0] ?? 'kg:abox';
     return `
-      PREFIX cb:  <https://predicate.dev/codebase#>
+      PREFIX cb:  <https://industriagents.com/predicate/codebase#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       INSERT { GRAPH <${cfg.inferredGraph}> { ?cmd rdf:type cb:FlakyCommand } }
       WHERE {

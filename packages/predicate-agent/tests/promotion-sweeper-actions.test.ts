@@ -7,7 +7,7 @@ import { SchemaProposer } from '../src/schema-proposer.js';
 import { PromotionSweeper } from '../src/promotion-sweeper.js';
 
 const client = getAdapter();
-const C = 'https://predicate.dev/codebase';
+const C = 'https://industriagents.com/predicate/codebase';
 
 let promotedDir: string;
 
@@ -54,7 +54,7 @@ describe('PromotionSweeper.promoteById', () => {
     }
 
     const events = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?actor WHERE {
         GRAPH <kg:meta> {
           ?e a pred:SchemaPromoted ; pred:actor ?actor ; pred:goal <${id}> .
@@ -86,13 +86,13 @@ describe('PromotionSweeper.rejectById', () => {
     expect(result.outcome).toBe('rejected-expired');
 
     const stillThere = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:tbox-staging> { <${id}> a pred:Proposal } }
     `);
     expect(stillThere).toBe(false);
 
     const events = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT ?actor ?payload WHERE {
         GRAPH <kg:meta> {
           ?e a pred:SchemaRejected ; pred:actor ?actor ; pred:goal <${id}> ; pred:payload ?payload .

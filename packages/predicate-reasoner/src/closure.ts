@@ -18,7 +18,7 @@ export function closureEligible(
       GRAPH <${g}> { ${s} ${p} ${o} }
       FILTER EXISTS {
         GRAPH <kg:provenance> {
-          << ${s} ${p} ${o} >> <https://predicate.dev/meta#confidence> ?conf .
+          << ${s} ${p} ${o} >> <https://industriagents.com/predicate/meta#confidence> ?conf .
           FILTER (?conf >= ${cfg.closureCutoff})
         }
       }

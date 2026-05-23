@@ -8,7 +8,7 @@ import { runFixpoint } from 'predicate-reasoner/src/fixpoint.js';
 import { RULES } from 'predicate-reasoner/src/rules/index.js';
 import { clearAboxDirty } from '../materialize.js';
 
-const META = 'https://predicate.dev/meta#';
+const META = 'https://industriagents.com/predicate/meta#';
 
 export interface MaintainInput {
   archiveCutoff?: number;

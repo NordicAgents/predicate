@@ -9,7 +9,7 @@ describe('materialization latency metric', () => {
     await client.update('CREATE SILENT GRAPH <kg:meta>');
     await kgMaintain(client, {});
     const r = await client.select(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       SELECT (COUNT(*) AS ?n) WHERE { GRAPH <kg:meta> { ?e a pred:MaterializationCompleted } }
     `);
     expect(parseInt(r.results.bindings[0]!.n!.value, 10)).toBe(1);

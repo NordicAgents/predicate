@@ -10,7 +10,7 @@ const CATALOG = join(here, '..', '..', '..', 'predicate-ontology', 'catalog');
 /** Load meta + top + codebase + judgment ontologies into kg:tbox. Idempotent. */
 export async function withJudgmentTBox(client: StorageAdapter = getAdapter()): Promise<void> {
   const present = await client.ask(`
-    PREFIX j:   <https://predicate.dev/judgment#>
+    PREFIX j:   <https://industriagents.com/predicate/judgment#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     ASK { GRAPH <kg:tbox> { j:Judgment a owl:Class } }
   `);

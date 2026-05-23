@@ -45,7 +45,7 @@ describe('researchGoal', () => {
 
   it('reports gaps when the TBox is missing a required predicate', async () => {
     await client.update(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       DELETE { GRAPH <kg:tbox> { c:calls ?p ?o } }
       INSERT { GRAPH <kg:meta> { <urn:test:saved> ?p ?o } }
       WHERE  { GRAPH <kg:tbox> { c:calls ?p ?o } }
@@ -56,7 +56,7 @@ describe('researchGoal', () => {
     });
     expect(plan.gaps[0]!.answerable).toBe(false);
     expect(plan.gaps[0]!.missingPredicates[0]!.iri)
-      .toBe('https://predicate.dev/codebase#calls');
+      .toBe('https://industriagents.com/predicate/codebase#calls');
     // Restore so later tests pass.
     await reset('kg:tbox');
     await loadTbox('predicate-ontology/catalog/codebase.ttl');
@@ -66,12 +66,12 @@ describe('researchGoal', () => {
   it('the created goal exists in kg:goals with GoalCreated in kg:meta', async () => {
     const plan = await researchGoal(client, { goal: 'why did x break', source: 'user' });
     const ok = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:goals> { <${plan.goalId}> a pred:Goal } }
     `);
     expect(ok).toBe(true);
     const evt = await client.ask(`
-      PREFIX pred: <https://predicate.dev/meta#>
+      PREFIX pred: <https://industriagents.com/predicate/meta#>
       ASK { GRAPH <kg:meta> { ?e a pred:GoalCreated ; pred:goal <${plan.goalId}> } }
     `);
     expect(evt).toBe(true);
@@ -106,9 +106,9 @@ describe('researchGoal with executeResearch=true', () => {
     expect(total).toBeGreaterThanOrEqual(6);
 
     const ok = await client.ask(`
-      PREFIX c: <https://predicate.dev/codebase#>
+      PREFIX c: <https://industriagents.com/predicate/codebase#>
       ASK { GRAPH <kg:abox> {
-        <https://predicate.dev/codebase/auth.ts> c:imports <https://predicate.dev/codebase/jwt.ts>
+        <https://industriagents.com/predicate/codebase/auth.ts> c:imports <https://industriagents.com/predicate/codebase/jwt.ts>
       } }
     `);
     expect(ok).toBe(true);
