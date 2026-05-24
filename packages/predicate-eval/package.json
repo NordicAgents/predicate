@@ -13,7 +13,8 @@
     "eval": "tsx src/eval.ts",
     "tier2": "tsx src/tier2.ts",
     "flat": "tsx src/flat.ts",
-    "scale": "tsx src/scale.ts"
+    "scale": "tsx src/scale.ts",
+    "scale-history": "tsx src/scale-history.ts"
   },
   "dependencies": {
     "predicate-agent": "workspace:^",
