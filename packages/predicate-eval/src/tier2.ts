@@ -37,15 +37,23 @@ export async function scoreAnswers(
   const rows = await scoreTier2(client, domain, dir, episodes, answers);
 
   const t1rows = await runTier1(client, domain, dir, episodes);
-  const t1final = t1rows.filter((r) => r.inference === 'on' && r.episode === episodes)[0]!;
+  const t1final = t1rows.find((r) => r.inference === 'on' && r.episode === episodes);
+  if (!t1final) {
+    throw new Error(
+      `Tier 1 produced no inference=on row at episode ${episodes} for "${domain}" — ` +
+      `check that the domain has at least ${episodes} episode files.`,
+    );
+  }
   const tier1Final = new Map(Object.entries(t1final.perQuestion));
 
   mkdirSync(dirname(scoreboardFile), { recursive: true });
   for (const r of rows) appendFileSync(scoreboardFile, JSON.stringify(r) + '\n');
 
   const summary = tier1VsTier2(domain, rows, tier1Final);
+  // Gap on the SAME basis the summary uses: per-scored-row Tier 1 f1 minus Tier 2 f1,
+  // so the returned number can never diverge from the printed table.
   const n = rows.length || 1;
-  const gap = [...tier1Final.values()].reduce((a, b) => a + b, 0) / n
+  const gap = rows.reduce((a, r) => a + (tier1Final.get(r.questionId) ?? 0), 0) / n
     - rows.reduce((a, r) => a + r.f1, 0) / n;
   return { gap, summary };
 }

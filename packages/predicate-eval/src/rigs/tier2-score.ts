@@ -27,6 +27,9 @@ async function runDrafted(client: StorageAdapter, q: Question, sparql: string): 
     const vals = r.results.bindings.map((b) => Object.values(b)[0]!.value);
     const nonEmpty = vals.length > 0;
     if (q.type === 'conflict') return { key: { kind: 'conflict', ids: new Set(vals) }, valid: true, nonEmpty };
+    // NOTE: 'path'-type questions (kg_explain derivation traces) are not yet supported in
+    // Tier 2 — no fixture uses them. They would fall through here as a set and score 0
+    // against a path key. Add an explicit path branch before adding a path question.
     return { key: { kind: 'set', values: new Set(vals) }, valid: true, nonEmpty };
   } catch {
     if (q.type === 'boolean') return { key: { kind: 'boolean', value: false }, valid: false, nonEmpty: false };
