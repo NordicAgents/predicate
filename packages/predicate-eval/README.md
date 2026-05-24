@@ -113,3 +113,74 @@ fixpoint: ~100 triples ≈ 10 s, ~200 ≈ 60 s, ~500 ≈ 400 s. The PRD's target
 probe sizes (1 k–50 k) are infeasible with the current reasoner. This is
 empirical evidence for prioritising semi-naive / delta materialization, and
 explains the existing 25 k scale-gate.
+
+---
+
+## Tier 2 (agent-driven, no API key)
+
+### What it measures
+
+Tier 2 asks whether the **host model can draft correct SPARQL** for each
+research question, versus the vetted golden queries that Tier 1 uses. Two
+numbers come out of a Tier 2 run:
+
+| Signal | Definition |
+|---|---|
+| **gap** | `t1 − t2` — how much accuracy is lost when the model writes the queries instead of a human |
+| **sparql_valid_rate** | Fraction of drafted queries that parse and execute without error |
+
+A gap of 0 means the model's drafted SPARQL is as good as the golden queries.
+`sparql_valid_rate` isolates the syntactic problem from the semantic one.
+
+Tier 2 scores only at the **final-episode state** (all facts loaded). Tier 1
+owns the per-episode compounding curve; Tier 2 adds the LLM-writes-SPARQL
+reliability dimension.
+
+### Why agent-driven
+
+Claude Code does not support the MCP `sampling/createMessage` protocol
+([issue #1785](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1785)),
+so Tier 2 is driven in-session: for each question a subagent drafts SPARQL
+following the workflow in `DRIVING-TIER2.md`, writing answers to a JSON file.
+The `emit` CLI step produces that file; `score` consumes it.
+
+The `CompletionProvider` seam in
+`predicate-agent/src/completion-provider.ts` is designed so that an
+MCP-sampling driver or a direct `ANTHROPIC_API_KEY` driver can replace the
+in-session approach for unattended runs on hosts that support them.
+
+### How to run
+
+```bash
+# Step 1 — emit one question-set as a task for the host model to answer
+pnpm --filter predicate-eval tier2 emit org
+# Follow the DRIVING-TIER2.md workflow: the model drafts SPARQL per question
+# and writes answers to a file such as results/tier2-org-answers.json
+
+# Step 2 — score the answers against the ground truth at the final episode
+pnpm --filter predicate-eval tier2 score org results/tier2-org-answers.json
+```
+
+Results are written to `results/tier2-<domain>-scored.json` and printed as a
+one-line summary: `t1=<n> t2=<n> gap=<n> sparql_valid_rate=<n>`.
+
+### First baseline
+
+**org / Claude Haiku (in-session)**
+
+```
+t1=1.00  t2=0.00  gap=1.00  sparql_valid_rate=0.13
+```
+
+7 of 8 drafted queries failed to parse. Root causes identified:
+
+- The prompt did not supply the `kg:abox` / `kg:inferred` graph-URI
+  conventions, so the model omitted the `FROM NAMED` / `GRAPH` clauses
+  required by the Oxigraph endpoint.
+- The 1 syntactically valid query returned empty results because it used a
+  wrong individual-IRI scheme (bare labels instead of the full
+  `https://predicate.test/org#…` IRIs).
+
+**Next improvements:** enrich `buildPrompt` with the graph-URI convention and
+a sample of real individual IRIs from the loaded corpus, and trial a stronger
+drafting model (Sonnet or Opus).
