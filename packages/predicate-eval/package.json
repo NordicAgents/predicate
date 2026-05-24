@@ -12,7 +12,8 @@
     "ontology-check": "tsx src/ontology-ci.ts",
     "eval": "tsx src/eval.ts",
     "tier2": "tsx src/tier2.ts",
-    "flat": "tsx src/flat.ts"
+    "flat": "tsx src/flat.ts",
+    "scale": "tsx src/scale.ts"
   },
   "dependencies": {
     "predicate-agent": "workspace:^",
