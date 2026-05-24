@@ -1,0 +1,8 @@
+{"id":"org-q01","sparql":"SELECT ?person FROM NAMED <kg:abox> FROM NAMED <kg:inferred> WHERE { ?dana rdfs:label \"Dana\" . ?person org:reportsTo+ ?dana . }"}
+{"id":"org-q08","sparql":"SELECT ?manager FROM NAMED <kg:inferred> WHERE { org:Omar org:reportsTo ?manager . }"}
+{"id":"org-q03","sparql":"SELECT ?person WHERE { GRAPH kg:inferred { ?person org:reportsTo* <http://ex/org#Erin> . } }"}
+{"id":"org-q04","sparql":"ASK WHERE { GRAPH kg:abox { ?quinn a org:Person . } }"}
+{"id":"org-q05","sparql":"ASK FROM kg:inferred WHERE { ?sofia a org:Person . }"}
+{"id":"org-q06","sparql":"ASK WHERE { GRAPH kg:abox { ?pat a org:Contractor ; a org:FullTime . } }"}
+{"id":"org-q02","sparql":"ASK WHERE { GRAPH kg:inferred { ?lee a org:Person . ?lee org:reportsTo ?manager1 . ?lee org:reportsTo ?manager2 . FILTER (?manager1 != ?manager2) } }"}
+{"id":"org-q07","sparql":"SELECT ?team FROM NAMED <kg:abox> WHERE { GRAPH <kg:abox> { <http://ex/org#Dana> <http://ex/org#memberOf> ?team . } }"}
