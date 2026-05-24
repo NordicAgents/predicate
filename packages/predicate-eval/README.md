@@ -152,17 +152,18 @@ in-session approach for unattended runs on hosts that support them.
 ### How to run
 
 ```bash
-# Step 1 — emit one question-set as a task for the host model to answer
+# Step 1 — emit one task per question to results/tier2-tasks.org.jsonl
 pnpm --filter predicate-eval tier2 emit org
 # Follow the DRIVING-TIER2.md workflow: the model drafts SPARQL per question
-# and writes answers to a file such as results/tier2-org-answers.json
+# into an answers file, e.g. results/tier2-answers.org.jsonl ({"id","sparql"} per line)
 
 # Step 2 — score the answers against the ground truth at the final episode
-pnpm --filter predicate-eval tier2 score org results/tier2-org-answers.json
+pnpm --filter predicate-eval tier2 score org results/tier2-answers.org.jsonl
 ```
 
-Results are written to `results/tier2-<domain>-scored.json` and printed as a
-one-line summary: `t1=<n> t2=<n> gap=<n> sparql_valid_rate=<n>`.
+Scored rows are appended to `results/tier2-scoreboard.jsonl` and the
+Tier1-vs-Tier2 table is printed, ending with the one-line summary:
+`aggregate: t1=<n> t2=<n> gap=<n> sparql_valid_rate=<n>`.
 
 ### First baseline
 
