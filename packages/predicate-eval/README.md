@@ -165,23 +165,47 @@ Scored rows are appended to `results/tier2-scoreboard.jsonl` and the
 Tier1-vs-Tier2 table is printed, ending with the one-line summary:
 `aggregate: t1=<n> t2=<n> gap=<n> sparql_valid_rate=<n>`.
 
-### First baseline
+### Baselines (org / Claude Haiku, in-session)
 
-**org / Claude Haiku (in-session)**
+| prompt | t2 | gap | sparql_valid_rate |
+|---|---|---|---|
+| TBox-only | 0.00 | 1.00 | 0.13 |
+| + graph-URI/PREFIX conventions + sample IRIs | 0.75 | 0.25 | 1.00 |
 
-```
-t1=1.00  t2=0.00  gap=1.00  sparql_valid_rate=0.13
-```
+The first run's 7/8 parse failures were prompt deficiencies, not model
+incapacity: it lacked the `kg:abox`/`kg:inferred` graph-URI convention and
+the individual-IRI scheme. After `buildPrompt` was enriched (see
+`DRIVING-TIER2.md`), **every query parsed** and accuracy rose to 0.75 with the
+same model. The 2 residual misses are semantic (wrong relation direction;
+missing UNION of inferred for an inferred type) — the next lever is a stronger
+drafting model.
 
-7 of 8 drafted queries failed to parse. Root causes identified:
+---
 
-- The prompt did not supply the `kg:abox` / `kg:inferred` graph-URI
-  conventions, so the model omitted the `FROM NAMED` / `GRAPH` clauses
-  required by the Oxigraph endpoint.
-- The 1 syntactically valid query returned empty results because it used a
-  wrong individual-IRI scheme (bare labels instead of the full
-  `https://predicate.test/org#…` IRIs).
+## Flat baseline (Tier 0 — does the reasoner earn its keep?)
 
-**Next improvements:** enrich `buildPrompt` with the graph-URI convention and
-a sample of real individual IRIs from the loaded corpus, and trial a stronger
-drafting model (Sonnet or Opus).
+The control for the whole project: give the model the **same information** the
+reasoner+SPARQL pipeline has — the TBox plus every asserted ABox fact, in its
+context — and let it answer directly in JSON. No materialization, no SPARQL, no
+graph engine (`src/rigs/flat-baseline.ts`, `pnpm --filter predicate-eval flat
+emit|score <domain>`). This isolates whether *mechanizing* the reasoning beats
+letting the model do it in-context.
+
+**First three-way (org / Haiku, final episode):**
+
+| approach | accuracy |
+|---|---|
+| Tier 1 — golden SPARQL + reasoner | 1.00 |
+| Tier 2 — model writes SPARQL + reasoner | 0.75 |
+| Flat (Tier 0) — model reasons in-context, no engine | 0.65 |
+
+Reasoner advantage over flat ≈ **0.35** at this scale. **Read it carefully:** the
+flat failures are weak-model slips (direction confusion on the "management chain"
+question; a whiffed lookup of a fact that was right there), not context-size
+limits — at 8 facts everything fits. So this 0.35 is mostly "the deterministic
+engine is exact where a weak model is sloppy," and a stronger model would likely
+shrink it. **The decisive experiment is still open:** scale the fixtures to
+hundreds/thousands of facts and hold model strength fixed — the reasoner's value
+is the regime where flat in-context *collapses* (can't fit or can't find the
+facts) while the graph holds. That crossover, if it exists, is Predicate's reason
+to exist.
