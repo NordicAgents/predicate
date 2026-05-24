@@ -30,6 +30,13 @@ export async function buildTier2Tasks(
   await seedProvenance(client);
   await rematerialize(client, true);
 
+  // Sample real subject IRIs so the prompt can teach the model the name→IRI mapping
+  // (the IRI scheme, not the answers — subjects are individuals, not the queried results).
+  const sample = await client.select(
+    'SELECT DISTINCT ?s WHERE { GRAPH <kg:abox> { ?s ?p ?o } FILTER(isIRI(?s)) } LIMIT 10',
+  );
+  const exampleIndividuals = sample.results.bindings.map((b) => `<${b.s!.value}>`);
+
   return questions.map((q) => ({
     id: q.id,
     domain,
@@ -37,5 +44,6 @@ export async function buildTier2Tasks(
     type: q.type,
     schema,
     graphsHint: 'kg:abox, kg:inferred',
+    exampleIndividuals,
   }));
 }

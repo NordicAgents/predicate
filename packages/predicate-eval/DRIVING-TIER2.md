@@ -22,25 +22,27 @@ versus Tier 1's vetted golden queries. Claude Code does not support MCP sampling
 - A high `gap` with high `sparql_valid_rate` means the queries run but retrieve the wrong
   thing (schema misuse); a low `sparql_valid_rate` means syntactic/SPARQL-star failures.
 
-## First baseline (org, 2026-05-24, host model = Haiku via in-session subagents)
+## Baselines (org, host model = Haiku via in-session subagents)
 
-```
-aggregate: t1=1.00 t2=0.00 gap=1.00 sparql_valid_rate=0.13
-```
+| run | t1 | t2 | gap | sparql_valid_rate |
+|---|---|---|---|---|
+| 2026-05-24 — TBox-only prompt | 1.00 | 0.00 | 1.00 | 0.13 |
+| 2026-05-24 — improved prompt  | 1.00 | 0.75 | 0.25 | 1.00 |
 
-7 of 8 drafted queries failed to parse; the 1 that parsed returned empty. Root causes
-(NOT tuned away — this is the honest first number):
-- **Missing prefix/graph conventions.** Queries used `org:`/`kg:inferred` without declaring
-  prefixes and `FROM kg:inferred` without `<>`. The prompt never states that the `kg:` graphs
-  are URIs and that no prefixes are predeclared.
-- **Unknown individual-IRI scheme.** The only parseable query used `http://ex/org#Dana`
-  (capitalized, `#`) but individuals are `http://ex/org/dana`. The schema slice is the TBox
-  only — no individual-IRI examples.
+**First run (TBox-only prompt):** 7 of 8 queries failed to parse — they used `org:`/`kg:inferred`
+without declaring prefixes / `<>`, and guessed wrong individual IRIs (`http://ex/org#Dana` vs
+`http://ex/org/dana`). The prompt gave the TBox but neither the `kg:` graph-URI convention nor
+the individual-IRI scheme.
 
-This is the LLM-writes-SPARQL reliability number the harness was built to measure. It is
-dominated by an underspecified prompt and a weak model. Highest-leverage improvements before
-the next run: (1) add the `kg:abox`/`kg:inferred` graph-URI convention and a couple of sample
-individual IRIs to `buildPrompt`; (2) try a stronger drafting model. Re-run and compare the gap.
+**Improved prompt** (`buildPrompt` now states: query `GRAPH <kg:abox>`/`<kg:inferred>` with angle
+brackets, declare every PREFIX, UNION inferred for entailments; plus a sample of real individual
+IRIs from the data): **sparql_valid_rate 0.13 → 1.00** (all syntax failures gone) and **accuracy
+0.00 → 0.75** with the *same model*. The 2 residual misses are semantic, not syntactic:
+- **org-q01** used `manages` (subordinates) instead of `reportsTo+` (managers) — wrong direction.
+- **org-q04** queried only `kg:abox` for `quinn a Person`, but that type is inferred — no UNION.
+
+Takeaway: the model-writes-SPARQL mechanic is viable with a decent prompt; the remaining gap is
+genuine model reasoning error (a stronger drafting model is the next lever to test).
 
 ## Future automation
 The `CompletionProvider` seam (`predicate-agent/src/completion-provider.ts`) lets an

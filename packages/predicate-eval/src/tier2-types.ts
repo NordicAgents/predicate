@@ -6,8 +6,9 @@ export interface Tier2Task {
   domain: string;
   questionText: string;
   type: ScoreType;
-  schema: string;        // the domain world.ttl, as the predicate vocabulary
-  graphsHint: string;    // which named graphs are queryable
+  schema: string;               // the domain world.ttl, as the predicate vocabulary
+  graphsHint: string;           // which named graphs are queryable
+  exampleIndividuals: string[]; // real subject IRIs (<...>) so the model can map names→IRIs
 }
 
 /** The model's drafted query for a task. */

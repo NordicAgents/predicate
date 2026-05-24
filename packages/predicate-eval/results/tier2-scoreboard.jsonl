@@ -6,3 +6,11 @@
 {"runId":"org-tier2-1779591647516","timestamp":"2026-05-24T03:00:47.519Z","domain":"org","questionId":"org-q06","sparqlValid":false,"sparqlNonEmpty":false,"f1":0}
 {"runId":"org-tier2-1779591647516","timestamp":"2026-05-24T03:00:47.519Z","domain":"org","questionId":"org-q02","sparqlValid":false,"sparqlNonEmpty":false,"f1":0}
 {"runId":"org-tier2-1779591647516","timestamp":"2026-05-24T03:00:47.519Z","domain":"org","questionId":"org-q07","sparqlValid":true,"sparqlNonEmpty":false,"f1":0}
+{"runId":"org-tier2-1779597375339","timestamp":"2026-05-24T04:36:15.339Z","domain":"org","questionId":"org-q01","sparqlValid":true,"sparqlNonEmpty":true,"f1":0}
+{"runId":"org-tier2-1779597375339","timestamp":"2026-05-24T04:36:15.341Z","domain":"org","questionId":"org-q08","sparqlValid":true,"sparqlNonEmpty":true,"f1":1}
+{"runId":"org-tier2-1779597375339","timestamp":"2026-05-24T04:36:15.341Z","domain":"org","questionId":"org-q03","sparqlValid":true,"sparqlNonEmpty":true,"f1":1}
+{"runId":"org-tier2-1779597375339","timestamp":"2026-05-24T04:36:15.342Z","domain":"org","questionId":"org-q04","sparqlValid":true,"sparqlNonEmpty":false,"f1":0}
+{"runId":"org-tier2-1779597375339","timestamp":"2026-05-24T04:36:15.342Z","domain":"org","questionId":"org-q05","sparqlValid":true,"sparqlNonEmpty":true,"f1":1}
+{"runId":"org-tier2-1779597375339","timestamp":"2026-05-24T04:36:15.342Z","domain":"org","questionId":"org-q06","sparqlValid":true,"sparqlNonEmpty":true,"f1":1}
+{"runId":"org-tier2-1779597375339","timestamp":"2026-05-24T04:36:15.343Z","domain":"org","questionId":"org-q02","sparqlValid":true,"sparqlNonEmpty":true,"f1":1}
+{"runId":"org-tier2-1779597375339","timestamp":"2026-05-24T04:36:15.343Z","domain":"org","questionId":"org-q07","sparqlValid":true,"sparqlNonEmpty":true,"f1":1}
