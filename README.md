@@ -78,6 +78,11 @@ Hooks, slash commands, and the `kg_*` tools are wired automatically. Slash
 commands: `/predicate:up`, `/predicate:down`, `/predicate:status`,
 `/predicate:ask <question>`.
 
+> Marketplace install failing? Register Predicate as a plain MCP server
+> instead — see **[Manual install](#manual-install-fallback-for-any-host)**
+> below. The reasoning tools work; only automatic capture and slash commands
+> are lost.
+
 </details>
 
 <details>
@@ -90,6 +95,10 @@ codex plugin marketplace add NordicAgents/predicate
 
 Set `[features] plugin_hooks = true` in `~/.codex/config.toml` and approve the
 hooks once via `/hooks`. See `packages/predicate-skill/hooks/codex-cli/README.md`.
+
+> Plugin install failing? Register Predicate as a plain MCP server instead —
+> see **[Manual install](#manual-install-fallback-for-any-host)** below
+> (reasoning tools work; no capture).
 
 </details>
 
@@ -108,25 +117,48 @@ Restart the editor. Reasoning tools work; there is no automatic turn capture
 
 </details>
 
-<details>
-<summary><strong>Any stdio MCP client</strong> (Continue.dev, OpenCode, …)</summary>
+### Manual install (fallback for any host)
+
+If a native plugin/marketplace install fails — or your host isn't listed above
+(Continue.dev, OpenCode, any stdio MCP client) — run Predicate as a plain stdio
+MCP server. You get all 10 `kg_*` reasoning tools on any MCP-capable host; the
+only thing you lose is automatic Stop-hook capture (and, on Claude Code, the
+slash commands).
 
 ```bash
-npm install -g predicate-skill
-predicate up
-# server command:
-#   node "$(npm root -g)/predicate-skill/server.bundle.mjs"
+npm install -g predicate-skill   # published package; ships the server + CLI
+predicate up                     # create the local store + named graphs
+predicate doctor                 # all checks green
+
+# The MCP server command is (copy the resolved absolute path):
+node "$(npm root -g)/predicate-skill/server.bundle.mjs"
 ```
 
-Continue.dev — in `~/.continue/config.yaml`:
+No env vars are required: the server defaults to the disk-backed Oxigraph store
+(`PREDICATE_BACKEND=oxigraph`, `PREDICATE_DATASET=predicate`) — identical to the
+native installs. Set them only to override.
 
+Register that command with your host:
+
+**Claude Code**
+```bash
+claude mcp add predicate -- node "$(npm root -g)/predicate-skill/server.bundle.mjs"
+```
+
+**Codex CLI** — add to `~/.codex/config.toml` (use the absolute path printed by `npm root -g`):
+```toml
+[mcp_servers.predicate]
+command = "node"
+args = ["/ABSOLUTE/PATH/predicate-skill/server.bundle.mjs"]
+```
+
+**Continue.dev** — in `~/.continue/config.yaml`:
 ```yaml
 mcpServers:
   - name: predicate
-    command: predicate-skill
+    command: node
+    args: ["/ABSOLUTE/PATH/predicate-skill/server.bundle.mjs"]
 ```
-
-</details>
 
 > Full per-client matrix, the 10 MCP tools, the CLI reference, and config live in
 > the package README: **[`packages/predicate-skill/README.md`](packages/predicate-skill/README.md)**.

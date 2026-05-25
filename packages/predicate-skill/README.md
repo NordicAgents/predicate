@@ -67,7 +67,8 @@ SessionStart injects a one-line status banner; PreToolUse / PostToolUse / Stop
 hooks capture tool calls and extract typed session triples — nothing is written
 to your project.
 
-**MCP-only (no hooks or slash commands):** `claude mcp add predicate -- npx -y predicate-skill`
+**Marketplace install failing?** Run the bundled server directly (reasoning
+tools only — no hooks/slash commands): see [Manual install](#manual-install-fallback-for-any-host).
 
 </details>
 
@@ -86,6 +87,9 @@ Two one-time gotchas: set `[features] plugin_hooks = true` in
 `~/.codex/config.toml`, and approve the hooks once via `/hooks`. See
 `hooks/codex-cli/README.md`.
 
+**Plugin install failing?** Register the bundled server as a plain MCP server
+instead (reasoning tools only): see [Manual install](#manual-install-fallback-for-any-host).
+
 </details>
 
 <details>
@@ -103,6 +107,35 @@ Restart the editor. See `hooks/vscode-copilot/README.md` and
 `hooks/cursor/README.md`.
 
 </details>
+
+### Manual install (fallback for any host)
+
+If a native plugin/marketplace install fails, or your host isn't listed above,
+run Predicate as a plain stdio MCP server. All 10 `kg_*` reasoning tools work on
+any MCP-capable host; the only thing lost is automatic Stop-hook capture (and,
+on Claude Code, the slash commands).
+
+```bash
+npm install -g predicate-skill
+predicate up        # create the local store + named graphs
+predicate doctor    # all checks green
+
+# The MCP server command is (NOT the `predicate` CLI bin):
+node "$(npm root -g)/predicate-skill/server.bundle.mjs"
+```
+
+No env vars are required — the server defaults to `PREDICATE_BACKEND=oxigraph`
+and `PREDICATE_DATASET=predicate`, the same as the native installs.
+
+- **Claude Code:** `claude mcp add predicate -- node "$(npm root -g)/predicate-skill/server.bundle.mjs"`
+- **Codex CLI** — in `~/.codex/config.toml`:
+  ```toml
+  [mcp_servers.predicate]
+  command = "node"
+  args = ["/ABSOLUTE/PATH/predicate-skill/server.bundle.mjs"]
+  ```
+- **Continue.dev / other stdio clients** — point `command: node` at the same
+  absolute `server.bundle.mjs` path.
 
 ## MCP tools
 
