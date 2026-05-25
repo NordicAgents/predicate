@@ -3,8 +3,12 @@
   "interface": { "displayName": "Predicate" },
   "plugins": [
     {
-      "source": { "path": "./packages/predicate-skill" },
-      "policy": { "installation": "manual", "authentication": "none" },
+      "name": "predicate",
+      "source": { "source": "local", "path": "./packages/predicate-skill" },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
       "category": "knowledge"
     }
   ]
