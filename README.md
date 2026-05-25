@@ -4,6 +4,8 @@
 
 **Reasoning memory for AI agents — a self-improving knowledge graph that grows with use.**
 
+*Every fact carries its provenance. Every answer carries its derivation. The schema sharpens itself the more your agent uses it.*
+
 [![npm](https://img.shields.io/npm/v/predicate-skill?label=npm&color=blue)](https://www.npmjs.com/package/predicate-skill)
 [![License: ELv2](https://img.shields.io/badge/License-ELv2-blue.svg)](packages/predicate-skill/LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-brightgreen.svg)](https://nodejs.org)
@@ -18,13 +20,23 @@
 
 ## What is Predicate?
 
-Most agent "memory" is a flat pile of text the model has to re-read and trust on
-faith. Predicate gives an agent a **structured graph it can query, reason over,
-and grow** instead. Facts are stored as RDF triples with per-triple provenance
-and confidence. A curated reasoner materializes logical entailments
-deterministically and produces an explanation path for every derived claim. The
-schema is versioned like code and evolves under a propose → validate → use-gated
-promotion loop.
+Most agent "memory" is a flat pile of text: the model re-reads it and takes it
+on faith — no record of where a fact came from, no guarantee the same question
+answers the same way twice, and no signal when two notes contradict each other.
+It never gets smarter; it just gets bigger.
+
+Predicate is different. It stores facts as RDF triples with per-triple
+provenance and confidence, and answers questions through a deterministic
+reasoner that produces an explanation path for every derived claim. And it
+**learns its own shape**: the schema is versioned like code and evolves under a
+propose → validate → use-gated promotion loop, so the structure your agent
+relies on gets sharper the more it's used — and prunes what it doesn't.
+
+The bet is **not** that a graph recalls facts better than a long context window —
+at the scales we've measured ([`predicate-eval/SCALE-FINDINGS.md`](packages/predicate-eval/SCALE-FINDINGS.md)),
+in-context recall is competitive and often simpler. The bet is that a graph makes
+answers **auditable, reproducible, and contradiction-aware** in a way a flat pile
+can't.
 
 ## Why it's different
 
@@ -130,7 +142,7 @@ mcpServers:
 
 </details>
 
-> Full per-client matrix, the 9 MCP tools, the CLI reference, and config live in
+> Full per-client matrix, the 10 MCP tools, the CLI reference, and config live in
 > the package README: **[`packages/predicate-skill/README.md`](packages/predicate-skill/README.md)**.
 
 ## Architecture
@@ -140,7 +152,7 @@ mcpServers:
    your agent       │                  Predicate                  │
   (Claude Code,     │                                             │
    Codex, Gemini …) │   ┌──────────┐         ┌─────────────────┐  │
-        │           │   │  9 kg_*  │  SPARQL │  Storage adapter │  │
+        │           │   │ 10 kg_*  │  SPARQL │  Storage adapter │  │
         │  MCP      │   │   tools  │────────▶│  Oxigraph (def.) │  │
         ├──────────▶│   │ (stdio)  │         │  Fuseki (opt-in) │  │
         │           │   └────┬─────┘         └────────┬────────┘  │
@@ -167,9 +179,13 @@ the logic; the model formulates queries and interprets results.
   fast-flowing facts (`kg:abox`), materialized entailments (`kg:inferred`),
   per-triple metadata (`kg:provenance`), goals (`kg:goals`), usage logs
   (`kg:usage`), staging (`kg:tbox-staging`), and version history (`kg:meta`).
-- **Reasoning.** A curated set of **21 OWL 2 RL rules** runs as SPARQL
-  `CONSTRUCT` rules forward-chained to a fixpoint, plus SHACL shapes for
-  closed-world validation. Logical entailment is the engine's job.
+- **Reasoning.** A curated set of **21 rules — 16 OWL 2 RL rules plus 5 domain
+  and judgment derivations** (`Hotspot`, `FlakyCommand`, `ActiveFile`,
+  current-judgment, conflict detection). The entailment rules run as SPARQL
+  `CONSTRUCT` forward-chained to a fixpoint; disjointness is checked as an
+  inconsistency pass; SHACL shapes add closed-world validation. The OWL 2 RL
+  coverage is a scoped subset — in v1, `owl:propertyChainAxiom` is limited to
+  length-2 chains and `owl:hasKey` to single-property keys.
 - **Provenance.** Every triple is annotated with source, time, confidence, and
   extraction method using RDF-star. Low-confidence triples stay visible to
   queries but are excluded from the inference closure, so they cannot poison
@@ -189,9 +205,9 @@ This is a pnpm monorepo. Each package has its own README with details.
 
 | Package | Purpose |
 |---|---|
-| [`predicate-mcp`](packages/predicate-mcp/README.md) | MCP server, the 9 `kg_*` tools, and the storage adapters (Oxigraph + Fuseki). |
+| [`predicate-mcp`](packages/predicate-mcp/README.md) | MCP server, the 10 `kg_*` tools, and the storage adapters (Oxigraph + Fuseki). |
 | [`predicate-reasoner`](packages/predicate-reasoner/README.md) | 21-rule forward-chaining reasoner + SHACL validation + inference traces for `kg_explain`. |
-| [`predicate-agent`](packages/predicate-agent/README.md) | Goal store, decomposer, gap detector, schema proposer, promotion sweeper, generalizer, reaper. |
+| [`predicate-agent`](packages/predicate-agent/README.md) | Goal store, decomposer, gap detector, schema proposer, promotion sweeper, generalizer, lifecycle controller. |
 | [`predicate-cli`](packages/predicate-cli/README.md) | The `predicate` command-line interface. |
 | [`predicate-ontology`](packages/predicate-ontology/README.md) | Versioned TBox catalog, SHACL shapes, meta vocabulary. |
 | [`predicate-server`](packages/predicate-server/README.md) | Backend bootstrap + Fuseki/TDB2 docker-compose for the opt-in backend. |

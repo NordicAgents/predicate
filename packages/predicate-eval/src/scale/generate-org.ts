@@ -12,6 +12,7 @@ export interface GenQuestion {
   type: 'set' | 'boolean';
   expected: GenAnswer;
   goldenSparql: string; // reads the reasoner-materialized closure in kg:inferred (+ abox base)
+  goldenPropertyPath?: string; // query-time: walks the chain with a SPARQL property path over kg:abox — no materialization (set for transitive-chain questions)
 }
 
 export interface GenResult {
@@ -84,6 +85,8 @@ export function generateOrg(opts: GenOpts): GenResult {
       goldenSparql:
         `SELECT ?a WHERE { { GRAPH <kg:abox> { <${iri(x)}> <${ORG}reportsTo> ?a } } ` +
         `UNION { GRAPH <kg:inferred> { <${iri(x)}> <${ORG}reportsTo> ?a } } }`,
+      goldenPropertyPath:
+        `SELECT ?a WHERE { GRAPH <kg:abox> { <${iri(x)}> <${ORG}reportsTo>+ ?a } }`,
     });
   }
   return { people, triples, questions };

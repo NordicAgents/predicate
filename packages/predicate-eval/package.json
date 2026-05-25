@@ -14,6 +14,7 @@
     "tier2": "tsx src/tier2.ts",
     "flat": "tsx src/flat.ts",
     "scale": "tsx src/scale.ts",
+    "scale-compare": "tsx src/scale/sweep-compare.ts",
     "scale-history": "tsx src/scale-history.ts"
   },
   "dependencies": {
