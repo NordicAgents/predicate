@@ -23,7 +23,12 @@ export function codexMcpJson() {
   return {
     predicate: {
       command: 'node',
-      args: ['${PLUGIN_ROOT}/server.bundle.mjs'],
+      // Codex follows the Claude Code plugin model and expands
+      // ${CLAUDE_PLUGIN_ROOT} (NOT ${PLUGIN_ROOT}) inside MCP server args.
+      // MCP servers are spawned directly (no shell), so an unexpanded
+      // variable reaches node verbatim → "Cannot find module" → the Codex
+      // client reports "connection closed: initialize response".
+      args: ['${CLAUDE_PLUGIN_ROOT}/server.bundle.mjs'],
       env: { ...MCP_ENV },
     },
   };

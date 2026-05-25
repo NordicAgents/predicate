@@ -2,7 +2,7 @@
   "predicate": {
     "command": "node",
     "args": [
-      "${PLUGIN_ROOT}/server.bundle.mjs"
+      "${CLAUDE_PLUGIN_ROOT}/server.bundle.mjs"
     ],
     "env": {
       "PREDICATE_BACKEND": "oxigraph",

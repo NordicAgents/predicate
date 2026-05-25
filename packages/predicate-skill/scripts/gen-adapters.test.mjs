@@ -24,7 +24,10 @@ describe('manifests', () => {
   it('codex .mcp.json points at the bundled server with oxigraph env', () => {
     const m = codexMcpJson();
     expect(m.predicate.command).toBe('node');
-    expect(m.predicate.args[0]).toMatch(/server\.bundle\.mjs$/);
+    // Must use the variable Codex actually expands in MCP args. ${PLUGIN_ROOT}
+    // is passed through literally → node ENOENT → handshake closes. See
+    // hooks/codex-cli/README.md: Codex honors ${CLAUDE_PLUGIN_ROOT}.
+    expect(m.predicate.args[0]).toBe('${CLAUDE_PLUGIN_ROOT}/server.bundle.mjs');
     expect(m.predicate.env.PREDICATE_BACKEND).toBe('oxigraph');
     expect(JSON.stringify(m)).not.toContain('FUSEKI_URL');
   });
