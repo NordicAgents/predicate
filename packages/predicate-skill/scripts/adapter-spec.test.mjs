@@ -9,7 +9,7 @@ describe('adapter-spec', () => {
   });
   it('declares the in-scope platforms only', () => {
     expect(Object.keys(PLATFORMS).sort()).toEqual(
-      ['codex', 'cursor', 'gemini', 'vscode'].sort(),
+      ['codex', 'cursor', 'vscode'].sort(),
     );
   });
 });

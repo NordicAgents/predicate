@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildInstructionDoc, codexPluginManifest, codexMcpJson, geminiExtensionManifest, geminiHooksJson } from './gen-adapters.mjs';
+import { buildInstructionDoc, codexPluginManifest, codexMcpJson } from './gen-adapters.mjs';
 
 const SKILL = `---
 name: predicate-reasoning
@@ -36,17 +36,5 @@ describe('manifests', () => {
     expect(p.name).toBe('predicate');
     expect(p.version).toBe('9.9.9');
     expect(p.skills).toBe('./skills/');
-  });
-  it('gemini extension uses extensionPath + GEMINI.md context file', () => {
-    const g = geminiExtensionManifest('9.9.9');
-    expect(g.contextFileName).toBe('GEMINI.md');
-    expect(g.mcpServers.predicate.args[0]).toBe('${extensionPath}/server.bundle.mjs');
-    expect(g.version).toBe('9.9.9');
-  });
-  it('gemini hooks.json uses real event names with split SessionStart matchers', () => {
-    const h = geminiHooksJson();
-    expect(Object.keys(h.hooks).sort()).toEqual(['AfterAgent', 'PreCompress', 'SessionStart']);
-    expect(h.hooks.SessionStart.map((e) => e.matcher).sort()).toEqual(['resume', 'startup']);
-    expect(JSON.stringify(h)).toContain('${extensionPath}/hooks/gemini-cli/stop.sh');
   });
 });

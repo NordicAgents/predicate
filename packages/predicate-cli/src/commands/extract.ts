@@ -16,10 +16,11 @@ import {
 import { extractSemantic, type SemanticTriple } from 'predicate-agent/src/semantic-extractor.js';
 import {
   adaptClaudeCodeTranscript,
-  adaptGeminiTranscript,
 } from 'predicate-agent/src/transcript-adapters.js';
 
-export const SUPPORTED_PLATFORMS = ['claude-code', 'gemini'] as const;
+// Codex's Stop payload reuses the claude-code canonical shape, so it needs no
+// separate adapter. New platforms add a value here + a case in adapterFor.
+export const SUPPORTED_PLATFORMS = ['claude-code'] as const;
 type Platform = (typeof SUPPORTED_PLATFORMS)[number];
 
 function parseFlag(args: string[], name: string): string | undefined {
@@ -32,14 +33,8 @@ function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
 }
 
-function adapterFor(platform: Platform): (events: Array<Record<string, unknown>>) => Array<Record<string, unknown>> {
-  switch (platform) {
-    case 'gemini':
-      return adaptGeminiTranscript;
-    case 'claude-code':
-    default:
-      return adaptClaudeCodeTranscript;
-  }
+function adapterFor(_platform: Platform): (events: Array<Record<string, unknown>>) => Array<Record<string, unknown>> {
+  return adaptClaudeCodeTranscript;
 }
 
 async function readStdin(stream: Readable): Promise<string> {
@@ -72,7 +67,7 @@ Options:
   --from-stdin         Required (unless --replay is used).
   --replay <path>   Rebuild the extracted abox slice from a transcript file or
                     a directory of <session-id>.jsonl files (re-materializes inferred).
-  --platform <name>    One of: claude-code (default), gemini.
+  --platform <name>    One of: claude-code (default).
                        Selects the transcript adapter for the platform.
   --strict             Exit non-zero if any triple is rejected (default: exit 0
                        for Stop-hook safety).

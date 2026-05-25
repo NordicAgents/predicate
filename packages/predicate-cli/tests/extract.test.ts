@@ -99,39 +99,6 @@ describe('predicate extract', () => {
     } finally { errSpy.mockRestore(); }
   });
 
-  it('extracts triples from a Gemini-shaped transcript when --platform gemini is set', async () => {
-    const transcript = writeTranscript([
-      {
-        type: 'tool_call',
-        toolUse: { toolCallId: 'g1', toolName: 'Edit', toolInput: { file_path: '/work/gem.ts' } },
-      },
-      {
-        type: 'tool_result',
-        toolResult: { toolCallId: 'g1', content: 'ok' },
-      },
-    ]);
-    const payload = JSON.stringify({
-      session_id: 'ses-gemini-extract',
-      transcript_path: transcript,
-      stop_hook_active: true,
-    });
-    const code = await extract(['--from-stdin', '--platform', 'gemini'], Readable.from([payload]));
-    expect(code).toBe(0);
-    try {
-      const r = await client.select(
-        `PREFIX cb: <https://industriagents.com/predicate/codebase#>
-         SELECT (COUNT(*) AS ?n) WHERE {
-           GRAPH <kg:abox> {
-             <file:///work/gem.ts> cb:modifiedIn <urn:predicate:session:ses-gemini-extract>
-           }
-         }`,
-      );
-      expect(parseInt(r.results.bindings[0]!.n!.value, 10)).toBe(1);
-    } finally {
-      rmSync(transcript, { force: true });
-    }
-  });
-
   it('errors with exit 2 on unsupported --platform value', async () => {
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {

@@ -36767,7 +36767,6 @@ import * as fs2 from "node:fs";
 import * as path from "node:path";
 var WORKSPACE_ENV_VARS = [
   "CLAUDE_PROJECT_DIR",
-  "GEMINI_PROJECT_DIR",
   "OPENCODE_PROJECT_DIR",
   "VSCODE_CWD",
   "CURSOR_CWD",

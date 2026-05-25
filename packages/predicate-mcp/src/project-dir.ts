@@ -16,7 +16,6 @@ import * as path from 'node:path';
 /** Workspace env vars across hosts, plus the universal escape hatch. */
 const WORKSPACE_ENV_VARS = [
   'CLAUDE_PROJECT_DIR',
-  'GEMINI_PROJECT_DIR',
   'OPENCODE_PROJECT_DIR',
   'VSCODE_CWD',
   'CURSOR_CWD',

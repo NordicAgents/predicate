@@ -133,7 +133,6 @@ var init_project_dir = __esm({
     "use strict";
     WORKSPACE_ENV_VARS = [
       "CLAUDE_PROJECT_DIR",
-      "GEMINI_PROJECT_DIR",
       "OPENCODE_PROJECT_DIR",
       "VSCODE_CWD",
       "CURSOR_CWD",
@@ -18762,13 +18761,12 @@ import { existsSync as existsSync5, accessSync, constants, rmSync } from "node:f
 import { dirname as dirname4, join as join8, resolve as resolve4 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 var PLATFORM_HOOK_DIR = {
-  codex: "hooks/codex-cli",
-  gemini: "hooks/gemini-cli"
+  codex: "hooks/codex-cli"
 };
 function platformChecks(platform) {
   const dir = PLATFORM_HOOK_DIR[platform];
   if (!dir) {
-    return [{ name: "platform", ok: false, detail: `unknown platform '${platform}' (codex|gemini)` }];
+    return [{ name: "platform", ok: false, detail: `unknown platform '${platform}' (codex)` }];
   }
   const root = dirname4(fileURLToPath3(import.meta.url));
   const scripts = ["session-start.sh", "stop.sh"];
@@ -28981,55 +28979,6 @@ var Generalizer = class {
 function adaptClaudeCodeTranscript(events) {
   return events;
 }
-function adaptGeminiTranscript(events) {
-  return events.map((ev) => {
-    if (ev["type"] === "tool_call" || ev["toolUse"] || ev["tool_use"]) {
-      const tu = ev["toolUse"] ?? ev["tool_use"] ?? ev;
-      return {
-        type: "assistant",
-        message: {
-          role: "assistant",
-          content: [
-            {
-              type: "tool_use",
-              id: pickStr(tu, ["id", "toolCallId", "tool_use_id"]) ?? "",
-              name: pickStr(tu, ["name", "toolName", "tool_name"]) ?? "",
-              input: pick(tu, ["input", "toolInput", "args"]) ?? {}
-            }
-          ]
-        }
-      };
-    }
-    if (ev["type"] === "tool_result" || ev["toolResult"] || ev["tool_result"]) {
-      const tr2 = ev["toolResult"] ?? ev["tool_result"] ?? ev;
-      return {
-        type: "user",
-        message: {
-          role: "user",
-          content: [
-            {
-              type: "tool_result",
-              tool_use_id: pickStr(tr2, ["tool_use_id", "toolCallId", "id"]) ?? "",
-              is_error: tr2["is_error"] === true || tr2["isError"] === true || tr2["error"] === true,
-              content: typeof tr2["content"] === "string" ? tr2["content"] : typeof tr2["output"] === "string" ? tr2["output"] : typeof tr2["result"] === "string" ? tr2["result"] : ""
-            }
-          ]
-        }
-      };
-    }
-    return ev;
-  });
-}
-function pick(o2, keys) {
-  for (const k2 of keys) {
-    if (o2[k2] !== void 0 && o2[k2] !== null) return o2[k2];
-  }
-  return void 0;
-}
-function pickStr(o2, keys) {
-  const v2 = pick(o2, keys);
-  return typeof v2 === "string" ? v2 : void 0;
-}
 
 // ../predicate-agent/src/lifecycle-controller.ts
 import { readFileSync as readFileSync3, existsSync as existsSync6, mkdirSync as mkdirSync2, renameSync } from "node:fs";
@@ -30079,7 +30028,7 @@ ${input.toolSummary}
 }
 
 // ../predicate-cli/src/commands/extract.ts
-var SUPPORTED_PLATFORMS = ["claude-code", "gemini"];
+var SUPPORTED_PLATFORMS = ["claude-code"];
 function parseFlag3(args, name) {
   const i2 = args.indexOf(name);
   if (i2 < 0 || i2 + 1 >= args.length) return void 0;
@@ -30088,14 +30037,8 @@ function parseFlag3(args, name) {
 function hasFlag3(args, name) {
   return args.includes(name);
 }
-function adapterFor(platform) {
-  switch (platform) {
-    case "gemini":
-      return adaptGeminiTranscript;
-    case "claude-code":
-    default:
-      return adaptClaudeCodeTranscript;
-  }
+function adapterFor(_platform) {
+  return adaptClaudeCodeTranscript;
 }
 async function readStdin2(stream) {
   let buf = "";
@@ -30126,7 +30069,7 @@ Options:
   --from-stdin         Required (unless --replay is used).
   --replay <path>   Rebuild the extracted abox slice from a transcript file or
                     a directory of <session-id>.jsonl files (re-materializes inferred).
-  --platform <name>    One of: claude-code (default), gemini.
+  --platform <name>    One of: claude-code (default).
                        Selects the transcript adapter for the platform.
   --strict             Exit non-zero if any triple is rejected (default: exit 0
                        for Stop-hook safety).
@@ -31264,7 +31207,7 @@ async function install(args) {
   const platform = args[0];
   if (platform !== "vscode" && platform !== "cursor") {
     console.error("usage: predicate install <vscode|cursor>");
-    console.error("  (Claude/Codex/Gemini install via their own marketplace/extension commands)");
+    console.error("  (Claude/Codex install via their own marketplace commands)");
     return 2;
   }
   const projectDir = process.cwd();

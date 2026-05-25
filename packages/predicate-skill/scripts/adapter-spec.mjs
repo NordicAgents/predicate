@@ -9,7 +9,6 @@ export const MCP_ENV = {
 // Tier 1 = full plugin bundle (skills + hooks + MCP). Tier 2 = MCP + instructions.
 export const PLATFORMS = {
   codex:  { tier: 1, instructionFile: 'AGENTS.md' },
-  gemini: { tier: 1, instructionFile: 'GEMINI.md' },
   vscode: { tier: 2, instructionFile: 'AGENTS.md' },
   cursor: { tier: 2, instructionFile: 'AGENTS.md' },
 };

@@ -12,13 +12,12 @@ export interface PlatformCheck { name: string; ok: boolean; detail?: string }
 
 const PLATFORM_HOOK_DIR: Record<string, string> = {
   codex: 'hooks/codex-cli',
-  gemini: 'hooks/gemini-cli',
 };
 
 export function platformChecks(platform: string): PlatformCheck[] {
   const dir = PLATFORM_HOOK_DIR[platform];
   if (!dir) {
-    return [{ name: 'platform', ok: false, detail: `unknown platform '${platform}' (codex|gemini)` }];
+    return [{ name: 'platform', ok: false, detail: `unknown platform '${platform}' (codex)` }];
   }
   // The bundled CLI sits at the predicate-skill package root; hooks/ is a sibling.
   const root = dirname(fileURLToPath(import.meta.url));

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { platformChecks } from '../src/commands/doctor.js';
 
 describe('platformChecks', () => {
-  it('codex/gemini report hook-script presence and never reference FUSEKI', () => {
+  it('codex reports hook-script presence and never references FUSEKI', () => {
     const checks = platformChecks('codex');
     expect(checks.some((c) => c.name === 'hook scripts')).toBe(true);
     expect(JSON.stringify(checks)).not.toContain('FUSEKI');

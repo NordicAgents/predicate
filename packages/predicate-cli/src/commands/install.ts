@@ -52,7 +52,7 @@ export async function install(args: string[]): Promise<number> {
   const platform = args[0] as Platform | undefined;
   if (platform !== 'vscode' && platform !== 'cursor') {
     console.error('usage: predicate install <vscode|cursor>');
-    console.error('  (Claude/Codex/Gemini install via their own marketplace/extension commands)');
+    console.error('  (Claude/Codex install via their own marketplace commands)');
     return 2;
   }
   const projectDir = process.cwd();

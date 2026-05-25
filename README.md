@@ -94,20 +94,6 @@ hooks once via `/hooks`. See `packages/predicate-skill/hooks/codex-cli/README.md
 </details>
 
 <details>
-<summary><strong>Gemini CLI</strong> (extension, capture supported)</summary>
-
-```bash
-gemini extensions install https://github.com/NordicAgents/predicate
-# restart Gemini CLI
-```
-
-Installs as a self-contained extension (own MCP server, `GEMINI.md`, and
-`SessionStart` / `AfterAgent` / `PreCompress` hooks). See
-`packages/predicate-skill/hooks/gemini-cli/README.md`.
-
-</details>
-
-<details>
 <summary><strong>VS Code Copilot</strong> / <strong>Cursor</strong> (MCP-only)</summary>
 
 From your project root:
@@ -151,7 +137,7 @@ mcpServers:
                     ┌─────────────────────────────────────────────┐
    your agent       │                  Predicate                  │
   (Claude Code,     │                                             │
-   Codex, Gemini …) │   ┌──────────┐         ┌─────────────────┐  │
+   Codex …)         │   ┌──────────┐         ┌─────────────────┐  │
         │           │   │ 10 kg_*  │  SPARQL │  Storage adapter │  │
         │  MCP      │   │   tools  │────────▶│  Oxigraph (def.) │  │
         ├──────────▶│   │ (stdio)  │         │  Fuseki (opt-in) │  │

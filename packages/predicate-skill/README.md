@@ -33,14 +33,13 @@ Done.
 
 All clients run the same local Oxigraph-backed MCP server (the 9 `kg_*` tools)
 and read the same reasoning guidance (`SKILL.md` on Claude Code; generated
-`AGENTS.md` / `GEMINI.md` elsewhere). "Capture" = automatic Stop-hook turn
+`AGENTS.md` elsewhere). "Capture" = automatic Stop-hook turn
 extraction into `kg:abox`.
 
 | Platform | Install | Capture |
 |---|---|---|
 | **Claude Code** | `/plugin marketplace add NordicAgents/predicate` | ✅ |
 | **Codex CLI** | `codex plugin marketplace add NordicAgents/predicate` | ✅ |
-| **Gemini CLI** | `gemini extensions install https://github.com/NordicAgents/predicate` | ✅ |
 | **VS Code Copilot** | `npx predicate-skill install vscode` | tools only |
 | **Cursor** | `npx predicate-skill install cursor` | tools only |
 | **Any stdio MCP client** | `node "$(npm root -g)/predicate-skill/server.bundle.mjs"` | tools only |
@@ -86,23 +85,6 @@ codex plugin marketplace add NordicAgents/predicate
 Two one-time gotchas: set `[features] plugin_hooks = true` in
 `~/.codex/config.toml`, and approve the hooks once via `/hooks`. See
 `hooks/codex-cli/README.md`.
-
-</details>
-
-<details>
-<summary><strong>Gemini CLI</strong></summary>
-
-Installs as a self-contained extension (own MCP server, `GEMINI.md` context, and
-`SessionStart` / `AfterAgent` / `PreCompress` hooks):
-
-```bash
-gemini extensions install https://github.com/NordicAgents/predicate
-# restart Gemini CLI
-```
-
-Lighter MCP-only path (no capture):
-`gemini mcp add predicate -s user -- node /abs/path/server.bundle.mjs`. See
-`hooks/gemini-cli/README.md`.
 
 </details>
 
@@ -259,16 +241,15 @@ Non-interactive: `predicate init --mode community --ontology codebase` (or
 | `cli.bundle.mjs` | Bundled `predicate` CLI, surfaced via this package's `bin`. |
 | `.claude-plugin/plugin.json` | MCP + skills + hooks registration for the Claude Code marketplace. |
 | `.codex-plugin/`, `.mcp.json` | Generated Codex plugin manifest + MCP registration. |
-| `gemini-extension/` | Generated self-contained Gemini CLI extension (own manifest, GEMINI.md, hooks, bundled server/CLI). |
 | `skills/predicate-reasoning/SKILL.md` | Host-agent contract: triggers, workflow, anti-patterns, worked examples. |
 | `commands/{up,down,status,ask}.md` | Slash-command definitions for `/predicate:*`. |
-| `hooks/` | Shared CLI resolver + Claude Code lifecycle hooks + per-platform adapters (codex-cli, gemini-cli, cursor, vscode-copilot). |
+| `hooks/` | Shared CLI resolver + Claude Code lifecycle hooks + per-platform adapters (codex-cli, cursor, vscode-copilot). |
 | `AGENTS.md` | Generated from SKILL.md; reasoning guidance for Codex / Cursor / VS Code. |
 | `compose/` | Fuseki + TDB2 docker-compose config — only used by the opt-in Fuseki backend. |
 | `catalog/`, `meta/` | Bundled ontology catalog + meta vocabulary for `predicate init`. |
 | `dashboard/` | Static assets for `predicate dashboard`. |
 
-> The adapters in `hooks/`, `.codex-plugin/`, `gemini-extension/`, and `AGENTS.md`
+> The adapters in `hooks/`, `.codex-plugin/`, and `AGENTS.md`
 > are **generated** — edit the sources and rebuild, don't hand-edit them.
 
 ## Rebuilding the bundles

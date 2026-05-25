@@ -6,8 +6,7 @@
 # returns non-zero so callers can fail-open.
 #
 # Platform plugin-root env vars, highest priority first (matches the loop below):
-#   PREDICATE_PLUGIN_ROOT - Gemini/manual: explicit override, set in the hook
-#                           command to ${extensionPath}; wins when present
+#   PREDICATE_PLUGIN_ROOT - manual/explicit override; wins when present
 #   CLAUDE_PLUGIN_ROOT    - Claude Code, and Codex (Codex sets it for compat)
 #   PLUGIN_ROOT           - Codex native
 
