@@ -1,0 +1,46 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontSize": "14px",
+    "actorBkg": "#FFD23F",
+    "actorBorder": "#1A1A1A",
+    "actorTextColor": "#1A1A1A",
+    "actorLineColor": "#1A1A1A",
+    "signalColor": "#1A1A1A",
+    "signalTextColor": "#1A1A1A",
+    "noteBkgColor": "#FF6B6B",
+    "noteTextColor": "#FFFFFF",
+    "noteBorderColor": "#1A1A1A",
+    "labelBoxBkgColor": "#4ECDC4",
+    "labelBoxBorderColor": "#1A1A1A",
+    "labelTextColor": "#1A1A1A",
+    "sequenceNumberColor": "#FFFFFF",
+    "activationBkgColor": "#FFD23F",
+    "activationBorderColor": "#1A1A1A"
+  }
+}}%%
+sequenceDiagram
+  participant Host as Agent host
+  participant Stop as stop.sh hook
+  participant Ext as turn-extractor.ts
+  participant KG as kg_* tools
+  participant R as Reasoner
+  participant G as Named graphs
+
+  rect rgb(255, 247, 225)
+  Note over Host,G: TURN ENDS — capture
+  Host->>Stop: turn payload (stdin)
+  Stop->>Ext: predicate extract --from-stdin
+  Ext->>KG: kg_assert (typed triples + provenance)
+  KG->>G: write kg:abox + kg:provenance
+  R->>G: forward-chain to fixpoint → kg:inferred
+  end
+
+  rect rgb(230, 250, 248)
+  Note over Host,G: NEXT TURN — ask
+  Host->>KG: kg_explore_schema / kg_ask
+  KG->>G: SPARQL
+  G-->>KG: results
+  Host->>KG: kg_explain (why?)
+  KG-->>Host: derivation path (cited triples + rules)
+  end

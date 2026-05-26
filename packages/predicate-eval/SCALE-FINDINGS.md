@@ -22,6 +22,38 @@ Three arms are compared on the same generated history, same questions, same fact
 | 100 | 1,297 | 78 s   | 1.00 | 55 k  | 25 | **1.6 k** |
 | 400 | 4,297 | **320 s (5.3 min)** | 1.00 | 182 k | 25 | **1.6 k** |
 
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    xyChart:
+      backgroundColor: "#FFF7E1"
+      titleColor: "#1A1A1A"
+      xAxisLabelColor: "#1A1A1A"
+      xAxisTitleColor: "#1A1A1A"
+      xAxisTickColor: "#1A1A1A"
+      xAxisLineColor: "#1A1A1A"
+      yAxisLabelColor: "#1A1A1A"
+      yAxisTitleColor: "#1A1A1A"
+      yAxisTickColor: "#1A1A1A"
+      yAxisLineColor: "#1A1A1A"
+      plotColorPalette: "#FF6B6B"
+  xyChart:
+    width: 800
+    height: 450
+---
+xychart-beta
+  title "Reasoner materialization latency vs. sessions"
+  x-axis "Sessions" [25, 100, 400]
+  y-axis "Seconds" 0 --> 350
+  bar [35, 78, 320]
+```
+
+Flat-retrieved tokens stay constant at 1.6 k across the same sweep (see the
+table) — the contrast is the headline result. Diagram source:
+[`docs/diagrams/scale-findings.mmd`](../../docs/diagrams/scale-findings.mmd).
+
 Live flat-retrieved accuracy anchor (Haiku, 400 sessions): **mean f1 = 0.98** (3/4
 questions perfect, including a 28-file transitive closure; one miss of one element).
 

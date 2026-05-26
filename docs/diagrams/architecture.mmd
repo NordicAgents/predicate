@@ -1,0 +1,37 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontSize": "15px",
+    "primaryColor": "#FFD23F",
+    "primaryTextColor": "#1A1A1A",
+    "primaryBorderColor": "#1A1A1A",
+    "lineColor": "#1A1A1A",
+    "edgeLabelBackground": "#FFF7E1"
+  }
+}}%%
+flowchart LR
+  Agent["<b>your agent</b><br/>Claude Code · Codex"]:::actor
+  Hook["<b>Stop hook</b><br/>turn capture"]:::actor
+
+  subgraph Predicate["PREDICATE"]
+    direction TB
+    Tools["<b>10 kg_* tools</b><br/>stdio MCP"]:::iface
+    Reasoner["<b>21-rule reasoner</b><br/>16 OWL 2 RL + 5 domain<br/>+ SHACL"]:::compute
+    Storage["<b>Storage adapter</b><br/>Oxigraph · Fuseki"]:::data
+    Graphs[("<b>8 named graphs</b><br/>tbox · tbox-staging · abox<br/>inferred · provenance · meta<br/>goals · usage")]:::store
+  end
+
+  Agent -->|MCP| Tools
+  Hook  -->|assert| Tools
+  Tools -->|SPARQL| Storage
+  Storage <--> Graphs
+  Reasoner -.->|CONSTRUCT fixpoint| Graphs
+  Tools   -.-> Reasoner
+
+  classDef actor   fill:#FFD23F,stroke:#1A1A1A,stroke-width:3px,color:#1A1A1A
+  classDef iface   fill:#4ECDC4,stroke:#1A1A1A,stroke-width:3px,color:#1A1A1A
+  classDef compute fill:#FF6B6B,stroke:#1A1A1A,stroke-width:3px,color:#FFFFFF
+  classDef data    fill:#1A535C,stroke:#1A1A1A,stroke-width:3px,color:#FFFFFF
+  classDef store   fill:#FFFFFF,stroke:#1A1A1A,stroke-width:3px,color:#1A1A1A
+
+  style Predicate fill:#FFF7E1,stroke:#1A1A1A,stroke-width:3px,color:#1A1A1A

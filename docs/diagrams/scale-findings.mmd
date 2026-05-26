@@ -1,0 +1,25 @@
+---
+config:
+  theme: base
+  themeVariables:
+    xyChart:
+      backgroundColor: "#FFF7E1"
+      titleColor: "#1A1A1A"
+      xAxisLabelColor: "#1A1A1A"
+      xAxisTitleColor: "#1A1A1A"
+      xAxisTickColor: "#1A1A1A"
+      xAxisLineColor: "#1A1A1A"
+      yAxisLabelColor: "#1A1A1A"
+      yAxisTitleColor: "#1A1A1A"
+      yAxisTickColor: "#1A1A1A"
+      yAxisLineColor: "#1A1A1A"
+      plotColorPalette: "#FF6B6B"
+  xyChart:
+    width: 800
+    height: 450
+---
+xychart-beta
+  title "Reasoner materialization latency vs. sessions"
+  x-axis "Sessions" [25, 100, 400]
+  y-axis "Seconds" 0 --> 350
+  bar [35, 78, 320]

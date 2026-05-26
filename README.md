@@ -165,31 +165,103 @@ mcpServers:
 
 ## Architecture
 
-```
-                    ┌─────────────────────────────────────────────┐
-   your agent       │                  Predicate                  │
-  (Claude Code,     │                                             │
-   Codex …)         │   ┌──────────┐         ┌─────────────────┐  │
-        │           │   │ 10 kg_*  │  SPARQL │  Storage adapter │  │
-        │  MCP      │   │   tools  │────────▶│  Oxigraph (def.) │  │
-        ├──────────▶│   │ (stdio)  │         │  Fuseki (opt-in) │  │
-        │           │   └────┬─────┘         └────────┬────────┘  │
-        │           │        │                        │           │
-   Stop hook        │        │                  8 named graphs    │
-  (turn capture)    │        ▼                        │           │
-        │           │   ┌──────────┐          tbox · tbox-staging │
-        └──────────▶│   │ 21-rule  │  fixpoint  abox · inferred   │
-                    │   │ reasoner │◀─────────▶ provenance · meta  │
-                    │   │ + SHACL  │  CONSTRUCT goals · usage      │
-                    │   └──────────┘                              │
-                    └─────────────────────────────────────────────┘
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontSize": "15px",
+    "primaryColor": "#FFD23F",
+    "primaryTextColor": "#1A1A1A",
+    "primaryBorderColor": "#1A1A1A",
+    "lineColor": "#1A1A1A",
+    "edgeLabelBackground": "#FFF7E1"
+  }
+}}%%
+flowchart LR
+  Agent["<b>your agent</b><br/>Claude Code · Codex"]:::actor
+  Hook["<b>Stop hook</b><br/>turn capture"]:::actor
 
-  capture ──▶ kg_assert ──▶ reasoner materializes ──▶ kg:inferred ──▶ kg_ask / kg_explain
+  subgraph Predicate["PREDICATE"]
+    direction TB
+    Tools["<b>10 kg_* tools</b><br/>stdio MCP"]:::iface
+    Reasoner["<b>21-rule reasoner</b><br/>16 OWL 2 RL + 5 domain<br/>+ SHACL"]:::compute
+    Storage["<b>Storage adapter</b><br/>Oxigraph · Fuseki"]:::data
+    Graphs[("<b>8 named graphs</b><br/>tbox · tbox-staging · abox<br/>inferred · provenance · meta<br/>goals · usage")]:::store
+  end
+
+  Agent -->|MCP| Tools
+  Hook  -->|assert| Tools
+  Tools -->|SPARQL| Storage
+  Storage <--> Graphs
+  Reasoner -.->|CONSTRUCT fixpoint| Graphs
+  Tools   -.-> Reasoner
+
+  classDef actor   fill:#FFD23F,stroke:#1A1A1A,stroke-width:3px,color:#1A1A1A
+  classDef iface   fill:#4ECDC4,stroke:#1A1A1A,stroke-width:3px,color:#1A1A1A
+  classDef compute fill:#FF6B6B,stroke:#1A1A1A,stroke-width:3px,color:#FFFFFF
+  classDef data    fill:#1A535C,stroke:#1A1A1A,stroke-width:3px,color:#FFFFFF
+  classDef store   fill:#FFFFFF,stroke:#1A1A1A,stroke-width:3px,color:#1A1A1A
+
+  style Predicate fill:#FFF7E1,stroke:#1A1A1A,stroke-width:3px,color:#1A1A1A
 ```
 
 The agent reads the schema (`kg_explore_schema`), drafts SPARQL, asserts facts
 with provenance (`kg_assert`), and asks questions (`kg_ask`). The reasoner does
 the logic; the model formulates queries and interprets results.
+
+### Runtime flow
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontSize": "14px",
+    "actorBkg": "#FFD23F",
+    "actorBorder": "#1A1A1A",
+    "actorTextColor": "#1A1A1A",
+    "actorLineColor": "#1A1A1A",
+    "signalColor": "#1A1A1A",
+    "signalTextColor": "#1A1A1A",
+    "noteBkgColor": "#FF6B6B",
+    "noteTextColor": "#FFFFFF",
+    "noteBorderColor": "#1A1A1A",
+    "labelBoxBkgColor": "#4ECDC4",
+    "labelBoxBorderColor": "#1A1A1A",
+    "labelTextColor": "#1A1A1A",
+    "sequenceNumberColor": "#FFFFFF",
+    "activationBkgColor": "#FFD23F",
+    "activationBorderColor": "#1A1A1A"
+  }
+}}%%
+sequenceDiagram
+  participant Host as Agent host
+  participant Stop as stop.sh hook
+  participant Ext as turn-extractor.ts
+  participant KG as kg_* tools
+  participant R as Reasoner
+  participant G as Named graphs
+
+  rect rgb(255, 247, 225)
+  Note over Host,G: TURN ENDS — capture
+  Host->>Stop: turn payload (stdin)
+  Stop->>Ext: predicate extract --from-stdin
+  Ext->>KG: kg_assert (typed triples + provenance)
+  KG->>G: write kg:abox + kg:provenance
+  R->>G: forward-chain to fixpoint → kg:inferred
+  end
+
+  rect rgb(230, 250, 248)
+  Note over Host,G: NEXT TURN — ask
+  Host->>KG: kg_explore_schema / kg_ask
+  KG->>G: SPARQL
+  G-->>KG: results
+  Host->>KG: kg_explain (why?)
+  KG-->>Host: derivation path (cited triples + rules)
+  end
+```
+
+> More diagrams (schema lifecycle, scale findings) live in
+> [`docs/diagrams/`](docs/diagrams/README.md).
 
 ## How it works
 
