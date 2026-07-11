@@ -49,7 +49,7 @@ describe('FusekiConstructAdapter.materialize', () => {
     expect(reached).toBe(true);
   });
 
-  it('hard-fails if fixpoint does not converge within 10 iterations', async () => {
+  it('hard-fails if fixpoint does not converge within the iteration cap', async () => {
     // Force a synthetic blow-up by injecting an artificial growing chain.
     // Use a stub rule that always inserts a fresh-named triple.
     const fakeAdapter = new FusekiConstructAdapter(client);

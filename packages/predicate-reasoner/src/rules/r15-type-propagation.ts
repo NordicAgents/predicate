@@ -1,6 +1,6 @@
 import type { Rule, RuleConfig } from './types.js';
 import type { Quad } from '../types.js';
-import { closureEligible } from '../closure.js';
+import { closureEligible, deltaEligible } from '../closure.js';
 
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 const SUBCLASS_OF = 'http://www.w3.org/2000/01/rdf-schema#subClassOf';
@@ -23,6 +23,37 @@ export const r15: Rule = {
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }
     }
   `,
+  // Semi-naive: both the type atom and the subClassOf atom are recursive
+  // (each unions cfg.inferredGraph), so two variants (delta JOIN full,
+  // full JOIN delta).
+  deltaInsertWhere: (cfg: RuleConfig) => {
+    const subClassFull = `
+      {
+        { GRAPH <${cfg.tboxGraph}>     { ?C rdfs:subClassOf ?D } }
+        UNION
+        { GRAPH <${cfg.inferredGraph}> { ?C rdfs:subClassOf ?D } }
+      }`;
+    const guards = `
+      FILTER (?C != ?D)
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }`;
+    const head = `
+    PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }
+    WHERE {`;
+    return [
+      `${head}
+      ${deltaEligible('?x', 'rdf:type', '?C', cfg)}
+      ${subClassFull}
+      ${guards}
+    }`,
+      `${head}
+      ${closureEligible('?x', 'rdf:type', '?C', cfg)}
+      ${deltaEligible('?C', 'rdfs:subClassOf', '?D', cfg)}
+      ${guards}
+    }`,
+    ];
+  },
   backward: {
     matches: (q: Quad) => q.p === RDF_TYPE,
     premiseQuery: (q: Quad) => {

@@ -1,6 +1,6 @@
 import type { Rule, RuleConfig } from './types.js';
 import type { Quad } from '../types.js';
-import { closureEligible } from '../closure.js';
+import { closureEligible, deltaEligible } from '../closure.js';
 
 export const r03: Rule = {
   id: 'r03-transitive-property',
@@ -21,6 +21,39 @@ export const r03: Rule = {
       ${cfg.aboxGraphs.map((g) => `FILTER NOT EXISTS { GRAPH <${g}> { ?x ?p ?z } }`).join('\n      ')}
     }
   `,
+  // Semi-naive: both closure atoms are recursive, so two variants
+  // (delta JOIN full, full JOIN delta) to keep path lengths doubling.
+  deltaInsertWhere: (cfg: RuleConfig) => {
+    const guards = `
+      FILTER (?x != ?z)
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?p ?z } }
+      ${cfg.aboxGraphs.map((g) => `FILTER NOT EXISTS { GRAPH <${g}> { ?x ?p ?z } }`).join('\n      ')}`;
+    const head = `
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x ?p ?z } }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> { ?p a owl:TransitiveProperty }`;
+    return [
+      `${head}
+      {
+        ${deltaEligible('?x', '?p', '?y', cfg)}
+      }
+      {
+        ${closureEligible('?y', '?p', '?z', cfg)}
+      }
+      ${guards}
+    }`,
+      `${head}
+      {
+        ${closureEligible('?x', '?p', '?y', cfg)}
+      }
+      {
+        ${deltaEligible('?y', '?p', '?z', cfg)}
+      }
+      ${guards}
+    }`,
+    ];
+  },
   backward: {
     matches: () => true,
     premiseQuery: (q: Quad) => {

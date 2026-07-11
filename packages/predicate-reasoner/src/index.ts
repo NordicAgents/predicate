@@ -12,6 +12,9 @@ import { runValidation } from './validate.js';
 import { explain as explainImpl } from './explain.js';
 
 export * from './types.js';
+export { runFixpoint, runFixpointNaive, DEFAULT_MAX_ITERATIONS } from './fixpoint.js';
+export type { FixpointResult } from './fixpoint.js';
+export * from './scoped.js';
 
 export class FusekiConstructAdapter implements ReasonerAdapter {
   /** Override for tests; in production this is the RULES registry. */

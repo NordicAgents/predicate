@@ -35,3 +35,25 @@ export function closureEligible(
     }${aboxUnion}
   `;
 }
+
+/**
+ * Delta-restricted counterpart of closureEligible for semi-naive evaluation:
+ * binds (?s, ?p, ?o) to the triples derived in the PREVIOUS fixpoint round
+ * only (the engine-maintained delta graph). No provenance filter — every
+ * triple in the delta was already closure-eligible when it was derived.
+ *
+ * Only valid inside a Rule.deltaInsertWhere body: the semi-naive engine sets
+ * cfg.deltaGraph before calling it.
+ */
+export function deltaEligible(
+  s: string, p: string, o: string,
+  cfg: RuleConfig,
+): string {
+  if (cfg.deltaGraph === undefined) {
+    throw new Error(
+      'deltaEligible requires cfg.deltaGraph — it is only usable inside ' +
+      'Rule.deltaInsertWhere, where the semi-naive engine provides it.',
+    );
+  }
+  return `GRAPH <${cfg.deltaGraph}> { ${s} ${p} ${o} }`;
+}

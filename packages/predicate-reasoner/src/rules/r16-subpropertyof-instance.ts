@@ -1,6 +1,6 @@
 import type { Rule, RuleConfig } from './types.js';
 import type { Quad } from '../types.js';
-import { closureEligible } from '../closure.js';
+import { closureEligible, deltaEligible } from '../closure.js';
 
 const SUBPROPERTY_OF = 'http://www.w3.org/2000/01/rdf-schema#subPropertyOf';
 
@@ -25,6 +25,36 @@ export const r16: Rule = {
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?q ?y } }
     }
   `,
+  // Semi-naive: both the subPropertyOf atom and the instance atom are
+  // recursive (each unions cfg.inferredGraph), so two variants
+  // (delta JOIN full, full JOIN delta).
+  deltaInsertWhere: (cfg: RuleConfig) => {
+    const subPropFull = `
+      {
+        { GRAPH <${cfg.tboxGraph}>     { ?p rdfs:subPropertyOf ?q } }
+        UNION
+        { GRAPH <${cfg.inferredGraph}> { ?p rdfs:subPropertyOf ?q } }
+      }`;
+    const guards = `
+      FILTER (?p != ?q)
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?q ?y } }`;
+    const head = `
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x ?q ?y } }
+    WHERE {`;
+    return [
+      `${head}
+      ${deltaEligible('?p', 'rdfs:subPropertyOf', '?q', cfg)}
+      ${closureEligible('?x', '?p', '?y', cfg)}
+      ${guards}
+    }`,
+      `${head}
+      ${subPropFull}
+      ${deltaEligible('?x', '?p', '?y', cfg)}
+      ${guards}
+    }`,
+    ];
+  },
   backward: {
     matches: (q: Quad) => {
       // Only attempt backward chaining for non-schema predicates inferred via
