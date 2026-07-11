@@ -1,0 +1,442 @@
+{
+  "fixture": "conflict-d20",
+  "arm": "classic-qwen3.5",
+  "model": "qwen3.5:latest",
+  "mem0_version": "1.0.11",
+  "pipeline": "classic",
+  "embed_model": "nomic-embed-text:latest",
+  "n_facts_ingested": 135,
+  "n_ingest_errors": 0,
+  "n_final_memories": 79,
+  "conflict_counts": {
+    "preserved-both": 0,
+    "silently-resolved-to-one": 7,
+    "lost-both": 1,
+    "unclear": 0
+  },
+  "pair_counts": null,
+  "n_pairs_linked": null,
+  "conflicts": [
+    {
+      "id": "vc-p06",
+      "subject": "p06",
+      "predicate": "reportsTo",
+      "values": [
+        "m1",
+        "m2"
+      ],
+      "survived": [
+        "m1"
+      ],
+      "lost_mechanism": {
+        "m2": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "p06 reports to m1",
+        "p06 is a member of team0"
+      ],
+      "search_hits": [
+        "p06 is a member of team0",
+        "p06 reports to m1",
+        "p36 is a member of team0",
+        "p36 works in office0",
+        "p08 works in office0",
+        "p00 is a member of team0",
+        "p36 reports to m1",
+        "p05 reports to m0",
+        "p26 is a member of team2",
+        "p00 reports to m0"
+      ],
+      "op_history": [
+        {
+          "i": 18,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p06 reports to m1",
+          "previous_memory": null
+        },
+        {
+          "i": 20,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p06 is a member of team0",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p19",
+      "subject": "p19",
+      "predicate": "office",
+      "values": [
+        "office3",
+        "office0"
+      ],
+      "survived": [
+        "office0"
+      ],
+      "lost_mechanism": {
+        "office3": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "p19 is a member of team1",
+        "p19 works in office0"
+      ],
+      "search_hits": [
+        "p19 works in office0",
+        "p19 is a member of team1",
+        "p17 works in office1",
+        "p18 is a member of team0",
+        "p29 works in office1",
+        "p18 reports to m3",
+        "p20 reports to m1",
+        "p09 reports to m4",
+        "p17 is a member of team5",
+        "p09 is a member of team3"
+      ],
+      "op_history": [
+        {
+          "i": 59,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p19 is a member of team1",
+          "previous_memory": null
+        },
+        {
+          "i": 121,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "p19 works in office0",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p20",
+      "subject": "p20",
+      "predicate": "reportsTo",
+      "values": [
+        "m0",
+        "m1"
+      ],
+      "survived": [
+        "m1"
+      ],
+      "lost_mechanism": {
+        "m0": "overwritten-by-update"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "p20 is a member of team2",
+        "p20 reports to m1"
+      ],
+      "search_hits": [
+        "p20 reports to m1",
+        "p20 is a member of team2",
+        "p19 works in office0",
+        "p18 is a member of team0",
+        "p30 is a member of team0",
+        "p24 is a member of team0",
+        "p30 reports to m0",
+        "p15 reports to m0",
+        "p12 is a member of team0",
+        "p10 reports to m0"
+      ],
+      "op_history": [
+        {
+          "i": 60,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p20 reports to m0",
+          "previous_memory": null
+        },
+        {
+          "i": 61,
+          "episode": 1,
+          "event": "UPDATE",
+          "memory": "p20 reports to m0",
+          "previous_memory": "p20 reports to m0"
+        },
+        {
+          "i": 62,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p20 is a member of team2",
+          "previous_memory": null
+        },
+        {
+          "i": 122,
+          "episode": 2,
+          "event": "UPDATE",
+          "memory": "p20 reports to m1",
+          "previous_memory": "p20 reports to m0"
+        }
+      ]
+    },
+    {
+      "id": "vc-p21",
+      "subject": "p21",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office2"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "office1": "never-extracted",
+        "office2": "never-extracted"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [
+        "p21 is a member of team3"
+      ],
+      "search_hits": [
+        "p21 is a member of team3",
+        "p20 reports to m1",
+        "p22 reports to m2",
+        "p31 reports to m1",
+        "p20 is a member of team2",
+        "p19 is a member of team1",
+        "p23 is a member of team5",
+        "p22 is a member of team4",
+        "p32 works in office0",
+        "p31 is a member of team1"
+      ],
+      "op_history": [
+        {
+          "i": 65,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p21 is a member of team3",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p26",
+      "subject": "p26",
+      "predicate": "reportsTo",
+      "values": [
+        "m1",
+        "m2"
+      ],
+      "survived": [
+        "m1"
+      ],
+      "lost_mechanism": {
+        "m2": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "p26 is a member of team2",
+        "p26 reports to m1"
+      ],
+      "search_hits": [
+        "p26 reports to m1",
+        "p26 is a member of team2",
+        "p36 works in office0",
+        "p36 reports to m1",
+        "p06 reports to m1",
+        "p27 is a member of team3",
+        "p25 is a member of team1",
+        "p25 reports to m0",
+        "p28 reports to m3",
+        "p36 is a member of team0"
+      ],
+      "op_history": [
+        {
+          "i": 78,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p26 reports to m1",
+          "previous_memory": null
+        },
+        {
+          "i": 80,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p26 is a member of team2",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p33",
+      "subject": "p33",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office2"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office1": "overwritten-by-update"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "p33 reports to m3",
+        "p33 is a member of team3",
+        "p33 works in office2"
+      ],
+      "search_hits": [
+        "p33 reports to m3",
+        "p33 works in office2",
+        "p33 is a member of team3",
+        "p31 reports to m1",
+        "p28 reports to m3",
+        "p18 reports to m3",
+        "p35 is a member of team5",
+        "p23 works in office3",
+        "p39 is a member of team3",
+        "p21 is a member of team3"
+      ],
+      "op_history": [
+        {
+          "i": 99,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p33 reports to m3",
+          "previous_memory": null
+        },
+        {
+          "i": 100,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p33 works in office1",
+          "previous_memory": null
+        },
+        {
+          "i": 101,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p33 is a member of team3",
+          "previous_memory": null
+        },
+        {
+          "i": 125,
+          "episode": 2,
+          "event": "UPDATE",
+          "memory": "p33 works in office2",
+          "previous_memory": "p33 works in office1"
+        }
+      ]
+    },
+    {
+      "id": "vc-p36",
+      "subject": "p36",
+      "predicate": "reportsTo",
+      "values": [
+        "m1",
+        "m2"
+      ],
+      "survived": [
+        "m1"
+      ],
+      "lost_mechanism": {
+        "m2": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "p36 reports to m1",
+        "p36 works in office0",
+        "p36 is a member of team0"
+      ],
+      "search_hits": [
+        "p36 works in office0",
+        "p36 reports to m1",
+        "p36 is a member of team0",
+        "p35 reports to m0",
+        "p33 reports to m3",
+        "p37 reports to m2",
+        "p37 works in office2",
+        "p28 reports to m3",
+        "p34 is a member of team4",
+        "p37 is a member of team1"
+      ],
+      "op_history": [
+        {
+          "i": 108,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p36 reports to m1",
+          "previous_memory": null
+        },
+        {
+          "i": 109,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p36 works in office0",
+          "previous_memory": null
+        },
+        {
+          "i": 110,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p36 is a member of team0",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p37",
+      "subject": "p37",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office2"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office1": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "p37 works in office2",
+        "p37 is a member of team1",
+        "p37 reports to m2"
+      ],
+      "search_hits": [
+        "p37 works in office2",
+        "p37 reports to m2",
+        "p37 is a member of team1",
+        "p36 works in office0",
+        "p36 reports to m1",
+        "p35 reports to m0",
+        "p33 works in office2",
+        "p33 reports to m3",
+        "p31 reports to m1",
+        "p32 reports to m2"
+      ],
+      "op_history": [
+        {
+          "i": 111,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p37 reports to m2",
+          "previous_memory": null
+        },
+        {
+          "i": 113,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "p37 is a member of team1",
+          "previous_memory": null
+        },
+        {
+          "i": 127,
+          "episode": 2,
+          "event": "UPDATE",
+          "memory": "p37 works in office2",
+          "previous_memory": "p37 reports to m2"
+        }
+      ]
+    }
+  ],
+  "pairs": null
+}

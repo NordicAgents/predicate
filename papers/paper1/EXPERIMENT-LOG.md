@@ -128,3 +128,40 @@ backend auto-spawning a native oxigraph daemon over .predicate/store, silently
 switching all test processes from per-process :memory: WASM stores to one shared
 on-disk RocksDB store. Test configs now pin oxigraph-wasm + :memory: (hermetic);
 r23 also gained delta variants. All 412 tests green in ~35s total.
+
+## 2026-07-11 — Pilot D: Mem0 ingest arm (E3), conflict-d20 — the write-time destruction, measured
+
+**Setup.** Mem0 OSS classic 1.0.11 (the two-phase ADD/UPDATE/DELETE pipeline described
+in arXiv 2504.19413) with local Ollama (qwen3.5, nomic-embed-text), fully key-free.
+All 135 conflict-d20 facts rendered to natural language and add()ed in episode order;
+every memory operation the LLM chose captured to an ops log; verdicts computed from
+the full final store + recorded search() views against the oracle's 8 planted
+same-subject conflicts. Version note (itself a finding): mem0ai 2.0.11's OSS add() is
+ADDITIVE-ONLY — the V3 pipeline ships the update prompt but never calls it — so the
+destructive behavior the literature describes exists only in classic <=1.x; 2.x
+appends both values but never flags disagreement (a second failure mode of the same
+bar, queued as a secondary arm).
+
+**Result (8 planted conflicts):**
+
+| verdict | count |
+|---|---|
+| preserved-both (the bar) | **0** |
+| silently-resolved-to-one | **7** |
+| lost-both | 1 |
+
+Direction of resolution is ARBITRARY: the stale value won 3/7, the new value 4/7 —
+not even consistent last-write-wins. One additional ingest-fidelity loss was captured
+mid-run (a fact silently dropped via a NONE decision). Cost note: ~26s/fact through
+the local-LLM write pipeline (~59 min for 135 facts) vs milliseconds for kgAssert.
+
+**Honest read.** The three-arm contrast is now measured end to end on the same
+fixtures: Predicate detects, preserves BOTH values, flags, and cites (1.00);
+retrieval-mediated flat is structurally blind to cross-record conflicts (0.58,
+Pilot C); Mem0's write-time LLM destroys the conflict before any reader can see it
+(0/8 preserved). Caveats for the paper version: local-model extractor (a frontier
+extractor may resolve "better" but the failure is architectural — the pipeline's job
+is to pick, and nothing surfaces the discard); n=1 run; classic-version arm (2.x arm
+= preserved-but-never-surfaced, to be measured). Zep/Graphiti arm blocked on Docker.
+conflict-xr-small (cross-record, email-keyed) chains next: the question is whether
+LLM extraction even LINKS two records sharing a key.

@@ -1,0 +1,10 @@
+# local python envs (recreate: see README.md)
+.venv/
+.venv-classic/
+# local vector/history DBs created by mem0_ingest.py
+.mem0db/
+# python
+__pycache__/
+*.pyc
+# scratch
+*.log
