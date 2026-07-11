@@ -21,10 +21,11 @@ import { r19 } from './r19-active-file.js';
 import { r20 } from './r20-current-judgment.js';
 import { r21 } from './r21-unresolved-conflict.js';
 import { r22 } from './r22-value-conflict.js';
+import { r23 } from './r23-sameas-value-propagation.js';
 
 export const RULES: Rule[] = [
   r01, r02, r03, r04, r05, r06, r07, r08, r09, r10, r11, r12, r13, r14, r15, r16,
-  r17, r18, r19, r20, r21, r22,
+  r17, r18, r19, r20, r21, r22, r23,
 ];
 export { r11 };
 export type { Rule, RuleConfig } from './types.js';

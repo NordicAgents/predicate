@@ -26,6 +26,14 @@ export interface Question {
   rule_under_test: string[];
   reasoning_dependent: boolean;
   golden_sparql: string;
+  /**
+   * Entity IRIs a retrieval-mediated arm may seed its k-hop neighbourhood from
+   * (the record the question "names"). Absent for questions with no natural
+   * entity handle (e.g. global enumerations) — a retrieval-mediated memory
+   * cannot seed those at all, which is itself part of what the benchmark
+   * measures.
+   */
+  retrieval_seeds?: string[];
 }
 
 export type AnswerKey =

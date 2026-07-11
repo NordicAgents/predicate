@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { FusekiConstructAdapter } from 'predicate-reasoner/src/index.js';
 
-export interface EpisodeTriple { s: string; p: string; o: string; }
+/** `lit: true` marks o as a string literal (e.g. an email key) rather than an IRI. */
+export interface EpisodeTriple { s: string; p: string; o: string; lit?: boolean; }
 
 export function readEpisode(path: string): EpisodeTriple[] {
   return readFileSync(path, 'utf8')
@@ -11,7 +12,9 @@ export function readEpisode(path: string): EpisodeTriple[] {
 }
 
 function toNTriples(triples: EpisodeTriple[]): string {
-  return triples.map((t) => `<${t.s}> <${t.p}> <${t.o}> .`).join('\n');
+  return triples
+    .map((t) => `<${t.s}> <${t.p}> ${t.lit ? JSON.stringify(t.o) : `<${t.o}>`} .`)
+    .join('\n');
 }
 
 export async function applyEpisodeTriples(

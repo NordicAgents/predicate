@@ -1,0 +1,154 @@
+[
+  {
+    "id": "conflict-xr-small-q01",
+    "text": "Which person records belong to a person with conflicting values on a single-valued property across their records?",
+    "type": "conflict",
+    "key": {
+      "derive": "all-conflict-subjects"
+    },
+    "needs_episode": 2,
+    "rule_under_test": [
+      "r14",
+      "r23",
+      "r22"
+    ],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?x WHERE { GRAPH <kg:inferred> { ?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://industriagents.com/predicate/judgment#ValueConflict> } }"
+  },
+  {
+    "id": "conflict-xr-small-q02",
+    "text": "Does the person described by record s2-p002 have conflicting office values across their records?",
+    "type": "boolean",
+    "key": {
+      "derive": "literal-boolean",
+      "since": 2
+    },
+    "needs_episode": 2,
+    "rule_under_test": [
+      "r14",
+      "r23",
+      "r22"
+    ],
+    "reasoning_dependent": true,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/cb2/s2-p002> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://industriagents.com/predicate/judgment#ValueConflict> } }",
+    "retrieval_seeds": [
+      "http://ex/cb2/s2-p002"
+    ]
+  },
+  {
+    "id": "conflict-xr-small-q03",
+    "text": "Does the person described by record s1-p003 have conflicting office values across their records?",
+    "type": "boolean",
+    "key": {
+      "derive": "literal-boolean",
+      "since": 2
+    },
+    "needs_episode": 2,
+    "rule_under_test": [
+      "r14",
+      "r23",
+      "r22"
+    ],
+    "reasoning_dependent": true,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/cb2/s1-p003> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://industriagents.com/predicate/judgment#ValueConflict> } }",
+    "retrieval_seeds": [
+      "http://ex/cb2/s1-p003"
+    ]
+  },
+  {
+    "id": "conflict-xr-small-q04",
+    "text": "Does the person described by record s2-p016 have conflicting office values across their records?",
+    "type": "boolean",
+    "key": {
+      "derive": "boolean-conflict",
+      "about": "http://ex/cb2/s2-p016"
+    },
+    "needs_episode": 2,
+    "rule_under_test": [
+      "r14",
+      "r23",
+      "r22"
+    ],
+    "reasoning_dependent": false,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/cb2/s2-p016> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://industriagents.com/predicate/judgment#ValueConflict> } }",
+    "retrieval_seeds": [
+      "http://ex/cb2/s2-p016"
+    ]
+  },
+  {
+    "id": "conflict-xr-small-q05",
+    "text": "Does the person described by record s1-p048 have conflicting office values across their records?",
+    "type": "boolean",
+    "key": {
+      "derive": "boolean-conflict",
+      "about": "http://ex/cb2/s1-p048"
+    },
+    "needs_episode": 2,
+    "rule_under_test": [
+      "r22"
+    ],
+    "reasoning_dependent": false,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/cb2/s1-p048> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://industriagents.com/predicate/judgment#ValueConflict> } }",
+    "retrieval_seeds": [
+      "http://ex/cb2/s1-p048",
+      "http://ex/cb2/s1-p006"
+    ]
+  },
+  {
+    "id": "conflict-xr-small-q06",
+    "text": "According to ALL records for the person described by record s2-p002, which office(s) are on file for them?",
+    "type": "set",
+    "key": {
+      "derive": "literal-set",
+      "values": [
+        "http://ex/cb2/office2",
+        "http://ex/cb2/office0"
+      ],
+      "since": 2
+    },
+    "needs_episode": 2,
+    "rule_under_test": [
+      "r14",
+      "r23"
+    ],
+    "reasoning_dependent": true,
+    "golden_sparql": "SELECT ?o WHERE {\n        { GRAPH <kg:abox> { <http://ex/cb2/s2-p002> <http://ex/cb2#office> ?o } }\n        UNION\n        { GRAPH <kg:inferred> { <http://ex/cb2/s2-p002> <http://ex/cb2#office> ?o } }\n      }",
+    "retrieval_seeds": [
+      "http://ex/cb2/s2-p002"
+    ]
+  },
+  {
+    "id": "conflict-xr-small-q07",
+    "text": "Which office is on file for the person described by record s1-p018 (single record, direct recall)?",
+    "type": "set",
+    "key": {
+      "derive": "direct",
+      "rel": "http://ex/cb2#office",
+      "from": "http://ex/cb2/s1-p018"
+    },
+    "needs_episode": 1,
+    "rule_under_test": [],
+    "reasoning_dependent": false,
+    "golden_sparql": "SELECT ?o WHERE { GRAPH <kg:abox> { <http://ex/cb2/s1-p018> <http://ex/cb2#office> ?o } }",
+    "retrieval_seeds": [
+      "http://ex/cb2/s1-p018"
+    ]
+  },
+  {
+    "id": "conflict-xr-small-q08",
+    "text": "Who does the person described by record s1-p056 report to (single record, direct recall)?",
+    "type": "set",
+    "key": {
+      "derive": "direct",
+      "rel": "http://ex/cb2#reportsTo",
+      "from": "http://ex/cb2/s1-p056"
+    },
+    "needs_episode": 1,
+    "rule_under_test": [],
+    "reasoning_dependent": false,
+    "golden_sparql": "SELECT ?m WHERE { GRAPH <kg:abox> { <http://ex/cb2/s1-p056> <http://ex/cb2#reportsTo> ?m } }",
+    "retrieval_seeds": [
+      "http://ex/cb2/s1-p056"
+    ]
+  }
+]

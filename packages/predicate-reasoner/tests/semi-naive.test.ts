@@ -115,6 +115,17 @@ function generateWorld(seed: number): World {
   tbox.push(`${iri('Y1')} rdfs:subClassOf ${iri('Y2')} .`);
   tbox.push(`${iri('Y2')} rdfs:subClassOf ${iri('Y0')} .`);
 
+  // Cross-record conflict chain (r14 hasKey → sameAs, r23 value propagation,
+  // r22 flag): two records co-referent ONLY through a shared literal key,
+  // holding different values on a j:SingleValued property.
+  tbox.push(`${iri('Rec')} owl:hasKey ( ${iri('key')} ) .`);
+  tbox.push(`${iri('slot')} a j:SingleValued .`);
+  for (const [r, val] of [['recA', 'slotV1'], ['recB', 'slotV2']] as const) {
+    abox.push({ s: iri(r), p: 'rdf:type', o: iri('Rec'), conf: 0.9 });
+    abox.push({ s: iri(r), p: iri('key'), o: `"k-${seed}"`, conf: 0.9 });
+    abox.push({ s: iri(r), p: iri('slot'), o: iri(val), conf: 0.9 });
+  }
+
   return { ns, tbox, abox, chainLen, clsLen };
 }
 
@@ -232,6 +243,13 @@ describe('semi-naive fixpoint — equivalence with the naive engine', () => {
       // Cycle closed without divergence (r01's a != c guard excludes self-loops).
       expect(await client.ask(`${PR}
         ASK { GRAPH <${IS}> { <${w.ns}Y2> rdfs:subClassOf <${w.ns}Y1> } }`)).toBe(true);
+
+      // Cross-record chain (r14 → r23 → r22): both key-co-referent records flagged.
+      for (const r of ['recA', 'recB']) {
+        expect(await client.ask(`
+          PREFIX j: <${J}>
+          ASK { GRAPH <${IS}> { <${w.ns}${r}> a j:ValueConflict } }`), `${r} flagged`).toBe(true);
+      }
 
       // The sub-cutoff edge produced NO derived triples (direct gate check,
       // not just naive-vs-semi equivalence).

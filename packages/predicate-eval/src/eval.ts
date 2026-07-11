@@ -12,6 +12,8 @@ const DOMAINS: Record<string, { episodes: number }> = {
   'conflict-d05': { episodes: 2 },
   'conflict-d20': { episodes: 2 },
   'conflict-d50': { episodes: 2 },
+  'conflict-xr-small': { episodes: 2 },
+  'conflict-xr-scale': { episodes: 2 },
 };
 
 export async function runEval(
