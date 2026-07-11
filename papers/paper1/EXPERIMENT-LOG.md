@@ -85,3 +85,46 @@ density. The structural edge does not live there. Remaining hypothesis space:
 **Gate-2 implication.** The easy versions of the thesis are dead (good — a reviewer
 would have killed them for us). The claim MUST be staked on (1)+(2)+(3), with the
 schema-symmetric strong-model flat arm always reported.
+
+## 2026-07-11 — Pilot C: CONFLICT-BENCH v2 cross-record pilot (key-free, frontier in-session subagents)
+
+**Setup.** conflict-xr-small: 60 persons, 12 conflicted record-pairs co-referent ONLY
+via a shared email literal; session-2 records sparse (share NO IRI object with their
+twin). Three arms, all schema-symmetric (world.ttl states the key + single-valued
+semantics): reasoner (Tier 1 golden over materialized flags; chain r14 hasKey→sameAs,
+r23 value propagation, r22 flag), flat-ALL (whole KB in context, 28KB), and
+flat-RETRIEVED (k=2 IRI-frontier ball around each question's named record — the arm a
+practitioner ships at scale, per SCALE-FINDINGS). A DETERMINISTIC test proves the twin
+record is outside every k<=2 ball (literals are not traversable edges).
+
+**Result (scored through the harness):**
+
+| arm | aggregate | q02/q03 planted | q01 enumeration | q06 both-values | FP probes |
+|---|---|---|---|---|---|
+| reasoner | **1.00** | 1.00 | 1.00 | 1.00 | 1.00 |
+| flat-ALL | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| flat-RETRIEVED | **0.58** | **0.00** | 0.00 | **0.67** | 1.00 |
+
+The retrieved arm's own reasoning transcript states the mechanism: "only one record
+with email p002@ex.com … no conflicting office visible." It scored 1.0 on everything
+retrieval CAN see — the 0.42 gap is pure structural miss, not model weakness. q06's
+0.67 is the quantified "confidently returns one value, silently missing the conflict"
+failure (also its inference-OFF Tier-1 value: 2/3, by construction).
+
+**Honest read.** First measured cell where structure wins under full information
+symmetry against a frontier model: key-mediated cross-record conflicts are invisible
+to graph-local retrieval at any k below the (deterministically characterized) reach,
+while keyed inference is graph-distance-independent. Flat-ALL still ties — at 60
+persons everything fits in 28KB; the flat-ALL boundary needs the scale sweep
+(conflict-xr-scale at 300 persons ships committed; 10^4+ and/or distractor-pressure
+sweeps are the follow-up). The claim this supports today: **structure > retrieval-
+mediated flat on cross-record conflicts at ANY store size; structure = flat-all only
+while the whole store fits (and at 10-100x the token cost).** Next: k-sweep
+(retrieval cost grows with k while the reasoner's is flat), xr-scale run, n>=5 seeds,
+multi-tier models, then the Mem0/Zep ingest arms (E3).
+
+**Infrastructure note.** Evening slowdowns (10-100x) were traced to the default
+backend auto-spawning a native oxigraph daemon over .predicate/store, silently
+switching all test processes from per-process :memory: WASM stores to one shared
+on-disk RocksDB store. Test configs now pin oxigraph-wasm + :memory: (hermetic);
+r23 also gained delta variants. All 412 tests green in ~35s total.

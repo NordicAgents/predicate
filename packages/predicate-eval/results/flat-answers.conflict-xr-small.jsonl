@@ -1,0 +1,8 @@
+{"id": "conflict-xr-small-q01", "answer": ["http://ex/cb2/s1-p002", "http://ex/cb2/s2-p002", "http://ex/cb2/s1-p003", "http://ex/cb2/s2-p003", "http://ex/cb2/s1-p012", "http://ex/cb2/s2-p012", "http://ex/cb2/s1-p017", "http://ex/cb2/s2-p017", "http://ex/cb2/s1-p020", "http://ex/cb2/s2-p020", "http://ex/cb2/s1-p023", "http://ex/cb2/s2-p023", "http://ex/cb2/s1-p024", "http://ex/cb2/s2-p024", "http://ex/cb2/s1-p032", "http://ex/cb2/s2-p032", "http://ex/cb2/s1-p036", "http://ex/cb2/s2-p036", "http://ex/cb2/s1-p042", "http://ex/cb2/s2-p042", "http://ex/cb2/s1-p051", "http://ex/cb2/s2-p051", "http://ex/cb2/s1-p058", "http://ex/cb2/s2-p058"]}
+{"id": "conflict-xr-small-q02", "answer": true}
+{"id": "conflict-xr-small-q03", "answer": true}
+{"id": "conflict-xr-small-q04", "answer": false}
+{"id": "conflict-xr-small-q05", "answer": false}
+{"id": "conflict-xr-small-q06", "answer": ["http://ex/cb2/office2", "http://ex/cb2/office0"]}
+{"id": "conflict-xr-small-q07", "answer": ["http://ex/cb2/office3"]}
+{"id": "conflict-xr-small-q08", "answer": ["http://ex/cb2/m2"]}
