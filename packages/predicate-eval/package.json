@@ -17,6 +17,7 @@
     "flat-auto": "tsx src/flat-auto.ts",
     "flat-retrieved": "tsx src/flat-retrieved-cli.ts",
     "conflict-gen-v2": "tsx src/conflict/generate-v2.ts",
+    "xr-stats": "PREDICATE_BACKEND=oxigraph-wasm PREDICATE_STORE_PATH=:memory: tsx src/conflict/xr-stats.ts",
     "scale": "tsx src/scale.ts",
     "scale-compare": "tsx src/scale/sweep-compare.ts",
     "scale-history": "tsx src/scale-history.ts"

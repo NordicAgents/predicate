@@ -165,3 +165,50 @@ is to pick, and nothing surfaces the discard); n=1 run; classic-version arm (2.x
 = preserved-but-never-surfaced, to be measured). Zep/Graphiti arm blocked on Docker.
 conflict-xr-small (cross-record, email-keyed) chains next: the question is whether
 LLM extraction even LINKS two records sharing a key.
+
+## 2026-07-11 — Pilot E: statistical hardening — multi-seed, k-sweep, xr-scale (16-agent workflow)
+
+**Setup.** New `xr-stats` runner (committed; adversarially verified incl. independent
+reproduction, prompt-leakage checks, oracle-enumeration and CI-math audits). Five
+independent conflict-xr-small worlds (seeds 11/23/37/42/59; different planted pairs
+per seed) + conflict-xr-scale (300 persons). Per seed: Tier1 reference, deterministic
+k-sweep over EVERY co-referent pair (60 conflicted + 15 benign pairs small; 60 + 3 at
+scale, both directions), and blind frontier arms (flat-all, flat-retrieved k=2) —
+12 blind LLM runs total, scored through the harness. Seeded 10k-resample bootstrap.
+
+**Result: exact replication at 5/5 seeds and at 5x scale — zero across-seed variance.**
+
+| arm | aggregate | conflict slice (q01/q02/q03/q06) | FP | recall |
+|---|---|---|---|---|
+| reasoner | 1.000 (all seeds + scale) | 1.000 | 1.000 | 1.000 |
+| flat-ALL | 1.000 [1.000, 1.000] | 1.000 | 1.000 | 1.000 |
+| flat-RETRIEVED (k=2) | **0.583 [0.583, 0.583]** | **0.167** (q01/q02/q03 = 0.000; q06 = 0.667 partial) | 1.000 | 1.000 |
+
+CIs are degenerate point intervals — the honest framing is "identical outcome at 5/5
+independent seeds", not an estimated interval. Definitional note vs Pilot C's "0.00 on
+the conflict slice": with q06 included the slice mean is 0.167, because q06's F1 gives
+2/3 partial credit for confidently returning ONE of two conflicting values (P=1, R=0.5)
+— the quantified silent-miss, not a partial success.
+
+**The cost-of-reach curve (deterministic, all pairs, both directions):**
+
+| k | twin reach (small & scale) | ball as % of whole store (small) | (scale) |
+|---|---|---|---|
+| 1 | 0.000 | ~1% | ~0.3% |
+| 2 | 0.000 | 19–29% | 20–31% |
+| 3 | 0.000 (plateau: no odd-length shortcut) | = k2 | = k2 |
+| 4 | **1.000** | **82–91%** | **89–98%** |
+
+Benign co-referent pairs reach at k=2 (shared office IRI) — mechanistic sanity for the
+sweep. The paper sentence this licenses: **hop-bounded retrieval is conflict-blind up
+to k=3, and closing the gap at k=4 costs ~the whole store — a cost that converges to
+100% as the store grows** (89–98% at 5x scale vs 82–91%). Keyed inference is
+graph-distance-independent at constant cost. Bonus cost nuance, honestly reported: the
+shipped k=2 retrieved PROMPTS are larger than flat-all's (per-question context
+duplication, 69KB vs 29KB small; 292KB vs 133KB scale) — retrieval saves per-question
+tokens only when questions don't share neighbourhoods.
+
+**Caveats.** Frontier tier only (multi-tier sweep pending); xr-scale n=1; flat-all
+still ties at 133KB (its collapse point needs 10^4+ stores or measured long-context
+degradation — future sweep); q06 partial-credit definition should be foregrounded in
+the paper's metric section.
