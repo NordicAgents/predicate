@@ -12,7 +12,10 @@ export type KeySpec =
   // `since` is the episode at which the fact becomes true; before it the key
   // is empty/false (so the fixture-integrity check still holds).
   | { derive: 'literal-set'; values: string[]; since: number }
-  | { derive: 'literal-boolean'; since: number };
+  | { derive: 'literal-boolean'; since: number }
+  // Every subject with a recorded oracle conflict (any predicate) at or before
+  // the cutoff — the enumeration form of conflict detection (CONFLICT-BENCH).
+  | { derive: 'all-conflict-subjects' };
 
 export interface Question {
   id: string;

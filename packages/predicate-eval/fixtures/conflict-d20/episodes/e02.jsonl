@@ -1,0 +1,15 @@
+{"s":"http://ex/cb/p06","p":"http://ex/cb#reportsTo","o":"http://ex/cb/m2"}
+{"s":"http://ex/cb/p19","p":"http://ex/cb#office","o":"http://ex/cb/office0"}
+{"s":"http://ex/cb/p20","p":"http://ex/cb#reportsTo","o":"http://ex/cb/m1"}
+{"s":"http://ex/cb/p21","p":"http://ex/cb#office","o":"http://ex/cb/office2"}
+{"s":"http://ex/cb/p26","p":"http://ex/cb#reportsTo","o":"http://ex/cb/m2"}
+{"s":"http://ex/cb/p33","p":"http://ex/cb#office","o":"http://ex/cb/office2"}
+{"s":"http://ex/cb/p36","p":"http://ex/cb#reportsTo","o":"http://ex/cb/m2"}
+{"s":"http://ex/cb/p37","p":"http://ex/cb#office","o":"http://ex/cb/office2"}
+{"s":"http://ex/cb/p13","p":"http://ex/cb#office","o":"http://ex/cb/office1"}
+{"s":"http://ex/cb/p28","p":"http://ex/cb#reportsTo","o":"http://ex/cb/m3"}
+{"s":"http://ex/cb/p22","p":"http://ex/cb#memberOf","o":"http://ex/cb/team5"}
+{"s":"http://ex/cb/p02","p":"http://ex/cb#collaboratesWith","o":"http://ex/cb/p03"}
+{"s":"http://ex/cb/p02","p":"http://ex/cb#collaboratesWith","o":"http://ex/cb/p04"}
+{"s":"http://ex/cb/x0","p":"http://ex/cb#reportsTo","o":"http://ex/cb/m0"}
+{"s":"http://ex/cb/x1","p":"http://ex/cb#reportsTo","o":"http://ex/cb/m0"}

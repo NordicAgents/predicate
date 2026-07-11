@@ -7,6 +7,7 @@ import { runTier1 } from './rigs/tier1-deterministic.js';
 
 const DOMAINS: Record<string, { episodes: number }> = {
   org: { episodes: 8 }, research: { episodes: 8 }, coding: { episodes: 3 },
+  'conflict-d05': { episodes: 2 }, 'conflict-d20': { episodes: 2 }, 'conflict-d50': { episodes: 2 },
 };
 
 function dirFor(domain: string): string {

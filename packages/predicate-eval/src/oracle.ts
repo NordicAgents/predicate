@@ -53,6 +53,11 @@ export function deriveAnswerKey(
           oracle.conflicts.filter((c) => c.about === key.about && c.episode <= cutoff).map((c) => c.id),
         ),
       };
+    case 'all-conflict-subjects':
+      return {
+        kind: 'conflict',
+        ids: new Set(oracle.conflicts.filter((c) => c.episode <= cutoff).map((c) => c.about)),
+      };
     case 'boolean-conflict':
       return {
         kind: 'boolean',

@@ -1,0 +1,8 @@
+{"id": "conflict-d20-q01", "answer": ["http://ex/cb/p06", "http://ex/cb/p19", "http://ex/cb/p20", "http://ex/cb/p21", "http://ex/cb/p26", "http://ex/cb/p33", "http://ex/cb/p36", "http://ex/cb/p37"]}
+{"id": "conflict-d20-q02", "answer": true}
+{"id": "conflict-d20-q03", "answer": true}
+{"id": "conflict-d20-q04", "answer": false}
+{"id": "conflict-d20-q05", "answer": false}
+{"id": "conflict-d20-q06", "answer": ["http://ex/cb/office3"]}
+{"id": "conflict-d20-q07", "answer": ["http://ex/cb/m1"]}
+{"id": "conflict-d20-q08", "answer": ["http://ex/cb/team3"]}

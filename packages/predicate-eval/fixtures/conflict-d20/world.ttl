@@ -1,0 +1,24 @@
+@prefix cb:   <http://ex/cb#> .
+@prefix j:    <https://industriagents.com/predicate/judgment#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+cb:Person a owl:Class .
+cb:Office a owl:Class .
+cb:Team   a owl:Class .
+
+cb:reportsTo a owl:ObjectProperty, j:SingleValued ;
+  rdfs:domain cb:Person ; rdfs:range cb:Person ;
+  rdfs:comment "single-valued: a person has exactly one manager (reportsTo); two different values indicate a data conflict" .
+
+cb:office a owl:ObjectProperty, j:SingleValued ;
+  rdfs:domain cb:Person ; rdfs:range cb:Office ;
+  rdfs:comment "single-valued: a person has exactly one office; two different values indicate a data conflict" .
+
+cb:memberOf a owl:ObjectProperty ;
+  rdfs:domain cb:Person ; rdfs:range cb:Team ;
+  rdfs:comment "multi-valued: a person may belong to any number of teams; multiple values are normal, not a conflict" .
+
+cb:collaboratesWith a owl:ObjectProperty ;
+  rdfs:domain cb:Person ; rdfs:range cb:Person ;
+  rdfs:comment "multi-valued: a person may collaborate with any number of people; multiple values are normal, not a conflict" .

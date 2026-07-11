@@ -1,0 +1,1120 @@
+{
+  "facts": [
+    {
+      "s": "http://ex/cb/p00",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p00",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p00",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p01",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p01",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p01",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p02",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p02",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p02",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p03",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p03",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p03",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p04",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p04",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p04",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p05",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p05",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p05",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p06",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p06",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p06",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p07",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p07",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p07",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p08",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p08",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p08",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p09",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p09",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p09",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p10",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p10",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p10",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p11",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p11",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p11",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p12",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p12",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p12",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p13",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p13",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p13",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p14",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p14",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p14",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p15",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p15",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p15",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p16",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p16",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p16",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p17",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p17",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p17",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p18",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p18",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p18",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p19",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p19",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p19",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p20",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p20",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p20",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p21",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p21",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p21",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p22",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p22",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p22",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p23",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p23",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p23",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p24",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p24",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p24",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p25",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p25",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p25",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p26",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p26",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p26",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p27",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p27",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p27",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p28",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p28",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p28",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p29",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p29",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p29",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p30",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p30",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p30",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p31",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p31",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p31",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p32",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p32",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p32",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p33",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p33",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p33",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p34",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p34",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p34",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p35",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p35",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p35",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p36",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p36",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p36",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p37",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p37",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p37",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p38",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p38",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p38",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p39",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p39",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p39",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb/p02",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p06",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p07",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p10",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p13",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m4",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p15",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p16",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p18",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p19",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p20",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p21",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p22",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p26",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m2",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p28",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p30",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p33",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office2",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p35",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p36",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p37",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p39",
+      "p": "http://ex/cb#office",
+      "o": "http://ex/cb/office0",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p34",
+      "p": "http://ex/cb#memberOf",
+      "o": "http://ex/cb/team5",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p32",
+      "p": "http://ex/cb#collaboratesWith",
+      "o": "http://ex/cb/p33",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/p32",
+      "p": "http://ex/cb#collaboratesWith",
+      "o": "http://ex/cb/p34",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/x0",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb/x1",
+      "p": "http://ex/cb#reportsTo",
+      "o": "http://ex/cb/m0",
+      "episode": 2
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "vc-p02",
+      "about": "http://ex/cb/p02",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m2",
+        "http://ex/cb/m3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p06",
+      "about": "http://ex/cb/p06",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office2",
+        "http://ex/cb/office3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p07",
+      "about": "http://ex/cb/p07",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m2",
+        "http://ex/cb/m3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p10",
+      "about": "http://ex/cb/p10",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office2",
+        "http://ex/cb/office3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p13",
+      "about": "http://ex/cb/p13",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m3",
+        "http://ex/cb/m4"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p15",
+      "about": "http://ex/cb/p15",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office3",
+        "http://ex/cb/office0"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p16",
+      "about": "http://ex/cb/p16",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m1",
+        "http://ex/cb/m2"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p18",
+      "about": "http://ex/cb/p18",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office2",
+        "http://ex/cb/office3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p19",
+      "about": "http://ex/cb/p19",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m4",
+        "http://ex/cb/m0"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p20",
+      "about": "http://ex/cb/p20",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office0",
+        "http://ex/cb/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p21",
+      "about": "http://ex/cb/p21",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m1",
+        "http://ex/cb/m2"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p22",
+      "about": "http://ex/cb/p22",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office2",
+        "http://ex/cb/office3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p26",
+      "about": "http://ex/cb/p26",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m1",
+        "http://ex/cb/m2"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p28",
+      "about": "http://ex/cb/p28",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office0",
+        "http://ex/cb/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p30",
+      "about": "http://ex/cb/p30",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m0",
+        "http://ex/cb/m1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p33",
+      "about": "http://ex/cb/p33",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office1",
+        "http://ex/cb/office2"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p35",
+      "about": "http://ex/cb/p35",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m0",
+        "http://ex/cb/m1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p36",
+      "about": "http://ex/cb/p36",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office0",
+        "http://ex/cb/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p37",
+      "about": "http://ex/cb/p37",
+      "predicate": "http://ex/cb#reportsTo",
+      "values": [
+        "http://ex/cb/m2",
+        "http://ex/cb/m3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-p39",
+      "about": "http://ex/cb/p39",
+      "predicate": "http://ex/cb#office",
+      "values": [
+        "http://ex/cb/office3",
+        "http://ex/cb/office0"
+      ],
+      "episode": 2
+    }
+  ],
+  "disjoint": [],
+  "benign": {
+    "duplicateReassertions": [
+      {
+        "s": "http://ex/cb/p31",
+        "p": "http://ex/cb#office",
+        "o": "http://ex/cb/office3"
+      },
+      {
+        "s": "http://ex/cb/p38",
+        "p": "http://ex/cb#reportsTo",
+        "o": "http://ex/cb/m3"
+      }
+    ],
+    "multiValuedAdditions": [
+      {
+        "s": "http://ex/cb/p34",
+        "p": "http://ex/cb#memberOf",
+        "o": "http://ex/cb/team5"
+      },
+      {
+        "s": "http://ex/cb/p32",
+        "p": "http://ex/cb#collaboratesWith",
+        "o": "http://ex/cb/p33"
+      },
+      {
+        "s": "http://ex/cb/p32",
+        "p": "http://ex/cb#collaboratesWith",
+        "o": "http://ex/cb/p34"
+      }
+    ],
+    "sharedObjectSubjects": [
+      {
+        "s": "http://ex/cb/x0",
+        "p": "http://ex/cb#reportsTo",
+        "o": "http://ex/cb/m0"
+      },
+      {
+        "s": "http://ex/cb/x1",
+        "p": "http://ex/cb#reportsTo",
+        "o": "http://ex/cb/m0"
+      }
+    ]
+  }
+}

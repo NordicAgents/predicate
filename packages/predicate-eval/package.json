@@ -10,9 +10,11 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src tests --max-warnings 0",
     "demo": "tsx src/load-corpus.ts && tsx src/ask.ts",
     "ontology-check": "tsx src/ontology-ci.ts",
+    "conflict-gen": "tsx src/conflict/generate.ts",
     "eval": "tsx src/eval.ts",
     "tier2": "tsx src/tier2.ts",
     "flat": "tsx src/flat.ts",
+    "flat-auto": "tsx src/flat-auto.ts",
     "scale": "tsx src/scale.ts",
     "scale-compare": "tsx src/scale/sweep-compare.ts",
     "scale-history": "tsx src/scale-history.ts"
