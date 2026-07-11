@@ -11,5 +11,9 @@ describe('history sweep (single user, growing capture)', () => {
     expect(rows[1]!.flatAllTokensEst).toBeGreaterThan(rows[0]!.flatAllTokensEst * 2);
     // ...but the retrieved neighbourhood size is unchanged by how much noise piled up.
     expect(rows[1]!.retrievedTriplesAvg).toBe(rows[0]!.retrievedTriplesAvg);
-  }, 120_000);
+    // Generous budget: the assertions here are correctness/relative-shape, not
+    // latency (the scoreboard tracks materialize time separately). Measured
+    // wall-time on this corpus swings >5x with ambient machine load, so a
+    // tight budget flakes without guarding anything.
+  }, 600_000);
 });
