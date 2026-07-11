@@ -31,14 +31,19 @@ describe('kg_maintain scale-gate', () => {
 
   it('runs the shadow harness even in Seedling', async () => {
     await kgConfigSet(client, { key: 'scale-gate-triples', value: 1000000 });
+    // Dates relative to now so the proposal stays un-expired (proposedAt today,
+    // TTL 7d ahead); a hardcoded past expiry would let PromotionSweeper reap it
+    // before the shadow harness runs, breaking this test after that date.
+    const proposedAt = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 7 * 86400_000).toISOString();
     await client.update(`
       PREFIX pred: <https://industriagents.com/predicate/meta#>
       PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
       INSERT DATA { GRAPH <kg:tbox-staging> {
         <urn:p:s> a pred:Proposal ;
           pred:kind "add-class" ; pred:justification "j" ;
-          pred:proposedAt "2026-05-20T00:00:00Z"^^xsd:dateTime ;
-          pred:expiresAt  "2026-05-27T00:00:00Z"^^xsd:dateTime .
+          pred:proposedAt "${proposedAt}"^^xsd:dateTime ;
+          pred:expiresAt  "${expiresAt}"^^xsd:dateTime .
       } }`);
     await kgMaintain(client, {});
     const ev = await client.select(`

@@ -55,6 +55,40 @@ describe('rules 11–15', () => {
     expect(r.inconsistencies[0]!.kind).toBe('disjoint-class');
   });
 
+  it('r11: the disjoint conflict is MATERIALIZED as a queryable j:DisjointClassConflict marker', async () => {
+    await withProv('<https://ex/snowball>', '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<https://ex/Cat>');
+    await withProv('<https://ex/snowball>', '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<https://ex/Dog>');
+    await M();
+    const flagged = await client.ask(`
+      PREFIX j: <https://industriagents.com/predicate/judgment#>
+      ASK { GRAPH <${I}> { <https://ex/snowball> a j:DisjointClassConflict } }
+    `);
+    const bothTypes = await client.ask(`
+      PREFIX ex: <https://ex/>
+      PREFIX j:  <https://industriagents.com/predicate/judgment#>
+      ASK { GRAPH <${I}> { <https://ex/snowball> j:conflictingType ex:Cat , ex:Dog } }
+    `);
+    expect(flagged).toBe(true);
+    expect(bothTypes).toBe(true);
+    // Contradiction-PRESERVING: both original type assertions remain in the abox.
+    const preserved = await client.ask(`
+      PREFIX ex:  <https://ex/>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      ASK { GRAPH <${A}> { <https://ex/snowball> rdf:type ex:Cat , ex:Dog } }
+    `);
+    expect(preserved).toBe(true);
+  });
+
+  it('r11: a non-conflicting individual gets NO conflict marker', async () => {
+    await withProv('<https://ex/felix>', '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<https://ex/Cat>');
+    await M();
+    const flagged = await client.ask(`
+      PREFIX j: <https://industriagents.com/predicate/judgment#>
+      ASK { GRAPH <${I}> { <https://ex/felix> a j:DisjointClassConflict } }
+    `);
+    expect(flagged).toBe(false);
+  });
+
   it('r12: equivalentClass materializes both subClassOf directions', async () => {
     await M();
     const a = await client.ask(`

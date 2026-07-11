@@ -9,6 +9,7 @@ import { r07 } from './r07-range.js';
 import { r08 } from './r08-functional-sameas.js';
 import { r09 } from './r09-inverse-functional.js';
 import { r10 } from './r10-symmetric.js';
+import { r11 } from './r11-disjoint-with.js';
 import { r12 } from './r12-equivalent-class.js';
 import { r13 } from './r13-equivalent-property.js';
 import { r14 } from './r14-has-key.js';
@@ -19,10 +20,11 @@ import { r18 } from './r18-flaky-command.js';
 import { r19 } from './r19-active-file.js';
 import { r20 } from './r20-current-judgment.js';
 import { r21 } from './r21-unresolved-conflict.js';
+import { r22 } from './r22-value-conflict.js';
 
 export const RULES: Rule[] = [
-  r01, r02, r03, r04, r05, r06, r07, r08, r09, r10, r12, r13, r14, r15, r16,
-  r17, r18, r19, r20, r21,
+  r01, r02, r03, r04, r05, r06, r07, r08, r09, r10, r11, r12, r13, r14, r15, r16,
+  r17, r18, r19, r20, r21, r22,
 ];
-export { r11 } from './r11-disjoint-with.js';
+export { r11 };
 export type { Rule, RuleConfig } from './types.js';

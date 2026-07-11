@@ -29,6 +29,17 @@ j:Current a owl:Class ;
 j:UnresolvedConflict a owl:Class ; rdfs:subClassOf j:Judgment ;
     rdfs:label "UnresolvedConflict" ;
     rdfs:comment "Derive-only (r21). Two current judgments disagree on a ConflictFunctionalProperty value; neither supersedes the other." .
+j:DisjointClassConflict a owl:Class ;
+    rdfs:label "DisjointClassConflict" ;
+    rdfs:comment "Derive-only (r11). An individual is typed as two classes declared owl:disjointWith. Contradiction-preserving: the marker is materialized on the individual (both types kept) instead of exploding the closure to owl:Nothing." .
+j:ValueConflict a owl:Class ;
+    rdfs:label "ValueConflict" ;
+    rdfs:comment "Derive-only (r22). A subject holds two different values for a j:SingleValued domain property. Both values are preserved and queryable; the conflict is surfaced, never resolved by merging or picking one." .
+
+# --- Domain-level single-valued marker (drives r22; separate from ConflictFunctionalProperty) ---
+j:SingleValued a owl:Class ;
+    rdfs:label "SingleValued" ;
+    rdfs:comment "Marker for a DOMAIN property expected to hold one value per subject (e.g. reportsTo, officeOf). NOT owl:FunctionalProperty: that would make r08 merge the conflicting values via owl:sameAs. NOT j:ConflictFunctionalProperty: that marker is judgment-layer only — r21 filters through j:Current/supersession, which raw domain triples do not have. r22 keys off this marker." .
 
 # --- Conflict marker (drives r21; deliberately NOT owl:FunctionalProperty) ---
 j:ConflictFunctionalProperty a owl:Class ;
@@ -88,3 +99,13 @@ j:over a owl:ObjectProperty ;
 j:conflictsWith a owl:ObjectProperty , owl:SymmetricProperty ;
     rdfs:label "conflictsWith" ;
     rdfs:comment "Derive-only (r21). Links two judgments the reasoner found in unresolved conflict." .
+
+j:conflictingType a owl:ObjectProperty ;
+    rdfs:domain j:DisjointClassConflict ;
+    rdfs:label "conflictingType" ;
+    rdfs:comment "Derive-only (r11). Links a j:DisjointClassConflict individual to each owl:disjointWith class it is (contradictorily) typed as." .
+
+j:conflictOn a owl:ObjectProperty ;
+    rdfs:domain j:ValueConflict ;
+    rdfs:label "conflictOn" ;
+    rdfs:comment "Derive-only (r22). Names the j:SingleValued property on which a subject holds conflicting values." .

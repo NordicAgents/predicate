@@ -56,8 +56,8 @@
     "key": { "derive": "literal-boolean", "since": 8 },
     "needs_episode": 8,
     "rule_under_test": ["r11"],
-    "reasoning_dependent": false,
-    "golden_sparql": "ASK { GRAPH <kg:abox> { <http://ex/org/pat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#Contractor> . <http://ex/org/pat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/org#FullTime> } }"
+    "reasoning_dependent": true,
+    "golden_sparql": "ASK { GRAPH <kg:inferred> { <http://ex/org/pat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://industriagents.com/predicate/judgment#DisjointClassConflict> } }"
   },
   {
     "id": "org-q02",
