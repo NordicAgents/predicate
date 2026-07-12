@@ -1,0 +1,1761 @@
+{
+  "fixture": "conflict-xr-small",
+  "arm": "classic-qwen3.5",
+  "model": "qwen3.5:latest",
+  "mem0_version": "1.0.11",
+  "pipeline": "classic",
+  "embed_model": "nomic-embed-text:latest",
+  "n_facts_ingested": 345,
+  "n_ingest_errors": 0,
+  "n_final_memories": 270,
+  "conflict_counts": {
+    "preserved-both": 0,
+    "silently-resolved-to-one": 19,
+    "lost-both": 5,
+    "unclear": 0
+  },
+  "pair_counts": {
+    "silently-resolved-to-one": 5,
+    "preserved-both": 7,
+    "benign-pair": 3
+  },
+  "n_pairs_linked": 0,
+  "conflicts": [
+    {
+      "id": "vc-s1-p002",
+      "subject": "s1-p002",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office0"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office0": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s1-p002 works in office2; s1-p002 reports to m2",
+        "Record ID s2-p002 has an email address of p002@ex.com",
+        "s1-p002 is a PersonRecord"
+      ],
+      "search_hits": [
+        "s1-p007 works in office2",
+        "s1-p012 works in office2",
+        "s1-p017 works in office2",
+        "s1-p012 is a member of team0",
+        "s1-p022 works in office2",
+        "s1-p052 works in office2",
+        "s1-p057 works in office2",
+        "s2-p016 works in office1",
+        "s1-p047 works in office2",
+        "s1-p042 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 10,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p002 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 12,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p002 works in office2",
+          "previous_memory": null
+        },
+        {
+          "i": 13,
+          "episode": 1,
+          "event": "UPDATE",
+          "memory": "s1-p002 works in office2; s1-p002 reports to m2",
+          "previous_memory": "s1-p002 works in office2"
+        },
+        {
+          "i": 301,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Record ID s2-p002 has an email address of p002@ex.com",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p002@ex.com"
+    },
+    {
+      "id": "vc-s2-p002",
+      "subject": "s2-p002",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office0"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "office2": "never-extracted",
+        "office0": "added-then-lost"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [
+        "Record ID s2-p002 has an email address of p002@ex.com"
+      ],
+      "search_hits": [
+        "s2-p003 works in office2",
+        "s1-p007 works in office2",
+        "s2-p036 works in office2",
+        "s1-p012 works in office2",
+        "s1-p022 works in office2",
+        "s1-p042 works in office2",
+        "s1-p057 works in office2",
+        "s1-p052 works in office2",
+        "s2-p012 works in office3",
+        "s1-p047 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 301,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Record ID s2-p002 has an email address of p002@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 302,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p002 works in office0",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p002@ex.com"
+    },
+    {
+      "id": "vc-s1-p003",
+      "subject": "s1-p003",
+      "predicate": "office",
+      "values": [
+        "office3",
+        "office2"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "office3": "never-extracted",
+        "office2": "never-extracted"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [
+        "Record ID s2-p003 has an email address of p003@ex.com",
+        "s1-p003 reports to m3",
+        "s1-p003 is a PersonRecord; Record ID s1-p003 has an email address of p003@ex.com"
+      ],
+      "search_hits": [
+        "s1-p008 works in office3",
+        "s1-p018 works in office3",
+        "s1-p023 works in office3",
+        "s1-p033 works in office3",
+        "s1-p013 is a member of team1",
+        "s1-p028 works in office3",
+        "s1-p053 works in office3",
+        "s1-p058 works in office3",
+        "s1-p048 works in office3",
+        "s1-p043 works in office3"
+      ],
+      "op_history": [
+        {
+          "i": 15,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p003 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 16,
+          "episode": 1,
+          "event": "UPDATE",
+          "memory": "s1-p003 is a PersonRecord; Record ID s1-p003 has an email address of p003@ex.com",
+          "previous_memory": "s1-p003 is a PersonRecord"
+        },
+        {
+          "i": 17,
+          "episode": 1,
+          "event": "UPDATE",
+          "memory": "s1-p003 is a PersonRecord; Record ID s1-p003 has an email address of p003@ex.com",
+          "previous_memory": "s1-p003 is a PersonRecord; Record ID s1-p003 has an email address of p003@ex.com"
+        },
+        {
+          "i": 18,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p003 reports to m3",
+          "previous_memory": null
+        },
+        {
+          "i": 304,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Record ID s2-p003 has an email address of p003@ex.com",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p003@ex.com"
+    },
+    {
+      "id": "vc-s2-p003",
+      "subject": "s2-p003",
+      "predicate": "office",
+      "values": [
+        "office3",
+        "office2"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office3": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Record ID s2-p003 has an email address of p003@ex.com",
+        "s2-p003 works in office2",
+        "s1-p003 is a PersonRecord; Record ID s1-p003 has an email address of p003@ex.com"
+      ],
+      "search_hits": [
+        "s2-p003 works in office2",
+        "s2-p012 works in office3",
+        "s2-p032 works in office3",
+        "s1-p007 works in office2",
+        "s1-p057 works in office2",
+        "s1-p022 works in office2",
+        "s1-p052 works in office2",
+        "s2-p036 works in office2",
+        "s1-p058 works in office3",
+        "s1-p008 works in office3"
+      ],
+      "op_history": [
+        {
+          "i": 16,
+          "episode": 1,
+          "event": "UPDATE",
+          "memory": "s1-p003 is a PersonRecord; Record ID s1-p003 has an email address of p003@ex.com",
+          "previous_memory": "s1-p003 is a PersonRecord"
+        },
+        {
+          "i": 17,
+          "episode": 1,
+          "event": "UPDATE",
+          "memory": "s1-p003 is a PersonRecord; Record ID s1-p003 has an email address of p003@ex.com",
+          "previous_memory": "s1-p003 is a PersonRecord; Record ID s1-p003 has an email address of p003@ex.com"
+        },
+        {
+          "i": 303,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p003 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 304,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Record ID s2-p003 has an email address of p003@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 305,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p003 works in office2",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p003@ex.com"
+    },
+    {
+      "id": "vc-s1-p012",
+      "subject": "s1-p012",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office3"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office3": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s1-p012 is a member of team0",
+        "s1-p012 reports to m0",
+        "Record ID s1-p012 has an email address of p012@ex.com",
+        "s1-p012 works in office2",
+        "s1-p012 is a PersonRecord"
+      ],
+      "search_hits": [
+        "s1-p012 works in office2",
+        "s1-p017 works in office2",
+        "s1-p012 is a member of team0",
+        "s2-p016 works in office1",
+        "s1-p014 is a member of team2",
+        "s1-p012 is a PersonRecord",
+        "s1-p013 is a member of team1",
+        "s1-p012 reports to m0",
+        "s1-p016 works in office1",
+        "s1-p007 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 60,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p012 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 61,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p012 has an email address of p012@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 62,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p012 works in office2",
+          "previous_memory": null
+        },
+        {
+          "i": 63,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p012 reports to m0",
+          "previous_memory": null
+        },
+        {
+          "i": 64,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p012 is a member of team0",
+          "previous_memory": null
+        },
+        {
+          "i": 308,
+          "episode": 2,
+          "event": "DELETE",
+          "memory": "s1-p012 works in office2",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p012@ex.com"
+    },
+    {
+      "id": "vc-s2-p012",
+      "subject": "s2-p012",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office3"
+      ],
+      "survived": [
+        "office3"
+      ],
+      "lost_mechanism": {
+        "office2": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Record ID s1-p012 has an email address of p012@ex.com",
+        "s2-p012 works in office3"
+      ],
+      "search_hits": [
+        "s1-p012 works in office2",
+        "s1-p017 works in office2",
+        "s2-p012 works in office3",
+        "s1-p022 works in office2",
+        "s2-p003 works in office2",
+        "s1-p007 works in office2",
+        "s2-p016 works in office1",
+        "s1-p057 works in office2",
+        "s1-p052 works in office2",
+        "s1-p042 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 61,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p012 has an email address of p012@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 308,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p012 works in office3",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p012@ex.com"
+    },
+    {
+      "id": "vc-s1-p017",
+      "subject": "s1-p017",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office4"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office4": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s1-p017 reports to m5",
+        "s1-p017 works in office2",
+        "Record ID s1-p017 has an email address of p017@ex.com",
+        "s1-p017 is a PersonRecord"
+      ],
+      "search_hits": [
+        "s1-p007 is a member of team1",
+        "s1-p017 works in office2",
+        "s1-p016 works in office1",
+        "s1-p013 is a member of team1",
+        "s1-p017 is a PersonRecord",
+        "s1-p043 is a member of team1",
+        "s1-p011 is a PersonRecord",
+        "s1-p010 works in office0",
+        "s1-p001 is a member of team1",
+        "s1-p010 is a PersonRecord"
+      ],
+      "op_history": [
+        {
+          "i": 85,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p017 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 86,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p017 has an email address of p017@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 87,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p017 works in office2",
+          "previous_memory": null
+        },
+        {
+          "i": 88,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p017 reports to m5",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p017@ex.com"
+    },
+    {
+      "id": "vc-s2-p017",
+      "subject": "s2-p017",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office4"
+      ],
+      "survived": [
+        "office4"
+      ],
+      "lost_mechanism": {
+        "office2": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s2-p017 works in office4",
+        "Record ID s1-p017 has an email address of p017@ex.com"
+      ],
+      "search_hits": [
+        "s1-p017 works in office2",
+        "s1-p007 works in office2",
+        "s1-p012 works in office2",
+        "s1-p057 works in office2",
+        "s2-p017 works in office4",
+        "s1-p052 works in office2",
+        "s2-p012 works in office3",
+        "s1-p022 works in office2",
+        "s1-p047 works in office2",
+        "s2-p016 works in office1"
+      ],
+      "op_history": [
+        {
+          "i": 86,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p017 has an email address of p017@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 311,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p017 works in office4",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p017@ex.com"
+    },
+    {
+      "id": "vc-s1-p020",
+      "subject": "s1-p020",
+      "predicate": "office",
+      "values": [
+        "office0",
+        "office1"
+      ],
+      "survived": [
+        "office0"
+      ],
+      "lost_mechanism": {
+        "office1": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Record ID s1-p020 has an email address of p020@ex.com",
+        "s1-p020 is a PersonRecord",
+        "s1-p020 reports to m2",
+        "s1-p020 works in office0",
+        "s1-p020 is a member of team2"
+      ],
+      "search_hits": [
+        "s1-p020 works in office0",
+        "s1-p035 works in office0",
+        "s1-p042 is a member of team0",
+        "s1-p030 is a member of team0",
+        "s1-p021 works in office1",
+        "s1-p010 works in office0",
+        "s1-p000 is a member of team0",
+        "s1-p030 works in office0",
+        "s1-p015 works in office0",
+        "s1-p036 is a member of team0"
+      ],
+      "op_history": [
+        {
+          "i": 100,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p020 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 101,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p020 has an email address of p020@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 102,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p020 works in office0",
+          "previous_memory": null
+        },
+        {
+          "i": 103,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p020 reports to m2",
+          "previous_memory": null
+        },
+        {
+          "i": 104,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p020 is a member of team2",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p020@ex.com"
+    },
+    {
+      "id": "vc-s2-p020",
+      "subject": "s2-p020",
+      "predicate": "office",
+      "values": [
+        "office0",
+        "office1"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "office0": "never-extracted",
+        "office1": "never-extracted"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [
+        "Record ID s1-p020 has an email address of p020@ex.com"
+      ],
+      "search_hits": [
+        "s1-p020 is a member of team2",
+        "s1-p022 works in office2",
+        "s2-p024 works in office0",
+        "s2-p051 works in office0",
+        "s2-p025 works in office0",
+        "s1-p042 works in office2",
+        "s1-p020 works in office0",
+        "s2-p036 works in office2",
+        "s2-p003 works in office2",
+        "s1-p032 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 101,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p020 has an email address of p020@ex.com",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p020@ex.com"
+    },
+    {
+      "id": "vc-s1-p023",
+      "subject": "s1-p023",
+      "predicate": "office",
+      "values": [
+        "office3",
+        "office2"
+      ],
+      "survived": [
+        "office3"
+      ],
+      "lost_mechanism": {
+        "office2": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s1-p023 is a PersonRecord",
+        "s1-p023 works in office3",
+        "Record ID s1-p023 has an email address of p023@ex.com",
+        "s1-p023 is a member of team5"
+      ],
+      "search_hits": [
+        "s1-p023 works in office3",
+        "s1-p028 works in office3",
+        "s1-p043 is a member of team1",
+        "s1-p024 is a member of team0",
+        "s1-p043 works in office3",
+        "s1-p033 works in office3",
+        "s1-p021 works in office1",
+        "s1-p025 is a member of team1",
+        "s1-p018 works in office3",
+        "s1-p055 works in office0"
+      ],
+      "op_history": [
+        {
+          "i": 115,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p023 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 116,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p023 has an email address of p023@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 117,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p023 works in office3",
+          "previous_memory": null
+        },
+        {
+          "i": 119,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p023 is a member of team5",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p023@ex.com"
+    },
+    {
+      "id": "vc-s2-p023",
+      "subject": "s2-p023",
+      "predicate": "office",
+      "values": [
+        "office3",
+        "office2"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "office3": "never-extracted",
+        "office2": "never-extracted"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [
+        "Record ID s1-p023 has an email address of p023@ex.com"
+      ],
+      "search_hits": [
+        "s1-p022 works in office2",
+        "s2-p003 works in office2",
+        "s2-p036 works in office2",
+        "s2-p024 works in office0",
+        "s2-p025 works in office0",
+        "s1-p027 works in office2",
+        "s2-p032 works in office3",
+        "s1-p032 works in office2",
+        "s1-p042 works in office2",
+        "s1-p052 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 116,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p023 has an email address of p023@ex.com",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p023@ex.com"
+    },
+    {
+      "id": "vc-s1-p024",
+      "subject": "s1-p024",
+      "predicate": "office",
+      "values": [
+        "office4",
+        "office0"
+      ],
+      "survived": [
+        "office4"
+      ],
+      "lost_mechanism": {
+        "office0": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Record ID s1-p024 has an email address of p024@ex.com",
+        "s1-p024 is a PersonRecord",
+        "s1-p024 works in office4",
+        "s1-p024 reports to m0",
+        "s1-p024 is a member of team0"
+      ],
+      "search_hits": [
+        "s1-p024 is a member of team0",
+        "s1-p024 works in office4",
+        "s1-p024 reports to m0",
+        "s1-p025 is a member of team1",
+        "s1-p044 works in office4",
+        "s2-p024 works in office0",
+        "s1-p043 is a member of team1",
+        "s1-p026 works in office1",
+        "s1-p024 is a PersonRecord",
+        "s1-p045 works in office0"
+      ],
+      "op_history": [
+        {
+          "i": 120,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p024 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 121,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p024 has an email address of p024@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 122,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p024 works in office4",
+          "previous_memory": null
+        },
+        {
+          "i": 123,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p024 reports to m0",
+          "previous_memory": null
+        },
+        {
+          "i": 124,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p024 is a member of team0",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p024@ex.com"
+    },
+    {
+      "id": "vc-s2-p024",
+      "subject": "s2-p024",
+      "predicate": "office",
+      "values": [
+        "office4",
+        "office0"
+      ],
+      "survived": [
+        "office0"
+      ],
+      "lost_mechanism": {
+        "office4": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Record ID s1-p024 has an email address of p024@ex.com",
+        "s2-p024 works in office0"
+      ],
+      "search_hits": [
+        "s2-p024 works in office0",
+        "s2-p025 works in office0",
+        "s1-p022 works in office2",
+        "s2-p036 works in office2",
+        "s1-p027 works in office2",
+        "s1-p032 works in office2",
+        "s1-p042 works in office2",
+        "s1-p052 works in office2",
+        "s1-p057 works in office2",
+        "s2-p003 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 121,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p024 has an email address of p024@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 320,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p024 works in office0",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p024@ex.com"
+    },
+    {
+      "id": "vc-s1-p032",
+      "subject": "s1-p032",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office3"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office3": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Record ID s1-p032 has an email address of p032@ex.com",
+        "s1-p032 is a PersonRecord",
+        "s1-p032 works in office2",
+        "s1-p032 reports to m2",
+        "s1-p032 is a member of team2"
+      ],
+      "search_hits": [
+        "s1-p032 works in office2",
+        "s1-p031 works in office1",
+        "s1-p036 works in office1",
+        "s1-p032 reports to m2",
+        "s1-p032 is a member of team2",
+        "s1-p032 is a PersonRecord",
+        "s1-p021 works in office1",
+        "s1-p031 is a member of team1",
+        "s1-p035 works in office0",
+        "s1-p030 works in office0"
+      ],
+      "op_history": [
+        {
+          "i": 160,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p032 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 161,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p032 has an email address of p032@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 162,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p032 works in office2",
+          "previous_memory": null
+        },
+        {
+          "i": 163,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p032 reports to m2",
+          "previous_memory": null
+        },
+        {
+          "i": 164,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p032 is a member of team2",
+          "previous_memory": null
+        },
+        {
+          "i": 322,
+          "episode": 2,
+          "event": "UPDATE",
+          "memory": "Record ID s1-p032 has an email address of p032@ex.com",
+          "previous_memory": "Record ID s1-p032 has an email address of p032@ex.com"
+        }
+      ],
+      "shared_email": "p032@ex.com"
+    },
+    {
+      "id": "vc-s2-p032",
+      "subject": "s2-p032",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office3"
+      ],
+      "survived": [
+        "office3"
+      ],
+      "lost_mechanism": {
+        "office2": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Record ID s1-p032 has an email address of p032@ex.com",
+        "s2-p032 works in office3"
+      ],
+      "search_hits": [
+        "s1-p032 works in office2",
+        "s2-p032 works in office3",
+        "s2-p036 works in office2",
+        "s1-p032 is a member of team2",
+        "s1-p042 works in office2",
+        "s1-p022 works in office2",
+        "s1-p037 works in office2",
+        "s2-p003 works in office2",
+        "s1-p057 works in office2",
+        "s1-p052 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 161,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p032 has an email address of p032@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 322,
+          "episode": 2,
+          "event": "UPDATE",
+          "memory": "Record ID s1-p032 has an email address of p032@ex.com",
+          "previous_memory": "Record ID s1-p032 has an email address of p032@ex.com"
+        },
+        {
+          "i": 323,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p032 works in office3",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p032@ex.com"
+    },
+    {
+      "id": "vc-s1-p036",
+      "subject": "s1-p036",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office2"
+      ],
+      "survived": [
+        "office1"
+      ],
+      "lost_mechanism": {
+        "office2": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s1-p036 works in office1",
+        "Record ID s1-p036 has an email address of p036@ex.com",
+        "s1-p036 is a member of team0",
+        "s1-p036 is a PersonRecord",
+        "s1-p036 reports to m0"
+      ],
+      "search_hits": [
+        "s1-p036 works in office1",
+        "s1-p036 is a member of team0",
+        "s1-p036 reports to m0",
+        "s1-p046 works in office1",
+        "s1-p035 works in office0",
+        "s1-p056 works in office1",
+        "s1-p026 works in office1",
+        "s1-p006 works in office1",
+        "s1-p037 is a member of team1",
+        "s1-p038 works in office3"
+      ],
+      "op_history": [
+        {
+          "i": 180,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p036 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 181,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p036 has an email address of p036@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 182,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p036 works in office1",
+          "previous_memory": null
+        },
+        {
+          "i": 183,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p036 reports to m0",
+          "previous_memory": null
+        },
+        {
+          "i": 184,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p036 is a member of team0",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p036@ex.com"
+    },
+    {
+      "id": "vc-s2-p036",
+      "subject": "s2-p036",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office2"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office1": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s2-p036 works in office2",
+        "Record ID s1-p036 has an email address of p036@ex.com"
+      ],
+      "search_hits": [
+        "s2-p036 works in office2",
+        "s1-p037 works in office2",
+        "s1-p042 works in office2",
+        "s2-p003 works in office2",
+        "s1-p032 works in office2",
+        "s1-p022 works in office2",
+        "s1-p052 works in office2",
+        "s1-p057 works in office2",
+        "s1-p038 is a member of team2",
+        "s2-p032 works in office3"
+      ],
+      "op_history": [
+        {
+          "i": 181,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p036 has an email address of p036@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 324,
+          "episode": 2,
+          "event": "DELETE",
+          "memory": "s2-p036 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 326,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p036 works in office2",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p036@ex.com"
+    },
+    {
+      "id": "vc-s1-p042",
+      "subject": "s1-p042",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office0"
+      ],
+      "survived": [
+        "office2"
+      ],
+      "lost_mechanism": {
+        "office0": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s1-p042 works in office2",
+        "s1-p042 is a member of team0",
+        "s1-p042 is a PersonRecord",
+        "s1-p042 reports to m0",
+        "Record ID s1-p042 has an email address of p042@ex.com"
+      ],
+      "search_hits": [
+        "s1-p042 is a member of team0",
+        "s1-p042 works in office2",
+        "s1-p042 reports to m0",
+        "s1-p042 is a PersonRecord",
+        "s1-p052 works in office2",
+        "s1-p045 works in office0",
+        "s1-p022 works in office2",
+        "s1-p035 works in office0",
+        "s1-p036 works in office1",
+        "s1-p021 works in office1"
+      ],
+      "op_history": [
+        {
+          "i": 210,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p042 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 211,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p042 has an email address of p042@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 212,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p042 works in office2",
+          "previous_memory": null
+        },
+        {
+          "i": 213,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p042 reports to m0",
+          "previous_memory": null
+        },
+        {
+          "i": 214,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p042 is a member of team0",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p042@ex.com"
+    },
+    {
+      "id": "vc-s2-p042",
+      "subject": "s2-p042",
+      "predicate": "office",
+      "values": [
+        "office2",
+        "office0"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "office2": "never-extracted",
+        "office0": "never-extracted"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [
+        "Record ID s1-p042 has an email address of p042@ex.com"
+      ],
+      "search_hits": [
+        "s1-p042 works in office2",
+        "s2-p036 works in office2",
+        "s1-p022 works in office2",
+        "s1-p052 works in office2",
+        "s2-p003 works in office2",
+        "s1-p032 works in office2",
+        "s2-p051 works in office0",
+        "s1-p057 works in office2",
+        "s1-p047 works in office2",
+        "s1-p042 reports to m0"
+      ],
+      "op_history": [
+        {
+          "i": 211,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p042 has an email address of p042@ex.com",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p042@ex.com"
+    },
+    {
+      "id": "vc-s1-p051",
+      "subject": "s1-p051",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office0"
+      ],
+      "survived": [
+        "office1"
+      ],
+      "lost_mechanism": {
+        "office0": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s1-p051 works in office1",
+        "s1-p051 is a member of team3",
+        "s1-p051 reports to m3",
+        "Record ID s1-p051 has an email address of p051@ex.com",
+        "s1-p051 is a PersonRecord"
+      ],
+      "search_hits": [
+        "s1-p051 works in office1",
+        "s1-p051 is a PersonRecord",
+        "s1-p055 is a member of team1",
+        "s1-p056 works in office1",
+        "s1-p051 reports to m3",
+        "s1-p021 works in office1",
+        "s1-p049 is a member of team1",
+        "s1-p046 works in office1",
+        "s1-p043 is a member of team1",
+        "s1-p051 is a member of team3"
+      ],
+      "op_history": [
+        {
+          "i": 255,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p051 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 256,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p051 has an email address of p051@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 257,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p051 works in office1",
+          "previous_memory": null
+        },
+        {
+          "i": 258,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p051 reports to m3",
+          "previous_memory": null
+        },
+        {
+          "i": 259,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p051 is a member of team3",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p051@ex.com"
+    },
+    {
+      "id": "vc-s2-p051",
+      "subject": "s2-p051",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office0"
+      ],
+      "survived": [
+        "office0"
+      ],
+      "lost_mechanism": {
+        "office1": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s2-p051 works in office0",
+        "Record ID s1-p051 has an email address of p051@ex.com"
+      ],
+      "search_hits": [
+        "s2-p051 works in office0",
+        "s1-p052 works in office2",
+        "s1-p042 works in office2",
+        "s1-p047 works in office2",
+        "s1-p050 is a member of team2",
+        "s2-p058 works in office1",
+        "s1-p027 works in office2",
+        "s2-p003 works in office2",
+        "s2-p036 works in office2",
+        "s1-p022 works in office2"
+      ],
+      "op_history": [
+        {
+          "i": 256,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p051 has an email address of p051@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 332,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p051 works in office0",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p051@ex.com"
+    },
+    {
+      "id": "vc-s1-p058",
+      "subject": "s1-p058",
+      "predicate": "office",
+      "values": [
+        "office3",
+        "office1"
+      ],
+      "survived": [
+        "office3"
+      ],
+      "lost_mechanism": {
+        "office1": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s1-p058 works in office3",
+        "s1-p058 is a PersonRecord",
+        "s1-p058 is a member of team4",
+        "s1-p058 reports to m4",
+        "Record ID s1-p058 has an email address of p058@ex.com"
+      ],
+      "search_hits": [
+        "s2-p058 works in office1",
+        "s1-p058 works in office3",
+        "s1-p058 is a PersonRecord",
+        "s1-p055 is a member of team1",
+        "s1-p054 is a member of team0",
+        "s1-p056 works in office1",
+        "s1-p048 is a member of team0",
+        "s1-p018 is a member of team0",
+        "s1-p046 works in office1",
+        "s1-p053 is a PersonRecord"
+      ],
+      "op_history": [
+        {
+          "i": 290,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p058 is a PersonRecord",
+          "previous_memory": null
+        },
+        {
+          "i": 291,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p058 has an email address of p058@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 292,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p058 works in office3",
+          "previous_memory": null
+        },
+        {
+          "i": 293,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p058 reports to m4",
+          "previous_memory": null
+        },
+        {
+          "i": 294,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "s1-p058 is a member of team4",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p058@ex.com"
+    },
+    {
+      "id": "vc-s2-p058",
+      "subject": "s2-p058",
+      "predicate": "office",
+      "values": [
+        "office3",
+        "office1"
+      ],
+      "survived": [
+        "office1"
+      ],
+      "lost_mechanism": {
+        "office3": "never-extracted"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "s2-p058 works in office1",
+        "Record ID s1-p058 has an email address of p058@ex.com"
+      ],
+      "search_hits": [
+        "s2-p058 works in office1",
+        "s1-p052 works in office2",
+        "s2-p036 works in office2",
+        "s1-p057 works in office2",
+        "s2-p003 works in office2",
+        "s1-p022 works in office2",
+        "s2-p051 works in office0",
+        "s1-p056 is a member of team2",
+        "s1-p050 is a member of team2",
+        "s1-p038 is a member of team2"
+      ],
+      "op_history": [
+        {
+          "i": 291,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Record ID s1-p058 has an email address of p058@ex.com",
+          "previous_memory": null
+        },
+        {
+          "i": 335,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "s2-p058 works in office1",
+          "previous_memory": null
+        }
+      ],
+      "shared_email": "p058@ex.com"
+    }
+  ],
+  "pairs": [
+    {
+      "email": "p002@ex.com",
+      "records": [
+        "s1-p002",
+        "s2-p002"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office0",
+        "office2"
+      ],
+      "surviving_values": [
+        "office2"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "silently-resolved-to-one"
+    },
+    {
+      "email": "p003@ex.com",
+      "records": [
+        "s1-p003",
+        "s2-p003"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office2",
+        "office3"
+      ],
+      "surviving_values": [
+        "office2"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "silently-resolved-to-one"
+    },
+    {
+      "email": "p012@ex.com",
+      "records": [
+        "s1-p012",
+        "s2-p012"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office2",
+        "office3"
+      ],
+      "surviving_values": [
+        "office2",
+        "office3"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "preserved-both"
+    },
+    {
+      "email": "p017@ex.com",
+      "records": [
+        "s1-p017",
+        "s2-p017"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office2",
+        "office4"
+      ],
+      "surviving_values": [
+        "office2",
+        "office4"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "preserved-both"
+    },
+    {
+      "email": "p020@ex.com",
+      "records": [
+        "s1-p020",
+        "s2-p020"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office0",
+        "office1"
+      ],
+      "surviving_values": [
+        "office0"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "silently-resolved-to-one"
+    },
+    {
+      "email": "p023@ex.com",
+      "records": [
+        "s1-p023",
+        "s2-p023"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office2",
+        "office3"
+      ],
+      "surviving_values": [
+        "office3"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "silently-resolved-to-one"
+    },
+    {
+      "email": "p024@ex.com",
+      "records": [
+        "s1-p024",
+        "s2-p024"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office0",
+        "office4"
+      ],
+      "surviving_values": [
+        "office0",
+        "office4"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "preserved-both"
+    },
+    {
+      "email": "p032@ex.com",
+      "records": [
+        "s1-p032",
+        "s2-p032"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office2",
+        "office3"
+      ],
+      "surviving_values": [
+        "office2",
+        "office3"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "preserved-both"
+    },
+    {
+      "email": "p036@ex.com",
+      "records": [
+        "s1-p036",
+        "s2-p036"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office1",
+        "office2"
+      ],
+      "surviving_values": [
+        "office1",
+        "office2"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "preserved-both"
+    },
+    {
+      "email": "p042@ex.com",
+      "records": [
+        "s1-p042",
+        "s2-p042"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office0",
+        "office2"
+      ],
+      "surviving_values": [
+        "office2"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "silently-resolved-to-one"
+    },
+    {
+      "email": "p051@ex.com",
+      "records": [
+        "s1-p051",
+        "s2-p051"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office0",
+        "office1"
+      ],
+      "surviving_values": [
+        "office0",
+        "office1"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "preserved-both"
+    },
+    {
+      "email": "p058@ex.com",
+      "records": [
+        "s1-p058",
+        "s2-p058"
+      ],
+      "conflicted": true,
+      "pair_values": [
+        "office1",
+        "office3"
+      ],
+      "surviving_values": [
+        "office1",
+        "office3"
+      ],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "preserved-both"
+    },
+    {
+      "email": "p016@ex.com",
+      "records": [
+        "s1-p016",
+        "s2-p016"
+      ],
+      "conflicted": false,
+      "pair_values": [],
+      "surviving_values": [],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "benign-pair"
+    },
+    {
+      "email": "p041@ex.com",
+      "records": [
+        "s1-p041",
+        "s2-p041"
+      ],
+      "conflicted": false,
+      "pair_values": [],
+      "surviving_values": [],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "benign-pair"
+    },
+    {
+      "email": "p025@ex.com",
+      "records": [
+        "s1-p025",
+        "s2-p025"
+      ],
+      "conflicted": false,
+      "pair_values": [],
+      "surviving_values": [],
+      "cross_record_linked_memories": [],
+      "email_bridge_memories": [],
+      "linked": false,
+      "verdict": "benign-pair"
+    }
+  ]
+}

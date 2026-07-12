@@ -212,3 +212,33 @@ tokens only when questions don't share neighbourhoods.
 still ties at 133KB (its collapse point needs 10^4+ stores or measured long-context
 degradation — future sweep); q06 partial-credit definition should be foregrounded in
 the paper's metric section.
+
+## 2026-07-12 — Pilot D2: Mem0 classic on the CROSS-RECORD slice (conflict-xr-small)
+
+**Setup.** Same harness as Pilot D; all 345 xr-small facts ingested in episode order
+(~26s/fact, nohup-supervised). Verdicts at two levels: per record (24 = 12 pairs x 2)
+and per co-referent pair, including an explicit linkage probe (did ANY memory connect
+the two records / bridge the shared email?).
+
+**Result.**
+
+| level | preserved-both | silently-resolved | lost-both | linked |
+|---|---|---|---|---|
+| per record (24) | **0** | 19 | 5 | — |
+| per pair (12 conflicted) | 7* | 5 | — | **0/12** |
+
+*The pair-level "preserved-both" is NOT conflict preservation: `linked: false` on
+every pair — `cross_record_linked_memories` and `email_bridge_memories` empty
+everywhere. **Mem0 never performed entity resolution on the shared email key.** The
+7 "preserved" pairs are two disconnected memory fragments each holding one value;
+no reader surface connects them, so a subject query returns one value arbitrarily.
+
+**Honest read.** On cross-record conflicts Mem0's failure is more fundamental than
+destructive resolution: the conflict is never REPRESENTABLE because co-reference is
+never established — architecturally the same blindness as hop-bounded retrieval
+(Pilot C/E), now measured at the write pipeline. The mechanism table is complete:
+retrieval cannot REACH the second record; Mem0 cannot LINK it (and destroys
+same-subject conflicts it can see); Predicate's r14 keys them deterministically and
+r22/r23 surface the conflict with both values cited. Caveat: local qwen3.5 extractor
+— a frontier extractor might link some pairs; the counter is that nothing in the
+pipeline ASKS for co-reference: there is no key semantics anywhere in its schema.
