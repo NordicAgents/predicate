@@ -138,6 +138,12 @@ export interface XrStatsOptions {
   outDir: string;
   /** Metadata timestamp; wall-clock is never read by this runner itself. */
   stamp?: string;
+  /**
+   * Custom store size for the flat-all collapse sweep (--persons N): overrides
+   * XR_VARIANTS and names the variant conflict-xr-p<N>. Fixture domains become
+   * xr-p<N>-s<seed> so different sizes at the same seed never collide.
+   */
+  personsOverride?: number;
 }
 
 interface OracleCorefPair { records: [string, string]; email: string; conflicted: boolean }
@@ -249,7 +255,9 @@ function aggregateProbes(probes: PairProbe[]): KsweepRow[] {
 }
 
 export async function runXrStats(client: StorageAdapter, opts: XrStatsOptions): Promise<XrStatsResult> {
-  const variant = XR_VARIANTS[opts.variantName];
+  const variant = opts.personsOverride !== undefined
+    ? { persons: opts.personsOverride }
+    : XR_VARIANTS[opts.variantName];
   if (!variant) {
     throw new Error(`unknown variant ${opts.variantName}; expected one of ${Object.keys(XR_VARIANTS).join(', ')}`);
   }
@@ -263,7 +271,9 @@ export async function runXrStats(client: StorageAdapter, opts: XrStatsOptions): 
   const ksweepDetail: PairProbe[] = [];
 
   for (const seed of seeds) {
-    const domain = `xr-s${seed}`;
+    const domain = opts.personsOverride !== undefined
+      ? `xr-p${opts.personsOverride}-s${seed}`
+      : `xr-s${seed}`;
     const dir = join(outDir, 'fixtures', domain);
 
     // 1. Generate + persist the fixture so scoring can replay it later.
@@ -348,20 +358,28 @@ function parseNums(raw: string, flag: string): number[] {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  const variantName = argOf(args, '--variant') ?? 'conflict-xr-small';
-  if (!XR_VARIANTS[variantName]) {
+  const personsArg = argOf(args, '--persons');
+  const personsOverride = personsArg !== undefined ? Number(personsArg) : undefined;
+  if (personsOverride !== undefined && (!Number.isInteger(personsOverride) || personsOverride < 10)) {
+    throw new Error(`--persons must be an integer >= 10, got "${personsArg}"`);
+  }
+  const variantName = personsOverride !== undefined
+    ? `conflict-xr-p${personsOverride}`
+    : (argOf(args, '--variant') ?? 'conflict-xr-small');
+  if (personsOverride === undefined && !XR_VARIANTS[variantName]) {
     throw new Error(`unknown --variant ${variantName}; expected one of ${Object.keys(XR_VARIANTS).join(', ')}`);
   }
-  // The scale variant runs the single default seed (300 persons) by design.
+  // The scale variant and --persons collapse-sweep sizes run the single
+  // default seed by design; --seeds still overrides for --persons runs.
   const seeds = variantName === 'conflict-xr-scale'
     ? [SEED_V2]
-    : parseNums(argOf(args, '--seeds') ?? '11,23,37,42,59', '--seeds');
+    : parseNums(argOf(args, '--seeds') ?? (personsOverride !== undefined ? String(SEED_V2) : '11,23,37,42,59'), '--seeds');
   const hops = parseNums(argOf(args, '--hops') ?? '1,2,3,4', '--hops');
   const outArg = argOf(args, '--out') ?? join('results', 'xr-pilot');
   const outDir = isAbsolute(outArg) ? outArg : join(PKG_ROOT, outArg);
   const stamp = argOf(args, '--stamp');
 
-  const res = await runXrStats(getAdapter(), { seeds, hops, variantName, outDir, stamp });
+  const res = await runXrStats(getAdapter(), { seeds, hops, variantName, outDir, stamp, personsOverride });
 
   for (const t of res.tier1) {
     const flag = t.anomaly ? `  ANOMALY: ${t.anomaly}` : '';

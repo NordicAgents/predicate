@@ -1,0 +1,849 @@
+{
+  "fixture": "conflict-d20",
+  "arm": "v2add-qwen3.5",
+  "model": "qwen3.5:latest",
+  "mem0_version": "2.0.11",
+  "pipeline": "v2add",
+  "embed_model": "nomic-embed-text:latest",
+  "n_facts_ingested": 135,
+  "n_ingest_errors": 0,
+  "n_final_memories": 20,
+  "conflict_counts": {
+    "preserved-both": 1,
+    "silently-resolved-to-one": 4,
+    "lost-both": 3,
+    "unclear": 0
+  },
+  "pair_counts": null,
+  "n_pairs_linked": null,
+  "conflicts": [
+    {
+      "id": "vc-p06",
+      "subject": "p06",
+      "predicate": "reportsTo",
+      "values": [
+        "m1",
+        "m2"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "m1": "added-then-lost",
+        "m2": "added-then-lost"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [
+        "Person p06 works in office3.",
+        "Person p06 works in office2."
+      ],
+      "search_hits": [
+        "Person p06 is a member of team0.",
+        "Person p06 reports to person m1.",
+        "Person p06 works in office1.",
+        "Person p06 reports to manager m2 as of July 12, 2026.",
+        "Person p06 reports to manager m2 as of 2026-07-12.",
+        "Person p06 works in office3.",
+        "Person p06 works in office2.",
+        "Person p06 reports to manager m2.",
+        "Person p36 is a member of team0 as of 2026-07-12.",
+        "Person p06 reports to person m1 and works in office2 as a member of team0."
+      ],
+      "op_history": [
+        {
+          "i": 18,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p06 reports to person m1.",
+          "previous_memory": null
+        },
+        {
+          "i": 19,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p06 works in office2.",
+          "previous_memory": null
+        },
+        {
+          "i": 20,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p06 is a member of team0.",
+          "previous_memory": null
+        },
+        {
+          "i": 25,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p06 reports to person m1 and works in office2 as a member of team0.",
+          "previous_memory": null
+        },
+        {
+          "i": 38,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p06 works in office1.",
+          "previous_memory": null
+        },
+        {
+          "i": 38,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p06 works in office3.",
+          "previous_memory": null
+        },
+        {
+          "i": 121,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p06 reports to manager m2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 122,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p06 reports to m2 and works in office0 (implied by context or missing info, but strictly from text: reports to m2) as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 126,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p06 reports to manager m2 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 129,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p06 reports to manager m2.",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p19",
+      "subject": "p19",
+      "predicate": "office",
+      "values": [
+        "office3",
+        "office0"
+      ],
+      "survived": [
+        "office0"
+      ],
+      "lost_mechanism": {
+        "office3": "added-then-lost"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Person p19 works in office0 as of 2026-07-12."
+      ],
+      "search_hits": [
+        "Person p19 works in office3.",
+        "Person p19 reports to person m4.",
+        "Person p19 is a member of team1 as of 2026-07-12.",
+        "Person p19 works in office0 as of 2026-07-12.",
+        "Person p19 works in office0 as of 2026-07-12.",
+        "Person p19 works in office0 as of July 12, 2026.",
+        "Person p19 reports to m4 and works in office3 as of 2026-07-12.",
+        "Person p19 reports to m4, works in office3, and is a member of team1.",
+        "Person p19 reports to m4, works in office3, and is a member of team1 as of 2026-07-12.",
+        "Person p19 reports to m4, works in office3, and is a member of team1 as of 2026-07-12."
+      ],
+      "op_history": [
+        {
+          "i": 57,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p19 reports to person m4.",
+          "previous_memory": null
+        },
+        {
+          "i": 58,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p19 works in office3.",
+          "previous_memory": null
+        },
+        {
+          "i": 58,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p19 reports to m4 and works in office3 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 59,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p19 is a member of team1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 59,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p19 reports to m4, works in office3, and is a member of team1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 60,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p19 reports to m4, works in office3, and is a member of team1.",
+          "previous_memory": null
+        },
+        {
+          "i": 67,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p19 reports to m4, works in office3, and is a member of team1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 122,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p19 works in office0 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 126,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p19 works in office0 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 129,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p19 works in office0 as of 2026-07-12.",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p20",
+      "subject": "p20",
+      "predicate": "reportsTo",
+      "values": [
+        "m0",
+        "m1"
+      ],
+      "survived": [
+        "m1"
+      ],
+      "lost_mechanism": {
+        "m0": "added-then-lost"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Person p20 reports to manager m1 as of July 12, 2026."
+      ],
+      "search_hits": [
+        "Person p20 reports to person m0.",
+        "Person p20 reports to m1 as of 2026-07-12.",
+        "Person p20 reports to manager m1 as of 2026-07-12.",
+        "Person p20 reports to manager m1 as of 2026-07-12.",
+        "Person p20 reports to manager m1 as of July 12, 2026.",
+        "Person p20 works in office0 as of 2026-07-12.",
+        "Person p20 is a member of team2 as of 2026-07-12.",
+        "Person p20 reports to m0, works in office0, and is a member of team2 as of 2026-07-12.",
+        "Person p30 is a member of team0.",
+        "Person p30 reports to person m0 as of 2026-07-12."
+      ],
+      "op_history": [
+        {
+          "i": 60,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p20 reports to person m0.",
+          "previous_memory": null
+        },
+        {
+          "i": 61,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p20 works in office0 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 62,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p20 is a member of team2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 67,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p20 reports to m0, works in office0, and is a member of team2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 122,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p20 reports to m1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 126,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p20 reports to manager m1 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 129,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p20 reports to manager m1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 132,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p20 reports to manager m1 as of 2026-07-12.",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p21",
+      "subject": "p21",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office2"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "office1": "added-then-lost",
+        "office2": "added-then-lost"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [],
+      "search_hits": [
+        "Person p21 reports to person m1.",
+        "Person p21 works in office1 as of 2026-07-12.",
+        "Person p21 reports to m1, works in office1, and is a member of team3 as of 2026-07-12.",
+        "Person p21 reports to m1, works in office1, and is a member of team3 as of 2026-07-12.",
+        "Person p20 reports to m1 as of 2026-07-12.",
+        "Person p21 works in office2 as of 2026-07-12.",
+        "Person p21 works in office2 as of 2026-07-12.",
+        "Person p31 reports to m1 as of 2026-07-12.",
+        "Person p21 works in office2 as of July 12, 2026.",
+        "Person p21 works in office3 and is a member of team3 as of 2026-07-12."
+      ],
+      "op_history": [
+        {
+          "i": 63,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p21 reports to person m1.",
+          "previous_memory": null
+        },
+        {
+          "i": 64,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p21 works in office1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 65,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p21 works in office3 and is a member of team3 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 67,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p21 reports to m1, works in office1, and is a member of team3 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 73,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p21 reports to m1, works in office1, and is a member of team3 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 126,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p21 works in office2 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 129,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p21 works in office2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 132,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p21 works in office2 as of 2026-07-12.",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p26",
+      "subject": "p26",
+      "predicate": "reportsTo",
+      "values": [
+        "m1",
+        "m2"
+      ],
+      "survived": [
+        "m1",
+        "m2"
+      ],
+      "lost_mechanism": {},
+      "verdict": "preserved-both",
+      "final_subject_memories": [
+        "Person p26 reports to manager m1, works in office2, and is a member of team2 as of 2026-07-12.",
+        "Person p26 reports to manager m2 as of 2026-07-12."
+      ],
+      "search_hits": [
+        "Person p26 reports to person m1.",
+        "Person p26 reports to manager m2 as of July 12, 2026.",
+        "Person p26 reports to manager m2 as of 2026-07-12.",
+        "Person p26 reports to manager m2 as of 2026-07-12.",
+        "Person p26 reports to manager m2 as of 2026-07-12.",
+        "Person p26 is a member of team2.",
+        "Person p26 is a member of team2.",
+        "Person p26 reports to person m1 and works in office2 as of 2026-07-12.",
+        "Person p26 reports to m1 and works in office2 as of 2026-07-12.",
+        "Person p26 reports to manager m1, works in office2, and is a member of team2 as of 2026-07-12."
+      ],
+      "op_history": [
+        {
+          "i": 78,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 reports to person m1.",
+          "previous_memory": null
+        },
+        {
+          "i": 79,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 reports to manager m1, works in office2, and is a member of team1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 80,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 reports to manager m1, works in office2, and is a member of team2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 81,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 reports to m1 and works in office2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 81,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 is a member of team2.",
+          "previous_memory": null
+        },
+        {
+          "i": 82,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 reports to manager m1, works in office2, and is a member of team2.",
+          "previous_memory": null
+        },
+        {
+          "i": 83,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 reports to m1, works in office2, and is a member of team2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 87,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 reports to person m1 and works in office2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 87,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p26 is a member of team2.",
+          "previous_memory": null
+        },
+        {
+          "i": 124,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p26 reports to manager m2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 126,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p26 reports to manager m2 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 129,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p26 reports to manager m2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 132,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p26 reports to manager m2 as of 2026-07-12.",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p33",
+      "subject": "p33",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office2"
+      ],
+      "survived": [
+        "office1"
+      ],
+      "lost_mechanism": {
+        "office2": "added-then-lost"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Person p33 works in office1 as of July 12, 2026.",
+        "Person p33 reports to m3 as of 2026-07-12."
+      ],
+      "search_hits": [
+        "Person p33 reports to m3 as of 2026-07-12.",
+        "Person p33 reports to manager m3 as of July 12, 2026.",
+        "Person p33 works in office1 as of July 12, 2026.",
+        "Person p33 reports to m3, works in office1, and is a member of team3.",
+        "Person p33 works in office2 as of July 12, 2026.",
+        "Person p33 works in office2 as of July 12, 2026.",
+        "Person p35 works in office3.",
+        "Person p33 works in office2 as of 2026-07-12.",
+        "Person p33 works in office2 as of 2026-07-12.",
+        "Person p31 reports to m1 as of 2026-07-12."
+      ],
+      "op_history": [
+        {
+          "i": 99,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p33 reports to manager m3 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 100,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p33 works in office1 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 101,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p33 works in office1 and is a member of team3 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 101,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p33 reports to m3 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 106,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p33 reports to m3, works in office1, and is a member of team3.",
+          "previous_memory": null
+        },
+        {
+          "i": 125,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p33 works in office2 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 126,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p33 works in office2 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 129,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p33 works in office2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 132,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p33 works in office2 as of 2026-07-12.",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p36",
+      "subject": "p36",
+      "predicate": "reportsTo",
+      "values": [
+        "m1",
+        "m2"
+      ],
+      "survived": [
+        "m1"
+      ],
+      "lost_mechanism": {
+        "m2": "added-then-lost"
+      },
+      "verdict": "silently-resolved-to-one",
+      "final_subject_memories": [
+        "Person p36 works in office0 and reports to m1 as of 2026-07-12.",
+        "Person p36 reports to m1 and works in office0 as of 2026-07-12."
+      ],
+      "search_hits": [
+        "Person p36 reports to m1 as of July 12, 2026.",
+        "Person p36 is a member of team0.",
+        "Person p36 is a member of team0.",
+        "Person p36 works in office0 and reports to m1 as of 2026-07-12.",
+        "Person p36 reports to manager m2 as of 2026-07-12.",
+        "Person p36 reports to manager m2 as of 2026-07-12.",
+        "Person p36 reports to m1 and works in office0 as of 2026-07-12.",
+        "Person p36 is a member of team0 as of 2026-07-12.",
+        "Person p36 reports to m1, works in office0, and is a member of team0 as of 2026-07-12.",
+        "Person p36 reports to manager m1, works in office0, and is a member of team0 as of 2026-07-12."
+      ],
+      "op_history": [
+        {
+          "i": 108,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p36 reports to m1 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 109,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p36 reports to person m1, works in office0, and (based on prior context) was previously associated with other offices before this update.",
+          "previous_memory": null
+        },
+        {
+          "i": 110,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p36 is a member of team0 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 110,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p36 works in office0 and reports to m1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 112,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p36 reports to manager m1, works in office0, and is a member of team0 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 116,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p36 reports to m1, works in office0, and is a member of team0 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 117,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p36 reports to m1 and works in office0 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 117,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p36 is a member of team0.",
+          "previous_memory": null
+        },
+        {
+          "i": 120,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p36 is a member of team0.",
+          "previous_memory": null
+        },
+        {
+          "i": 129,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p36 reports to manager m2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 132,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p36 reports to manager m2 as of 2026-07-12.",
+          "previous_memory": null
+        }
+      ]
+    },
+    {
+      "id": "vc-p37",
+      "subject": "p37",
+      "predicate": "office",
+      "values": [
+        "office1",
+        "office2"
+      ],
+      "survived": [],
+      "lost_mechanism": {
+        "office1": "added-then-lost",
+        "office2": "added-then-lost"
+      },
+      "verdict": "lost-both",
+      "final_subject_memories": [],
+      "search_hits": [
+        "Person p37 reports to manager m2 as of July 12, 2026.",
+        "Person p37 is a member of team1.",
+        "Person p37 reports to m2 and works in office1 as of 2026-07-12.",
+        "Person p37 is a member of team1 as of 2026-07-12.",
+        "Person p37 reports to manager m2, works in office1, and is a member of team1.",
+        "Person p37 reports to m2, works in office1, and is a member of team1 as of 2026-07-12.",
+        "Person p37 reports to m2 and works in office1 as a member of team1.",
+        "Person p37 works in office2 as of July 12, 2026.",
+        "Person p37 works in office2 as of 2026-07-12.",
+        "Person p37 works in office2 as of 2026-07-12."
+      ],
+      "op_history": [
+        {
+          "i": 111,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p37 reports to manager m2 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 112,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p37 reports to manager m2 and works in office1 as a member of team3 (inferred from context) or simply is assigned to team associated with m2, updated for 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 113,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p37 is a member of team1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 116,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p37 reports to m2, works in office1, and is a member of team1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 117,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p37 reports to m2 and works in office1 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 117,
+          "episode": 1,
+          "event": "ADD",
+          "memory": "Person p37 is a member of team1.",
+          "previous_memory": null
+        },
+        {
+          "i": 120,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p37 reports to m2 and works in office1 as a member of team1.",
+          "previous_memory": null
+        },
+        {
+          "i": 121,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p37 reports to manager m2, works in office1, and is a member of team1.",
+          "previous_memory": null
+        },
+        {
+          "i": 122,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p37 works in office1 and is a member of team1.",
+          "previous_memory": null
+        },
+        {
+          "i": 127,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p37 works in office2 as of July 12, 2026.",
+          "previous_memory": null
+        },
+        {
+          "i": 129,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p37 works in office2 as of 2026-07-12.",
+          "previous_memory": null
+        },
+        {
+          "i": 132,
+          "episode": 2,
+          "event": "ADD",
+          "memory": "Person p37 works in office2 as of 2026-07-12.",
+          "previous_memory": null
+        }
+      ]
+    }
+  ],
+  "pairs": null
+}

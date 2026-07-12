@@ -242,3 +242,37 @@ same-subject conflicts it can see); Predicate's r14 keys them deterministically 
 r22/r23 surface the conflict with both values cited. Caveat: local qwen3.5 extractor
 — a frontier extractor might link some pairs; the counter is that nothing in the
 pipeline ASKS for co-reference: there is no key semantics anywhere in its schema.
+
+## 2026-07-12 — Pilot F: the flat-all collapse sweep is COST-shaped (p1000/p2000)
+
+**Setup.** xr-stats gained --persons N (committed): same generator, store sizes 1000
+and 2000 persons (5.2k / 10.4k triples; flat-all prompts 435KB / 871KB). Deterministic
+part per size: Tier1 reference + k=2 reach over every conflicted pair; blind frontier
+flat-all arm via in-session subagent (systematic chunked reading required).
+
+**Result.**
+
+| size | triples | reasoner | flat-all | retrieval reach (k=2) | frontier read cost |
+|---|---|---|---|---|---|
+| p1000 | 5.2k | 1.000 | **1.000** | 0.000 (200 pairs) | 339k tokens, ~6 min |
+| p2000 | 10.4k | 1.000 | **1.000** | 0.000 (400 pairs) | **77k tokens** — pattern-inference, not reading |
+
+Flat-all does NOT collapse on accuracy in the readable regime — including perfect
+800-IRI enumeration at p2000. But the two rows expose the real boundary: at p1000 the
+model read everything (339k tokens); at p2000 it STOPPED READING and inferred the
+regularity (i%5 office assignment) from samples — correct here only because synthetic
+fixtures are regular. Real stores are not; the shortcut does not transfer. The honest
+claim: **flat-all's failure mode is cost and verification-honesty, not raw accuracy —
+linear token burn per query (and per-query re-reading) vs the reasoner's constant-cost
+query over an amortized closure — until the context ceiling makes it structural.**
+p4000 (21k triples) was abandoned: the deterministic sweep itself memory-thrashed this
+machine (9.2GB swap) — an incidental datum about in-memory whole-store processing at
+scale. Largest completed deterministic point: 10.4k triples.
+
+**Also this morning (chained, partially disk-blocked and re-run):** Mem0-2.x additive
+arm on d20: 1/8 preserved / 4 silently-resolved / 3 lost-both — "additive-only" still
+destroys, the loss just moves into EXTRACTION infidelity. Local-tier sweep first pass
+exposed a scoring artifact (gemma4 answers {"answer": "<iri>"} — bare string; strict
+parser scored it 0/8): parseFlatAnswer now accepts singleton strings so the tier
+comparison measures capability, not JSON-shape compliance; first-pass runs archived,
+all six cells re-running with the fair parser.
