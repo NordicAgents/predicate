@@ -1,0 +1,45 @@
+{
+  "seq": 1,
+  "timestamp": "2026-07-12T22:13:41.824Z",
+  "vendor": "anthropic",
+  "model": "claude-haiku-4-5-20251001",
+  "request": {
+    "url": "https://api.anthropic.com/v1/messages",
+    "body": {
+      "model": "claude-haiku-4-5-20251001",
+      "max_tokens": 1024,
+      "temperature": 0,
+      "system": "You are a precise, deterministic reasoning engine. Follow the instructions exactly and output only the requested JSON — no prose, no code fences.",
+      "messages": [
+        {
+          "role": "user",
+          "content": "You are given an ontology (TBox) and the complete list of asserted facts (ABox), then a question.\nAnswer using ONLY these facts plus your own reasoning — there is NO database or query engine, so\nyou must compute any transitive chains, inverses, or type inferences yourself. Identify every\nentity by its full IRI exactly as it appears in the facts.\nOutput ONLY JSON, no prose, no code fences:\n  - list question: {\"answer\": [\"<iri>\", \"<iri>\", ...]}   (use [] if none)\n  - yes/no question: {\"answer\": true}  or  {\"answer\": false}\n\n<knowledge-base>\n# Ontology (TBox)\n@prefix cb2:  <http://ex/cb2#> .\n@prefix j:    <https://industriagents.com/predicate/judgment#> .\n@prefix owl:  <http://www.w3.org/2002/07/owl#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\ncb2:PersonRecord a owl:Class ;\n  owl:hasKey ( cb2:email ) ;\n  rdfs:comment \"one record about a person, captured in some session; a person may have MULTIPLE records. cb2:email is a KEY: two records with the same email describe the SAME person\" .\ncb2:Office a owl:Class .\ncb2:Team   a owl:Class .\n\ncb2:email a owl:DatatypeProperty ;\n  rdfs:domain cb2:PersonRecord ;\n  rdfs:comment \"identifying key: records sharing an email are the same person (see cb2:PersonRecord)\" .\n\ncb2:reportsTo a owl:ObjectProperty, j:SingleValued ;\n  rdfs:domain cb2:PersonRecord ;\n  rdfs:comment \"single-valued PER PERSON: a person has exactly one manager; two different values across that person's records indicate a data conflict\" .\n\ncb2:office a owl:ObjectProperty, j:SingleValued ;\n  rdfs:domain cb2:PersonRecord ; rdfs:range cb2:Office ;\n  rdfs:comment \"single-valued PER PERSON: a person has exactly one office; two different values across that person's records indicate a data conflict\" .\n\ncb2:memberOf a owl:ObjectProperty ;\n  rdfs:domain cb2:PersonRecord ; rdfs:range cb2:Team ;\n  rdfs:comment \"multi-valued: a person may belong to any number of teams; multiple values are normal, not a conflict\" .\n\n\n# Retrieved facts (k-hop neighbourhood of the question's entities)\n# (no entity handle to retrieve from — this question has no seeds;\n#  answer from the schema and general reasoning only)\n</knowledge-base>\n\nQuestion (conflict): Which person records belong to a person with conflicting values on a single-valued property across their records?\n\nJSON:"
+        }
+      ]
+    },
+    "headers": "REDACTED"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "id": "msg_mock",
+      "model": "mock",
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"answer\": []}"
+        }
+      ],
+      "usage": {
+        "input_tokens": 659,
+        "output_tokens": 8
+      }
+    },
+    "latencyMs": 20,
+    "usage": {
+      "input_tokens": 659,
+      "output_tokens": 8
+    },
+    "requestId": "mock-request-id"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "runId": "conflict-xr-small-pinned-flat-all-1783894406345",
+  "startedAt": "2026-07-12T22:13:27.610Z",
+  "gitSha": "3b63c1e61801983ab7c0a27f7101bf961556ee81",
+  "domain": "conflict-xr-small",
+  "arm": "flat-all",
+  "models": [
+    "anthropic:claude-haiku-4-5-20251001",
+    "openai:gpt-4o"
+  ],
+  "runs": 1,
+  "hops": null,
+  "temperature": 0,
+  "seedPolicy": "seed=run-index (1..runs); honored by OpenAI chat completions, ignored by Anthropic messages",
+  "fixtureSha256": "342fc3e09c63caa39e8714f8df0987f4cf0a75e19fecac523d2981560d0332f3",
+  "promptSha256": {
+    "conflict-xr-small-q01": "adceb7401eefdac1183d346299f0f21fdfe368eb83bff2f7b9bf6da547424f3a",
+    "conflict-xr-small-q02": "788162beea4351efe1a8fe35f04372bd830d72835ae30ecbf6a5fc113b606b48",
+    "conflict-xr-small-q03": "885d2bc153c28aac067fb5350ef546de8b69581201d73e4e6ddcdcafac748e0d",
+    "conflict-xr-small-q04": "e9218a496a6fae1351daaef0d1a8f8745a2effe07661fbe5c63d26aad6184a6f",
+    "conflict-xr-small-q05": "63630ec3ed8f83853a7440f5ec161582b2d0fa994d7cc89ff601eb20389ac4f3",
+    "conflict-xr-small-q06": "fa7174d4e13506b6bf0629d311662f5b99b1f26dd8362046bfe9a05d1bd25fb8",
+    "conflict-xr-small-q07": "71f535c1d7b6f138c7b96d685ba3071a8eb6603f2fe2a4c7b8b260e62e544ffc",
+    "conflict-xr-small-q08": "ab843ebbd88ab4fac6d8dc573a2e777228929ec242fcf0a95cc67f73ba33f4b2"
+  },
+  "cliArgv": [
+    "conflict-xr-small",
+    "--arm",
+    "flat-all",
+    "--dry-run",
+    "--models",
+    "anthropic:claude-haiku-4-5-20251001@weak,openai:gpt-4o@frontier",
+    "--runs",
+    "1"
+  ],
+  "env": {
+    "backend": "oxigraph-wasm",
+    "storePath": ":memory:",
+    "baseUrlHost": {
+      "anthropic": "api.anthropic.com",
+      "openai": "api.openai.com"
+    }
+  },
+  "dryRun": true
+}

@@ -1,0 +1,260 @@
+[
+  {
+    "id": "conflict-d20#subject-p06",
+    "domain": "conflict-d20",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb/p06"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#reportsTo",
+    "goldValues": [
+      "http://ex/cb/m1",
+      "http://ex/cb/m2"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p06|http://ex/cb#reportsTo|http://ex/cb/m1",
+      "http://ex/cb/p06|http://ex/cb#reportsTo|http://ex/cb/m2"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-d20#subject-p19",
+    "domain": "conflict-d20",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb/p19"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#office",
+    "goldValues": [
+      "http://ex/cb/office3",
+      "http://ex/cb/office0"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p19|http://ex/cb#office|http://ex/cb/office3",
+      "http://ex/cb/p19|http://ex/cb#office|http://ex/cb/office0"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-d20#subject-p20",
+    "domain": "conflict-d20",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb/p20"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#reportsTo",
+    "goldValues": [
+      "http://ex/cb/m0",
+      "http://ex/cb/m1"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p20|http://ex/cb#reportsTo|http://ex/cb/m0",
+      "http://ex/cb/p20|http://ex/cb#reportsTo|http://ex/cb/m1"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-d20#subject-p21",
+    "domain": "conflict-d20",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb/p21"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#office",
+    "goldValues": [
+      "http://ex/cb/office1",
+      "http://ex/cb/office2"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p21|http://ex/cb#office|http://ex/cb/office1",
+      "http://ex/cb/p21|http://ex/cb#office|http://ex/cb/office2"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-d20#subject-p26",
+    "domain": "conflict-d20",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb/p26"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#reportsTo",
+    "goldValues": [
+      "http://ex/cb/m1",
+      "http://ex/cb/m2"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p26|http://ex/cb#reportsTo|http://ex/cb/m1",
+      "http://ex/cb/p26|http://ex/cb#reportsTo|http://ex/cb/m2"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-d20#subject-p33",
+    "domain": "conflict-d20",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb/p33"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#office",
+    "goldValues": [
+      "http://ex/cb/office1",
+      "http://ex/cb/office2"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p33|http://ex/cb#office|http://ex/cb/office1",
+      "http://ex/cb/p33|http://ex/cb#office|http://ex/cb/office2"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-d20#subject-p36",
+    "domain": "conflict-d20",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb/p36"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#reportsTo",
+    "goldValues": [
+      "http://ex/cb/m1",
+      "http://ex/cb/m2"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p36|http://ex/cb#reportsTo|http://ex/cb/m1",
+      "http://ex/cb/p36|http://ex/cb#reportsTo|http://ex/cb/m2"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-d20#subject-p37",
+    "domain": "conflict-d20",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb/p37"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#office",
+    "goldValues": [
+      "http://ex/cb/office1",
+      "http://ex/cb/office2"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p37|http://ex/cb#office|http://ex/cb/office1",
+      "http://ex/cb/p37|http://ex/cb#office|http://ex/cb/office2"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-d20#benign-shared-value-x0",
+    "domain": "conflict-d20",
+    "kind": "benign-shared-value",
+    "subjects": [
+      "http://ex/cb/x0"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#reportsTo",
+    "goldValues": [
+      "http://ex/cb/m0"
+    ],
+    "goldWitness": [
+      "http://ex/cb/x0|http://ex/cb#reportsTo|http://ex/cb/m0"
+    ],
+    "isConflict": false
+  },
+  {
+    "id": "conflict-d20#benign-shared-value-x1",
+    "domain": "conflict-d20",
+    "kind": "benign-shared-value",
+    "subjects": [
+      "http://ex/cb/x1"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#reportsTo",
+    "goldValues": [
+      "http://ex/cb/m0"
+    ],
+    "goldWitness": [
+      "http://ex/cb/x1|http://ex/cb#reportsTo|http://ex/cb/m0"
+    ],
+    "isConflict": false
+  },
+  {
+    "id": "conflict-d20#benign-duplicate-p13",
+    "domain": "conflict-d20",
+    "kind": "benign-duplicate",
+    "subjects": [
+      "http://ex/cb/p13"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#office",
+    "goldValues": [
+      "http://ex/cb/office1"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p13|http://ex/cb#office|http://ex/cb/office1"
+    ],
+    "isConflict": false
+  },
+  {
+    "id": "conflict-d20#benign-duplicate-p28",
+    "domain": "conflict-d20",
+    "kind": "benign-duplicate",
+    "subjects": [
+      "http://ex/cb/p28"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#reportsTo",
+    "goldValues": [
+      "http://ex/cb/m3"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p28|http://ex/cb#reportsTo|http://ex/cb/m3"
+    ],
+    "isConflict": false
+  },
+  {
+    "id": "conflict-d20#benign-multivalued-p02",
+    "domain": "conflict-d20",
+    "kind": "benign-multivalued",
+    "subjects": [
+      "http://ex/cb/p02"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#collaboratesWith",
+    "goldValues": [
+      "http://ex/cb/p03",
+      "http://ex/cb/p04"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p02|http://ex/cb#collaboratesWith|http://ex/cb/p03",
+      "http://ex/cb/p02|http://ex/cb#collaboratesWith|http://ex/cb/p04"
+    ],
+    "isConflict": false
+  },
+  {
+    "id": "conflict-d20#benign-multivalued-p22",
+    "domain": "conflict-d20",
+    "kind": "benign-multivalued",
+    "subjects": [
+      "http://ex/cb/p22"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb#memberOf",
+    "goldValues": [
+      "http://ex/cb/team4",
+      "http://ex/cb/team5"
+    ],
+    "goldWitness": [
+      "http://ex/cb/p22|http://ex/cb#memberOf|http://ex/cb/team4",
+      "http://ex/cb/p22|http://ex/cb#memberOf|http://ex/cb/team5"
+    ],
+    "isConflict": false
+  }
+]

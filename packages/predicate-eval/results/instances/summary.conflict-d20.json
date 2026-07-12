@@ -1,0 +1,597 @@
+{
+  "domain": "conflict-d20",
+  "instanceCount": 14,
+  "byKind": {
+    "conflict": 8,
+    "benign-shared-value": 2,
+    "benign-duplicate": 2,
+    "benign-multivalued": 2
+  },
+  "systems": [
+    {
+      "system": "exact-key-join",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "tn": 6,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 0.10190000000000003,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "reasoner-r14r23r22",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "tn": 6,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 55.580000000000005,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:iri-bfs@1",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 1.272857142857143,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:iri-bfs@2",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 2.2892857142857146,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:iri-bfs@3",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 2.3964285714285714,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:iri-bfs@4",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 3.6435714285714282,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:key-aware@1",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 0.47500000000000003,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:key-aware@2",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 1.4857142857142855,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:key-aware@3",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 2.0764285714285715,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:key-aware@4",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 3.600714285714286,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:literal-aware@1",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 0.6671428571428573,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:literal-aware@2",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 1.8235714285714288,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:literal-aware@3",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 2.9614285714285713,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "retrieval:literal-aware@4",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 6,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.5714285714285714,
+        "recall": 1,
+        "f1": 0.7272727272727273
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 4.074999999999999,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "sparql-groupby",
+      "rows": 14,
+      "missing": 0,
+      "conflict": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "tn": 6,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 3.265799999999999,
+      "perKind": {
+        "conflict": {
+          "n": 8,
+          "flagged": 8,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        },
+        "benign-duplicate": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        },
+        "benign-multivalued": {
+          "n": 2,
+          "flagged": 0,
+          "missing": 0
+        }
+      }
+    }
+  ]
+}
