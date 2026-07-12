@@ -1,0 +1,11 @@
+{
+  "domain": "conflict-xr-small",
+  "arm": "flat-all",
+  "runs": 1,
+  "hops": null,
+  "maxQuestions": null,
+  "models": [
+    "openai:qwen3.5:latest"
+  ],
+  "scoreboardFile": "/Users/mx/Documents/Work/MX/Research/predicate/packages/predicate-eval/results/flat-multimodel.conflict-xr-small.flat-all.jsonl"
+}

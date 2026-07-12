@@ -16,6 +16,7 @@ and we give a predictive boundary for when that edge appears.
 
 | File | What |
 |---|---|
+| [`top-venue-publication-plan.md`](top-venue-publication-plan.md) | Independent 2026-07-12 audit and restart-to-submission roadmap for AAAI/NeurIPS/ICML/ICLR |
 | [`aaai-strategy.md`](aaai-strategy.md) | The full strategy: framings, protocol, engineering roadmap, rebuttal prep, timeline, gates + citation-audit addendum |
 | [`prior-art-validation.md`](prior-art-validation.md) | Web-verified prior-art sweep (6 agents): verdicts, novelty threats, venue confirmations |
 | [`EXPERIMENT-LOG.md`](EXPERIMENT-LOG.md) | Append-only evidence trail: every pilot/experiment with setup, numbers, honest read |
