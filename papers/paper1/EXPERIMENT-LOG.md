@@ -276,3 +276,45 @@ exposed a scoring artifact (gemma4 answers {"answer": "<iri>"} — bare string; 
 parser scored it 0/8): parseFlatAnswer now accepts singleton strings so the tier
 comparison measures capability, not JSON-shape compliance; first-pass runs archived,
 all six cells re-running with the fair parser.
+
+## 2026-07-12 — Pilot G: model-tier matrix under FAIR measurement (ctx-32k + lenient parser)
+
+**Setup.** Local tiers via Ollama with three artifacts controlled (each measured
+before being fixed — see archives): runtime num_ctx (default 2048 truncates every
+flat prompt regardless of model capability → ctx-32k manifest variants), thinking
+budget through the /v1 endpoint, bare-string JSON answers (parser now lenient).
+qwen3.5 9.7B = weak, gemma4 e4b = mid, in-session frontier subagents = frontier,
+runs=1 per cell (local-tier variance sweep pending). 5/6 local cells completed;
+gemma4/d20 skipped by the disk guard (machine constraint, below).
+
+**Result — conflict-xr-small (aggregate / conflict slice):**
+
+| tier | flat-all | flat-retrieved (k=2) | reasoner |
+|---|---|---|---|
+| weak (qwen3.5) | 0.125 / 0.000 | 0.000 / 0.000 | **1.000** |
+| mid (gemma4) | 0.375 / 0.250 | 0.250 / 0.000 | **1.000** |
+| frontier | 1.000 / 1.000 | 0.583 / 0.167 | **1.000** |
+
+(d20 flat-all: weak 0.125/0.000; mid cell pending. Weak-tier parse rates remain
+2-4/8 even at 32k ctx — and qwen3.5 fails a bare 16k-token needle WITH full
+context: genuine long-context failure, separate from the config artifact.)
+
+**Honest read.** The reasoner column is CONSTANT — the derivation chain does not
+know or care what model reads its output. The flat columns are steeply
+model-bound: weak tier cannot use the KB at all (even direct recall fails), mid
+tier finds fragments, frontier saturates the readable regime. The retrieved
+column shows the structural ceiling: even the frontier caps at 0.583 because no
+capability can read what retrieval never fetched. Paper sentence: **model
+strength moves the flat baseline toward the reasoner's constant; nothing moves
+the retrieval-mediated baseline past its structural ceiling; and the reasoner
+needs no model strength at all.** Caveats: n=1 per local cell; two local models
+only; "tier" conflates size/family/training — frontier-lab weak models pending
+API access.
+
+**Machine-constraint note (affects what remains).** This host's disk oscillates
+at 0-4GB free (460GB, 99% full baseline; Ollama load + swap does the rest). The
+disk-guarded chain (baselines/run_salvage2.sh, idempotent) completed 5/6 tier
+cells and still holds three steps queued: gemma4/d20, Mem0-2.x xr resume (343
+facts), Graphiti both fixtures (fully staged: Neo4j 5.26 up, harness
+synthetic-tested). One command re-runs exactly the missing steps once space
+frees: `nohup caffeinate -is bash baselines/run_salvage2.sh &`.

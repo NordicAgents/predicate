@@ -1,0 +1,11 @@
+{
+  "domain": "conflict-xr-small",
+  "arm": "flat-retrieved",
+  "runs": 1,
+  "hops": 2,
+  "maxQuestions": null,
+  "models": [
+    "openai:gemma4-ctx32k:latest"
+  ],
+  "scoreboardFile": "/Users/mx/Documents/Work/MX/Research/predicate/packages/predicate-eval/results/flat-multimodel.conflict-xr-small.flat-retrieved.jsonl"
+}
