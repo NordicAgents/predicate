@@ -185,3 +185,178 @@ The honest negative result is now externally corroborated (GraphRAG-Bench + Memo
 ## 8. Bottom line
 
 The strategy survives validation almost fully intact — unusually, every citation was real. The thesis is **still unclaimed but urgent**: five adjacent papers landed May–Jul 2026, and one shipping product (Spectron) is one deterministic-reasoner away from the differentiator. The two cleanest pieces of unclaimed ground are (1) the **ontology-derived, machine-checkable conflict object** and (2) the **conflict-density axis / predictive crossover law** — exactly the fused thesis. The evidence sprint should start now; the window is measured in months, not years.
+
+---
+
+## Novelty refresh — 2026-07-12 (ActMem deep-read + rescan)
+
+> **How this was produced.** Single adversarial agent, one day after the main sweep, tasked
+> against the *proposed contribution* of `top-venue-publication-plan.md` §5 (formal
+> conflict-completeness definition, Conflict Witness Index, minimal proof-witness retrieval
+> under bounded context) rather than the shipped system. Two-pass: (1) deep-read of ActMem
+> (abstract page + arXiv HTML full text), resolving plan §4 item 9; (2) fresh WebSearch
+> rescan across eight phrasings: conflict-aware agent memory, contradiction detection in
+> memory-augmented LLMs, knowledge-conflict benchmarks, temporal conflict/editing,
+> entity-resolution-aware retrieval, inconsistency-tolerant QA, proof/witness-producing
+> retrieval, certified/provable retrieval guarantees. Threat scale for this section:
+> **HIGH** = overlaps the formal-guarantee-plus-witness contribution; **MEDIUM** = overlaps
+> the benchmark or empirical framing; **LOW** = adjacent.
+
+### R1. ActMem deep-read (arXiv 2603.00026) — threat downgraded to MEDIUM, benchmark axis only
+
+**Bibliographic facts.** "ActMem: Bridging the Gap Between Memory Retrieval and Reasoning in
+LLM Agents." Zhang, Sun, Yang, Jin, Zhang, Hu. v1 2026-02-04, **v2 2026-06-17** (paper nearly
+doubled in size — actively maintained, almost certainly in review at an ML venue; expect a
+published version to collide with our benchmark-related-work window). cs.CL/cs.AI/cs.IR.
+
+**What it builds.** A four-stage LLM pipeline: (1) LLM fact extraction from dialogue into
+atomic declarative facts (pronouns resolved, timestamps normalized); (2) incremental
+embedding clustering (threshold 0.2); (3) a hybrid **causal-semantic KG** — nodes are
+extracted facts, undirected semantic edges by cosine > 0.3, directed causal edges proposed
+by an LLM and validated by a PMI score over LM likelihoods (kept if > 0.2); (4)
+**counterfactual retrieval**: top-K vector retrieval, then an LLM counterfactual prompt
+("if the user does q, what negative consequences might occur…"), then secondary retrieval
+over graph neighbors (fixed K = 20 then 10).
+
+**Conflict handling — the load-bearing finding.** The abstract's phrase "resolve potential
+conflicts between past states and current intentions" is doing all the work. Verified
+against the full text:
+
+- **No conflict detection formalism at all.** No definition of conflict, no rules, no
+  constraints, no keys. "Conflicts" are implicit constraint violations between a *stored
+  past state* and a *current user intention*, surfaced by LLM commonsense/counterfactual
+  reasoning (canonical example: user wants a Sago Palm; memory says user has a puppy; LLM
+  world knowledge supplies the toxicity link).
+- **No resolution policy** — no overwrite, supersede, preservation, or winner election;
+  the "resolution" is a safety-aware natural-language reply.
+- **No provenance, no timestamps used for conflict, no derivations returned.** The paper
+  never tracks which edge or step produced a detected conflict.
+- **Zero formal results.** Mathematical notation for the pipeline, an O(|F|·K) clustering
+  remark, empirical ablations — no theorem, no soundness/completeness claim of any kind.
+  Verified: the words are simply absent.
+- Self-declared limitations: LLM extraction/causal errors propagate to the graph; higher
+  token cost than compression baselines.
+
+**Benchmark (the part that actually matters to us).** **ActMemEval**: 327 questions,
+~67 sessions / ~120k tokens per sample; generated event chains (Gemini 3.1 Pro) validated
+by a second LLM (Claude Sonnet 4.5), rendered into dialogues with noise sessions. Six
+categories of *implicit-constraint* scenario (safety-health risk, feasibility limit,
+time-space-procedure mismatch, access/availability gap, preference incompatibility,
+benefit-reuse). Metrics: evidence recall + QA accuracy. Design signature: **mean
+query-evidence similarity 0.232, deliberately engineered so similarity retrieval cannot
+find the evidence** — the same "engineered against the baseline" pattern our plan flags as
+reviewer objection §4.2, published anyway. Baselines: NaiveRAG, MemoryBank, Mem0, A-Mem,
+SimpleMem, LightMem — all retrieval-flavored; no deterministic/symbolic arm, no SQL/SHACL
+oracle, no key-aware retrieval.
+
+**Differentiation — what we have that ActMem lacks:** a definition of conflict; a
+deterministic, ontology-grounded detector; conflict objects with both values preserved;
+per-triple provenance; machine-checkable derivations; any formal guarantee; conflicts
+*between two stored assertions* at all (ActMem's conflicts are memory-vs-intention and
+need world knowledge, not mutual exclusivity between records). **What ActMem has that we
+must now cite/compare:** (1) it owns the "memory retrieval → reasoning-for-action"
+benchmark framing, and its six categories overlap our planned downstream-decision tasks
+(plan §7) — our benchmark section must cite ActMemEval and explicitly scope our tasks to
+*witness-groundable* conflicts (both sides of the contradiction exist as stored assertions)
+vs. their commonsense-groundable constraints, which our formal fragment intentionally does
+NOT cover; this is exactly the boundary of the completeness guarantee and should be stated
+as such, not hidden. (2) Its low-similarity design is precedent that hard-for-similarity
+benchmarks publish — but also a warning that reviewers now recognize the pattern; our
+key-aware/lexical/hybrid baseline battery (plan §8) is non-negotiable. (3) It is a sixth
+member of the "structured memory + reasoning" cluster (with MRMS, TOKI, SLM-V3, Kumiho,
+Mem0^g) for the properties × systems table: score it P1 ✗ (LLM end-to-end), P2 ✗ (no
+detection), P3 ✗ (no conflict object), P4 ✗ (no provenance), P5 ✗ (no derivation).
+
+**Verdict on plan §4 item 9:** resolved. ActMem does NOT preempt the formal contribution,
+the CWI, or witness retrieval. It preempts nothing formal because it contains nothing
+formal. Threat: **MEDIUM (benchmark framing only)**; must-cite.
+
+### R2. Fresh scan table (hits not already in §1–§5 above)
+
+| # | Work | ID / venue | One-line description | Threat |
+|---|---|---|---|---|
+| 1 | **ActMem** | 2603.00026, v2 Jun 2026 | LLM causal-semantic memory graph + counterfactual retrieval; ActMemEval implicit-constraint benchmark; zero formal content | **MEDIUM** (benchmark) |
+| 2 | **ConflictRAG** | 2605.17301, May 2026 | Inter-document RAG conflicts: MLP+LLM detector (88.7% detection F1), Entropy-TOPSIS credibility *winner election*, CARS metric | **MEDIUM** — owns "conflict-detection F1" in RAG; forces rescoping of our §4 claim (see R4) |
+| 3 | **TCR "Seeing through the Conflict"** | 2601.06842 | Parametric-vs-context conflict handling via contrastive encoders + soft prompt; reports conflict-detection F1 (+5–18) | **MEDIUM** (metric overlap; different conflict type) |
+| 4 | **Faithful-reasoning conflict benchmark** | 2604.11209, SIGIR 2026 | Benchmark instantiating conflicts between textual and KG evidence; LLMs fail to pick reliable evidence | **MEDIUM** (benchmark; RAG-side, not memory) |
+| 5 | **MemIR / provenance-role collapse** | 2605.25869, May 2026 | Typed memory atoms (evidence vs cue vs claim), claim-level factual authorization, provenance-scoped retrieval; eval on LoCoMo + BEAM | **MEDIUM** — further confirms per-fact provenance is table stakes (with Eywa); no conflict detection, no guarantees |
+| 6 | **DeferMem** | 2605.22411 | RL-learned query-time distillation of a small sufficient evidence set for long-term memory QA | **MEDIUM** — empirical "minimal evidence" framing, learned & guarantee-free; cite as the learned counterpart to witness minimality |
+| 7 | **Preferences over conflicting facts** | 2508.07742 | KR: rule-based preference specification + querying inconsistent KBs under preferred-repair semantics | **MEDIUM** (theory side; mandatory formal-section comparison, no LLM/retrieval/budget angle) |
+| 8 | **open-ontologies** (fabio-rovai) | GitHub, v1.0 Jun 2026, 188★ | Rust MCP server: Oxigraph store, OWL2-DL tableaux + OWL-RL, SHACL, `dl_explain` explanations, lineage audit — **our exact stack, shipping** | **MEDIUM** (engineering lane, like Spectron: explanation-producing MCP reasoner exists in the wild; no memory semantics, no conflict objects, no benchmark, no paper) |
+| 9 | ASP(Q) for inconsistent prioritized data | 2604.21603 | Classical repair computation via quantified ASP | LOW (theory, cite) |
+| 10 | Inconsistent DBs via argumentation | 2605.03954 | Repairs ↔ argumentation-framework extensions with collective attacks | LOW (theory, cite) |
+| 11 | Certified-RAG cluster | ReliabilityRAG 2509.23519; RobustRAG 2405.15556; C-RAG 2402.03181; 2508.01084 | Provable *robustness/security* guarantees for RAG under adversarial corruption | LOW — different property certified; pre-empt reviewer confusion: "formal guarantees for retrieval exist" ≠ conflict completeness |
+| 12 | Temporal fact-conflict reproducibility | 2603.15892 | DYNAMICQA vs MULAN updateability claims don't generalize across construction choices | LOW (methodology caution for our temporal slice) |
+| 13 | QA under temporal conflict | 2506.07270 | Evaluating/organizing evolving knowledge with LLMs | LOW |
+| 14 | Explicit conflict resolution at inference | 2606.20245 | Navigating unreliable parametric vs contextual knowledge | LOW |
+| 15 | Micro-Act | 2506.05278 | Actionable self-reasoning to mitigate RAG knowledge conflict | LOW |
+| 16 | DynamicER | 2410.11494 | Entity-resolution of emerging mentions for RAG | LOW (occupies ER-aware-retrieval axis empirically; no conflict use) |
+| 17 | Portable Agent Memory | 2605.11032 | Provenance-verified memory transfer protocol across agents | LOW |
+| 18 | SSGM memory governance | 2603.11768 | Governance framework for evolving agent memory (drift risks) | LOW (motivation cite) |
+| 19 | Evidence-tracing / execution-provenance survey | 2606.04990 | Survey: memory items as evidence with provenance chains incl. conflicts | LOW (must-cite framing survey) |
+| 20 | Foundation-agent memory survey | 2602.06052 | "Second half" memory-mechanism survey; circulates the term **"implicit conflict"** (later observation invalidates earlier memory w/o explicit negation) | LOW (must-cite; adopt/attribute terminology) |
+| 21 | CRDL / LLM-assisted incremental KG fusion | S2667305326000499 | Relational-constraint detection + LLM-based resolution during KG construction | LOW |
+| 22 | ImplicitMemBench | 2604.08064 | Unconscious behavioral adaptation from memory | LOW |
+
+**HIGH hits found: none.** No 2025–2026 work combines (a) a formal completeness/soundness
+statement about *what a retrieval policy must return* with (b) conflict/witness objects and
+(c) bounded context. The certified-RAG line is the only place "provable + retrieval"
+co-occur, and it certifies robustness to adversarial passages, not conflict coverage.
+
+### R3. The real adversarial pressure on the formal contribution (no single killer paper, but…)
+
+The scan's most dangerous finding is not a new paper — it is that **every ingredient of the
+§5 formal contribution has a classical name**, and a KR/DB reviewer will supply them:
+
+- **"Conflict witness" ≈ justification / MinA** (axiom pinpointing, Horridge & Parsia line),
+  **≈ minimal unsatisfiable subset (MUS)**, **≈ minimal conflict set** in model-based
+  diagnosis (Reiter 1987), **≈ why-provenance witness basis** in the semiring framework
+  (Green–Karvounarakis–Tannen) — TOKI already imports K-semirings into agent memory.
+- **"Minimal proof DAG" ≈ proof extraction** in consequence-based reasoners (ELK et al.).
+- **"Conflict completeness" of a store ≈** complete conflict enumeration in diagnosis;
+  inconsistency-tolerant semantics (AR/IAR/brave) already define query answering over
+  conflicting KBs, with 2508.07742 / 2604.21603 / 2605.03954 as live 2025–26 continuations.
+- The CWI itself, per plan §5's own admission, may reduce to standard incremental view
+  maintenance / incremental join over key-equivalence classes.
+
+**Survival condition:** the paper must claim ONLY the bridge — *conflict completeness as a
+property of a retrieval policy under a token/context budget* (whenever a witness relevant
+to the query exists in the store, the policy returns enough of it for a sound detector,
+within budget), plus the lower-bound result that retrievers not indexing the
+witness-connecting relation cannot be conflict-complete (proved so far only for the
+IRI-adjacency policy class — formal doc Prop. 3; the general form is a Phase-1 proof
+obligation), plus the update/query cost study.
+The definitions section must cite justifications, MUS, diagnosis, why-provenance, and
+AR/IAR semantics as the raw material and say explicitly which composition is new. Verified
+by search: **the phrases "conflict-complete retrieval", "conflict completeness" (in this
+sense), and "conflict witness index" are unclaimed**; nobody has a completeness statement
+about retrieval-for-detection under bounded context. If the paper instead claims the
+witness *concept* or the index *data structure* as novel, it dies at the first KR reviewer.
+
+### R4. Corrections this refresh forces in §4 above
+
+The 2026-07-11 claim "contradiction-detection precision/recall as a first-class metric —
+nobody" is now falsified as literally worded: **ConflictRAG (88.7% detection F1) and TCR
+(+5–18 detection F1) both report it in the RAG setting.** Rescope to: "detection P/R over
+*agent-memory stores* with provenance-witness-citation scoring — still nobody" (MemConflict
+remains recognition-among-candidates; no memory benchmark scores whether the cited witness
+is the correct one). The unclaimed IV list (density, chain depth, FP slice, provenance
+scoring) survives unchanged.
+
+### R5. Verdict
+
+**The conflict-completeness + proof-witness framing survives, with three mandatory edits.**
+
+1. **ActMem is not a preemption; it is a must-cite benchmark neighbor.** Add it to the
+   properties table (✗ on all five), cite ActMemEval in the benchmark section, and use the
+   memory-vs-intention / commonsense-conflict boundary to state what our guarantee
+   deliberately excludes.
+2. **Rescope the detection-metric novelty claim** per R4 before anything is drafted.
+3. **Pin the formal novelty to the retrieval-policy bridge** per R3, with the classical
+   lineage cited in the definitions, or the formal contribution will be reviewed as a
+   renaming exercise.
+
+Residual risks worth a standing watch: ActMem v3/camera-ready (benchmark slot), Spectron +
+open-ontologies (engineering lane converging on deterministic-reasoner-with-explanations),
+and the May–Jul 2026 cadence itself — re-run this scan monthly and before any submission,
+as §6.8 already mandates.

@@ -318,3 +318,42 @@ cells and still holds three steps queued: gemma4/d20, Mem0-2.x xr resume (343
 facts), Graphiti both fixtures (fully staged: Neo4j 5.26 up, harness
 synthetic-tested). One command re-runs exactly the missing steps once space
 frees: `nohup caffeinate -is bash baselines/run_salvage2.sh &`.
+
+## 2026-07-12/13 — Phase-0 evidence sprint: instance-level contract, exact baselines, retrieval policies, Gate A
+
+**Setup.** Multi-agent implementation sprint executing plan §11 Phase 0 + §14 actions 1–9
+(orchestrated workflows; adversarially verified by independent code-review, claims-audit,
+and reproducibility agents). New measurement contract: per-conflict `instances.json`
+manifests (12/60 cross-record pairs + benign negatives; 8 same-subject for d20),
+PredictionRow JSONL per system, instance scorer (`src/instances/score-cli.ts`). Systems:
+`exact-key-join` (pure-JS hash join, no store), `sparql-groupby` (one `GROUP BY key HAVING
+COUNT(DISTINCT v)>1` per single-valued property), `reasoner-r14r23r22` (the 3-rule chain
+only, via `runFixpoint`), retrieval policies `iri-bfs`/`literal-aware`/`key-aware` at
+hops 1–4 scored by witness-containment (worst-case seed). One-command rebuild:
+`scripts/build-evidence.sh` (fixtures byte-drift check; decision values reproduce exactly,
+timings vary). Env: oxigraph-wasm `:memory:`, no LLM in any confirmatory arm.
+
+**Numbers (committed artifacts; `results/instances/summary.<domain>.json`).**
+Detection is a perfect three-way tie: P=R=F1=1.000, both-value recall 1.0, witness recall
+1.0, zero benign FPs, all three systems, all three fixtures (8/8, 12/12, 60/60). Cost is
+not a tie: key-join cold end-to-end 1.4/1.6/5.0 ms vs SPARQL 45.7/49.7/72.1 ms vs reasoner
+materialize 55.6/276.0/6244.5 ms (~1,250× at 1,689 triples). Retrieval crossover:
+iri-bfs 0/12 and 0/60 witness-complete at k≤3; at k=4 completes only by returning the
+whole store (345/1,689 triples = flat-all); literal-aware and key-aware complete at k=1
+with ~8-triple (~2 KB) contexts. literal≡key on these fixtures (email is the only
+literal; verified per-seed set equality) → H3 untestable on mechanism-v0. H1/H2/H4/H5
+all in the registered direction (pre-registration.md + Amendment A1 timing disclosure:
+drafted same-day as the runs; deterministic rerun = confirmatory record).
+
+**Honest read.** Gate A fires on its literal terms: on mechanism-v0 the OWL chain has no
+advantage in accuracy (tie), cost (join wins by orders of magnitude), or guarantee (Prop 4:
+the exercised subfragment is a textbook O(n+out) join). The store-side detection story is
+a closed null result (pre-committed via H4/§9.6). What survives is the retrieval-boundary
+result — the empirical face of Prop 3: bounded-hop IRI-only retrieval cannot be
+conflict-complete for key-literal-connected records at any usable budget, while indexing
+the witness-connecting relation buys completeness at ~2 KB. Recommendation in
+`gate-a-analysis.md`: reframe per plan §5 (retrieval policy as the research object,
+reasoner demoted to one witness-indexing implementation), with pivot-to-benchmark as the
+standing alternative; human decision pending. Caveats: synthetic constructed fixtures;
+single-run timings; pinned-LLM arms built (full raw logging, dry-run verified) but
+unexecuted — no API keys on this host.
