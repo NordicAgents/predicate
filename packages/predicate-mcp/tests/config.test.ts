@@ -11,6 +11,7 @@ import {
   inRepoStorePath,
   ensureGitignoreForStore,
 } from '../src/config.js';
+import { WORKSPACE_ENV_VARS } from '../src/project-dir.js';
 
 describe('loadConfig', () => {
   const original = { ...process.env };
@@ -90,8 +91,11 @@ describe('loadConfig store-path resolution', () => {
     tmp = mkdtempSync(join(tmpdir(), 'predicate-res-'));
     delete process.env.PREDICATE_STORE_PATH;
     delete process.env.XDG_DATA_HOME;
-    delete process.env.CLAUDE_PROJECT_DIR;
     delete process.env.PWD;
+    // resolveProjectDir consults EVERY workspace env var before the PWD
+    // fallback — IDE terminals leak VSCODE_CWD / CURSOR_CWD into the test
+    // env, so scrub the whole exported list rather than naming vars here.
+    for (const name of WORKSPACE_ENV_VARS) delete process.env[name];
     process.env.HOME = join(tmp, 'home');
   });
   afterEach(() => {
