@@ -21540,7 +21540,7 @@ function G(e2, t2, r2) {
 function X(e2) {
   return e2._reader._readRequests.length;
 }
-function J3(e2) {
+function J6(e2) {
   const t2 = e2._reader;
   return void 0 !== t2 && !!K(t2);
 }
@@ -21603,7 +21603,7 @@ function be(e2) {
     if ("readable" !== t3._state) return false;
     if (e3._closeRequested) return false;
     if (!e3._started) return false;
-    if (J3(t3) && X(t3) > 0) return true;
+    if (J6(t3) && X(t3) > 0) return true;
     if (Le(t3) && ze(t3) > 0) return true;
     if (ke(e3) > 0) return true;
     return false;
@@ -22607,7 +22607,7 @@ var init_ponyfill = __esm({
             const t4 = e3._pendingPullIntos.peek();
             t4.buffer, 0, Re(e3), t4.buffer = t4.buffer, "none" === t4.readerType && ge(e3, t4);
           }
-          if (J3(r2)) if ((function(e4) {
+          if (J6(r2)) if ((function(e4) {
             const t4 = e4._controlledReadableByteStream._reader;
             for (; t4._readRequests.length > 0; ) {
               if (0 === e4._queueTotalSize) return;
@@ -37434,25 +37434,104 @@ async function kgExploreSchema(client, conceptInput) {
 }
 
 // ../predicate-reasoner/src/fixpoint.ts
-var MAX_ITERATIONS = 10;
-async function runFixpoint(client, rules, cfg) {
-  await client.update(`DROP SILENT GRAPH <${cfg.inferredGraph}>`);
-  await client.update(`CREATE SILENT GRAPH <${cfg.inferredGraph}>`);
-  let lastCount = -1;
-  for (let i2 = 1; i2 <= MAX_ITERATIONS; i2++) {
-    for (const rule of rules) {
-      await client.update(rule.insertWhere(cfg));
-    }
-    const r2 = await client.select(
-      `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${cfg.inferredGraph}> { ?s ?p ?o } }`
-    );
-    const n2 = parseInt(r2.results.bindings[0].n.value, 10);
-    if (n2 === lastCount) return { iterations: i2, inferredCount: n2 };
-    lastCount = n2;
-  }
-  throw new Error(
-    `Fixpoint did not converge in ${MAX_ITERATIONS} iterations (current inferred count: ${lastCount}). On the v1 OWL 2 RL rule subset this should be impossible \u2014 investigate for a divergent rule or an unbounded property-chain depth.`
+var DEFAULT_MAX_ITERATIONS = 30;
+async function countGraph(client, graph) {
+  const r2 = await client.select(
+    `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${graph}> { ?s ?p ?o } }`
   );
+  return parseInt(r2.results.bindings[0].n.value, 10);
+}
+function nonConvergenceError(cap, lastCount) {
+  return new Error(
+    `Fixpoint did not converge in ${cap} iterations (current inferred count: ${lastCount}). On the v1 OWL 2 RL rule subset this should be impossible \u2014 investigate for a divergent rule or an unbounded property-chain depth.`
+  );
+}
+async function runFixpoint(client, rules, cfg) {
+  const maxIterations = cfg.maxIterations ?? DEFAULT_MAX_ITERATIONS;
+  const prevGraph = `${cfg.inferredGraph}-prev`;
+  const deltaGraph = `${cfg.inferredGraph}-delta`;
+  const runCfg = { ...cfg, deltaGraph };
+  const auxGraphs = rules.flatMap((r2) => r2.auxGraphs?.(runCfg) ?? []);
+  for (const g2 of [cfg.inferredGraph, prevGraph, deltaGraph]) {
+    await client.update(`DROP SILENT GRAPH <${g2}>`);
+    await client.update(`CREATE SILENT GRAPH <${g2}>`);
+  }
+  for (const g2 of auxGraphs) {
+    await client.update(`DROP SILENT GRAPH <${g2}>`);
+  }
+  try {
+    let lastCount = -1;
+    for (let i2 = 1; i2 <= maxIterations; i2++) {
+      for (const rule of rules) {
+        if (i2 > 1 && rule.deltaInsertWhere !== void 0) {
+          for (const update of rule.deltaInsertWhere(runCfg)) {
+            await client.update(update);
+          }
+        } else {
+          await client.update(rule.insertWhere(runCfg));
+        }
+      }
+      const n2 = await countGraph(client, cfg.inferredGraph);
+      if (n2 === lastCount) return { iterations: i2, inferredCount: n2 };
+      lastCount = n2;
+      await client.update(`DROP SILENT GRAPH <${deltaGraph}>`);
+      await client.update(`CREATE SILENT GRAPH <${deltaGraph}>`);
+      await client.update(`
+        INSERT { GRAPH <${deltaGraph}> { ?s ?p ?o } }
+        WHERE {
+          GRAPH <${cfg.inferredGraph}> { ?s ?p ?o }
+          FILTER NOT EXISTS { GRAPH <${prevGraph}> { ?s ?p ?o } }
+        }
+      `);
+      await client.update(`
+        INSERT { GRAPH <${prevGraph}> { ?s ?p ?o } }
+        WHERE { GRAPH <${deltaGraph}> { ?s ?p ?o } }
+      `);
+    }
+    throw nonConvergenceError(maxIterations, lastCount);
+  } finally {
+    try {
+      for (const g2 of [prevGraph, deltaGraph, ...auxGraphs]) {
+        await client.update(`DROP SILENT GRAPH <${g2}>`);
+      }
+    } catch {
+    }
+  }
+}
+
+// ../predicate-reasoner/src/closure.ts
+function closureEligible(s2, p2, o2, cfg) {
+  const aboxBlocks = cfg.aboxGraphs.map((g2) => `
+    {
+      GRAPH <${g2}> { ${s2} ${p2} ${o2} }
+      FILTER EXISTS {
+        GRAPH <kg:provenance> {
+          << ${s2} ${p2} ${o2} >> <https://industriagents.com/predicate/meta#confidence> ?conf .
+          FILTER (?conf >= ${cfg.closureCutoff})
+        }
+      }
+    }
+  `).join("\n    UNION\n");
+  const aboxUnion = aboxBlocks.length > 0 ? `
+    UNION
+    ${aboxBlocks}` : "";
+  return `
+    {
+      GRAPH <${cfg.tboxGraph}> { ${s2} ${p2} ${o2} }
+    }
+    UNION
+    {
+      GRAPH <${cfg.inferredGraph}> { ${s2} ${p2} ${o2} }
+    }${aboxUnion}
+  `;
+}
+function deltaEligible(s2, p2, o2, cfg) {
+  if (cfg.deltaGraph === void 0) {
+    throw new Error(
+      "deltaEligible requires cfg.deltaGraph \u2014 it is only usable inside Rule.deltaInsertWhere, where the semi-naive engine provides it."
+    );
+  }
+  return `GRAPH <${cfg.deltaGraph}> { ${s2} ${p2} ${o2} }`;
 }
 
 // ../predicate-reasoner/src/rules/r01-subclassof-transitivity.ts
@@ -37479,6 +37558,47 @@ var r01 = {
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?a rdfs:subClassOf ?c } }
     }
   `,
+  // Semi-naive: instead of delta-JOIN variants (which still enumerate every
+  // length-2 decomposition of every closure pair — O(n^3) rows on chains),
+  // maintain a lean base-edge work graph W and let oxigraph's NATIVE
+  // property-path evaluator compute the closure in one shot. W is fed from
+  // the tbox plus delta edges NOT already produced by this rule's own path
+  // output (tracked in O), so W stays at base-edge scale — cross-rule feeds
+  // (e.g. r12's subClassOf output) still enter W via the delta. The path
+  // rdfs:subClassOf/rdfs:subClassOf+ matches length >= 2 only, exactly the
+  // pairs the join body derives.
+  auxGraphs: (cfg) => [`${cfg.deltaGraph}-r01w`, `${cfg.deltaGraph}-r01o`],
+  deltaInsertWhere: (cfg) => {
+    const w2 = `${cfg.deltaGraph}-r01w`;
+    const o2 = `${cfg.deltaGraph}-r01o`;
+    return [
+      `
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT { GRAPH <${w2}> { ?a rdfs:subClassOf ?b } }
+    WHERE { GRAPH <${cfg.tboxGraph}> { ?a rdfs:subClassOf ?b } }
+  `,
+      `
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT { GRAPH <${w2}> { ?a rdfs:subClassOf ?b } }
+    WHERE {
+      ${deltaEligible("?a", "rdfs:subClassOf", "?b", cfg)}
+      FILTER NOT EXISTS { GRAPH <${o2}> { ?a rdfs:subClassOf ?b } }
+    }
+  `,
+      `
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT {
+      GRAPH <${cfg.inferredGraph}> { ?a rdfs:subClassOf ?c }
+      GRAPH <${o2}>                 { ?a rdfs:subClassOf ?c }
+    }
+    WHERE {
+      GRAPH <${w2}> { ?a rdfs:subClassOf/rdfs:subClassOf+ ?c }
+      FILTER (?a != ?c)
+      FILTER NOT EXISTS { GRAPH <${cfg.tboxGraph}> { ?a rdfs:subClassOf ?c } }
+    }
+  `
+    ];
+  },
   backward: {
     matches: (q2) => q2.p === SUBCLASS_OF,
     premiseQuery: (q2) => {
@@ -37532,35 +37652,43 @@ var r02 = {
       FILTER NOT EXISTS { GRAPH <${cfg.tboxGraph}>     { ?a rdfs:subPropertyOf ?c } }
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?a rdfs:subPropertyOf ?c } }
     }
+  `,
+  // Semi-naive: same lean-work-graph + native property-path strategy as r01
+  // (see the comment there) — W holds base subPropertyOf edges, O tracks this
+  // rule's own path output so W never densifies with derived pairs.
+  auxGraphs: (cfg) => [`${cfg.deltaGraph}-r02w`, `${cfg.deltaGraph}-r02o`],
+  deltaInsertWhere: (cfg) => {
+    const w2 = `${cfg.deltaGraph}-r02w`;
+    const o2 = `${cfg.deltaGraph}-r02o`;
+    return [
+      `
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT { GRAPH <${w2}> { ?a rdfs:subPropertyOf ?b } }
+    WHERE { GRAPH <${cfg.tboxGraph}> { ?a rdfs:subPropertyOf ?b } }
+  `,
+      `
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT { GRAPH <${w2}> { ?a rdfs:subPropertyOf ?b } }
+    WHERE {
+      ${deltaEligible("?a", "rdfs:subPropertyOf", "?b", cfg)}
+      FILTER NOT EXISTS { GRAPH <${o2}> { ?a rdfs:subPropertyOf ?b } }
+    }
+  `,
+      `
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT {
+      GRAPH <${cfg.inferredGraph}> { ?a rdfs:subPropertyOf ?c }
+      GRAPH <${o2}>                 { ?a rdfs:subPropertyOf ?c }
+    }
+    WHERE {
+      GRAPH <${w2}> { ?a rdfs:subPropertyOf/rdfs:subPropertyOf+ ?c }
+      FILTER (?a != ?c)
+      FILTER NOT EXISTS { GRAPH <${cfg.tboxGraph}> { ?a rdfs:subPropertyOf ?c } }
+    }
   `
+    ];
+  }
 };
-
-// ../predicate-reasoner/src/closure.ts
-function closureEligible(s2, p2, o2, cfg) {
-  const aboxBlocks = cfg.aboxGraphs.map((g2) => `
-    {
-      GRAPH <${g2}> { ${s2} ${p2} ${o2} }
-      FILTER EXISTS {
-        GRAPH <kg:provenance> {
-          << ${s2} ${p2} ${o2} >> <https://industriagents.com/predicate/meta#confidence> ?conf .
-          FILTER (?conf >= ${cfg.closureCutoff})
-        }
-      }
-    }
-  `).join("\n    UNION\n");
-  const aboxUnion = aboxBlocks.length > 0 ? `
-    UNION
-    ${aboxBlocks}` : "";
-  return `
-    {
-      GRAPH <${cfg.tboxGraph}> { ${s2} ${p2} ${o2} }
-    }
-    UNION
-    {
-      GRAPH <${cfg.inferredGraph}> { ${s2} ${p2} ${o2} }
-    }${aboxUnion}
-  `;
-}
 
 // ../predicate-reasoner/src/rules/r03-transitive-property.ts
 var r03 = {
@@ -37582,6 +37710,39 @@ var r03 = {
       ${cfg.aboxGraphs.map((g2) => `FILTER NOT EXISTS { GRAPH <${g2}> { ?x ?p ?z } }`).join("\n      ")}
     }
   `,
+  // Semi-naive: both closure atoms are recursive, so two variants
+  // (delta JOIN full, full JOIN delta) to keep path lengths doubling.
+  deltaInsertWhere: (cfg) => {
+    const guards = `
+      FILTER (?x != ?z)
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?p ?z } }
+      ${cfg.aboxGraphs.map((g2) => `FILTER NOT EXISTS { GRAPH <${g2}> { ?x ?p ?z } }`).join("\n      ")}`;
+    const head = `
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x ?p ?z } }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> { ?p a owl:TransitiveProperty }`;
+    return [
+      `${head}
+      {
+        ${deltaEligible("?x", "?p", "?y", cfg)}
+      }
+      {
+        ${closureEligible("?y", "?p", "?z", cfg)}
+      }
+      ${guards}
+    }`,
+      `${head}
+      {
+        ${closureEligible("?x", "?p", "?y", cfg)}
+      }
+      {
+        ${deltaEligible("?y", "?p", "?z", cfg)}
+      }
+      ${guards}
+    }`
+    ];
+  },
   backward: {
     matches: () => true,
     premiseQuery: (q2) => {
@@ -37631,7 +37792,24 @@ var r04 = {
       }
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?y ?q ?x } }
     }
-  `
+  `,
+  // Semi-naive: the inverseOf declarations live in the (static) tbox, so the
+  // closure atom is the only recursive one — a single delta variant suffices.
+  deltaInsertWhere: (cfg) => [`
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?y ?q ?x } }
+    WHERE {
+      {
+        GRAPH <${cfg.tboxGraph}> { ?p owl:inverseOf ?q }
+      } UNION {
+        GRAPH <${cfg.tboxGraph}> { ?q owl:inverseOf ?p }
+      }
+      {
+        ${deltaEligible("?x", "?p", "?y", cfg)}
+      }
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?y ?q ?x } }
+    }
+  `]
 };
 
 // ../predicate-reasoner/src/rules/r05-property-chain.ts
@@ -37657,6 +37835,42 @@ var r05 = {
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?q ?z } }
     }
   `,
+  // Semi-naive: both chain-link closure atoms are recursive, so two variants
+  // (delta JOIN full, full JOIN delta).
+  deltaInsertWhere: (cfg) => {
+    const head = `
+    PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+    PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x ?q ?z } }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> {
+        ?q owl:propertyChainAxiom ?list .
+        ?list rdf:first ?p1 ; rdf:rest ?rest .
+        ?rest rdf:first ?p2 ; rdf:rest rdf:nil .
+      }`;
+    const guard = `
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?q ?z } }`;
+    return [
+      `${head}
+      {
+        ${deltaEligible("?x", "?p1", "?y", cfg)}
+      }
+      {
+        ${closureEligible("?y", "?p2", "?z", cfg)}
+      }
+      ${guard}
+    }`,
+      `${head}
+      {
+        ${closureEligible("?x", "?p1", "?y", cfg)}
+      }
+      {
+        ${deltaEligible("?y", "?p2", "?z", cfg)}
+      }
+      ${guard}
+    }`
+    ];
+  },
   backward: {
     matches: () => true,
     premiseQuery: (q2) => {
@@ -37706,7 +37920,19 @@ var r06 = {
       ${closureEligible("?x", "?p", "?y", cfg)}
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }
     }
-  `
+  `,
+  // Semi-naive: the domain declarations live in the (static) tbox, so the
+  // closure atom is the only recursive one — a single delta variant suffices.
+  deltaInsertWhere: (cfg) => [`
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> { ?p rdfs:domain ?D }
+      ${deltaEligible("?x", "?p", "?y", cfg)}
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }
+    }
+  `]
 };
 
 // ../predicate-reasoner/src/rules/r07-range.ts
@@ -37723,7 +37949,20 @@ var r07 = {
       FILTER (isIRI(?y))
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?y rdf:type ?R } }
     }
-  `
+  `,
+  // Semi-naive: the range declarations live in the (static) tbox, so the
+  // closure atom is the only recursive one — a single delta variant suffices.
+  deltaInsertWhere: (cfg) => [`
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?y rdf:type ?R } }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> { ?p rdfs:range ?R }
+      ${deltaEligible("?x", "?p", "?y", cfg)}
+      FILTER (isIRI(?y))
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?y rdf:type ?R } }
+    }
+  `]
 };
 
 // ../predicate-reasoner/src/rules/r08-functional-sameas.ts
@@ -37775,6 +38014,80 @@ var r10 = {
   `
 };
 
+// ../predicate-reasoner/src/rules/r11-disjoint-with.ts
+var J = "https://industriagents.com/predicate/judgment#";
+var RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var DISJOINT_CONFLICT = `${J}DisjointClassConflict`;
+var CONFLICTING_TYPE = `${J}conflictingType`;
+var objValue = (o2) => typeof o2 === "string" ? o2 : o2.value;
+var r11 = {
+  id: "r11-disjoint-with",
+  name: "j:DisjointClassConflict \u2014 an individual typed as two owl:disjointWith classes",
+  insertWhere: (cfg) => `
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX j:   <${J}>
+    INSERT {
+      GRAPH <${cfg.inferredGraph}> {
+        ?x a j:DisjointClassConflict .
+        ?x j:conflictingType ?a .
+        ?x j:conflictingType ?b .
+      }
+    }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> { ?a owl:disjointWith ?b }
+      ${closureEligible("?x", `<${RDF_TYPE}>`, "?a", cfg)}
+      ${closureEligible("?x", `<${RDF_TYPE}>`, "?b", cfg)}
+      FILTER (str(?a) < str(?b))
+      FILTER NOT EXISTS {
+        GRAPH <${cfg.inferredGraph}> { ?x a j:DisjointClassConflict ; j:conflictingType ?a , ?b }
+      }
+    }
+  `,
+  backward: {
+    matches: (q2) => q2.p === RDF_TYPE && objValue(q2.o) === DISJOINT_CONFLICT,
+    premiseQuery: (q2) => `
+      PREFIX j: <${J}>
+      SELECT ?a ?b WHERE {
+        GRAPH <kg:inferred> { <${q2.s}> j:conflictingType ?a , ?b }
+        FILTER (str(?a) < str(?b))
+      } LIMIT 1
+    `,
+    buildPremises: (q2, binding) => [
+      { s: q2.s, p: RDF_TYPE, o: binding.a },
+      { s: q2.s, p: RDF_TYPE, o: binding.b }
+    ]
+  },
+  findInconsistencies: async (client, cfg) => {
+    const aboxGraph = cfg.aboxGraphs[0] ?? "kg:abox";
+    const r2 = await client.select(`
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      SELECT ?x ?a ?b WHERE {
+        GRAPH <${cfg.tboxGraph}> { ?a owl:disjointWith ?b }
+        {
+          { GRAPH <${aboxGraph}> { ?x rdf:type ?a } }
+          UNION
+          { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?a } }
+        }
+        {
+          { GRAPH <${aboxGraph}> { ?x rdf:type ?b } }
+          UNION
+          { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?b } }
+        }
+        FILTER (str(?a) < str(?b))
+      }
+    `);
+    return r2.results.bindings.map((b2) => ({
+      kind: "disjoint-class",
+      description: `${b2.x.value} is typed as both ${b2.a.value} and ${b2.b.value} which are owl:disjointWith`,
+      triples: [
+        { s: b2.x.value, p: RDF_TYPE, o: b2.a.value },
+        { s: b2.x.value, p: RDF_TYPE, o: b2.b.value }
+      ]
+    }));
+  }
+};
+
 // ../predicate-reasoner/src/rules/r12-equivalent-class.ts
 var r12 = {
   id: "r12-equivalent-class",
@@ -37824,6 +38137,9 @@ var r13 = {
 };
 
 // ../predicate-reasoner/src/rules/r14-has-key.ts
+var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var OWL_SAMEAS = "http://www.w3.org/2002/07/owl#sameAs";
+var asObject = (val) => /^(https?|urn):/.test(val) ? val : { value: val };
 var r14 = {
   id: "r14-has-key",
   name: "owl:hasKey (single-property keys) \u2192 owl:sameAs",
@@ -37849,11 +38165,56 @@ var r14 = {
       FILTER (str(?x1) < str(?x2))
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x1 owl:sameAs ?x2 } }
     }
-  `
+  `,
+  backward: {
+    // A key-derived co-reference is explained by: both subjects typed as the
+    // keyed class, and both carrying the same key value. Needed so the full
+    // cross-record conflict chain (r14 → r23 → r22) is kg_explain-able.
+    matches: (q2) => q2.p === OWL_SAMEAS,
+    premiseQuery: (q2) => {
+      const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
+      return `
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        SELECT ?C ?p ?v WHERE {
+          GRAPH <kg:tbox> {
+            ?C owl:hasKey ?list .
+            ?list rdf:first ?p ; rdf:rest rdf:nil .
+          }
+          {
+            { GRAPH <kg:abox> { <${q2.s}> rdf:type ?C } }
+            UNION { GRAPH <kg:inferred> { <${q2.s}> rdf:type ?C } }
+          }
+          {
+            { GRAPH <kg:abox> { <${o2}> rdf:type ?C } }
+            UNION { GRAPH <kg:inferred> { <${o2}> rdf:type ?C } }
+          }
+          {
+            { GRAPH <kg:abox> { <${q2.s}> ?p ?v } }
+            UNION { GRAPH <kg:inferred> { <${q2.s}> ?p ?v } }
+          }
+          {
+            { GRAPH <kg:abox> { <${o2}> ?p ?v } }
+            UNION { GRAPH <kg:inferred> { <${o2}> ?p ?v } }
+          }
+        } LIMIT 1
+      `;
+    },
+    buildPremises: (q2, binding) => {
+      const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
+      const keyVal = asObject(binding.v);
+      return [
+        { s: q2.s, p: RDF_TYPE2, o: binding.C },
+        { s: o2, p: RDF_TYPE2, o: binding.C },
+        { s: q2.s, p: binding.p, o: keyVal },
+        { s: o2, p: binding.p, o: keyVal }
+      ];
+    }
+  }
 };
 
 // ../predicate-reasoner/src/rules/r15-type-propagation.ts
-var RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var RDF_TYPE3 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 var SUBCLASS_OF2 = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
 var r15 = {
   id: "r15-type-propagation",
@@ -37873,8 +38234,39 @@ var r15 = {
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }
     }
   `,
+  // Semi-naive: both the type atom and the subClassOf atom are recursive
+  // (each unions cfg.inferredGraph), so two variants (delta JOIN full,
+  // full JOIN delta).
+  deltaInsertWhere: (cfg) => {
+    const subClassFull = `
+      {
+        { GRAPH <${cfg.tboxGraph}>     { ?C rdfs:subClassOf ?D } }
+        UNION
+        { GRAPH <${cfg.inferredGraph}> { ?C rdfs:subClassOf ?D } }
+      }`;
+    const guards = `
+      FILTER (?C != ?D)
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }`;
+    const head = `
+    PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?D } }
+    WHERE {`;
+    return [
+      `${head}
+      ${deltaEligible("?x", "rdf:type", "?C", cfg)}
+      ${subClassFull}
+      ${guards}
+    }`,
+      `${head}
+      ${closureEligible("?x", "rdf:type", "?C", cfg)}
+      ${deltaEligible("?C", "rdfs:subClassOf", "?D", cfg)}
+      ${guards}
+    }`
+    ];
+  },
   backward: {
-    matches: (q2) => q2.p === RDF_TYPE,
+    matches: (q2) => q2.p === RDF_TYPE3,
     premiseQuery: (q2) => {
       const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
       return `
@@ -37898,7 +38290,7 @@ var r15 = {
     buildPremises: (q2, binding) => {
       const o2 = typeof q2.o === "string" ? q2.o : q2.o.value;
       return [
-        { s: q2.s, p: RDF_TYPE, o: binding.C },
+        { s: q2.s, p: RDF_TYPE3, o: binding.C },
         { s: binding.C, p: SUBCLASS_OF2, o: o2 }
       ];
     }
@@ -37924,6 +38316,36 @@ var r16 = {
       FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?q ?y } }
     }
   `,
+  // Semi-naive: both the subPropertyOf atom and the instance atom are
+  // recursive (each unions cfg.inferredGraph), so two variants
+  // (delta JOIN full, full JOIN delta).
+  deltaInsertWhere: (cfg) => {
+    const subPropFull = `
+      {
+        { GRAPH <${cfg.tboxGraph}>     { ?p rdfs:subPropertyOf ?q } }
+        UNION
+        { GRAPH <${cfg.inferredGraph}> { ?p rdfs:subPropertyOf ?q } }
+      }`;
+    const guards = `
+      FILTER (?p != ?q)
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?q ?y } }`;
+    const head = `
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x ?q ?y } }
+    WHERE {`;
+    return [
+      `${head}
+      ${deltaEligible("?p", "rdfs:subPropertyOf", "?q", cfg)}
+      ${closureEligible("?x", "?p", "?y", cfg)}
+      ${guards}
+    }`,
+      `${head}
+      ${subPropFull}
+      ${deltaEligible("?x", "?p", "?y", cfg)}
+      ${guards}
+    }`
+    ];
+  },
   backward: {
     matches: (q2) => {
       return q2.p !== SUBPROPERTY_OF;
@@ -38035,14 +38457,14 @@ var r19 = {
 };
 
 // ../predicate-reasoner/src/rules/r20-current-judgment.ts
-var J = "https://industriagents.com/predicate/judgment#";
+var J2 = "https://industriagents.com/predicate/judgment#";
 var r20 = {
   id: "r20-current-judgment",
   name: "j:Current \u2014 a judgment with no j:supersededBy",
   insertWhere: (cfg) => {
     const abox = cfg.aboxGraphs[0] ?? "kg:abox";
     return `
-      PREFIX j: <${J}>
+      PREFIX j: <${J2}>
       INSERT { GRAPH <${cfg.inferredGraph}> { ?jd a j:Current } }
       WHERE {
         {
@@ -38059,18 +38481,18 @@ var r20 = {
 };
 
 // ../predicate-reasoner/src/rules/r21-unresolved-conflict.ts
-var J2 = "https://industriagents.com/predicate/judgment#";
-var RDF_TYPE2 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-var UNRESOLVED = `${J2}UnresolvedConflict`;
-var ABOUT = `${J2}about`;
-var BASED_ON = `${J2}basedOn`;
+var J3 = "https://industriagents.com/predicate/judgment#";
+var RDF_TYPE4 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var UNRESOLVED = `${J3}UnresolvedConflict`;
+var ABOUT = `${J3}about`;
+var BASED_ON = `${J3}basedOn`;
 var r21 = {
   id: "r21-unresolved-conflict",
   name: "j:UnresolvedConflict \u2014 two current judgments disagree on a ConflictFunctionalProperty",
   insertWhere: (cfg) => {
     const abox = cfg.aboxGraphs[0] ?? "kg:abox";
     return `
-      PREFIX j:   <${J2}>
+      PREFIX j:   <${J3}>
       INSERT {
         GRAPH <${cfg.inferredGraph}> {
           ?a a j:UnresolvedConflict .
@@ -38092,9 +38514,9 @@ var r21 = {
     `;
   },
   backward: {
-    matches: (q2) => q2.p === RDF_TYPE2 && (typeof q2.o === "string" ? q2.o : q2.o.value) === UNRESOLVED,
+    matches: (q2) => q2.p === RDF_TYPE4 && (typeof q2.o === "string" ? q2.o : q2.o.value) === UNRESOLVED,
     premiseQuery: (q2) => `
-      PREFIX j: <${J2}>
+      PREFIX j: <${J3}>
       SELECT ?b ?s ?ba ?bb WHERE {
         { GRAPH <kg:inferred> { <${q2.s}> j:conflictsWith ?b } }
         UNION
@@ -38114,40 +38536,154 @@ var r21 = {
   }
 };
 
-// ../predicate-reasoner/src/rules/r11-disjoint-with.ts
-var r11 = {
-  id: "r11-disjoint-with",
-  name: "owl:disjointWith inconsistency detection",
-  insertWhere: () => "",
-  // no-op for fixpoint loop
-  findInconsistencies: async (client, cfg) => {
-    const aboxGraph = cfg.aboxGraphs[0] ?? "kg:abox";
-    const r2 = await client.select(`
-      PREFIX owl: <http://www.w3.org/2002/07/owl#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      SELECT ?x ?a ?b WHERE {
-        GRAPH <${cfg.tboxGraph}> { ?a owl:disjointWith ?b }
-        {
-          { GRAPH <${aboxGraph}> { ?x rdf:type ?a } }
-          UNION
-          { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?a } }
-        }
-        {
-          { GRAPH <${aboxGraph}> { ?x rdf:type ?b } }
-          UNION
-          { GRAPH <${cfg.inferredGraph}> { ?x rdf:type ?b } }
-        }
-        FILTER (str(?a) < str(?b))
+// ../predicate-reasoner/src/rules/r22-value-conflict.ts
+var J4 = "https://industriagents.com/predicate/judgment#";
+var RDF_TYPE5 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var VALUE_CONFLICT = `${J4}ValueConflict`;
+var CONFLICT_ON = `${J4}conflictOn`;
+var objValue2 = (o2) => typeof o2 === "string" ? o2 : o2.value;
+var r22 = {
+  id: "r22-value-conflict",
+  name: "j:ValueConflict \u2014 a j:SingleValued domain property holds two values for one subject",
+  insertWhere: (cfg) => `
+    PREFIX j: <${J4}>
+    INSERT {
+      GRAPH <${cfg.inferredGraph}> {
+        ?x a j:ValueConflict .
+        ?x j:conflictOn ?p .
       }
-    `);
-    return r2.results.bindings.map((b2) => ({
-      kind: "disjoint-class",
-      description: `${b2.x.value} is typed as both ${b2.a.value} and ${b2.b.value} which are owl:disjointWith`,
-      triples: [
-        { s: b2.x.value, p: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", o: b2.a.value },
-        { s: b2.x.value, p: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", o: b2.b.value }
-      ]
-    }));
+    }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> { ?p a j:SingleValued }
+      ${closureEligible("?x", "?p", "?va", cfg)}
+      ${closureEligible("?x", "?p", "?vb", cfg)}
+      FILTER (str(?va) < str(?vb))
+      FILTER NOT EXISTS {
+        GRAPH <${cfg.inferredGraph}> { ?x a j:ValueConflict ; j:conflictOn ?p }
+      }
+    }
+  `,
+  backward: {
+    matches: (q2) => q2.p === RDF_TYPE5 && objValue2(q2.o) === VALUE_CONFLICT,
+    premiseQuery: (q2) => `
+      PREFIX j: <${J4}>
+      SELECT ?p ?va ?vb WHERE {
+        GRAPH <kg:inferred> { <${q2.s}> j:conflictOn ?p }
+        {
+          { GRAPH <kg:abox>     { <${q2.s}> ?p ?va } }
+          UNION
+          { GRAPH <kg:inferred> { <${q2.s}> ?p ?va } }
+        }
+        {
+          { GRAPH <kg:abox>     { <${q2.s}> ?p ?vb } }
+          UNION
+          { GRAPH <kg:inferred> { <${q2.s}> ?p ?vb } }
+        }
+        FILTER (str(?va) < str(?vb))
+      } LIMIT 1
+    `,
+    buildPremises: (q2, binding) => [
+      { s: q2.s, p: binding.p, o: binding.va },
+      { s: q2.s, p: binding.p, o: binding.vb }
+    ]
+  }
+};
+
+// ../predicate-reasoner/src/rules/r23-sameas-value-propagation.ts
+var J5 = "https://industriagents.com/predicate/judgment#";
+var OWL_SAMEAS2 = "http://www.w3.org/2002/07/owl#sameAs";
+var r23 = {
+  id: "r23-sameas-value-propagation",
+  name: "owl:sameAs propagates j:SingleValued values across co-referent subjects",
+  insertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    return `
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX j:   <${J5}>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x ?p ?v } }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> { ?p a j:SingleValued }
+      ${closureEligible("?y", "?p", "?v", cfg)}
+      {
+        { GRAPH <${cfg.inferredGraph}> { ?x owl:sameAs ?y } }
+        UNION
+        { GRAPH <${cfg.inferredGraph}> { ?y owl:sameAs ?x } }
+      }
+      FILTER (?x != ?y)
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?p ?v } }
+      FILTER NOT EXISTS { GRAPH <${abox}> { ?x ?p ?v } }
+    }
+  `;
+  },
+  // Semi-naive: from round 2 join only (a) NEW sameAs pairs against all values
+  // and (b) all sameAs pairs against NEW values. Without this, the full body
+  // re-joins every accumulated sameAs pair against the whole closure each
+  // round (~20% of total materialize cost on the history corpus, measured).
+  deltaInsertWhere: (cfg) => {
+    const abox = cfg.aboxGraphs[0] ?? "kg:abox";
+    const head = `
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX j:   <${J5}>
+    INSERT { GRAPH <${cfg.inferredGraph}> { ?x ?p ?v } }
+    WHERE {
+      GRAPH <${cfg.tboxGraph}> { ?p a j:SingleValued }`;
+    const guards = `
+      FILTER (?x != ?y)
+      FILTER NOT EXISTS { GRAPH <${cfg.inferredGraph}> { ?x ?p ?v } }
+      FILTER NOT EXISTS { GRAPH <${abox}> { ?x ?p ?v } }
+    }`;
+    const sameAsFull = `
+      {
+        { GRAPH <${cfg.inferredGraph}> { ?x owl:sameAs ?y } }
+        UNION
+        { GRAPH <${cfg.inferredGraph}> { ?y owl:sameAs ?x } }
+      }`;
+    const sameAsDelta = `
+      {
+        { ${deltaEligible("?x", "owl:sameAs", "?y", cfg)} }
+        UNION
+        { ${deltaEligible("?y", "owl:sameAs", "?x", cfg)} }
+      }`;
+    return [
+      `${head}
+      ${closureEligible("?y", "?p", "?v", cfg)}
+      ${sameAsDelta}
+      ${guards}`,
+      `${head}
+      ${deltaEligible("?y", "?p", "?v", cfg)}
+      ${sameAsFull}
+      ${guards}`
+    ];
+  },
+  backward: {
+    // A propagated value ?x ?p ?v is explained by the co-reference plus the
+    // co-referent record's own value.
+    matches: () => true,
+    premiseQuery: (q2) => {
+      const o2 = typeof q2.o === "string" ? `<${q2.o}>` : `"${q2.o.value}"`;
+      return `
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX j:   <${J5}>
+        SELECT ?y WHERE {
+          GRAPH <kg:tbox> { <${q2.p}> a j:SingleValued }
+          {
+            { GRAPH <kg:inferred> { <${q2.s}> owl:sameAs ?y } }
+            UNION
+            { GRAPH <kg:inferred> { ?y owl:sameAs <${q2.s}> } }
+          }
+          {
+            { GRAPH <kg:abox>     { ?y <${q2.p}> ${o2} } }
+            UNION
+            { GRAPH <kg:inferred> { ?y <${q2.p}> ${o2} } }
+          }
+          FILTER (?y != <${q2.s}>)
+        } LIMIT 1
+      `;
+    },
+    buildPremises: (q2, binding) => [
+      { s: q2.s, p: OWL_SAMEAS2, o: binding.y },
+      { s: binding.y, p: q2.p, o: q2.o }
+    ]
   }
 };
 
@@ -38163,6 +38699,7 @@ var RULES = [
   r08,
   r09,
   r10,
+  r11,
   r12,
   r13,
   r14,
@@ -38172,7 +38709,9 @@ var RULES = [
   r18,
   r19,
   r20,
-  r21
+  r21,
+  r22,
+  r23
 ];
 
 // ../predicate-mcp/src/materialize.ts
@@ -47495,7 +48034,7 @@ var DocsResearchSource = class {
 // ../predicate-agent/src/extractor.ts
 import { basename as basename2 } from "node:path";
 var C3 = "https://industriagents.com/predicate/codebase";
-var RDF_TYPE3 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var RDF_TYPE6 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fileIri(uri) {
   const path2 = uri.replace(/^file:\/\//, "");
   const name = basename2(path2);
@@ -47521,7 +48060,7 @@ var ImportExtractor = class {
     const out = [
       {
         subject: fIri,
-        predicate: RDF_TYPE3,
+        predicate: RDF_TYPE6,
         object: { type: "uri", value: `${C3}#File` },
         source: artifact.uri,
         confidence: 1,
@@ -47563,7 +48102,7 @@ var FunctionDeclExtractor = class {
       const symIri = fnIri(artifact.uri, sym);
       out.push({
         subject: symIri,
-        predicate: RDF_TYPE3,
+        predicate: RDF_TYPE6,
         object: { type: "uri", value: `${C3}#Function` },
         source: artifact.uri,
         confidence: 1,
@@ -47595,7 +48134,7 @@ var EnvVarExtractor = class {
     for (const env of envs) {
       out.push({
         subject: envIri(env),
-        predicate: RDF_TYPE3,
+        predicate: RDF_TYPE6,
         object: { type: "uri", value: `${C3}#EnvVar` },
         source: artifact.uri,
         confidence: 1,
@@ -48066,7 +48605,7 @@ var PromotionSweeper = class {
 
 // ../predicate-agent/src/generalizer.ts
 import { createHash as createHash3 } from "node:crypto";
-var RDF_TYPE4 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+var RDF_TYPE7 = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 function fingerprintHash(fingerprint) {
   return createHash3("sha1").update(fingerprint.join("|")).digest("hex").slice(0, 12);
 }
@@ -48109,7 +48648,7 @@ var Generalizer = class {
         kind: "add-class",
         add: [{
           s: className,
-          p: RDF_TYPE4,
+          p: RDF_TYPE7,
           o: { type: "uri", value: "http://www.w3.org/2002/07/owl#Class" }
         }]
       }, {
@@ -48129,11 +48668,11 @@ var Generalizer = class {
       WHERE {
         GRAPH <kg:abox> {
           ?s ?p ?o .
-          FILTER (?p != <${RDF_TYPE4}>)
-          FILTER NOT EXISTS { ?s <${RDF_TYPE4}> ?t }
+          FILTER (?p != <${RDF_TYPE7}>)
+          FILTER NOT EXISTS { ?s <${RDF_TYPE7}> ?t }
         }
-        FILTER NOT EXISTS { GRAPH <kg:inferred> { ?s <${RDF_TYPE4}> ?ti } }
-        FILTER NOT EXISTS { GRAPH <kg:tbox>     { ?s <${RDF_TYPE4}> ?tb } }
+        FILTER NOT EXISTS { GRAPH <kg:inferred> { ?s <${RDF_TYPE7}> ?ti } }
+        FILTER NOT EXISTS { GRAPH <kg:tbox>     { ?s <${RDF_TYPE7}> ?tb } }
       }
     `);
     const subjects = subjectsResult.results.bindings.map((b2) => b2["s"].value);
@@ -48141,7 +48680,7 @@ var Generalizer = class {
     for (const s2 of subjects) {
       const predsResult = await this.client.select(`
         SELECT DISTINCT ?p
-        WHERE { GRAPH <kg:abox> { <${s2}> ?p ?o . FILTER (?p != <${RDF_TYPE4}>) } }
+        WHERE { GRAPH <kg:abox> { <${s2}> ?p ?o . FILTER (?p != <${RDF_TYPE7}>) } }
         ORDER BY ?p
       `);
       const predicates = predsResult.results.bindings.map((b2) => b2["p"].value);
@@ -48638,7 +49177,7 @@ async function kgProposeSchema(client, input) {
 }
 
 // ../predicate-mcp/src/tools/kg-stats.ts
-async function countGraph(client, graph) {
+async function countGraph2(client, graph) {
   const r2 = await client.select(
     `SELECT (COUNT(*) AS ?n) WHERE { GRAPH <${graph}> { ?s ?p ?o } }`
   );
@@ -48698,9 +49237,9 @@ async function eventCount(client, type) {
 }
 async function kgStats(client) {
   const [abox, inferred, tbox] = await Promise.all([
-    countGraph(client, "kg:abox"),
-    countGraph(client, "kg:inferred"),
-    countGraph(client, "kg:tbox")
+    countGraph2(client, "kg:abox"),
+    countGraph2(client, "kg:inferred"),
+    countGraph2(client, "kg:tbox")
   ]);
   const classes = await countClasses(client);
   const triples = abox + inferred + tbox;
@@ -48729,7 +49268,7 @@ async function kgStats(client) {
 }
 
 // ../predicate-mcp/src/tools/kg-extract-judgments.ts
-var J4 = "https://industriagents.com/predicate/judgment#";
+var J7 = "https://industriagents.com/predicate/judgment#";
 var BRIEF = [
   "Distill JUDGMENTS from this session \u2014 reconciled conclusions with no live source.",
   "For each decision, standing preference, qualitative assessment, or reconciliation you made:",
@@ -48748,7 +49287,7 @@ async function buildJudgmentSchema(client) {
     SELECT ?iri ?label ?sup ?sub ?disj WHERE {
       GRAPH <kg:tbox> {
         ?iri a owl:Class .
-        FILTER(STRSTARTS(STR(?iri), "${J4}"))
+        FILTER(STRSTARTS(STR(?iri), "${J7}"))
         OPTIONAL { ?iri rdfs:label ?label }
         OPTIONAL { ?iri rdfs:subClassOf ?sup . FILTER(isIRI(?sup)) }
         OPTIONAL { ?sub rdfs:subClassOf ?iri . FILTER(isIRI(?sub)) }
@@ -48773,7 +49312,7 @@ async function buildJudgmentSchema(client) {
       GRAPH <kg:tbox> {
         ?p a ?propType .
         FILTER(?propType IN (owl:ObjectProperty, owl:DatatypeProperty))
-        FILTER(STRSTARTS(STR(?p), "${J4}"))
+        FILTER(STRSTARTS(STR(?p), "${J7}"))
         OPTIONAL { ?p rdfs:domain ?dom }
         OPTIONAL { ?p rdfs:range ?rng }
         OPTIONAL { ?p rdfs:label ?label }
@@ -48795,10 +49334,10 @@ async function buildJudgmentSchema(client) {
     propMap.set(iri, slice);
   }
   if (classMap.size === 0) {
-    return kgExploreSchema(client, `${J4}Judgment`);
+    return kgExploreSchema(client, `${J7}Judgment`);
   }
   return {
-    concept: `${J4}Judgment`,
+    concept: `${J7}Judgment`,
     classes: Array.from(classMap.values()),
     properties: Array.from(propMap.values())
   };
@@ -48810,7 +49349,7 @@ async function kgExtractJudgments(client, input) {
   if (touched.length > 0) {
     const values = touched.map((e2) => escapeIRI(e2)).join(" ");
     const r2 = await client.select(`
-      PREFIX j: <${J4}>
+      PREFIX j: <${J7}>
       SELECT ?jd ?about ?rationale WHERE {
         GRAPH <kg:inferred> { ?jd a j:Current }
         GRAPH <kg:abox> {
