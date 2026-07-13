@@ -1,0 +1,548 @@
+{
+  "generatedAt": "2026-07-13T11:27:50.171Z",
+  "gitSha": "6341584b81347a2b99c84f8d536c3ba458c860e3",
+  "gitDirty": false,
+  "stagesRun": [
+    "fixtures",
+    "deterministic",
+    "verdicts",
+    "summary"
+  ],
+  "node": "v22.17.1",
+  "pnpm": "9.0.0",
+  "env": {
+    "PREDICATE_BACKEND": "oxigraph-wasm",
+    "PREDICATE_STORE_PATH": ":memory:"
+  },
+  "domains": [
+    "conflict-d20",
+    "conflict-xr-small",
+    "conflict-xr-scale",
+    "conflict-chain-m2",
+    "conflict-chain-m3",
+    "conflict-h3-nk1",
+    "conflict-h3-nk3",
+    "conflict-tausig"
+  ],
+  "files": [
+    {
+      "path": "packages/predicate-eval/fixtures/conflict-d20/instances.json",
+      "kind": "instance-manifest",
+      "bytes": 6385,
+      "rows": 14,
+      "sha256": "5d0db042be8ca3aa205f49ff3325bb0ca86396b7fe710ba75836d971b8c7fffb"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join.conflict-d20.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 5566,
+      "rows": 14,
+      "sha256": "d8b270a7c0143ce67479682bc66a41bc94b165285f6d9aa4b5a3602d355c5643"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/sparql-groupby.conflict-d20.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 5608,
+      "rows": 14,
+      "sha256": "15fbc3d9e854bf0ce56effda95dd5ea634a1afe7ba1dd710a9a3d6a89dbffeab"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join-x.conflict-d20.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 5594,
+      "rows": 14,
+      "sha256": "f4ab09eb2a11efdfdd7b0cab5e8ca6f9bc091cc4d15a62cbaf2d80db8e183912"
+    },
+    {
+      "path": "packages/predicate-eval/results/retrieval/retrieval.conflict-d20.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 69244,
+      "rows": 168,
+      "sha256": "c8d79bf9e021f50dd623b9811a70268d2505311b10b9af209e27563289c2681d"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/reasoner-r14r23r22.conflict-d20.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 4949,
+      "rows": 14,
+      "sha256": "d9dbaf2bebbcda3525f834ff61ac936bf655f54055f0973fcca359a08483c195"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/cwi.conflict-d20.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 14961,
+      "rows": 42,
+      "sha256": "4d9a09721d2e2e6e508c0acb83f8347e78b1b209f6ca423a39b15d0b82ba69ca"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/ledger.conflict-d20.json",
+      "kind": "maintenance-ledger",
+      "bytes": 366,
+      "rows": null,
+      "sha256": "c11ed0b7f3a1d196b03bd850f92098176342ce8dd9cfa52e946e4383d0fcba85"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/summary.conflict-d20.json",
+      "kind": "instance-scoreboard",
+      "bytes": 15582,
+      "rows": 19,
+      "sha256": "2676ae5f8b5327d90e55e77a7bd93348bab2bc6263624cfbd2aada104c3b3aa8"
+    },
+    {
+      "path": "packages/predicate-eval/fixtures/conflict-xr-small/instances.json",
+      "kind": "instance-manifest",
+      "bytes": 13809,
+      "rows": 16,
+      "sha256": "37345e2acfdfb428f5de509130c667597be6911716ccccb81c23c313deb8b23a"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join.conflict-xr-small.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10938,
+      "rows": 16,
+      "sha256": "43869bfcb28e0d29efb4ff9f93377ec7617409b91d2e92dd50fdd7366f6997ba"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/sparql-groupby.conflict-xr-small.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10970,
+      "rows": 16,
+      "sha256": "fa0c28224cb8e269814aae747cae3fe5d29b8658c1f8b6aece8bff83076d5d75"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join-x.conflict-xr-small.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10970,
+      "rows": 16,
+      "sha256": "9be05529ed20198199f441b0ed0bf8ebc10da87d5931cc01cc5e804e0cd660dd"
+    },
+    {
+      "path": "packages/predicate-eval/results/retrieval/retrieval.conflict-xr-small.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 131279,
+      "rows": 192,
+      "sha256": "35b088eb26c7a47b93d424269a3cdc8fa8cde2570b329cd69141a6847737839d"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/reasoner-r14r23r22.conflict-xr-small.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 11091,
+      "rows": 16,
+      "sha256": "f819066e5ecf328f38578d1e752f98a3ae42ea19f92c698dcc10314374ab8137"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/cwi.conflict-xr-small.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 26607,
+      "rows": 48,
+      "sha256": "b708d0da208ceb0895f10f5647469689e9dda7f329e6683b1c2a8bc5baebe3b2"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/ledger.conflict-xr-small.json",
+      "kind": "maintenance-ledger",
+      "bytes": 374,
+      "rows": null,
+      "sha256": "b3c9d3c8bc2d4938acfe85cf6c3977cbd9f30623161472defc7c40a95f308385"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/summary.conflict-xr-small.json",
+      "kind": "instance-scoreboard",
+      "bytes": 13293,
+      "rows": 19,
+      "sha256": "e9ab9219f6826934830883e58e62e2f040c1db3168458b1789e4e26ec31b7d7a"
+    },
+    {
+      "path": "packages/predicate-eval/fixtures/conflict-xr-scale/instances.json",
+      "kind": "instance-manifest",
+      "bytes": 56374,
+      "rows": 64,
+      "sha256": "72a0834c2bc205f24dd2bcb0e20358165cbb04342001740ac8421d51681b1745"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join.conflict-xr-scale.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 49498,
+      "rows": 64,
+      "sha256": "e43c28e6772e11b13274e4caad422585e5c5398a95885aee4a986470aece79d9"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/sparql-groupby.conflict-xr-scale.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 49754,
+      "rows": 64,
+      "sha256": "98405feeeefa8225d5ead0571a02b65a18384ad768972ef78b2364fa7cbcb32b"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join-x.conflict-xr-scale.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 49690,
+      "rows": 64,
+      "sha256": "c512ced997608c7dbda62a905e469de1656d2f84fc792e9eeb6cdd923870fb00"
+    },
+    {
+      "path": "packages/predicate-eval/results/retrieval/retrieval.conflict-xr-scale.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 548400,
+      "rows": 768,
+      "sha256": "5b79056c5762136c4c97c3c5f1d486288073c6085fa9868df473decdbd974561"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/reasoner-r14r23r22.conflict-xr-scale.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 45508,
+      "rows": 64,
+      "sha256": "d48766f4510f272cf9fd389f660b3fe65e180ac15f76202b480139d266f2019d"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/cwi.conflict-xr-scale.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 118608,
+      "rows": 192,
+      "sha256": "d0b212d3a54fa6b4093b15d94c0c090deb52680ef61104ad477aff973c676baa"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/ledger.conflict-xr-scale.json",
+      "kind": "maintenance-ledger",
+      "bytes": 377,
+      "rows": null,
+      "sha256": "fb262f907061a9d06582c136c38c20e23edfb6f68dc861a69cf14572eff2a4bf"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/summary.conflict-xr-scale.json",
+      "kind": "instance-scoreboard",
+      "bytes": 13446,
+      "rows": 19,
+      "sha256": "83306025af333b61a27e11c94d061fb8bb8742b6a15e5018182d4c005fc855e1"
+    },
+    {
+      "path": "packages/predicate-eval/fixtures/conflict-chain-m2/instances.json",
+      "kind": "instance-manifest",
+      "bytes": 47403,
+      "rows": 41,
+      "sha256": "f945c02c4d1ab0213af91605f29ca00e1136b036bddbc8ab6ce4718e5016f707"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join.conflict-chain-m2.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 13273,
+      "rows": 41,
+      "sha256": "d03506babf492b939a27acee57d23a3be166dfd27b5a7dbd4f08a6831f3ce39e"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/sparql-groupby.conflict-chain-m2.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 13396,
+      "rows": 41,
+      "sha256": "eafacf67a7b43bcf13fdb4520f67bbe81ee67d6bd0371f70572904aa02c2dff5"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join-x.conflict-chain-m2.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 20496,
+      "rows": 41,
+      "sha256": "a48ffd2eb4d0b77f8de56596f2e7493fd0e60c54da306239125224f0323c6e38"
+    },
+    {
+      "path": "packages/predicate-eval/results/retrieval/retrieval.conflict-chain-m2.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 388400,
+      "rows": 492,
+      "sha256": "8e71dcfdf55bfb8fd475817f231e643257eed68c5cd03acec88c2a0f58c16db0"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/reasoner-r14r23r22.conflict-chain-m2.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 37572,
+      "rows": 41,
+      "sha256": "3ffe2c715aa4f930b3f94b842691db9e50306be9c1504e2faa4cd7cf188d967e"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/cwi.conflict-chain-m2.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 52073,
+      "rows": 123,
+      "sha256": "8e7286e24ffc207bdb832e6135089b5ab047a6f0c0bdf683012a1a2fdaa670dd"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/ledger.conflict-chain-m2.json",
+      "kind": "maintenance-ledger",
+      "bytes": 375,
+      "rows": null,
+      "sha256": "ead5faf9ac1b71ccb63af67d0a72a244da5c73200d4c7a7be7576cff97a888e7"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/summary.conflict-chain-m2.json",
+      "kind": "instance-scoreboard",
+      "bytes": 13567,
+      "rows": 19,
+      "sha256": "ba7484247eee11e05646d6d716e876629b4bcab2c9b960d52283598bfa3bc772"
+    },
+    {
+      "path": "packages/predicate-eval/fixtures/conflict-chain-m3/instances.json",
+      "kind": "instance-manifest",
+      "bytes": 35619,
+      "rows": 25,
+      "sha256": "23ba95efbc5cee8176b35f19afaf344faa52d27ca742483a420a5d6a6a2a15fb"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join.conflict-chain-m3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 8047,
+      "rows": 25,
+      "sha256": "53387a817a4e68f37b2623d354e31ed9910723eb0c9dd7990368d4ebd33fd3b0"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/sparql-groupby.conflict-chain-m3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 8147,
+      "rows": 25,
+      "sha256": "db16c4b3385fc3dcecf0b1c465118e552bf756cef349be7b48375ccfb724c110"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join-x.conflict-chain-m3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 13683,
+      "rows": 25,
+      "sha256": "ae9a52aaecbad9d33c4a4d3f2068b08a20f0a339076fcbb2bc0881a008073ef4"
+    },
+    {
+      "path": "packages/predicate-eval/results/retrieval/retrieval.conflict-chain-m3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 263948,
+      "rows": 300,
+      "sha256": "836fddb3f306e62201cdc84013e6c2a0a1201de6e6870d0de01fe87372e5bbb7"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/reasoner-r14r23r22.conflict-chain-m3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 28008,
+      "rows": 25,
+      "sha256": "58c1698797ea45138f471e7f281eb77a5659099080a5201b0f2855910b822876"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/cwi.conflict-chain-m3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 34275,
+      "rows": 75,
+      "sha256": "c5ba7ea5d63cd0f68f225b3391e84ca14f60988e8114c6c7d1b306818dd286c8"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/ledger.conflict-chain-m3.json",
+      "kind": "maintenance-ledger",
+      "bytes": 374,
+      "rows": null,
+      "sha256": "cc1d0ad695b6fae200e7cddfc8e6f35e06e221555aabfa27aa4e602ea819d090"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/summary.conflict-chain-m3.json",
+      "kind": "instance-scoreboard",
+      "bytes": 13248,
+      "rows": 19,
+      "sha256": "3f7a4569d25771de81444be2400bbfca858a91a2f69933f3ff656fad6a739512"
+    },
+    {
+      "path": "packages/predicate-eval/fixtures/conflict-h3-nk1/instances.json",
+      "kind": "instance-manifest",
+      "bytes": 13782,
+      "rows": 16,
+      "sha256": "c06d9583f2fe34c973ff326a0bea94885c7f0e897afae39c5bbe20f9e36d9254"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join.conflict-h3-nk1.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10874,
+      "rows": 16,
+      "sha256": "ad4d9e8930d5021f9c5c22039139a12b16e1bf4ce5b75aa47fa6146febed0af0"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/sparql-groupby.conflict-h3-nk1.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10906,
+      "rows": 16,
+      "sha256": "2c81c628f2a7f5d193172c19c887b95868ca3a4c4941322bc67e5bfb4ad06736"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join-x.conflict-h3-nk1.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10890,
+      "rows": 16,
+      "sha256": "1306ed959f3b76e2ce1885b8aa4fa587dda1b25384637a976788854ba4f307be"
+    },
+    {
+      "path": "packages/predicate-eval/results/retrieval/retrieval.conflict-h3-nk1.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 130253,
+      "rows": 192,
+      "sha256": "68011247a937b529b0d303f0c18e712929094b50b6b474c637433452fcb5c073"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/reasoner-r14r23r22.conflict-h3-nk1.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 11060,
+      "rows": 16,
+      "sha256": "9aed9d69c429aad3b77de27805bb6b1ef5ffefe6f08f98b9e47dc255a146271e"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/cwi.conflict-h3-nk1.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 26412,
+      "rows": 48,
+      "sha256": "80b6260d91a58d825cc660def0630d0a394a17b92daca4b2c5094d9a1031a040"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/ledger.conflict-h3-nk1.json",
+      "kind": "maintenance-ledger",
+      "bytes": 372,
+      "rows": null,
+      "sha256": "b7b7884ecf1ddb6bb2c8437994cad96c61af77d8fd2a6f812ff9c17b7aa2f9c2"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/summary.conflict-h3-nk1.json",
+      "kind": "instance-scoreboard",
+      "bytes": 13298,
+      "rows": 19,
+      "sha256": "f5624ea610d87833b23d527f3094e073b004a4c856f3259e7f77c96baa19758a"
+    },
+    {
+      "path": "packages/predicate-eval/fixtures/conflict-h3-nk3/instances.json",
+      "kind": "instance-manifest",
+      "bytes": 13782,
+      "rows": 16,
+      "sha256": "c19b274678e6b3483623f4f21eb9a1c4175472207c285c78b832a314deac8857"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join.conflict-h3-nk3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10874,
+      "rows": 16,
+      "sha256": "ab548a533463bd6c727dba11afc6c01ab9b0636d4efdc44f7e483ca5729bc56f"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/sparql-groupby.conflict-h3-nk3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10906,
+      "rows": 16,
+      "sha256": "ecbeef731434533a0b33af1007f36867cce54064d889d14e3261025ec75efe95"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join-x.conflict-h3-nk3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 10906,
+      "rows": 16,
+      "sha256": "28752101c9ad84fc13bc9c1b8a731c642a4ca27e1e6c7b719c5077450c4957d2"
+    },
+    {
+      "path": "packages/predicate-eval/results/retrieval/retrieval.conflict-h3-nk3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 130450,
+      "rows": 192,
+      "sha256": "9c2914c993537fdb46f9180ec1b90cb7a4d142358d0f9b944059ed65430f6cbd"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/reasoner-r14r23r22.conflict-h3-nk3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 11060,
+      "rows": 16,
+      "sha256": "a9ce563db0c414a91a1b6848a1cab5b7e5ce9cb4a437e4ceeb16418ecbb7964c"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/cwi.conflict-h3-nk3.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 26418,
+      "rows": 48,
+      "sha256": "f87b689dbe47a7b71928ad6d5d6350f05e3b6e986cb9afa1615c9314e6384163"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/ledger.conflict-h3-nk3.json",
+      "kind": "maintenance-ledger",
+      "bytes": 371,
+      "rows": null,
+      "sha256": "0a5e21ea5c0dcc6fbaebfde5ba8c0f6e2786d647f256f016a14d60a176a5a96a"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/summary.conflict-h3-nk3.json",
+      "kind": "instance-scoreboard",
+      "bytes": 13258,
+      "rows": 19,
+      "sha256": "13cf3b2ad988db46fd1605c13023ddf467fc70b554636b4f97e6c3a716640973"
+    },
+    {
+      "path": "packages/predicate-eval/fixtures/conflict-tausig/instances.json",
+      "kind": "instance-manifest",
+      "bytes": 64227,
+      "rows": 60,
+      "sha256": "11805be0bca7ecb2c6b1b53bb771cb0dfdde56d0d2d8af35df03054b8d1886e2"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join.conflict-tausig.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 36780,
+      "rows": 60,
+      "sha256": "31b2e07bb27330078b1f1b039afe2aa130336f4fee9039eec32cf76b725d7903"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/sparql-groupby.conflict-tausig.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 36960,
+      "rows": 60,
+      "sha256": "7cff514ca55905137748fb2affb0b9021f78e8a61659bf69af112bc684bd59d8"
+    },
+    {
+      "path": "packages/predicate-eval/results/exact/exact-key-join-x.conflict-tausig.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 27948,
+      "rows": 60,
+      "sha256": "1a4ec749954f184677fc58276f27f9ed4140377d7afd84bfbc05938bee8bb535"
+    },
+    {
+      "path": "packages/predicate-eval/results/retrieval/retrieval.conflict-tausig.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 635164,
+      "rows": 720,
+      "sha256": "6a3257c7dbf7234802c424158f50be3d00bd494beeb2a3e3c7ba83ffa4b699ca"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/reasoner-r14r23r22.conflict-tausig.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 52548,
+      "rows": 60,
+      "sha256": "f93bc9cea6928142a61213339588fdaa2f972454616255c32741759bf451f854"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/cwi.conflict-tausig.jsonl",
+      "kind": "prediction-rows",
+      "bytes": 71868,
+      "rows": 180,
+      "sha256": "48367be99a3a0094048ad71642f8c115bf21102bfd3a4f3be73c1a86174e6cef"
+    },
+    {
+      "path": "packages/predicate-eval/results/cwi/ledger.conflict-tausig.json",
+      "kind": "maintenance-ledger",
+      "bytes": 374,
+      "rows": null,
+      "sha256": "3560cbb2bf29d6c5c2a0134f2895650c72de6b3db26aa01edae2f4bea92e43cc"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/summary.conflict-tausig.json",
+      "kind": "instance-scoreboard",
+      "bytes": 15451,
+      "rows": 19,
+      "sha256": "7e94232b195e599d7d6d43c25dd341e54aeae407ff981b280dd24eb226070ef9"
+    },
+    {
+      "path": "packages/predicate-eval/results/scoreboard.jsonl",
+      "kind": "tier1-scorerows",
+      "appendOnly": true,
+      "bytes": 55836,
+      "rows": 126,
+      "sha256": "808ef5569fb0bc2a43b9ba81305121788dbe690aef3a79c82d59261bf2677abb"
+    },
+    {
+      "path": "packages/predicate-eval/results/instances/phase1-verdicts.json",
+      "kind": "hypothesis-verdicts",
+      "bytes": 14439,
+      "rows": null,
+      "sha256": "f3a920103af1ed92c3caf0ad52175596661d9bb266cc1a157360ad090cd4abe4"
+    }
+  ]
+}
