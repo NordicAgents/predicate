@@ -1,0 +1,14 @@
+{
+  "domain": "conflict-h3-nk3",
+  "sourceTriples": 525,
+  "ingestMs": 1.23,
+  "insertWrites": 657,
+  "updateAmplification": 1.251,
+  "indexEntries": 270,
+  "queries": 32,
+  "queryMsTotal": 0.6785,
+  "queryMsP50": 0.009,
+  "queryMsP95": 0.0928,
+  "spuriousConflicts": 0,
+  "note": "wall-clock fields are single-run and vary between rebuilds; counts are deterministic"
+}

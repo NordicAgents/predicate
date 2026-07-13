@@ -1,0 +1,14 @@
+{
+  "domain": "conflict-chain-m2",
+  "sourceTriples": 440,
+  "ingestMs": 1.386,
+  "insertWrites": 970,
+  "updateAmplification": 2.205,
+  "indexEntries": 320,
+  "queries": 122,
+  "queryMsTotal": 0.8218,
+  "queryMsP50": 0.0006,
+  "queryMsP95": 0.0181,
+  "spuriousConflicts": 0,
+  "note": "wall-clock fields are single-run and vary between rebuilds; counts are deterministic"
+}

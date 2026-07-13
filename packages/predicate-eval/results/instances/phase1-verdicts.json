@@ -1,5 +1,5 @@
 {
-  "registration": "pre-registration.md Amendment A2 (2026-07-13)",
+  "registration": "pre-registration.md Amendments A2 + A3 (2026-07-13)",
   "H3": {
     "pass": true,
     "domains": [
@@ -264,60 +264,310 @@
     "domains": [
       {
         "domain": "conflict-chain-m2",
-        "xTotalMs": 1.902,
-        "reasonerMaterializeMs": 428.58,
-        "reasonerOverX": 225.33123028391168,
+        "xTotalMs": 1.872,
+        "reasonerMaterializeMs": 417.79,
+        "reasonerOverX": 223.1784188034188,
         "bothPerfect": true,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-chain-m3",
-        "xTotalMs": 1.828,
-        "reasonerMaterializeMs": 354.96,
-        "reasonerOverX": 194.17943107221004,
+        "xTotalMs": 1.649,
+        "reasonerMaterializeMs": 341.68,
+        "reasonerOverX": 207.20436628259552,
         "bothPerfect": true,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-tausig",
-        "xTotalMs": 2.298,
-        "reasonerMaterializeMs": 607.78,
-        "reasonerOverX": 264.48215839860745,
+        "xTotalMs": 3.267,
+        "reasonerMaterializeMs": 603.22,
+        "reasonerOverX": 184.64034282216102,
         "bothPerfect": false,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-d20",
-        "xTotalMs": 0.865,
-        "reasonerMaterializeMs": 28.12,
-        "reasonerOverX": 32.50867052023121,
+        "xTotalMs": 0.842,
+        "reasonerMaterializeMs": 29.45,
+        "reasonerOverX": 34.97624703087886,
         "bothPerfect": true,
-        "keyJoinTotalMs": 0.977,
-        "xOverKeyJoin": 0.8853633572159673
+        "keyJoinTotalMs": 0.821,
+        "xOverKeyJoin": 1.02557856272838
       },
       {
         "domain": "conflict-xr-small",
-        "xTotalMs": 1.499,
-        "reasonerMaterializeMs": 183.59,
-        "reasonerOverX": 122.4749833222148,
+        "xTotalMs": 1.548,
+        "reasonerMaterializeMs": 179.36,
+        "reasonerOverX": 115.8656330749354,
         "bothPerfect": true,
-        "keyJoinTotalMs": 1.265,
-        "xOverKeyJoin": 1.1849802371541505
+        "keyJoinTotalMs": 1.275,
+        "xOverKeyJoin": 1.2141176470588237
       },
       {
         "domain": "conflict-xr-scale",
-        "xTotalMs": 5.095,
-        "reasonerMaterializeMs": 3831.33,
-        "reasonerOverX": 751.9784102060844,
+        "xTotalMs": 6.365,
+        "reasonerMaterializeMs": 3709.95,
+        "reasonerOverX": 582.8672427336999,
         "bothPerfect": true,
-        "keyJoinTotalMs": 3.675,
-        "xOverKeyJoin": 1.3863945578231291
+        "keyJoinTotalMs": 3.808,
+        "xOverKeyJoin": 1.671481092436975
       }
     ],
     "xTenXCheaperThanReasonerWhereBothPerfect": true,
     "xWithinTenXOfPlainJoinOnMechV0": true
+  },
+  "H9": {
+    "pass": true,
+    "domains": [
+      {
+        "domain": "conflict-chain-m2",
+        "perfect": true,
+        "witnessRecall": 1,
+        "meanGoldWitness": 9,
+        "meanContextTriples": 9,
+        "contextEqualsWitness": true,
+        "keyAwareMinCompleteBallCtx": 94.6,
+        "smallerThanKeyAwareBall": true,
+        "crossEngineEqual": true
+      },
+      {
+        "domain": "conflict-chain-m3",
+        "perfect": true,
+        "witnessRecall": 1,
+        "meanGoldWitness": 12,
+        "meanContextTriples": 12,
+        "contextEqualsWitness": true,
+        "keyAwareMinCompleteBallCtx": 91.33333333333333,
+        "smallerThanKeyAwareBall": true,
+        "crossEngineEqual": true
+      },
+      {
+        "domain": "conflict-h3-nk1",
+        "perfect": true,
+        "witnessRecall": 1,
+        "meanGoldWitness": 6,
+        "meanContextTriples": 6,
+        "contextEqualsWitness": true,
+        "keyAwareMinCompleteBallCtx": 9,
+        "smallerThanKeyAwareBall": true,
+        "crossEngineEqual": true
+      },
+      {
+        "domain": "conflict-h3-nk3",
+        "perfect": true,
+        "witnessRecall": 1,
+        "meanGoldWitness": 6,
+        "meanContextTriples": 6,
+        "contextEqualsWitness": true,
+        "keyAwareMinCompleteBallCtx": 11,
+        "smallerThanKeyAwareBall": true,
+        "crossEngineEqual": true
+      },
+      {
+        "domain": "conflict-tausig",
+        "perfect": true,
+        "witnessRecall": 1,
+        "meanGoldWitness": 10,
+        "meanContextTriples": 10,
+        "contextEqualsWitness": true,
+        "keyAwareMinCompleteBallCtx": 12,
+        "smallerThanKeyAwareBall": true,
+        "crossEngineEqual": true
+      },
+      {
+        "domain": "conflict-d20",
+        "perfect": true,
+        "witnessRecall": 1,
+        "meanGoldWitness": 2,
+        "meanContextTriples": 2,
+        "contextEqualsWitness": true,
+        "keyAwareMinCompleteBallCtx": null,
+        "smallerThanKeyAwareBall": null,
+        "crossEngineEqual": true
+      },
+      {
+        "domain": "conflict-xr-small",
+        "perfect": true,
+        "witnessRecall": 1,
+        "meanGoldWitness": 6,
+        "meanContextTriples": 6,
+        "contextEqualsWitness": true,
+        "keyAwareMinCompleteBallCtx": 8,
+        "smallerThanKeyAwareBall": true,
+        "crossEngineEqual": true
+      },
+      {
+        "domain": "conflict-xr-scale",
+        "perfect": true,
+        "witnessRecall": 1,
+        "meanGoldWitness": 6,
+        "meanContextTriples": 6,
+        "contextEqualsWitness": true,
+        "keyAwareMinCompleteBallCtx": 8,
+        "smallerThanKeyAwareBall": true,
+        "crossEngineEqual": true
+      }
+    ],
+    "allPerfect": true,
+    "contextEqualsWitnessEverywhere": true,
+    "strictlySmallerThanKeyAwareOnCrossRecord": true,
+    "crossEngineEqualEverywhere": true
+  },
+  "H10": {
+    "pass": true,
+    "note": "single-run wall-clock; ratios vary between rebuilds (counts are deterministic)",
+    "domains": [
+      {
+        "domain": "conflict-chain-m2",
+        "updateAmplification": 2.205,
+        "queryMsP50": 0.0006,
+        "cwiTotalMs": 2.208,
+        "xTotalMs": 1.872,
+        "cwiOverX": 1.18,
+        "spuriousConflicts": 0
+      },
+      {
+        "domain": "conflict-chain-m3",
+        "updateAmplification": 2.304,
+        "queryMsP50": 0.001,
+        "cwiTotalMs": 2.413,
+        "xTotalMs": 1.649,
+        "cwiOverX": 1.46,
+        "spuriousConflicts": 0
+      },
+      {
+        "domain": "conflict-h3-nk1",
+        "updateAmplification": 1.622,
+        "queryMsP50": 0.0112,
+        "cwiTotalMs": 1.952,
+        "xTotalMs": 1.797,
+        "cwiOverX": 1.09,
+        "spuriousConflicts": 0
+      },
+      {
+        "domain": "conflict-h3-nk3",
+        "updateAmplification": 1.251,
+        "queryMsP50": 0.009,
+        "cwiTotalMs": 1.909,
+        "xTotalMs": 1.766,
+        "cwiOverX": 1.08,
+        "spuriousConflicts": 0
+      },
+      {
+        "domain": "conflict-tausig",
+        "updateAmplification": 1.889,
+        "queryMsP50": 0.0008,
+        "cwiTotalMs": 2.408,
+        "xTotalMs": 3.267,
+        "cwiOverX": 0.74,
+        "spuriousConflicts": 0
+      },
+      {
+        "domain": "conflict-d20",
+        "updateAmplification": 1.733,
+        "queryMsP50": 0.0134,
+        "cwiTotalMs": 1.002,
+        "xTotalMs": 0.842,
+        "cwiOverX": 1.19,
+        "spuriousConflicts": 0
+      },
+      {
+        "domain": "conflict-xr-small",
+        "updateAmplification": 1.904,
+        "queryMsP50": 0.0073,
+        "cwiTotalMs": 1.742,
+        "xTotalMs": 1.548,
+        "cwiOverX": 1.13,
+        "spuriousConflicts": 0
+      },
+      {
+        "domain": "conflict-xr-scale",
+        "updateAmplification": 1.895,
+        "queryMsP50": 0.0092,
+        "cwiTotalMs": 4.64,
+        "xTotalMs": 6.365,
+        "cwiOverX": 0.73,
+        "spuriousConflicts": 0
+      }
+    ],
+    "amplificationScaleFlat": {
+      "xrSmall": 1.904,
+      "xrScale": 1.895,
+      "pass": true
+    },
+    "queryP50UnderOneMsEverywhere": true,
+    "queryP50MIndependent": {
+      "m2": 0.0006,
+      "m3": 0.001,
+      "pass": true
+    },
+    "incrementalityWithinTenXOfJoinX": true
+  },
+  "clause3": {
+    "rule": "A3.5: adopt strict full-witness contract iff witness/pointer byte ratio <= 5x on every domain",
+    "domains": [
+      {
+        "domain": "conflict-chain-m2",
+        "witnessBytes": 718,
+        "pointerBytes": 272,
+        "flagBytes": 155,
+        "ratio": 2.64
+      },
+      {
+        "domain": "conflict-chain-m3",
+        "witnessBytes": 957,
+        "pointerBytes": 311,
+        "flagBytes": 155,
+        "ratio": 3.08
+      },
+      {
+        "domain": "conflict-h3-nk1",
+        "witnessBytes": 479,
+        "pointerBytes": 233,
+        "flagBytes": 155,
+        "ratio": 2.06
+      },
+      {
+        "domain": "conflict-h3-nk3",
+        "witnessBytes": 479,
+        "pointerBytes": 233,
+        "flagBytes": 155,
+        "ratio": 2.06
+      },
+      {
+        "domain": "conflict-tausig",
+        "witnessBytes": 735,
+        "pointerBytes": 285,
+        "flagBytes": 155,
+        "ratio": 2.58
+      },
+      {
+        "domain": "conflict-d20",
+        "witnessBytes": 129,
+        "pointerBytes": 164.5,
+        "flagBytes": 138.5,
+        "ratio": 0.78
+      },
+      {
+        "domain": "conflict-xr-small",
+        "witnessBytes": 479,
+        "pointerBytes": 233,
+        "flagBytes": 155,
+        "ratio": 2.06
+      },
+      {
+        "domain": "conflict-xr-scale",
+        "witnessBytes": 479,
+        "pointerBytes": 233,
+        "flagBytes": 155,
+        "ratio": 2.06
+      }
+    ],
+    "maxRatio": 3.08,
+    "strictFormAdopted": true
   }
 }
