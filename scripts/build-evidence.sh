@@ -153,12 +153,14 @@ stage_deterministic() {
     run pnpm --filter predicate-eval run exact "$d" --system all
     run pnpm --filter predicate-eval run retrieval-policies "$d" --hops 1,2,3,4
     run pnpm --filter predicate-eval run instances-reasoner "$d"
+    run pnpm --filter predicate-eval run cwi "$d"
     run pnpm --filter predicate-eval run instances-score "$d" \
       "results/exact/exact-key-join.$d.jsonl" \
       "results/exact/sparql-groupby.$d.jsonl" \
       "results/exact/exact-key-join-x.$d.jsonl" \
       "results/instances/reasoner-r14r23r22.$d.jsonl" \
-      "results/retrieval/retrieval.$d.jsonl"
+      "results/retrieval/retrieval.$d.jsonl" \
+      "results/cwi/cwi.$d.jsonl"
     echo
   done
 }

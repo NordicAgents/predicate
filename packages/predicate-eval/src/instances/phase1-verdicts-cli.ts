@@ -49,10 +49,25 @@ function loadDomain(domain: string): DomainData {
     join(PKG_ROOT, 'results', 'exact', `exact-key-join-x.${domain}.jsonl`),
     join(PKG_ROOT, 'results', 'instances', `reasoner-r14r23r22.${domain}.jsonl`),
     join(PKG_ROOT, 'results', 'retrieval', `retrieval.${domain}.jsonl`),
+    join(PKG_ROOT, 'results', 'cwi', `cwi.${domain}.jsonl`),
   ].flatMap(readRows).filter((r) => r.domain === domain);
   const scores = new Map(scorePredictions(instances, rows).map((s) => [s.system, s]));
   return { instances, rows, scores };
 }
+
+interface CwiLedger {
+  sourceTriples: number;
+  ingestMs: number;
+  updateAmplification: number;
+  indexEntries: number;
+  queryMsTotal: number;
+  queryMsP50: number;
+  queryMsP95: number;
+  spuriousConflicts: number;
+}
+
+const loadLedger = (domain: string): CwiLedger =>
+  JSON.parse(readFileSync(join(PKG_ROOT, 'results', 'cwi', `ledger.${domain}.json`), 'utf8')) as CwiLedger;
 
 const chainLengthOf = (domain: string): number =>
   (JSON.parse(readFileSync(join(PKG_ROOT, 'fixtures', domain, 'oracle.json'), 'utf8')) as { chainLength: number }).chainLength;
@@ -236,12 +251,105 @@ function main(): void {
   };
   const h8pass = h8.xTenXCheaperThanReasonerWhereBothPerfect && h8.xWithinTenXOfPlainJoinOnMechV0;
 
+  // ---- H9: CWI witness-sized completeness, m-independent (Amendment A3.4)
+  const ALL_DOMAINS = [...CHAIN_DOMAINS, ...H3_DOMAINS, TAUSIG_DOMAIN, ...MECH_V0_DOMAINS] as const;
+  const CROSS_RECORD_DOMAINS = [...CHAIN_DOMAINS, ...H3_DOMAINS, TAUSIG_DOMAIN, 'conflict-xr-small', 'conflict-xr-scale'] as const;
+  const h9ByDomain = ALL_DOMAINS.map((dom) => {
+    const d = domains.get(dom)!;
+    const s = d.scores.get('cwi-witness');
+    const conflictIds = new Set(d.instances.filter((i) => i.isConflict).map((i) => i.id));
+    const meanGoldW = d.instances.filter((i) => i.isConflict)
+      .reduce((a, i) => a + i.goldWitness.length, 0) / Math.max(1, conflictIds.size);
+    const meanCtx = meanExtra(d, 'cwi-witness', 'contextTriples', (i) => i.isConflict);
+    // Smallest witness-complete key-aware ball (min k with recall 1) on cross-record domains.
+    let keyAwareBallCtx: number | null = null;
+    if ((CROSS_RECORD_DOMAINS as readonly string[]).includes(dom)) {
+      const k = HOPS.find((h) => rateOf(d, `retrieval:key-aware@${h}`) === 1);
+      if (k !== undefined) keyAwareBallCtx = meanExtra(d, `retrieval:key-aware@${k}`, 'contextTriples', (i) => i.isConflict);
+    }
+    // Cross-engine check: flagged sets equal between cwi-witness and exact-key-join-x.
+    const flaggedSet = (sys: string): string => d.rows
+      .filter((r) => r.system === sys && r.flagged).map((r) => r.instanceId).sort().join(',');
+    const crossEngineEqual = flaggedSet('cwi-witness') === flaggedSet(X_SYSTEM);
+    return {
+      domain: dom,
+      perfect: perfect(s),
+      witnessRecall: s?.witnessRecall ?? null,
+      meanGoldWitness: meanGoldW,
+      meanContextTriples: meanCtx,
+      contextEqualsWitness: Math.abs(meanCtx - meanGoldW) < 1e-9,
+      keyAwareMinCompleteBallCtx: keyAwareBallCtx,
+      smallerThanKeyAwareBall: keyAwareBallCtx === null ? null : meanCtx < keyAwareBallCtx,
+      crossEngineEqual,
+    };
+  });
+  const h9 = {
+    domains: h9ByDomain,
+    allPerfect: h9ByDomain.every((d) => d.perfect && d.witnessRecall === 1),
+    contextEqualsWitnessEverywhere: h9ByDomain.every((d) => d.contextEqualsWitness),
+    strictlySmallerThanKeyAwareOnCrossRecord: h9ByDomain
+      .filter((d) => d.smallerThanKeyAwareBall !== null)
+      .every((d) => d.smallerThanKeyAwareBall === true),
+    crossEngineEqualEverywhere: h9ByDomain.every((d) => d.crossEngineEqual),
+  };
+  const h9pass = h9.allPerfect && h9.contextEqualsWitnessEverywhere
+    && h9.strictlySmallerThanKeyAwareOnCrossRecord && h9.crossEngineEqualEverywhere;
+
+  // ---- H10: maintenance ledger (single-run wall-clock; run-variable) -----
+  const ledgers = new Map(ALL_DOMAINS.map((dom) => [dom, loadLedger(dom)]));
+  const h10ByDomain = ALL_DOMAINS.map((dom) => {
+    const l = ledgers.get(dom)!;
+    const d = domains.get(dom)!;
+    const xMs = extraOfDomain(d, X_SYSTEM, 'totalDomainMs');
+    return {
+      domain: dom,
+      updateAmplification: l.updateAmplification,
+      queryMsP50: l.queryMsP50,
+      cwiTotalMs: Number((l.ingestMs + l.queryMsTotal).toFixed(3)),
+      xTotalMs: xMs,
+      cwiOverX: Number(((l.ingestMs + l.queryMsTotal) / xMs).toFixed(2)),
+      spuriousConflicts: l.spuriousConflicts,
+    };
+  });
+  const ampSmall = ledgers.get('conflict-xr-small')!.updateAmplification;
+  const ampScale = ledgers.get('conflict-xr-scale')!.updateAmplification;
+  const p50m2 = ledgers.get('conflict-chain-m2')!.queryMsP50;
+  const p50m3 = ledgers.get('conflict-chain-m3')!.queryMsP50;
+  const h10 = {
+    note: 'single-run wall-clock; ratios vary between rebuilds (counts are deterministic)',
+    domains: h10ByDomain,
+    amplificationScaleFlat: { xrSmall: ampSmall, xrScale: ampScale, pass: ampScale <= 2 * ampSmall },
+    queryP50UnderOneMsEverywhere: h10ByDomain.every((d) => d.queryMsP50 < 1),
+    queryP50MIndependent: { m2: p50m2, m3: p50m3, pass: p50m3 <= 2 * Math.max(p50m2, 0.0001) },
+    incrementalityWithinTenXOfJoinX: h10ByDomain.every((d) => d.cwiOverX <= 10),
+  };
+  const h10pass = h10.amplificationScaleFlat.pass && h10.queryP50UnderOneMsEverywhere
+    && h10.queryP50MIndependent.pass && h10.incrementalityWithinTenXOfJoinX;
+
+  // ---- Clause-3 decision rule (A3.5): witness/pointer byte overhead -------
+  const clause3ByDomain = ALL_DOMAINS.map((dom) => {
+    const d = domains.get(dom)!;
+    const w = meanExtra(d, 'cwi-witness', 'contextBytes', (i) => i.isConflict);
+    const p = meanExtra(d, 'cwi-pointer', 'contextBytes', (i) => i.isConflict);
+    const f = meanExtra(d, 'cwi-flag', 'contextBytes', (i) => i.isConflict);
+    return { domain: dom, witnessBytes: w, pointerBytes: p, flagBytes: f, ratio: Number((w / p).toFixed(2)) };
+  });
+  const clause3 = {
+    rule: 'A3.5: adopt strict full-witness contract iff witness/pointer byte ratio <= 5x on every domain',
+    domains: clause3ByDomain,
+    maxRatio: Math.max(...clause3ByDomain.map((d) => d.ratio)),
+    strictFormAdopted: clause3ByDomain.every((d) => d.ratio <= 5),
+  };
+
   const verdicts = {
-    registration: 'pre-registration.md Amendment A2 (2026-07-13)',
+    registration: 'pre-registration.md Amendments A2 + A3 (2026-07-13)',
     H3: { pass: h3pass, ...h3 },
     H6: { pass: h6pass, domains: h6 },
     H7: { pass: h7pass, ...h7 },
     H8: { pass: h8pass, ...h8 },
+    H9: { pass: h9pass, ...h9 },
+    H10: { pass: h10pass, ...h10 },
+    clause3,
   };
 
   const outDir = join(PKG_ROOT, 'results', 'instances');
@@ -249,9 +357,10 @@ function main(): void {
   const out = join(outDir, 'phase1-verdicts.json');
   writeFileSync(out, JSON.stringify(verdicts, null, 2) + '\n');
 
-  for (const [h, v] of Object.entries({ H3: h3pass, H6: h6pass, H7: h7pass, H8: h8pass })) {
+  for (const [h, v] of Object.entries({ H3: h3pass, H6: h6pass, H7: h7pass, H8: h8pass, H9: h9pass, H10: h10pass })) {
     console.log(`${h}: ${v ? 'PASS' : 'FAIL'}`);
   }
+  console.log(`clause-3: max witness/pointer byte ratio ${clause3.maxRatio}x -> strict form ${clause3.strictFormAdopted ? 'ADOPTED' : 'NOT adopted (weaker variants co-headline)'}`);
   console.log(`wrote ${out}`);
 }
 

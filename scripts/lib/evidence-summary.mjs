@@ -45,6 +45,8 @@ function filesForDomain(d) {
     { path: `${EVAL}/results/exact/exact-key-join-x.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/retrieval/retrieval.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/instances/reasoner-r14r23r22.${d}.jsonl`, kind: 'prediction-rows' },
+    { path: `${EVAL}/results/cwi/cwi.${d}.jsonl`, kind: 'prediction-rows' },
+    { path: `${EVAL}/results/cwi/ledger.${d}.json`, kind: 'maintenance-ledger' },
     { path: `${EVAL}/results/instances/summary.${d}.json`, kind: 'instance-scoreboard' },
   ];
 }

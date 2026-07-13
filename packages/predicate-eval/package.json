@@ -24,6 +24,7 @@
     "instances-reasoner": "tsx src/instances/reasoner-arm-cli.ts",
     "instances-score": "tsx src/instances/score-cli.ts",
     "phase1-verdicts": "tsx src/instances/phase1-verdicts-cli.ts",
+    "cwi": "tsx src/cwi/run-cwi-cli.ts",
     "flat-pinned": "tsx src/pinned/flat-pinned-cli.ts",
     "xr-stats": "PREDICATE_BACKEND=oxigraph-wasm PREDICATE_STORE_PATH=:memory: tsx src/conflict/xr-stats.ts",
     "scale": "tsx src/scale.ts",

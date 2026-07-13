@@ -4,6 +4,7 @@ import { performance } from 'node:perf_hooks';
 import { parseTBoxSchema } from './tbox.js';
 import { TripleIndex, readAllEpisodes } from './triple-index.js';
 import { RDF_TYPE, tripleId, type Detection } from './contract.js';
+import { tauOverlaps, sigmaOverlaps, type TauSigma } from './tau-sigma.js';
 import type { ExactRunResult } from './key-join.js';
 
 /**
@@ -43,20 +44,6 @@ class UnionFind {
   }
 }
 
-interface TauSigma {
-  from: string | null;
-  to: string | null;
-  scope: string | null;
-}
-
-/** Interval overlap on [from, to): absent bound = unbounded; ISO dates compare lexicographically. */
-const tauOverlaps = (a: TauSigma, b: TauSigma): boolean =>
-  (a.from === null || b.to === null || a.from < b.to)
-  && (b.from === null || a.to === null || b.from < a.to);
-
-/** Scope comparability: equal, or either side absent. */
-const sigmaOverlaps = (a: TauSigma, b: TauSigma): boolean =>
-  a.scope === null || b.scope === null || a.scope === b.scope;
 
 export function runKeyJoinX(dir: string): ExactRunResult {
   const t0 = performance.now();
