@@ -1,0 +1,121 @@
+{
+  "registration": "A4.2",
+  "seed": "0x5ca1eab1e",
+  "sizes": [
+    {
+      "persons": 300,
+      "triples": 1689,
+      "sha256": "ff8c7a1fbb5b7a44d40fe3c0d83f96cbcb3a15d2ddb0f95e20499ee2128abaf5",
+      "systems": {
+        "exactKeyJoinMs": 5.26,
+        "exactKeyJoinXMs": 4.44,
+        "sparqlGroupbyMs": 38.66,
+        "reasoner": {
+          "materializeMs": 3851.58,
+          "iterations": 2,
+          "inferredCount": 486
+        }
+      },
+      "cwi": {
+        "ingestMs": 2.629,
+        "updateAmplification": 1.895,
+        "indexEntries": 1326,
+        "queryMsP50": 0.006,
+        "queryMsP95": 0.0377,
+        "queryMsTotal": 1.0751,
+        "sampledPersons": 50,
+        "sampledQueries": 100,
+        "sampledMissing": 0,
+        "sampledSpurious": 0
+      }
+    },
+    {
+      "persons": 1000,
+      "triples": 5609,
+      "sha256": "778d6332c86fcaa591d6f380446cc90f4bee121986be756002cef86f9f3566cb",
+      "systems": {
+        "exactKeyJoinMs": 10.13,
+        "exactKeyJoinXMs": 11.42,
+        "sparqlGroupbyMs": 33.47,
+        "reasoner": {
+          "materializeMs": 40570.9,
+          "iterations": 2,
+          "inferredCount": 1606
+        }
+      },
+      "cwi": {
+        "ingestMs": 8.291,
+        "updateAmplification": 1.894,
+        "indexEntries": 4406,
+        "queryMsP50": 0.0054,
+        "queryMsP95": 0.0083,
+        "queryMsTotal": 0.5819,
+        "sampledPersons": 50,
+        "sampledQueries": 100,
+        "sampledMissing": 0,
+        "sampledSpurious": 0
+      }
+    },
+    {
+      "persons": 3000,
+      "triples": 16809,
+      "sha256": "5401e8105082f7ea5a3e38050b2a7c96765de2bd238cdbfb64dbbe9c57aeaaf7",
+      "systems": {
+        "exactKeyJoinMs": 32.7,
+        "exactKeyJoinXMs": 35.51,
+        "sparqlGroupbyMs": 90.19,
+        "reasoner": {
+          "materializeMs": "skipped-per-A4.2"
+        }
+      },
+      "cwi": {
+        "ingestMs": 15.139,
+        "updateAmplification": 1.893,
+        "indexEntries": 13206,
+        "queryMsP50": 0.007,
+        "queryMsP95": 0.0096,
+        "queryMsTotal": 0.7349,
+        "sampledPersons": 50,
+        "sampledQueries": 100,
+        "sampledMissing": 0,
+        "sampledSpurious": 0
+      }
+    },
+    {
+      "persons": 10000,
+      "triples": 56009,
+      "sha256": "f84e1bcbbe632c752db878a317364e1fbf13a3bb7b1cd20c0dccd060e614de9f",
+      "systems": {
+        "exactKeyJoinMs": 101.04,
+        "exactKeyJoinXMs": 119.7,
+        "sparqlGroupbyMs": 308.39,
+        "reasoner": {
+          "materializeMs": "skipped-per-A4.2"
+        }
+      },
+      "cwi": {
+        "ingestMs": 52.556,
+        "updateAmplification": 1.893,
+        "indexEntries": 44006,
+        "queryMsP50": 0.0081,
+        "queryMsP95": 0.014,
+        "queryMsTotal": 0.8108,
+        "sampledPersons": 50,
+        "sampledQueries": 100,
+        "sampledMissing": 0,
+        "sampledSpurious": 0
+      }
+    }
+  ],
+  "h11": {
+    "ampFlat": {
+      "p300": 1.895,
+      "p10000": 1.893,
+      "pass": true
+    },
+    "queryP50UnderOneMsEverywhere": true,
+    "ingestWithinTenXOfJoinX": true,
+    "pass": true
+  },
+  "note": "single-run wall-clock; sha256 and counts deterministic"
+}

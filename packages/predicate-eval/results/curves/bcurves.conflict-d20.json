@@ -1,0 +1,1523 @@
+{
+  "domain": "conflict-d20",
+  "conflictInstances": 8,
+  "grids": {
+    "triples": [
+      5,
+      10,
+      25,
+      50,
+      100,
+      250,
+      500,
+      1000
+    ],
+    "bytes": [
+      1024,
+      2048,
+      4096,
+      8192,
+      16384,
+      32768,
+      65536,
+      131072
+    ]
+  },
+  "systems": [
+    {
+      "system": "cwi-witness",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 10,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 25,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 50,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:iri-bfs@1",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 10,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 25,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 50,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:iri-bfs@2",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:iri-bfs@3",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:iri-bfs@4",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:key-aware@1",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 10,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 25,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 50,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:key-aware@2",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:key-aware@3",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:key-aware@4",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:literal-aware@1",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 10,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 25,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 50,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:literal-aware@2",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:literal-aware@3",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    },
+    {
+      "system": "retrieval:literal-aware@4",
+      "triples": [
+        {
+          "budget": 5,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 10,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 25,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 50,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 100,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 250,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 500,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 1000,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ],
+      "bytes": [
+        {
+          "budget": 1024,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 2048,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 4096,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 8192,
+          "primaryRate": 0,
+          "conditionalRate": null,
+          "n": 0
+        },
+        {
+          "budget": 16384,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 32768,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 65536,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": 131072,
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        },
+        {
+          "budget": "whole-store",
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 8
+        }
+      ]
+    }
+  ]
+}

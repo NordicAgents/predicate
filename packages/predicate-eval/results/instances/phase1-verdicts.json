@@ -264,57 +264,57 @@
     "domains": [
       {
         "domain": "conflict-chain-m2",
-        "xTotalMs": 1.867,
-        "reasonerMaterializeMs": 425.45,
-        "reasonerOverX": 227.87895018746653,
+        "xTotalMs": 1.923,
+        "reasonerMaterializeMs": 438.21,
+        "reasonerOverX": 227.87831513260528,
         "bothPerfect": true,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-chain-m3",
-        "xTotalMs": 1.74,
-        "reasonerMaterializeMs": 346.39,
-        "reasonerOverX": 199.07471264367814,
+        "xTotalMs": 1.669,
+        "reasonerMaterializeMs": 340.7,
+        "reasonerOverX": 204.13421210305572,
         "bothPerfect": true,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-tausig",
-        "xTotalMs": 2.286,
-        "reasonerMaterializeMs": 579.44,
-        "reasonerOverX": 253.4733158355206,
+        "xTotalMs": 2.279,
+        "reasonerMaterializeMs": 593.26,
+        "reasonerOverX": 260.31592803861344,
         "bothPerfect": false,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-d20",
-        "xTotalMs": 0.848,
-        "reasonerMaterializeMs": 29.2,
-        "reasonerOverX": 34.43396226415094,
+        "xTotalMs": 0.935,
+        "reasonerMaterializeMs": 27.81,
+        "reasonerOverX": 29.743315508021386,
         "bothPerfect": true,
-        "keyJoinTotalMs": 0.805,
-        "xOverKeyJoin": 1.053416149068323
+        "keyJoinTotalMs": 0.81,
+        "xOverKeyJoin": 1.154320987654321
       },
       {
         "domain": "conflict-xr-small",
-        "xTotalMs": 1.526,
-        "reasonerMaterializeMs": 182.29,
-        "reasonerOverX": 119.45609436435124,
+        "xTotalMs": 1.531,
+        "reasonerMaterializeMs": 176.23,
+        "reasonerOverX": 115.10777269758327,
         "bothPerfect": true,
-        "keyJoinTotalMs": 1.274,
-        "xOverKeyJoin": 1.1978021978021978
+        "keyJoinTotalMs": 1.322,
+        "xOverKeyJoin": 1.1580937972768532
       },
       {
         "domain": "conflict-xr-scale",
-        "xTotalMs": 5.687,
-        "reasonerMaterializeMs": 3842.58,
-        "reasonerOverX": 675.6778617900475,
+        "xTotalMs": 5.191,
+        "reasonerMaterializeMs": 3732.52,
+        "reasonerOverX": 719.0367944519361,
         "bothPerfect": true,
-        "keyJoinTotalMs": 3.782,
-        "xOverKeyJoin": 1.5037017451084083
+        "keyJoinTotalMs": 5.383,
+        "xOverKeyJoin": 0.964332156789894
       }
     ],
     "xTenXCheaperThanReasonerWhereBothPerfect": true,
@@ -425,72 +425,72 @@
         "domain": "conflict-chain-m2",
         "updateAmplification": 2.205,
         "queryMsP50": 0.0007,
-        "cwiTotalMs": 2.221,
-        "xTotalMs": 1.867,
-        "cwiOverX": 1.19,
+        "cwiTotalMs": 2.692,
+        "xTotalMs": 1.923,
+        "cwiOverX": 1.4,
         "spuriousConflicts": 0
       },
       {
         "domain": "conflict-chain-m3",
         "updateAmplification": 2.304,
-        "queryMsP50": 0.0008,
-        "cwiTotalMs": 2.279,
-        "xTotalMs": 1.74,
-        "cwiOverX": 1.31,
+        "queryMsP50": 0.0007,
+        "cwiTotalMs": 2.004,
+        "xTotalMs": 1.669,
+        "cwiOverX": 1.2,
         "spuriousConflicts": 0
       },
       {
         "domain": "conflict-h3-nk1",
         "updateAmplification": 1.622,
-        "queryMsP50": 0.0074,
-        "cwiTotalMs": 1.703,
-        "xTotalMs": 1.632,
-        "cwiOverX": 1.04,
+        "queryMsP50": 0.0115,
+        "cwiTotalMs": 2.053,
+        "xTotalMs": 1.763,
+        "cwiOverX": 1.16,
         "spuriousConflicts": 0
       },
       {
         "domain": "conflict-h3-nk3",
         "updateAmplification": 1.251,
-        "queryMsP50": 0.0117,
-        "cwiTotalMs": 2.164,
-        "xTotalMs": 1.806,
-        "cwiOverX": 1.2,
+        "queryMsP50": 0.0121,
+        "cwiTotalMs": 2.273,
+        "xTotalMs": 2.643,
+        "cwiOverX": 0.86,
         "spuriousConflicts": 0
       },
       {
         "domain": "conflict-tausig",
         "updateAmplification": 1.889,
-        "queryMsP50": 0.0006,
-        "cwiTotalMs": 2.267,
-        "xTotalMs": 2.286,
-        "cwiOverX": 0.99,
+        "queryMsP50": 0.0008,
+        "cwiTotalMs": 2.809,
+        "xTotalMs": 2.279,
+        "cwiOverX": 1.23,
         "spuriousConflicts": 0
       },
       {
         "domain": "conflict-d20",
         "updateAmplification": 1.733,
-        "queryMsP50": 0.0159,
-        "cwiTotalMs": 0.888,
-        "xTotalMs": 0.848,
-        "cwiOverX": 1.05,
+        "queryMsP50": 0.0132,
+        "cwiTotalMs": 0.862,
+        "xTotalMs": 0.935,
+        "cwiOverX": 0.92,
         "spuriousConflicts": 0
       },
       {
         "domain": "conflict-xr-small",
         "updateAmplification": 1.904,
-        "queryMsP50": 0.0083,
-        "cwiTotalMs": 1.692,
-        "xTotalMs": 1.526,
-        "cwiOverX": 1.11,
+        "queryMsP50": 0.0111,
+        "cwiTotalMs": 1.954,
+        "xTotalMs": 1.531,
+        "cwiOverX": 1.28,
         "spuriousConflicts": 0
       },
       {
         "domain": "conflict-xr-scale",
         "updateAmplification": 1.895,
-        "queryMsP50": 0.0108,
-        "cwiTotalMs": 5.978,
-        "xTotalMs": 5.687,
-        "cwiOverX": 1.05,
+        "queryMsP50": 0.0101,
+        "cwiTotalMs": 4.912,
+        "xTotalMs": 5.191,
+        "cwiOverX": 0.95,
         "spuriousConflicts": 0
       }
     ],
@@ -502,7 +502,7 @@
     "queryP50UnderOneMsEverywhere": true,
     "queryP50MIndependent": {
       "m2": 0.0007,
-      "m3": 0.0008,
+      "m3": 0.0007,
       "pass": true
     },
     "incrementalityWithinTenXOfJoinX": true
