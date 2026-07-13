@@ -59,6 +59,14 @@ systems on detection accuracy and cost.
   H8 — extended join within 1.21× of plain join, 27–708× cheaper than the reasoner.
   Gate C preview (exploratory): 80.7% of OSV/PyPI CVE groups are multi-record;
   13.3% / 48.4% severity/range disagreement. 561 tests green (+15 skipped).
+- **Phase-1 method arm (2026-07-13, Amendment A3; registered before implementation):**
+  CWI — incremental Conflict Witness Index (`src/cwi/`) — lands with **H9 and H10 PASS**:
+  P=R=1 + witnessRecall 1 on all 8 domains with returned context EXACTLY |W|
+  (m-independent: 9 vs 94.6 ball triples at m=2, 12 vs 91.3 at m=3), detection sets
+  identical to exact-key-join-x (test-enforced), amplification ~1.9 scale-flat, µs
+  queries, ingest+queries 0.73–1.46× the one-shot join. **Clause-3 rule adopts the
+  strict witness contract** (max witness/pointer byte ratio 3.08× ≤ 5×): the
+  flag-pointer variants do not dominate. Formal doc gains Prop. 5.
 - **Exploratory (motivational only):** Mem0 ingest pilots (0/8 preserved, 0/12 linked,
   1/8 additive); in-session frontier-agent runs (permanently exploratory); C1/OSV
   prevalence probe (A2.7).
@@ -77,7 +85,12 @@ systems on detection accuracy and cost.
   preview (C1/OSV). Warning shot: the extended exact baseline is complete AND cheapest
   on the deeper fragment too — falsification clause 3's first conjunct is TRUE, so the
   Phase-1 method must win on the RETRIEVAL side (witness-completeness per context
-  budget, index/update ledger), not on detection.
+  budget, index/update ledger), not on detection. **Update (same day): the CWI arm
+  delivers exactly that** — witness-sized conflict-complete retrieval at ~2× write
+  amplification and µs queries (H9/H10 PASS), and the pre-committed clause-3 rule
+  adopts the strict witness contract (second conjunct fails to close the gap).
+  Remaining for Gate B: realistic-domain reproduction (full 5(c)), load-scale ledger,
+  formal hardening.
 - **Gate C (Phase 2):** ≥2 realistic domains must reproduce the failure mechanism, else
   narrow the claim to the domains where it occurs.
 - Self-improving schema: CUT to one future-work sentence (former Gate 3 default).

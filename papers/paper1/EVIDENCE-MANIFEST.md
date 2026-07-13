@@ -88,7 +88,9 @@ Per domain, stage `deterministic` runs: instance-manifest build → tier-1 eval
 (mechanism-v0 domains only; Amendment A2.6) → exact baselines (`key-join` +
 `sparql-groupby` + `key-join-x`) → retrieval-policy sweep (`iri-bfs`,
 `literal-aware`, `key-aware` × hops 1–4) → reasoner instance arm (r14r23r22) →
-instance-level scoring across all PredictionRow files. Stage `verdicts`
+CWI arm (Amendment A3: incremental witness index; systems `cwi-witness` /
+`cwi-pointer` / `cwi-flag` + maintenance ledger) → instance-level scoring
+across all PredictionRow files. Stage `verdicts`
 (full-domain builds only) computes the Amendment A2.4 hypothesis verdicts
 H3/H6/H7/H8 into `results/instances/phase1-verdicts.json`. Stage `summary`
 writes `papers/paper1/evidence/summary-<gitsha12>[-dirty].json` with sha256 +
@@ -113,7 +115,9 @@ All paths relative to `packages/predicate-eval/` unless noted.
 | `results/exact/exact-key-join.<d>.jsonl` | `PredictionRow` per line | `src/exact/run-exact-cli.ts` |
 | `results/exact/sparql-groupby.<d>.jsonl` | `PredictionRow` per line | `src/exact/run-exact-cli.ts` |
 | `results/exact/exact-key-join-x.<d>.jsonl` | `PredictionRow` per line (Prop. 4 full fragment: union-find + τ/σ partitioning) | `src/exact/run-exact-cli.ts` |
-| `results/instances/phase1-verdicts.json` | H3/H6/H7/H8 verdicts (A2.4; H8 ratios are run-variable wall-clock) | `src/instances/phase1-verdicts-cli.ts` |
+| `results/cwi/cwi.<d>.jsonl` | `PredictionRow` per line × 3 systems (`cwi-witness`/`cwi-pointer`/`cwi-flag`; Amendment A3.2 contract variants) | `src/cwi/run-cwi-cli.ts` |
+| `results/cwi/ledger.<d>.json` | maintenance ledger: ingest ms, update amplification, index size, query p50/p95 (wall-clock run-variable; counts deterministic) | `src/cwi/run-cwi-cli.ts` |
+| `results/instances/phase1-verdicts.json` | H3/H6/H7/H8/H9/H10 verdicts + clause-3 adjudication (A2.4/A3.4/A3.5; cost ratios are run-variable wall-clock) | `src/instances/phase1-verdicts-cli.ts` |
 | `results/retrieval/retrieval.<d>.jsonl` | `PredictionRow` per line (one per policy × hops × instance) | `src/rigs/retrieval-policies-cli.ts` |
 | `results/instances/reasoner-r14r23r22.<d>.jsonl` | `PredictionRow` per line | `src/instances/reasoner-arm-cli.ts` |
 | `results/instances/summary.<d>.json` | `{domain, instanceCount, byKind, systems: SystemScore[]}` | `src/instances/score-cli.ts` |

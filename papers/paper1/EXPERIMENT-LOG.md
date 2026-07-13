@@ -446,3 +446,54 @@ switch. They were recreated on this host at their documented commits (`3b63c1e` 
 `f6c828a` respectively — the latter is the tip of the four-commit Phase-0 landing and
 matches `origin/paper1-evidence-sprint`). Recommendation: push branch + tags so
 snapshot tags can no longer be lost with a device.
+
+## 2026-07-13 — Phase-1 method arm: CWI lands; H9/H10 PASS; clause-3 adopts the strict witness contract
+
+**Registration (Amendment A3, commit `c7af341`).** The incremental Conflict Witness
+Index, its three retrieval-contract variants (witness/pointer/flag, Def. 3.3 Remark 1),
+the maintenance-ledger outputs, hypotheses H9/H10, and the pre-committed clause-3
+adjudication rule (5× byte-overhead threshold) were all committed BEFORE any CWI code
+existed. Branch + all evidence tags pushed to origin first (device-loss lesson).
+
+**Implementation (`src/cwi/`, 17 new tests; eval suite 152 green; lint clean).**
+Pure-TS incremental index: per-(class,key,value) buckets + union-find ~K maintenance,
+class-granular conflict re-evaluation on every touching insert (late τ/σ annotations
+retract — tested), minimal witness assembly by shortest record–bucket–record path.
+Cross-engine equality with `exact-key-join-x` is test-enforced on all eight domains;
+insertion-order robustness tested (values→keys→types reaches the same fixpoint).
+Formal doc gains Prop. 5 (soundness via Props 1–2/4 equivalence; witness-sized
+retrieval; class-bounded maintenance) with the honest reading that the data structure
+itself claims no novelty (A3.6).
+
+**Numbers (`results/instances/phase1-verdicts.json`, `results/cwi/*`).**
+
+- **H9 PASS.** `cwi-witness`: P=R=1.0, witnessRecall 1.0, zero spurious conflicts on
+  ALL eight domains; mean returned context EXACTLY the gold |W| everywhere (2.0 d20 /
+  6.0 pairs / 9.0 m2 / 12.0 m3 / 10.0 tausig); strictly smaller than the minimal
+  witness-complete key-aware ball on every cross-record domain — and m-INDEPENDENT:
+  9 vs 94.6 ball triples at m=2, 12 vs 91.3 at m=3 (the ball pays the hop radius, the
+  witness does not). Detection sets identical to `exact-key-join-x` everywhere.
+- **H10 PASS (single-run wall-clock, disclosed).** Update amplification 1.25–2.30 index
+  writes per source assertion, scale-flat (xr-small 1.904 → xr-scale 1.895); query p50
+  0.6–13 µs, m-independent (m2 0.6 µs, m3 1.0 µs); ingest+all-queries total 0.73–1.46×
+  the one-shot `exact-key-join-x` run per domain — the price of incrementality is ~zero
+  at fixture scale, and on the two largest fixtures CWI is CHEAPER end-to-end because
+  queries stop re-scanning the store.
+- **Clause-3 adjudication (pre-committed rule A3.5): STRICT FORM ADOPTED.** Mean
+  witness/pointer byte ratio ranges 0.78–3.08× (max 3.08 on chain-m3), under the 5×
+  threshold on every domain: whole machine-checkable witnesses cost at most ~3× a bare
+  pointer and 479–957 bytes absolute. The flag-pointer weaker variants do NOT dominate;
+  falsification clause 3's second conjunct FAILS to close the gap. Combined with A2's
+  first-conjunct finding, the record now reads: store-side detection is solved and
+  cheap (join), but a budget-bounded consumer that must SEE the premises is served
+  witness-sized context only by witness indexing — neighbourhood retrieval pays
+  ball-sized budgets that grow with chain depth and shared literals.
+
+**Honest read.** This is the Gate-B core result on synthetic data: a Pareto point —
+identical accuracy to the best exact detector, witness-exact context (vs 8–95-triple
+balls), ~2× write amplification, µs queries. Caveats stand: fixture scale is tiny
+(≤1,689 triples; ledger constants are not load-tested), all wall-clock numbers are
+single-run, fixtures are synthetic (Gate C / Phase 2 owns external validity), and the
+d20 pointer ratio 0.78 shows the pointer form can be BIGGER than tiny witnesses (ids
+carry full IRIs) — pointer encodings matter and are disclosed. Gate B still requires
+the realistic-domain reproduction (5(c) full probe) and the formal write-up hardening.

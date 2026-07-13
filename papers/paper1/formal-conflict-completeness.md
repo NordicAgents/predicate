@@ -359,6 +359,43 @@ can compute, not what a *retrieval policy* must return to a budget-bounded consu
 the property Prop. 3 shows standard neighbourhood retrieval lacks. The paper's claim
 lives in that gap, and dies if the gap closes.
 
+**Proposition 5 (CWI: witness-sized conflict-complete retrieval at bounded maintenance
+cost).** Maintain, under insertion of assertions: (i) buckets keyed by
+$(C, k_C, v)$ over typed, keyed records with a union–find closure of $\approx_K$
+(union-by-size); (ii) per-class, per-$p\in E$ support lists carrying each record's
+$(\tau,\sigma)$; (iii) per-(class, $p$) conflict cells re-evaluated on any touching
+insertion (value, merge, or late $\tau/\sigma$ annotation — the last only *retracts*,
+since $\bot$ overlaps everything). Define the retrieval policy
+$R^{\mathrm{cwi}}(q,S) = \bigcup \{ W_\gamma : \gamma \in \mathcal{W}(S_\theta, q) \}$,
+where each $W_\gamma$ is assembled at query time from a shortest record–bucket–record
+path between the two supporting records. Then, in the fragment of §1.3 with
+single-predicate keys:
+
+1. *(Soundness/completeness)* the emitted conflict set equals that of the exact
+   full-fragment detector of Prop. 4 (equivalently, $\mathrm{Cl}_F$'s flags, by
+   Props. 1–2), and each assembled $W_\gamma$ is a Def. 2.1 witness — minimal, with
+   $|W| = 3m+3$ for chain length $m$ (path minimality gives premise minimality, since
+   each link contributes exactly its four F1 premises and endpoints their value
+   assertions, plus the endpoints' $\tau/\sigma$ premises when annotated);
+2. *(Retrieval)* $R^{\mathrm{cwi}}$ is conflict-complete (Def. 3.3) with
+   $\mu(R^{\mathrm{cwi}}(q,S)) = \sum_{\gamma} \mu(W_\gamma)$ — the context budget is
+   the witnesses themselves, independent of the hop radius $k \geq m$ that a key-aware
+   neighbourhood policy needs (whose ball, empirically, grows with $k$);
+3. *(Maintenance)* total insertion work is $O(|S_\theta| \cdot \alpha(|S_\theta|) +
+   \sum_{\text{touches}} |\text{cell}|)$ — per-insert work is bounded by the affected
+   class, never the store — and a query costs $O(|\text{class}| + \sum_\gamma |W_\gamma|)$.
+
+*Honest reading.* Statement 1 concedes again what Prop. 4 concedes: as a *detector*,
+CWI computes nothing the union–find join does not; no novelty attaches to the data
+structure (A3.6). The claim is statement 2 — the *retrieval contract*: whole witnesses
+in context at $\mu = \sum|W_\gamma|$, machine-checkable without dereference, where
+neighbourhood policies pay ball-sized budgets growing in $m$ (H6.iii) or in shared
+literals (H3). Statement 3's constants are measured, not assumed: the maintenance
+ledger (update amplification, index size, query latency) is a reported artifact
+(`results/cwi/ledger.<domain>.json`), registered in Amendment A3.4 (H10). The
+weaker Remark-1 variants (flag-only, flag+pointer) are measured under the
+pre-committed clause-3 decision rule of Amendment A3.5.
+
 ---
 
 ## 5. Witness cost model and empirical quantities
@@ -416,7 +453,8 @@ separately and is deliberately *not* part of $\mathrm{WCR}$ (Remark 3, §3).
 | Prop. 1 (soundness) | annotated fragment, given $\between$-correct F3 | proved and exercised at $\tau=\sigma=\bot$ |
 | Prop. 2 (completeness) | $\tau=\sigma=\bot$ proved; annotated case stated, conditional on F3 implementing $\between$ | exercised at $\tau=\sigma=\bot$, types asserted, oracle schema |
 | Prop. 3 (impossibility) | the IRI-only neighbourhood policy class | implemented $k$-hop undirected IRI-BFS (type edges excluded, literals non-traversable); other retrieval classes are empirical, not covered by the theorem |
-| Prop. 4 (exact baseline) | single-join subfragment $O(n)$; full fragment $O(n\,\alpha(n))$ | hash-join baseline on fixtures = single-join regime |
+| Prop. 4 (exact baseline) | single-join subfragment $O(n)$; full fragment $O(n\,\alpha(n))$ | hash-join baseline on all fixtures; union–find extension (`exact-key-join-x`) exercised on chain and τ/σ fixtures |
+| Prop. 5 (CWI retrieval) | full fragment of §1.3, single-predicate keys, record-level τ/σ | exercised on all eight fixtures (phase1-v3 incl. m ∈ {2,3}, τ/σ); ledger measured, single-run wall-clock |
 | Constraint origin | $K, E$ given (oracle schema) | oracle schema throughout; schema induction/extraction out of scope for every result above |
 
 Non-conflicts the fragment deliberately does not flag — temporal updates
