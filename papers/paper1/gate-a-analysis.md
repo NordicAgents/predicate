@@ -113,7 +113,7 @@ Under this framing the **object of study becomes the retrieval policy, not the r
 
 **Recommendation: proceed on the reframed method-paper track (conflict-complete retrieval under bounded context, AAAI-28/KRR shape, plan §5) toward Gate B (2026-09-30) — under the following binding conditions.** By Gate B, all three must exist; any one missing at 2026-09-30 triggers the pivot below.
 
-- **(a) Generality fixtures the join cannot pass structurally.** A chain-depth ≥ 2 fixture (witnesses with ∼K-chain length m ≥ 2, |W| = 4m + 2) and a τ/σ fixture (temporal-supersession and scoped-fact non-conflicts populated, per formal doc §6) on which the exact *single-join* baselines are structurally insufficient — i.e., the fixture separates systems by construction, not by tuning. Note Prop. 4 already concedes the full fragment is only O(n·α(n)) with a union–find pass; the fixtures must therefore also measure whether the extended exact baseline keeps its cost edge, honestly reported either way. Per pre-registration §6.3/Amendment A1, these are NEW fixtures, never edits of frozen mechanism-v0.
+- **(a) Generality fixtures the join cannot pass structurally.** A chain-depth ≥ 2 fixture (witnesses with ∼K-chain length m ≥ 2, |W| = 3m + 3 — corrected from the earlier 4m + 2, see pre-registration Amendment A2.5) and a τ/σ fixture (temporal-supersession and scoped-fact non-conflicts populated, per formal doc §6) on which the exact *single-join* baselines are structurally insufficient — i.e., the fixture separates systems by construction, not by tuning. Note Prop. 4 already concedes the full fragment is only O(n·α(n)) with a union–find pass; the fixtures must therefore also measure whether the extended exact baseline keeps its cost edge, honestly reported either way. Per pre-registration §6.3/Amendment A1, these are NEW fixtures, never edits of frozen mechanism-v0.
 - **(b) An H3-capable fixture.** A fixture with non-key shared literals, so that literal-aware and key-aware retrieval have provably different balls and the H3 cost-premium prediction becomes testable (registered as a required Phase-1 addition in Amendment A1).
 - **(c) Gate C preview on realistic data.** At least one domain from `domain-selection.md` (C1 vulnerabilities / C2 trial versions / C3 scholarly; C4 providers held-out, 48.7–52.2% measured location-inaccuracy prevalence) demonstrably reproduces the cross-record mechanism — records co-referent only through a shared key, with genuinely conflicting constrained values — via the prevalence probes in domain-selection §6.
 
@@ -135,9 +135,9 @@ This document **recommends**; it does not decide. The decision is the human rese
 |---|---|
 | Option 1 | **Proceed, reframed:** method paper on conflict-complete retrieval under bounded context, toward Gate B (2026-09-30), under conditions 5(a)–(c). |
 | Option 2 | **Pivot now:** NeurIPS E&D benchmark/audit paper on the sprint's protocol + domain assets. |
-| Decision | ☐ _(empty — awaiting researcher)_ |
-| Decided by | _(name)_ |
-| Date | _(date)_ |
+| Decision | ☑ **Option 1 — proceed, reframed**, under binding conditions 5(a)–(c); any condition missing at Gate B (2026-09-30) triggers the Option 2 pivot per §5. |
+| Decided by | Midhun Xavier (researcher; recorded from an interactive session confirmation) |
+| Date | 2026-07-13 |
 
 ---
 

@@ -149,8 +149,13 @@ direct co-key pair has the form
 $$W = \{(x,\mathsf{type},C),\ (y,\mathsf{type},C),\ (x,k_C,v),\ (y,k_C,v),\ (x,p,u_1),\ (y,p,u_2)\},\quad |W| = 6,$$
 
 and witnesses whose records are linked by a $\sim_K$-chain of length $m$ contain the
-type and key assertions of each intermediate record ($|W| = 4m + 2$ for a chain of $m$
-co-key links).
+type and key assertions of each intermediate record: $m{+}1$ type assertions, $2m$ key
+assertions (each intermediate record carries two key values), and the $2$ endpoint value
+assertions, so $|W| = 3m + 3$ for a chain of $m$ co-key links ($m = 1$ gives the $|W| = 6$
+shape above). *(Correction 2026-07-13, registered as pre-registration Amendment A2.5: an
+earlier draft stated $|W| = 4m+2$, which counts the four F1 premises per link without
+deduplicating the intermediate type assertions shared by adjacent links; as a set
+cardinality the correct value is $3m+3$; the formulas agree at $m = 1$.)*
 
 **Lineage and non-claims.** Definition 2.1 is an instance of well-studied notions and
 **no novelty is claimed for it**: a witness is a *justification* / *MinA* (minimal
