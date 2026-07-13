@@ -438,3 +438,11 @@ report: `papers/paper1/probes/`. Prop. 3's store shape is not vacuous in the wil
 **Still open.** Pinned frontier-model runs (keys unavailable on this host — unchanged);
 r22 τ/σ extension; CWI-as-retrieval-index implementation + update/query cost ledger
 (Gate B core); Phase-2 annotation probes for C1 semantics.
+
+**Provenance note (2026-07-13, post-tag).** The Phase-0 tags
+`evidence-snapshot-2026-07-12` and `phase0-evidence-2026-07-13` cited in the frozen
+docs were never pushed from the previous machine and did not survive the device
+switch. They were recreated on this host at their documented commits (`3b63c1e` and
+`f6c828a` respectively — the latter is the tip of the four-commit Phase-0 landing and
+matches `origin/paper1-evidence-sprint`). Recommendation: push branch + tags so
+snapshot tags can no longer be lost with a device.
