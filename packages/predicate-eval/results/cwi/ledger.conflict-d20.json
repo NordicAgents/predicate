@@ -1,14 +1,14 @@
 {
   "domain": "conflict-d20",
   "sourceTriples": 135,
-  "ingestMs": 0.541,
+  "ingestMs": 0.573,
   "insertWrites": 234,
   "updateAmplification": 1.733,
   "indexEntries": 92,
   "queries": 14,
-  "queryMsTotal": 0.321,
-  "queryMsP50": 0.0132,
-  "queryMsP95": 0.139,
+  "queryMsTotal": 0.343,
+  "queryMsP50": 0.0141,
+  "queryMsP95": 0.1492,
   "spuriousConflicts": 0,
   "note": "wall-clock fields are single-run and vary between rebuilds; counts are deterministic"
 }

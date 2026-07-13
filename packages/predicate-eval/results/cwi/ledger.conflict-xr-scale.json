@@ -1,14 +1,14 @@
 {
   "domain": "conflict-xr-scale",
   "sourceTriples": 1689,
-  "ingestMs": 3.129,
+  "ingestMs": 3.248,
   "insertWrites": 3201,
   "updateAmplification": 1.895,
   "indexEntries": 1326,
   "queries": 128,
-  "queryMsTotal": 1.783,
-  "queryMsP50": 0.0101,
-  "queryMsP95": 0.0229,
+  "queryMsTotal": 2.7809,
+  "queryMsP50": 0.01,
+  "queryMsP95": 0.0334,
   "spuriousConflicts": 0,
   "note": "wall-clock fields are single-run and vary between rebuilds; counts are deterministic"
 }

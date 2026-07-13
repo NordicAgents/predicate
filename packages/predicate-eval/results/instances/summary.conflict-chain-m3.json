@@ -22,7 +22,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 0,
-      "meanCostMs": 0.018592,
+      "meanCostMs": 0.018355999999999994,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -56,7 +56,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 0.018592,
+      "meanCostMs": 0.018355999999999994,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -90,7 +90,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 0.018592,
+      "meanCostMs": 0.018355999999999994,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -124,7 +124,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0,
-      "meanCostMs": 0.08180000000000004,
+      "meanCostMs": 0.08769999999999994,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -158,7 +158,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 0.06679999999999998,
+      "meanCostMs": 0.06739999999999996,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -192,7 +192,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 340.69999999999993,
+      "meanCostMs": 350.6599999999999,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -226,7 +226,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 473.04999999999984,
+      "meanCostMs": 451.7700000000002,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -260,7 +260,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.25,
-      "meanCostMs": 0.28079999999999994,
+      "meanCostMs": 0.35680000000000006,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -294,7 +294,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.25,
-      "meanCostMs": 0.2492,
+      "meanCostMs": 0.2972000000000001,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -328,7 +328,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.25,
-      "meanCostMs": 0.24040000000000006,
+      "meanCostMs": 0.25600000000000006,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -362,7 +362,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.25,
-      "meanCostMs": 0.30040000000000006,
+      "meanCostMs": 0.32760000000000006,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -396,7 +396,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.5,
-      "meanCostMs": 0.282,
+      "meanCostMs": 0.2951999999999999,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -430,7 +430,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.75,
-      "meanCostMs": 0.8740000000000002,
+      "meanCostMs": 0.9696000000000002,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -464,7 +464,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 1.6908,
+      "meanCostMs": 1.6484,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -498,7 +498,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 3.2448,
+      "meanCostMs": 3.282399999999999,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -532,7 +532,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.5,
-      "meanCostMs": 0.2928,
+      "meanCostMs": 0.31920000000000004,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -566,7 +566,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.75,
-      "meanCostMs": 0.8308000000000001,
+      "meanCostMs": 0.8111999999999999,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -600,7 +600,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 1.3179999999999998,
+      "meanCostMs": 1.3484,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -634,7 +634,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 2.4724,
+      "meanCostMs": 2.428,
       "perKind": {
         "conflict": {
           "n": 6,
@@ -668,7 +668,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0,
-      "meanCostMs": 1.0984000000000007,
+      "meanCostMs": 1.1098,
       "perKind": {
         "conflict": {
           "n": 6,
