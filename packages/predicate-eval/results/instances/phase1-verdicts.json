@@ -264,57 +264,57 @@
     "domains": [
       {
         "domain": "conflict-chain-m2",
-        "xTotalMs": 1.851,
-        "reasonerMaterializeMs": 428.34,
-        "reasonerOverX": 231.41004862236628,
+        "xTotalMs": 1.902,
+        "reasonerMaterializeMs": 428.58,
+        "reasonerOverX": 225.33123028391168,
         "bothPerfect": true,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-chain-m3",
-        "xTotalMs": 1.681,
-        "reasonerMaterializeMs": 346.25,
-        "reasonerOverX": 205.97858417608566,
+        "xTotalMs": 1.828,
+        "reasonerMaterializeMs": 354.96,
+        "reasonerOverX": 194.17943107221004,
         "bothPerfect": true,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-tausig",
-        "xTotalMs": 2.986,
-        "reasonerMaterializeMs": 603.2,
-        "reasonerOverX": 202.00937709310114,
+        "xTotalMs": 2.298,
+        "reasonerMaterializeMs": 607.78,
+        "reasonerOverX": 264.48215839860745,
         "bothPerfect": false,
         "keyJoinTotalMs": null,
         "xOverKeyJoin": null
       },
       {
         "domain": "conflict-d20",
-        "xTotalMs": 1.018,
-        "reasonerMaterializeMs": 27.54,
-        "reasonerOverX": 27.05304518664047,
+        "xTotalMs": 0.865,
+        "reasonerMaterializeMs": 28.12,
+        "reasonerOverX": 32.50867052023121,
         "bothPerfect": true,
-        "keyJoinTotalMs": 0.842,
-        "xOverKeyJoin": 1.2090261282660333
+        "keyJoinTotalMs": 0.977,
+        "xOverKeyJoin": 0.8853633572159673
       },
       {
         "domain": "conflict-xr-small",
-        "xTotalMs": 1.488,
-        "reasonerMaterializeMs": 176.93,
-        "reasonerOverX": 118.90456989247312,
+        "xTotalMs": 1.499,
+        "reasonerMaterializeMs": 183.59,
+        "reasonerOverX": 122.4749833222148,
         "bothPerfect": true,
-        "keyJoinTotalMs": 1.269,
-        "xOverKeyJoin": 1.1725768321513004
+        "keyJoinTotalMs": 1.265,
+        "xOverKeyJoin": 1.1849802371541505
       },
       {
         "domain": "conflict-xr-scale",
-        "xTotalMs": 5.403,
-        "reasonerMaterializeMs": 3825.81,
-        "reasonerOverX": 708.0899500277624,
+        "xTotalMs": 5.095,
+        "reasonerMaterializeMs": 3831.33,
+        "reasonerOverX": 751.9784102060844,
         "bothPerfect": true,
-        "keyJoinTotalMs": 4.48,
-        "xOverKeyJoin": 1.2060267857142855
+        "keyJoinTotalMs": 3.675,
+        "xOverKeyJoin": 1.3863945578231291
       }
     ],
     "xTenXCheaperThanReasonerWhereBothPerfect": true,
