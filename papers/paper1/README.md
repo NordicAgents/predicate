@@ -67,9 +67,18 @@ systems on detection accuracy and cost.
   queries, ingest+queries 0.73–1.46× the one-shot join. **Clause-3 rule adopts the
   strict witness contract** (max witness/pointer byte ratio 3.08× ≤ 5×): the
   flag-pointer variants do not dominate. Formal doc gains Prop. 5.
+- **Phase-1 evidence hardening (2026-07-13, Amendment A4; registered before implementation):**
+  B-bounded completeness curves (`results/curves/`, the §4.3 primary metric, Def-5.3
+  reading) for all 8 domains · **H11 PASS** — load-scale ledger shows CWI amplification
+  dead-flat (1.895→1.893 across 1.7k→56k triples), µs queries, ingest cheaper than the
+  one-shot join at 56k triples, while the reasoner is superlinear (3.85s→40.6s, skipped
+  past ~5k triples) · **H12 PASS** — τ/σ-aware `reasoner-tau` (new r22t/r23t rules) scores
+  P=R=1 with zero benign flags on conflict-tausig (closing the blind arm's H7 gap) and is
+  identical to the blind arm on all τ/σ-free domains. 4-lane multi-agent build, 3 lanes
+  verifier-confirmed + reasoner-tau hand-verified. 603 tests green (+15 skipped).
 - **Exploratory (motivational only):** Mem0 ingest pilots (0/8 preserved, 0/12 linked,
   1/8 additive); in-session frontier-agent runs (permanently exploratory); C1/OSV
-  prevalence probe (A2.7).
+  prevalence probe (A2.7) + annotation harness (A4.4, awaiting human annotators).
 
 ## Binding gates (operative)
 
@@ -89,8 +98,11 @@ systems on detection accuracy and cost.
   delivers exactly that** — witness-sized conflict-complete retrieval at ~2× write
   amplification and µs queries (H9/H10 PASS), and the pre-committed clause-3 rule
   adopts the strict witness contract (second conjunct fails to close the gap).
-  Remaining for Gate B: realistic-domain reproduction (full 5(c)), load-scale ledger,
-  formal hardening.
+  **Update (Amendment A4): load-scale ledger done** — the CWI Pareto point holds to 56k
+  triples (H11: flat 1.89 amplification, µs queries, cheaper ingest than the one-shot
+  join; reasoner superlinear and skipped past ~5k) — and the reasoner now honors its τ/σ
+  spec (H12). Remaining for Gate B: realistic-domain reproduction (full 5(c) — the C1
+  annotation harness is built and awaits human annotators) and the formal write-up.
 - **Gate C (Phase 2):** ≥2 realistic domains must reproduce the failure mechanism, else
   narrow the claim to the domains where it occurs.
 - Self-improving schema: CUT to one future-work sentence (former Gate 3 default).

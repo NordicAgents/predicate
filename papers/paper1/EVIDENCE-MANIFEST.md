@@ -89,8 +89,11 @@ Per domain, stage `deterministic` runs: instance-manifest build → tier-1 eval
 `sparql-groupby` + `key-join-x`) → retrieval-policy sweep (`iri-bfs`,
 `literal-aware`, `key-aware` × hops 1–4) → reasoner instance arm (r14r23r22) →
 CWI arm (Amendment A3: incremental witness index; systems `cwi-witness` /
-`cwi-pointer` / `cwi-flag` + maintenance ledger) → instance-level scoring
-across all PredictionRow files. Stage `verdicts`
+`cwi-pointer` / `cwi-flag` + maintenance ledger) → τ/σ-aware reasoner arm
+(Amendment A4.3, `reasoner-tau`) → instance-level scoring across all
+PredictionRow files → B-bounded completeness curves (Amendment A4.1). Two
+full-domain-only stages follow: `verdicts` (H3–H10 + clause-3) and `scale`
+(Amendment A4.2 load-scale ledger, H11). Stage `verdicts`
 (full-domain builds only) computes the Amendment A2.4 hypothesis verdicts
 H3/H6/H7/H8 into `results/instances/phase1-verdicts.json`. Stage `summary`
 writes `papers/paper1/evidence/summary-<gitsha12>[-dirty].json` with sha256 +
@@ -117,7 +120,10 @@ All paths relative to `packages/predicate-eval/` unless noted.
 | `results/exact/exact-key-join-x.<d>.jsonl` | `PredictionRow` per line (Prop. 4 full fragment: union-find + τ/σ partitioning) | `src/exact/run-exact-cli.ts` |
 | `results/cwi/cwi.<d>.jsonl` | `PredictionRow` per line × 3 systems (`cwi-witness`/`cwi-pointer`/`cwi-flag`; Amendment A3.2 contract variants) | `src/cwi/run-cwi-cli.ts` |
 | `results/cwi/ledger.<d>.json` | maintenance ledger: ingest ms, update amplification, index size, query p50/p95 (wall-clock run-variable; counts deterministic) | `src/cwi/run-cwi-cli.ts` |
-| `results/instances/phase1-verdicts.json` | H3/H6/H7/H8/H9/H10 verdicts + clause-3 adjudication (A2.4/A3.4/A3.5; cost ratios are run-variable wall-clock) | `src/instances/phase1-verdicts-cli.ts` |
+| `results/instances/reasoner-tau.<d>.jsonl` | `PredictionRow` per line (τ/σ-aware chain r14→r23t→r22t; Amendment A4.3, H12) | `src/instances/reasoner-tau-cli.ts` |
+| `results/curves/bcurves.<d>.json` | B-bounded completeness curves — §4.3 primary metric, Def-5.3 primary + §4.3-literal conditional readings (Amendment A4.1) | `src/instances/bcurves-cli.ts` |
+| `results/scale/scale-ledger.json` | load-scale maintenance ledger, persons 300/1k/3k/10k + H11 verdict (Amendment A4.2; wall-clock run-variable, per-stratum sha256 + counts deterministic; strata NOT committed) | `src/scale-ledger/scale-ledger-cli.ts` |
+| `results/instances/phase1-verdicts.json` | H3/H6/H7/H8/H9/H10 verdicts + clause-3 adjudication (A2.4/A3.4/A3.5; cost ratios are run-variable wall-clock). H11 lives in scale-ledger.json; H12 in the reasoner-tau scoreboards | `src/instances/phase1-verdicts-cli.ts` |
 | `results/retrieval/retrieval.<d>.jsonl` | `PredictionRow` per line (one per policy × hops × instance) | `src/rigs/retrieval-policies-cli.ts` |
 | `results/instances/reasoner-r14r23r22.<d>.jsonl` | `PredictionRow` per line | `src/instances/reasoner-arm-cli.ts` |
 | `results/instances/summary.<d>.json` | `{domain, instanceCount, byKind, systems: SystemScore[]}` | `src/instances/score-cli.ts` |

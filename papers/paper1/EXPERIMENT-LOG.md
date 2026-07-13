@@ -497,3 +497,74 @@ single-run, fixtures are synthetic (Gate C / Phase 2 owns external validity), an
 d20 pointer ratio 0.78 shows the pointer form can be BIGGER than tiny witnesses (ids
 carry full IRIs) — pointer encodings matter and are disclosed. Gate B still requires
 the realistic-domain reproduction (5(c) full probe) and the formal write-up hardening.
+
+## 2026-07-13 — Phase-1 evidence hardening: B-curves (registered primary metric), load-scale ledger (H11), τ/σ-aware reasoner (H12)
+
+**Registration (Amendment A4, commit `ba92687`) before any code.** Four A4-registered
+deliverables, built by a multi-agent workflow (four implementation lanes, each with an
+adversarial verifier that independently re-ran the code) and landed after verification.
+Three lanes were verifier-CONFIRMED; the reasoner-tau verifier died on a session limit,
+so its arm was verified by hand instead (H12 reproduced on all 8 domains, frozen-file
+integrity confirmed, and a bespoke 7-case interval/scope boundary probe — including the
+[from,to) adjacency case the fixture omits — all pass).
+
+**B-bounded completeness curves (A4.1 — the §4.3 primary metric, finally an artifact).**
+`src/instances/bcurves-cli.ts` → `results/curves/bcurves.<domain>.json` for all 8
+domains, over the registered triples/bytes grids, emitting BOTH the primary Def-5.3
+truncation reading (WCR at context ≤ B over ALL conflicts) and the §4.3-literal
+conditional rate with its n (interpretation fixed in A4.1 before computation). The curves
+make the phase diagram explicit, e.g. conflict-chain-m2: cwi-witness reaches 1.0 at a
+triples budget of 10 (witness = 9 triples), key-aware@2 is 0.0 at B=50 and 1.0 only at
+B=100 (its ball is ~95 triples), and iri-bfs is 0.0 across the entire grid to whole-store.
+
+**Load-scale ledger (A4.2, H11 — the maintenance-cost story at scale). H11 PASS.**
+Cost-only strata (v2/xr topology, seed 0x5ca1eab1e, persons 300/1k/3k/10k = 1.7k–56k
+triples), regenerated at measurement time and NOT committed (sha256 of each stratum
+recorded instead). Single-run wall-clock, disclosed run-variable:
+
+| persons | triples | exact-key-join-x | sparql | reasoner | CWI ingest | CWI amp | CWI query p50 |
+|---|---|---|---|---|---|---|---|
+| 300 | 1,689 | 4.4 ms | 39 ms | 3,852 ms | 2.6 ms | 1.895 | 6 µs |
+| 1,000 | 5,609 | 11.4 ms | 33 ms | 40,571 ms | 8.3 ms | 1.894 | 5 µs |
+| 3,000 | 16,809 | 35.5 ms | 90 ms | skipped (>1k cap) | 15.1 ms | 1.893 | 7 µs |
+| 10,000 | 56,009 | 119.7 ms | 308 ms | skipped | 52.6 ms | 1.893 | 8 µs |
+
+The headline: CWI update amplification is **dead-flat at ~1.89 across a 33× size
+increase**, query p50 stays 5–8 µs, and CWI ingest at 56k triples (52.6 ms) is actually
+CHEAPER than the one-shot exact-key-join-x detector (119.7 ms) — while the reasoner is
+superlinear (3.85 s → 40.6 s for a 3.3× data increase) and uncomputable past a few
+thousand triples. This is the "update/query complexity vs full materialization" evidence
+the plan's Phase 1 demanded, and it hardens the CWI Pareto claim against the obvious
+scale objection. Caveat: 56k triples is still modest; single-machine, single-run.
+
+**τ/σ-aware reasoner (A4.3, H12 — closing the reasoner's own registered gap). H12 PASS.**
+New rules `r22t`/`r23t` (in predicate-reasoner, deliberately NOT in the default RULES
+array; the frozen blind chain is untouched — its H7 over-flagging is a registered
+result): r23t propagates single-valued values across owl:sameAs carrying the SOURCE
+record's τ/σ forward as RDF-star annotations (chained propagation preserves the ORIGINAL
+endpoint's annotations, not an intermediate's), and r22t gates the ValueConflict on
+F3's side conditions — τ-interval overlap ([from,to), end-exclusive) and σ
+equality-or-absence. The new `reasoner-tau` arm scores **P=R=1 with zero flags on all 24
+τ-or-σ benign negatives** on conflict-tausig (where the blind reasoner scored P=0.333,
+H7), and is flagged-set-IDENTICAL to the blind arm on every τ/σ-free domain — the
+extension changes nothing where annotations are absent. Predicate's own system now
+matches its formal spec (F3) in the annotated fragment; the H7 gap was a missing rule,
+now filled, and honestly dated as a Phase-1 addition rather than retrofitted into the
+frozen arm. reasoner package 70/70 tests, eval 172/172; both suites green.
+
+**C1 annotation harness (A4.4, exploratory).** Deterministic stratified sampler over the
+OSV probe's group classifications (100 range-disagree / 50 severity-disagree / 50 both /
+100 controls), annotation guide with the label taxonomy and decision rules, and a
+Cohen's-κ agreement/adjudication script — under papers/paper1/probes/c1-annotation/.
+Produces no confirmatory numbers; sampler outputs embed licensed OSV text and are written
+OUTSIDE the repo (only aggregate κ/rates are ever committable, via a future amendment).
+This is the tooling for the human annotation pass that converts the A2.7 syntactic
+disagreement rate (48.4%) into the semantic contradiction rate Gate C needs.
+
+**Where this leaves Gate B.** Conditions 5(a)/5(b) fixtures exist and separate as
+registered (A2); the CWI method delivers witness-sized conflict-complete retrieval at
+flat amplification and µs queries that hold to 56k triples (A3 + H11); the strict witness
+contract is adopted (clause-3); and the reasoner now honors its τ/σ spec (H12). Remaining
+for Gate B (2026-09-30): the full realistic-domain reproduction (C1 semantic annotation
+via the new harness — needs human annotators), larger-scale ledger if a reviewer wants it,
+and the formal write-up. Pinned frontier-model runs remain blocked on an API key.
