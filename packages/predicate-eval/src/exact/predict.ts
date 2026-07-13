@@ -36,6 +36,11 @@ const touches = (d: Detection, inst: InstanceRecord): boolean =>
 
 /** Witness triples a detection can cite, ordered per the given subjects. */
 function detectionWitness(d: Detection, subjects: string[], index: TripleIndex): string[] {
+  // Systems with non-reconstructible witnesses (chain closures, tau/sigma
+  // evidence) supply them explicitly; filter to the subjects under report.
+  if (d.witnessTriples !== undefined) {
+    return d.witnessTriples.filter((t) => subjects.some((s) => t.startsWith(`${s}|`)));
+  }
   const w: string[] = [];
   if (d.key !== null && d.keyProp !== null) {
     for (const s of subjects) for (const t of index.values(s, RDF_TYPE)) w.push(tripleId(s, RDF_TYPE, t));

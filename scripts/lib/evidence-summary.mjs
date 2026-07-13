@@ -42,11 +42,15 @@ function filesForDomain(d) {
     { path: `${EVAL}/fixtures/${d}/instances.json`, kind: 'instance-manifest' },
     { path: `${EVAL}/results/exact/exact-key-join.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/exact/sparql-groupby.${d}.jsonl`, kind: 'prediction-rows' },
+    { path: `${EVAL}/results/exact/exact-key-join-x.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/retrieval/retrieval.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/instances/reasoner-r14r23r22.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/instances/summary.${d}.json`, kind: 'instance-scoreboard' },
   ];
 }
+
+/** phase1-v3 domains whose joint presence implies the verdicts file exists. */
+const V3_DOMAINS = ['conflict-chain-m2', 'conflict-chain-m3', 'conflict-h3-nk1', 'conflict-h3-nk3', 'conflict-tausig'];
 
 /** Shared (cross-domain) evidence files. */
 const SHARED_FILES = [
@@ -77,6 +81,9 @@ function main() {
   const domains = args.domains.split(',').map((s) => s.trim()).filter(Boolean);
 
   const wanted = [...domains.flatMap(filesForDomain), ...SHARED_FILES];
+  if (V3_DOMAINS.every((d) => domains.includes(d))) {
+    wanted.push({ path: `${EVAL}/results/instances/phase1-verdicts.json`, kind: 'hypothesis-verdicts' });
+  }
   const missing = wanted.filter((f) => !existsSync(join(repoRoot, f.path)));
   if (missing.length > 0) {
     console.error('SUMMARY FAILED — expected evidence files are missing (run the deterministic stage first):');

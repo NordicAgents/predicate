@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import { deriveInstances } from './instances.js';
 import { runKeyJoin, type ExactRunResult } from './key-join.js';
+import { runKeyJoinX } from './key-join-x.js';
 import { runSparqlGroupBy } from './sparql-groupby.js';
 import { buildPredictionRows, type ExactScore } from './predict.js';
 import type { PredictionRow } from './contract.js';
@@ -19,7 +20,11 @@ import type { PredictionRow } from './contract.js';
  */
 
 const PKG_ROOT = join(import.meta.dirname, '..', '..');
-const SYSTEMS = { 'key-join': 'exact-key-join', 'sparql-groupby': 'sparql-groupby' } as const;
+const SYSTEMS = {
+  'key-join': 'exact-key-join',
+  'sparql-groupby': 'sparql-groupby',
+  'key-join-x': 'exact-key-join-x',
+} as const;
 type SystemArg = keyof typeof SYSTEMS;
 
 function writeRows(outFile: string, rows: PredictionRow[]): void {
@@ -55,21 +60,25 @@ function report(score: ExactScore, res: ExactRunResult, outFile: string): void {
 async function main(): Promise<void> {
   const [domain, ...rest] = process.argv.slice(2);
   const sysArg = rest[0] === '--system' ? rest[1] : 'both';
-  if (!domain || (sysArg !== 'both' && !(sysArg! in SYSTEMS))) {
-    console.error('usage: tsx src/exact/run-exact-cli.ts <domain> [--system key-join|sparql-groupby|both]');
+  if (!domain || (sysArg !== 'both' && sysArg !== 'all' && !(sysArg! in SYSTEMS))) {
+    console.error('usage: tsx src/exact/run-exact-cli.ts <domain> [--system key-join|sparql-groupby|key-join-x|both|all]');
     process.exit(1);
   }
   const dir = join(PKG_ROOT, 'fixtures', domain);
   const instances = deriveInstances(domain, dir);
   const selected: SystemArg[] = sysArg === 'both'
     ? ['key-join', 'sparql-groupby']
-    : [sysArg as SystemArg];
+    : sysArg === 'all'
+      ? ['key-join', 'sparql-groupby', 'key-join-x']
+      : [sysArg as SystemArg];
 
   for (const which of selected) {
     const system = SYSTEMS[which];
     const res: ExactRunResult = which === 'key-join'
       ? runKeyJoin(dir)
-      : await runSparqlGroupBy(getAdapter(), dir);
+      : which === 'key-join-x'
+        ? runKeyJoinX(dir)
+        : await runSparqlGroupBy(getAdapter(), dir);
     const { rows, score } = buildPredictionRows({
       instances, detections: res.detections, index: res.index, system,
       totalMs: res.timings.totalMs,

@@ -4,6 +4,7 @@ import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
 import { ballFor, ballContext, type BallOptions } from './flat-retrieved.js';
 import { readEpisode, applyEpisodeTriples } from '../episode-runner.js';
 import { seedProvenance } from '../provenance.js';
+import { deriveV3Instances, isV3Oracle } from '../instances/v3.js';
 
 /**
  * Retrieval-policy ball builders (publication plan §8 "Retrieval baselines").
@@ -163,7 +164,9 @@ export async function ballForPolicy(
 
 export type InstanceKind =
   | 'conflict' | 'benign-coreference' | 'benign-shared-value'
-  | 'benign-duplicate' | 'benign-multivalued';
+  | 'benign-duplicate' | 'benign-multivalued'
+  // phase1-v3 hard negatives (pre-registration Amendment A2.2):
+  | 'benign-temporal' | 'benign-scoped';
 
 export interface InstanceRecord {
   id: string;
@@ -219,6 +222,8 @@ const personToken = (iri: string): string => localName(iri).replace(/^s\d+-/, ''
  */
 export function deriveInstances(domain: string, dir: string): InstanceRecord[] {
   const oracle = JSON.parse(readFileSync(join(dir, 'oracle.json'), 'utf8')) as OracleJson;
+  // phase1-v3 oracles: ONE shared derivation for every arm (src/instances/v3.ts).
+  if (isV3Oracle(oracle)) return deriveV3Instances(domain, oracle);
   return oracle.coreference ? deriveV2(domain, oracle) : deriveV1(domain, oracle);
 }
 

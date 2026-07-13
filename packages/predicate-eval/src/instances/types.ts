@@ -12,7 +12,10 @@ export type InstanceKind =
   | 'benign-coreference'
   | 'benign-shared-value'
   | 'benign-duplicate'
-  | 'benign-multivalued';
+  | 'benign-multivalued'
+  // phase1-v3 hard negatives (pre-registration Amendment A2.2):
+  | 'benign-temporal'
+  | 'benign-scoped';
 
 /** One benchmark instance derived from a fixture's oracle.json. */
 export interface InstanceRecord {

@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import type { InstanceKind, InstanceRecord } from './types.js';
 import { tripleId } from './types.js';
+import { deriveV3Instances, isV3Oracle } from './v3.js';
 
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
@@ -32,6 +33,8 @@ const KIND_RANK: Record<InstanceKind, number> = {
   'benign-shared-value': 2,
   'benign-duplicate': 3,
   'benign-multivalued': 4,
+  'benign-temporal': 5,
+  'benign-scoped': 6,
 };
 
 interface FactIndex {
@@ -253,9 +256,13 @@ export function buildInstanceManifest(fixtureDir: string): InstanceRecord[] {
   const idx = indexFacts(oracle.facts);
   const singleValued = parseSingleValuedProps(world);
 
-  const instances = Array.isArray(oracle.coreference)
-    ? buildV2(domain, oracle, idx, singleValued)
-    : buildV1(domain, oracle, idx);
+  // phase1-v3 oracles (Amendment A2) carry explicit groups + witnesses and
+  // share ONE derivation across all arms (src/instances/v3.ts).
+  const instances = isV3Oracle(oracle)
+    ? deriveV3Instances(domain, oracle)
+    : Array.isArray(oracle.coreference)
+      ? buildV2(domain, oracle, idx, singleValued)
+      : buildV1(domain, oracle, idx);
 
   instances.sort((a, b) =>
     KIND_RANK[a.kind] - KIND_RANK[b.kind] || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

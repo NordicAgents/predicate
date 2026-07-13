@@ -17,9 +17,12 @@
 # Stages (canonical order; --stage may be repeated):
 #   fixtures       regenerate conflict fixtures into a TEMP dir and diff against
 #                  the committed ones — FAILS on any drift; never overwrites.
-#   deterministic  per domain: instance manifest, tier-1 eval, exact baselines
-#                  (key-join + sparql-groupby), retrieval-policy sweep (hops
-#                  1-4), reasoner instance arm, instance-level scoring.
+#   deterministic  per domain: instance manifest, tier-1 eval (mechanism-v0
+#                  only), exact baselines (key-join + sparql-groupby +
+#                  key-join-x), retrieval-policy sweep (hops 1-4), reasoner
+#                  instance arm, instance-level scoring.
+#   verdicts       phase-1 hypothesis verdicts H3/H6/H7/H8 (Amendment A2.4)
+#                  over the full domain set -> results/instances/phase1-verdicts.json.
 #   summary        papers/paper1/evidence/summary-<gitsha>[-dirty].json with
 #                  path + sha256 + row count for every produced file + a table.
 #
@@ -37,8 +40,14 @@ EVIDENCE_DIR="$REPO_ROOT/papers/paper1/evidence"
 export PREDICATE_BACKEND=oxigraph-wasm
 export PREDICATE_STORE_PATH=:memory:
 
-ALL_STAGES=(fixtures deterministic summary)
-ALL_DOMAINS=(conflict-d20 conflict-xr-small conflict-xr-scale)
+ALL_STAGES=(fixtures deterministic verdicts summary)
+# mechanism-v0 (frozen 2026-07-12) + phase1-v3 (Amendment A2, frozen at landing).
+ALL_DOMAINS=(conflict-d20 conflict-xr-small conflict-xr-scale
+  conflict-chain-m2 conflict-chain-m3 conflict-h3-nk1 conflict-h3-nk3 conflict-tausig)
+
+# The legacy tier-1 8-question eval is a mechanism-v0 continuity metric only
+# (Amendment A2.6): it does not run on phase1-v3 domains.
+is_v3_domain() { case "$1" in conflict-chain-*|conflict-h3-*|conflict-tausig) return 0 ;; *) return 1 ;; esac; }
 
 usage() {
   sed -n '2,25p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
@@ -100,16 +109,18 @@ stage_fixtures() {
   echo "== stage: fixtures (drift check against frozen mechanism-v0) =="
   TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/predicate-evidence-fixtures.XXXXXX")"
 
-  local need_v1=0 need_v2=0 d
+  local need_v1=0 need_v2=0 need_v3=0 d
   for d in "${DOMAINS[@]}"; do
     case "$d" in
       conflict-d*)  need_v1=1 ;;
       conflict-xr*) need_v2=1 ;;
+      *) is_v3_domain "$d" && need_v3=1 ;;
     esac
   done
 
   [[ $need_v1 -eq 1 ]] && run pnpm --filter predicate-eval run conflict-gen "$TMP_DIR"
   [[ $need_v2 -eq 1 ]] && run pnpm --filter predicate-eval run conflict-gen-v2 "$TMP_DIR"
+  [[ $need_v3 -eq 1 ]] && run pnpm --filter predicate-eval run conflict-gen-v3 "$TMP_DIR"
 
   local drift=0
   for d in "${DOMAINS[@]}"; do
@@ -138,17 +149,32 @@ stage_deterministic() {
   for d in "${DOMAINS[@]}"; do
     echo "-- domain: $d --"
     run pnpm --filter predicate-eval run instances-manifest "$d"
-    run pnpm --filter predicate-eval run eval "$d"
-    run pnpm --filter predicate-eval run exact "$d" --system both
+    is_v3_domain "$d" || run pnpm --filter predicate-eval run eval "$d"
+    run pnpm --filter predicate-eval run exact "$d" --system all
     run pnpm --filter predicate-eval run retrieval-policies "$d" --hops 1,2,3,4
     run pnpm --filter predicate-eval run instances-reasoner "$d"
     run pnpm --filter predicate-eval run instances-score "$d" \
       "results/exact/exact-key-join.$d.jsonl" \
       "results/exact/sparql-groupby.$d.jsonl" \
+      "results/exact/exact-key-join-x.$d.jsonl" \
       "results/instances/reasoner-r14r23r22.$d.jsonl" \
       "results/retrieval/retrieval.$d.jsonl"
     echo
   done
+}
+
+# ----------------------------------------------------------------- verdicts --
+# H3/H6/H7/H8 verdicts (Amendment A2.4) need results for the FULL domain set;
+# on a domain-filtered build the stage is skipped with a notice.
+stage_verdicts() {
+  echo "== stage: verdicts (phase-1 hypotheses H3/H6/H7/H8) =="
+  if [[ ${#DOMAINS[@]} -ne ${#ALL_DOMAINS[@]} ]]; then
+    echo "skipping verdicts: domain-filtered build (needs all domains: ${ALL_DOMAINS[*]})"
+    echo
+    return 0
+  fi
+  run pnpm --filter predicate-eval run phase1-verdicts
+  echo
 }
 
 # ------------------------------------------------------------------ summary --

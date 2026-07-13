@@ -1,4 +1,4 @@
-import { OWL_HASKEY, RDF_TYPE, J_SINGLE_VALUED } from './contract.js';
+import { OWL_HASKEY, RDF_TYPE, J_SINGLE_VALUED, J_VALID_FROM, J_VALID_TO, J_SOURCE_SCOPE } from './contract.js';
 
 /**
  * Minimal Turtle TBox reader for the tiny, regular world.ttl fixtures.
@@ -14,6 +14,12 @@ export interface TBoxSchema {
   keyedClasses: Map<string, string[]>;
   /** property IRIs declared `a j:SingleValued`. */
   singleValued: Set<string>;
+  /** record-level valid-time start property (`a j:ValidFrom`), if declared. */
+  validFromProp: string | null;
+  /** record-level valid-time end property (`a j:ValidTo`), if declared. */
+  validToProp: string | null;
+  /** record-level scope property (`a j:SourceScope`), if declared. */
+  scopeProp: string | null;
 }
 
 interface Token { kind: 'iri' | 'pname' | 'literal' | 'punct'; text: string }
@@ -81,6 +87,9 @@ export function parseTBoxSchema(ttl: string): TBoxSchema {
   const prefixes: Record<string, string> = {};
   const keyedClasses = new Map<string, string[]>();
   const singleValued = new Set<string>();
+  let validFromProp: string | null = null;
+  let validToProp: string | null = null;
+  let scopeProp: string | null = null;
 
   const expand = (t: Token): string => {
     if (t.kind === 'iri') return t.text;
@@ -116,7 +125,11 @@ export function parseTBoxSchema(ttl: string): TBoxSchema {
       if (pred === RDF_TYPE) {
         for (const t of clause.slice(1)) {
           if (t.kind === 'punct') continue; // ',' separators
-          if (expand(t) === J_SINGLE_VALUED) singleValued.add(subject);
+          const cls = expand(t);
+          if (cls === J_SINGLE_VALUED) singleValued.add(subject);
+          else if (cls === J_VALID_FROM) validFromProp = subject;
+          else if (cls === J_VALID_TO) validToProp = subject;
+          else if (cls === J_SOURCE_SCOPE) scopeProp = subject;
         }
       } else if (pred === OWL_HASKEY) {
         const keys: string[] = [];
@@ -132,5 +145,5 @@ export function parseTBoxSchema(ttl: string): TBoxSchema {
       }
     }
   }
-  return { prefixes, keyedClasses, singleValued };
+  return { prefixes, keyedClasses, singleValued, validFromProp, validToProp, scopeProp };
 }
