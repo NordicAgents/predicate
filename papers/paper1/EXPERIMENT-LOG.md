@@ -357,3 +357,84 @@ reasoner demoted to one witness-indexing implementation), with pivot-to-benchmar
 standing alternative; human decision pending. Caveats: synthetic constructed fixtures;
 single-run timings; pinned-LLM arms built (full raw logging, dry-run verified) but
 unexecuted — no API keys on this host.
+
+## 2026-07-13 — Phase-1 kickoff: Gate A decided, A2 registration, Gate-B fixtures land, all four hypotheses in registered direction
+
+**Gate A decision (recorded in `gate-a-analysis.md` §6).** Option 1 — proceed REFRAMED
+(method paper on conflict-complete retrieval under bounded context, AAAI-28/KRR shape)
+toward Gate B (2026-09-30), under binding conditions 5(a)–(c); researcher decision,
+2026-07-13. The mechanism-v0 store-side detection story stays a closed null result.
+
+**Environment note.** Work moved to a new linux host (node v22.17.1, pnpm 9.0.0,
+oxigraph-wasm `:memory:`). Clean checkout: full build + 535-test suite green;
+`scripts/build-evidence.sh` reproduced every mechanism-v0 decision value exactly
+before any new work began.
+
+**Registration before runs (Amendment A2).** The phase1-v3 fixture family, the
+`InstanceKind` extension (`benign-temporal`, `benign-scoped`), the extended exact
+baseline `exact-key-join-x` (Prop. 4 full fragment: per-(class,key,value) buckets +
+union-find ~K closure + τ/σ overlap partitioning implementing F3's side conditions),
+and hypotheses H6/H7/H8 + the H3 operationalization were committed (`0d55ffb`) BEFORE
+any generator or system code existed. H6.i and H6.iv are marked mechanism checks
+(guaranteed by construction); H3/H6.iii/H7/H8 were genuinely forward-looking.
+Also corrected: chain-witness cardinality |W| = 3m+3, not 4m+2 (A2.5).
+
+**Fixtures (generator `src/conflict/generate-v3.ts`, seed 0x5eedca7, drift-checked).**
+`conflict-chain-m2` (40 chains, 10 conflicted, |W|=9), `conflict-chain-m3` (24/6, |W|=12)
+— sparse intermediates carry two `cb3:email` values, no constrained value, no IRI object;
+`conflict-h3-nk1`/`-nk3` — v2 twin mechanism + 1 vs 3 non-key shared literals;
+`conflict-tausig` — record-level `validFrom/validTo/sourceScope` (12 conflict /
+12 benign-temporal / 12 benign-scoped / 24 benign-coreference). One shared v3 instance
+derivation (`src/instances/v3.ts`) used by manifest, exact, and retrieval arms — id
+drift across producers is impossible by construction. 26 new tests; full workspace
+suite 561 passed + 15 skipped.
+
+**Numbers (committed artifacts; `results/instances/summary.<d>.json`,
+`results/instances/phase1-verdicts.json`). All four registered hypotheses PASS:**
+
+- **H6 (chain depth).** Single-join detectors: recall 0, FP 0 on both chain fixtures
+  (structural). `exact-key-join-x` and `reasoner-r14r23r22`: P=R=1.000 on both.
+  `key-aware@k` witness-complete rate flips exactly at k=m: [0,1,1,1] on m2,
+  [0,0,1,1] on m3 — the completeness budget grows with chain length. `iri-bfs@k` is
+  0/10 and 0/6 at EVERY k (isolated intermediates; no hop budget recovers them) —
+  a stronger empirical face of Prop. 3 than mechanism-v0's k=4-whole-store escape.
+- **H7 (τ/σ).** All three τ/σ-blind detectors flag 12/12 benign-temporal AND 12/12
+  benign-scoped (precision 0.333 at recall 1.000). `exact-key-join-x`: P=R=1.000,
+  zero benign flags.
+- **H3 (now testable, PASS).** literal-aware@1 vs key-aware@1 mean context premium
+  over conflict instances: 7.0× triples / 2.5× bytes at nk=1 → 20.6× / 6.4× at nk=3
+  (monotone in non-key shared literals, as registered); largest on the
+  benign-shared-value probes (10× / 28×); both policies remain witness-complete at
+  k=1 (H2 carries over).
+- **H8 (cost, single-run wall-clock).** `exact-key-join-x` end-to-end 1.0–5.4 ms on
+  every fixture: within 1.21× of the plain join on mechanism-v0, and 27–708× cheaper
+  than reasoner materialization everywhere both are accurate (chain-m2 1.9 ms vs
+  428 ms; tausig 3.0 ms vs 603 ms; xr-scale 5.4 ms vs 3,826 ms).
+
+**Honest read.** Gate-B conditions 5(a) and 5(b) now EXIST as artifacts, and the runs
+land exactly where the registered predictions put them. Two consequences must be
+stated plainly. (1) The reasoner earns generality parity on the deeper fragment
+(Prop. 2 exercised at m≥2 for the first time) but never a cost edge: the extended
+exact baseline is complete AND cheapest everywhere tested — the first conjunct of
+gate falsification clause 3 is TRUE on synthetic data. Store-side detection remains a
+solved, cheap problem at every depth tested; no paper claim may rest on it. The
+method contribution must live where the separations live: the RETRIEVAL side
+(H6.iii/iv, H3 premiums, B-bounded completeness), i.e., CWI as a retrieval index
+competing on witness-completeness per context budget, not as a detector. Clause 3's
+second conjunct (flag-pointer variants dominating within budget) is the open Phase-1
+question. (2) The τ/σ result cuts both ways: it separates the extended baseline from
+ALL currently implemented store-side systems including our own reasoner chain — r22
+does not implement the ≬ side condition and over-flags exactly like the plain join.
+An r22-τσ extension is now a measured TODO, not a claimed capability.
+
+**Gate C preview (condition 5(c); EXPLORATORY, A2.7).** OSV PyPI bulk export
+(snapshot Last-Modified 2026-07-13 07:54:02 GMT, 23,137 records, raw data not
+committed): 80.7% of the 5,649 CVE-keyed groups have ≥2 co-referent records — the
+cross-record mechanism is the NORM in this domain; 13.3% of severity-comparable
+groups disagree on severity; 48.4% of range-comparable groups disagree on affected
+ranges (syntactic upper bound; Phase-2 annotation adjudicates semantics). Script +
+report: `papers/paper1/probes/`. Prop. 3's store shape is not vacuous in the wild.
+
+**Still open.** Pinned frontier-model runs (keys unavailable on this host — unchanged);
+r22 τ/σ extension; CWI-as-retrieval-index implementation + update/query cost ledger
+(Gate B core); Phase-2 annotation probes for C1 semantics.

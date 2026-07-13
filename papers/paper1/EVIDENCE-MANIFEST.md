@@ -43,6 +43,17 @@ the derived `instances.json` (rebuilt deterministically by the build).
 | `conflict-xr-small` | v2 cross-record (60 persons, key `cb2:email`, ns `http://ex/cb2#`) | 12 record pairs | 3 benign co-referent pairs, 1 shared-office pair | 16 |
 | `conflict-xr-scale` | v2 cross-record (300 persons) | 60 record pairs | 3 benign co-referent pairs, 1 shared-office pair | 64 |
 
+**phase1-v3** (registered in pre-registration Amendment A2 on 2026-07-13 BEFORE
+implementation; ns `http://ex/cb3#`; frozen from the landing commit onward):
+
+| domain | design | planted conflicts | benign probes | instances |
+|---|---|---|---|---|
+| `conflict-chain-m2` | ~K-chains of length m=2 (40 chains; sparse intermediates carry TWO `cb3:email` values, no constrained value, no IRI object; \|W\| = 3m+3 = 9) | 10 chains | 30 benign chains, 1 shared-office pair | 41 |
+| `conflict-chain-m3` | ~K-chains of length m=3 (24 chains; \|W\| = 12) | 6 chains | 18 benign chains, 1 shared-office pair | 25 |
+| `conflict-h3-nk1` | v2 twin mechanism + 1 non-key shared literal (`cb3:city`) on session-1 records | 12 record pairs | 3 benign co-referent pairs, 1 shared-office pair | 16 |
+| `conflict-h3-nk3` | v2 twin mechanism + 3 non-key shared literals (`cb3:city/title/building`) | 12 record pairs | 3 benign co-referent pairs, 1 shared-office pair | 16 |
+| `conflict-tausig` | record-level τ/σ annotations (`cb3:validFrom/validTo/sourceScope`; TBox markers `j:ValidFrom/ValidTo/SourceScope`) | 12 overlapping pairs | 12 benign-temporal (disjoint τ), 12 benign-scoped (different σ), 24 benign co-referent | 60 |
+
 Mechanism under study: `owl:hasKey (cb2:email)` on `cb2:PersonRecord`,
 single-valued properties declared `a j:SingleValued`
 (`j = https://industriagents.com/predicate/judgment#`), and the reasoner chain
@@ -52,9 +63,11 @@ values) → r22 (2 distinct values → both pair members typed `j:ValueConflict`
 (`seedProvenance`; closure requires RDF-star confidence ≥ 0.5 on
 `kg:provenance`).
 
-Deterministic generators: `src/conflict/generate.ts` (v1, seed `0xc0ffee`) and
-`src/conflict/generate-v2.ts` (v2, seed `0xbadc0de`), both `mulberry32`-seeded
-with no wall-clock or unseeded randomness.
+Deterministic generators: `src/conflict/generate.ts` (v1, seed `0xc0ffee`),
+`src/conflict/generate-v2.ts` (v2, seed `0xbadc0de`), and
+`src/conflict/generate-v3.ts` (phase1-v3, seed `0x5eedca7`), all
+`mulberry32`-seeded with no wall-clock or unseeded randomness. The drift check
+covers all three generator families.
 
 ## 3. The one command
 
@@ -71,12 +84,15 @@ The script exports `PREDICATE_BACKEND=oxigraph-wasm PREDICATE_STORE_PATH=:memory
 ./scripts/build-evidence.sh --stage summary                      # re-hash existing outputs
 ```
 
-Per domain, stage `deterministic` runs: instance-manifest build → tier-1 eval →
-exact baselines (`key-join` + `sparql-groupby`) → retrieval-policy sweep
-(`iri-bfs`, `literal-aware`, `key-aware` × hops 1–4) → reasoner instance arm
-(r14r23r22) → instance-level scoring across all PredictionRow files. Stage
-`summary` writes `papers/paper1/evidence/summary-<gitsha12>[-dirty].json` with
-sha256 + row count for every produced file and prints the inventory table.
+Per domain, stage `deterministic` runs: instance-manifest build → tier-1 eval
+(mechanism-v0 domains only; Amendment A2.6) → exact baselines (`key-join` +
+`sparql-groupby` + `key-join-x`) → retrieval-policy sweep (`iri-bfs`,
+`literal-aware`, `key-aware` × hops 1–4) → reasoner instance arm (r14r23r22) →
+instance-level scoring across all PredictionRow files. Stage `verdicts`
+(full-domain builds only) computes the Amendment A2.4 hypothesis verdicts
+H3/H6/H7/H8 into `results/instances/phase1-verdicts.json`. Stage `summary`
+writes `papers/paper1/evidence/summary-<gitsha12>[-dirty].json` with sha256 +
+row count for every produced file and prints the inventory table.
 
 Equivalent single-CLI invocations (all from `packages/predicate-eval`, all with
 the env above): `pnpm run instances-manifest <d>`, `pnpm run eval <d>`,
@@ -96,6 +112,8 @@ All paths relative to `packages/predicate-eval/` unless noted.
 | `fixtures/<d>/instances.json` | `InstanceRecord[]` | `src/instances/build-manifest-cli.ts` |
 | `results/exact/exact-key-join.<d>.jsonl` | `PredictionRow` per line | `src/exact/run-exact-cli.ts` |
 | `results/exact/sparql-groupby.<d>.jsonl` | `PredictionRow` per line | `src/exact/run-exact-cli.ts` |
+| `results/exact/exact-key-join-x.<d>.jsonl` | `PredictionRow` per line (Prop. 4 full fragment: union-find + τ/σ partitioning) | `src/exact/run-exact-cli.ts` |
+| `results/instances/phase1-verdicts.json` | H3/H6/H7/H8 verdicts (A2.4; H8 ratios are run-variable wall-clock) | `src/instances/phase1-verdicts-cli.ts` |
 | `results/retrieval/retrieval.<d>.jsonl` | `PredictionRow` per line (one per policy × hops × instance) | `src/rigs/retrieval-policies-cli.ts` |
 | `results/instances/reasoner-r14r23r22.<d>.jsonl` | `PredictionRow` per line | `src/instances/reasoner-arm-cli.ts` |
 | `results/instances/summary.<d>.json` | `{domain, instanceCount, byKind, systems: SystemScore[]}` | `src/instances/score-cli.ts` |
@@ -108,14 +126,19 @@ All paths relative to `packages/predicate-eval/` unless noted.
 `<domain>#benign-duplicate-pNN`, `<domain>#benign-multivalued-pNN`):
 
 ```ts
-{ id, domain, kind: 'conflict'|'benign-coreference'|'benign-shared-value'|'benign-duplicate'|'benign-multivalued',
-  subjects: string[],            // 1 record IRI (v1) or 2 (v2)
-  key: string|null,              // shared key literal (v2 email)
+{ id, domain, kind: 'conflict'|'benign-coreference'|'benign-shared-value'|'benign-duplicate'|'benign-multivalued'
+        |'benign-temporal'|'benign-scoped',   // last two: phase1-v3 (A2.2)
+  subjects: string[],            // 1 record IRI (v1), 2 (v2/tausig), m+1 (chain)
+  key: string|null,              // shared key literal(s); chain keys joined with '+'
   predicate: string|null,        // predicate under test
   goldValues: string[],
   goldWitness: string[],         // triple ids "s|p|o"
   isConflict: boolean }
 ```
+
+phase1-v3 id conventions (single shared derivation, `src/instances/v3.ts`):
+`<domain>#pair-pNNN` (chain/tausig conflict), `<domain>#benign-temporal-pNNN`,
+`<domain>#benign-scoped-pNNN`, plus the v2-style benign ids.
 
 **`PredictionRow`** (`src/instances/types.ts` = `src/exact/contract.ts` =
 `src/rigs/retrieval-policies.ts` — the cross-agent contract):

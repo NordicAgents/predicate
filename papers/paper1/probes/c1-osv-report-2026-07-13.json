@@ -1,0 +1,23 @@
+{
+  "probe": "C1 vulnerability records — OSV bulk export, PyPI ecosystem",
+  "registration": "pre-registration.md Amendment A2.7 (EXPLORATORY)",
+  "snapshot": {
+    "source": "https://osv-vulnerabilities.storage.googleapis.com/PyPI/all.zip",
+    "note": "record the Last-Modified header of the download alongside this report"
+  },
+  "records": 23137,
+  "recordsWithCveAlias": 10882,
+  "cveGroups": 5649,
+  "cveGroupsWithMultipleRecords": 4556,
+  "crossRecordCoReferenceRate": 0.8065144273322712,
+  "severity": {
+    "comparableGroups": 2445,
+    "disagreeingGroups": 324,
+    "disagreementRate": 0.1325153374233129
+  },
+  "affectedRanges": {
+    "comparableGroups": 4533,
+    "disagreeingGroups": 2196,
+    "disagreementRate": 0.48444738583719393
+  }
+}
