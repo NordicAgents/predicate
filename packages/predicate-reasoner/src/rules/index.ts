@@ -28,4 +28,8 @@ export const RULES: Rule[] = [
   r17, r18, r19, r20, r21, r22, r23,
 ];
 export { r11 };
+// τ/σ-aware variants (Amendment A4.3, reasoner-tau arm only) — deliberately
+// NOT in RULES: existing arms must keep their registered blind behavior.
+export { r22t } from './r22t-value-conflict-tau.js';
+export { r23t } from './r23t-sameas-value-propagation-tau.js';
 export type { Rule, RuleConfig } from './types.js';

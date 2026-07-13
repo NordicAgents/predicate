@@ -20,9 +20,14 @@
 #   deterministic  per domain: instance manifest, tier-1 eval (mechanism-v0
 #                  only), exact baselines (key-join + sparql-groupby +
 #                  key-join-x), retrieval-policy sweep (hops 1-4), reasoner
-#                  instance arm, instance-level scoring.
-#   verdicts       phase-1 hypothesis verdicts H3/H6/H7/H8 (Amendment A2.4)
-#                  over the full domain set -> results/instances/phase1-verdicts.json.
+#                  instance arm (blind + tau/sigma-aware), CWI arm,
+#                  instance-level scoring, B-bounded completeness curves (A4.1).
+#   verdicts       phase-1 hypothesis verdicts H3-H10 + clause-3 (Amendments
+#                  A2.4/A3.4/A3.5) over the full domain set
+#                  -> results/instances/phase1-verdicts.json.
+#   scale          load-scale maintenance ledger (Amendment A4.2/H11): cost-only
+#                  strata (persons 300/1k/3k/10k), regenerated not committed
+#                  -> results/scale/scale-ledger.json. Full-domain builds only.
 #   summary        papers/paper1/evidence/summary-<gitsha>[-dirty].json with
 #                  path + sha256 + row count for every produced file + a table.
 #
@@ -40,7 +45,7 @@ EVIDENCE_DIR="$REPO_ROOT/papers/paper1/evidence"
 export PREDICATE_BACKEND=oxigraph-wasm
 export PREDICATE_STORE_PATH=:memory:
 
-ALL_STAGES=(fixtures deterministic verdicts summary)
+ALL_STAGES=(fixtures deterministic verdicts scale summary)
 # mechanism-v0 (frozen 2026-07-12) + phase1-v3 (Amendment A2, frozen at landing).
 ALL_DOMAINS=(conflict-d20 conflict-xr-small conflict-xr-scale
   conflict-chain-m2 conflict-chain-m3 conflict-h3-nk1 conflict-h3-nk3 conflict-tausig)
@@ -153,14 +158,18 @@ stage_deterministic() {
     run pnpm --filter predicate-eval run exact "$d" --system all
     run pnpm --filter predicate-eval run retrieval-policies "$d" --hops 1,2,3,4
     run pnpm --filter predicate-eval run instances-reasoner "$d"
+    run pnpm --filter predicate-eval run instances-reasoner-tau "$d"
     run pnpm --filter predicate-eval run cwi "$d"
     run pnpm --filter predicate-eval run instances-score "$d" \
       "results/exact/exact-key-join.$d.jsonl" \
       "results/exact/sparql-groupby.$d.jsonl" \
       "results/exact/exact-key-join-x.$d.jsonl" \
       "results/instances/reasoner-r14r23r22.$d.jsonl" \
+      "results/instances/reasoner-tau.$d.jsonl" \
       "results/retrieval/retrieval.$d.jsonl" \
       "results/cwi/cwi.$d.jsonl"
+    # A4.1 B-bounded completeness curves — reads the retrieval + cwi rows above.
+    run pnpm --filter predicate-eval run bcurves "$d"
     echo
   done
 }
@@ -176,6 +185,22 @@ stage_verdicts() {
     return 0
   fi
   run pnpm --filter predicate-eval run phase1-verdicts
+  echo
+}
+
+# -------------------------------------------------------------------- scale --
+# Load-scale maintenance ledger (Amendment A4.2, H11): cost-only strata
+# (persons 300/1k/3k/10k) generated at measurement time, never committed. The
+# reasoner is capped at <= 1000 persons with a 300 s timeout inside the runner.
+# Domain-filtered builds skip it (it does not depend on the benchmark domains).
+stage_scale() {
+  echo "== stage: scale (load-scale maintenance ledger, A4.2/H11) =="
+  if [[ ${#DOMAINS[@]} -ne ${#ALL_DOMAINS[@]} ]]; then
+    echo "skipping scale: domain-filtered build"
+    echo
+    return 0
+  fi
+  run pnpm --filter predicate-eval run scale-ledger
   echo
 }
 

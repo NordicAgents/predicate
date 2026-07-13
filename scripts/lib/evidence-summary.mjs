@@ -45,8 +45,10 @@ function filesForDomain(d) {
     { path: `${EVAL}/results/exact/exact-key-join-x.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/retrieval/retrieval.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/instances/reasoner-r14r23r22.${d}.jsonl`, kind: 'prediction-rows' },
+    { path: `${EVAL}/results/instances/reasoner-tau.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/cwi/cwi.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/cwi/ledger.${d}.json`, kind: 'maintenance-ledger' },
+    { path: `${EVAL}/results/curves/bcurves.${d}.json`, kind: 'bcurves-A4.1' },
     { path: `${EVAL}/results/instances/summary.${d}.json`, kind: 'instance-scoreboard' },
   ];
 }
@@ -85,6 +87,10 @@ function main() {
   const wanted = [...domains.flatMap(filesForDomain), ...SHARED_FILES];
   if (V3_DOMAINS.every((d) => domains.includes(d))) {
     wanted.push({ path: `${EVAL}/results/instances/phase1-verdicts.json`, kind: 'hypothesis-verdicts' });
+    // Load-scale ledger (A4.2/H11): produced by the full-build 'scale' stage.
+    // Wall-clock fields vary between rebuilds (sha256 changes); the sha256 of
+    // each generated stratum and all counts inside the artifact are stable.
+    wanted.push({ path: `${EVAL}/results/scale/scale-ledger.json`, kind: 'load-scale-ledger' });
   }
   const missing = wanted.filter((f) => !existsSync(join(repoRoot, f.path)));
   if (missing.length > 0) {
