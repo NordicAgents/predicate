@@ -1,0 +1,379 @@
+[
+  {
+    "id": "conflict-h3-nk3#pair-p000",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p000",
+      "http://ex/cb3/s2-p000"
+    ],
+    "key": "p000@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office0",
+      "http://ex/cb3/office1"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p000|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p000|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p000|http://ex/cb3#email|p000@ex.com",
+      "http://ex/cb3/s2-p000|http://ex/cb3#email|p000@ex.com",
+      "http://ex/cb3/s1-p000|http://ex/cb3#office|http://ex/cb3/office0",
+      "http://ex/cb3/s2-p000|http://ex/cb3#office|http://ex/cb3/office1"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p009",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p009",
+      "http://ex/cb3/s2-p009"
+    ],
+    "key": "p009@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office4",
+      "http://ex/cb3/office1"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p009|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p009|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p009|http://ex/cb3#email|p009@ex.com",
+      "http://ex/cb3/s2-p009|http://ex/cb3#email|p009@ex.com",
+      "http://ex/cb3/s1-p009|http://ex/cb3#office|http://ex/cb3/office4",
+      "http://ex/cb3/s2-p009|http://ex/cb3#office|http://ex/cb3/office1"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p023",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p023",
+      "http://ex/cb3/s2-p023"
+    ],
+    "key": "p023@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office3",
+      "http://ex/cb3/office2"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p023|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p023|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p023|http://ex/cb3#email|p023@ex.com",
+      "http://ex/cb3/s2-p023|http://ex/cb3#email|p023@ex.com",
+      "http://ex/cb3/s1-p023|http://ex/cb3#office|http://ex/cb3/office3",
+      "http://ex/cb3/s2-p023|http://ex/cb3#office|http://ex/cb3/office2"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p026",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p026",
+      "http://ex/cb3/s2-p026"
+    ],
+    "key": "p026@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office1",
+      "http://ex/cb3/office4"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p026|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p026|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p026|http://ex/cb3#email|p026@ex.com",
+      "http://ex/cb3/s2-p026|http://ex/cb3#email|p026@ex.com",
+      "http://ex/cb3/s1-p026|http://ex/cb3#office|http://ex/cb3/office1",
+      "http://ex/cb3/s2-p026|http://ex/cb3#office|http://ex/cb3/office4"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p027",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p027",
+      "http://ex/cb3/s2-p027"
+    ],
+    "key": "p027@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office2",
+      "http://ex/cb3/office1"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p027|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p027|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p027|http://ex/cb3#email|p027@ex.com",
+      "http://ex/cb3/s2-p027|http://ex/cb3#email|p027@ex.com",
+      "http://ex/cb3/s1-p027|http://ex/cb3#office|http://ex/cb3/office2",
+      "http://ex/cb3/s2-p027|http://ex/cb3#office|http://ex/cb3/office1"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p028",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p028",
+      "http://ex/cb3/s2-p028"
+    ],
+    "key": "p028@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office3",
+      "http://ex/cb3/office4"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p028|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p028|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p028|http://ex/cb3#email|p028@ex.com",
+      "http://ex/cb3/s2-p028|http://ex/cb3#email|p028@ex.com",
+      "http://ex/cb3/s1-p028|http://ex/cb3#office|http://ex/cb3/office3",
+      "http://ex/cb3/s2-p028|http://ex/cb3#office|http://ex/cb3/office4"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p029",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p029",
+      "http://ex/cb3/s2-p029"
+    ],
+    "key": "p029@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office4",
+      "http://ex/cb3/office1"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p029|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p029|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p029|http://ex/cb3#email|p029@ex.com",
+      "http://ex/cb3/s2-p029|http://ex/cb3#email|p029@ex.com",
+      "http://ex/cb3/s1-p029|http://ex/cb3#office|http://ex/cb3/office4",
+      "http://ex/cb3/s2-p029|http://ex/cb3#office|http://ex/cb3/office1"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p031",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p031",
+      "http://ex/cb3/s2-p031"
+    ],
+    "key": "p031@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office1",
+      "http://ex/cb3/office0"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p031|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p031|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p031|http://ex/cb3#email|p031@ex.com",
+      "http://ex/cb3/s2-p031|http://ex/cb3#email|p031@ex.com",
+      "http://ex/cb3/s1-p031|http://ex/cb3#office|http://ex/cb3/office1",
+      "http://ex/cb3/s2-p031|http://ex/cb3#office|http://ex/cb3/office0"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p039",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p039",
+      "http://ex/cb3/s2-p039"
+    ],
+    "key": "p039@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office4",
+      "http://ex/cb3/office3"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p039|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p039|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p039|http://ex/cb3#email|p039@ex.com",
+      "http://ex/cb3/s2-p039|http://ex/cb3#email|p039@ex.com",
+      "http://ex/cb3/s1-p039|http://ex/cb3#office|http://ex/cb3/office4",
+      "http://ex/cb3/s2-p039|http://ex/cb3#office|http://ex/cb3/office3"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p040",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p040",
+      "http://ex/cb3/s2-p040"
+    ],
+    "key": "p040@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office0",
+      "http://ex/cb3/office1"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p040|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p040|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p040|http://ex/cb3#email|p040@ex.com",
+      "http://ex/cb3/s2-p040|http://ex/cb3#email|p040@ex.com",
+      "http://ex/cb3/s1-p040|http://ex/cb3#office|http://ex/cb3/office0",
+      "http://ex/cb3/s2-p040|http://ex/cb3#office|http://ex/cb3/office1"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p049",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p049",
+      "http://ex/cb3/s2-p049"
+    ],
+    "key": "p049@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office4",
+      "http://ex/cb3/office1"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p049|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p049|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p049|http://ex/cb3#email|p049@ex.com",
+      "http://ex/cb3/s2-p049|http://ex/cb3#email|p049@ex.com",
+      "http://ex/cb3/s1-p049|http://ex/cb3#office|http://ex/cb3/office4",
+      "http://ex/cb3/s2-p049|http://ex/cb3#office|http://ex/cb3/office1"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#pair-p053",
+    "domain": "conflict-h3-nk3",
+    "kind": "conflict",
+    "subjects": [
+      "http://ex/cb3/s1-p053",
+      "http://ex/cb3/s2-p053"
+    ],
+    "key": "p053@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office3",
+      "http://ex/cb3/office0"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p053|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p053|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p053|http://ex/cb3#email|p053@ex.com",
+      "http://ex/cb3/s2-p053|http://ex/cb3#email|p053@ex.com",
+      "http://ex/cb3/s1-p053|http://ex/cb3#office|http://ex/cb3/office3",
+      "http://ex/cb3/s2-p053|http://ex/cb3#office|http://ex/cb3/office0"
+    ],
+    "isConflict": true
+  },
+  {
+    "id": "conflict-h3-nk3#benign-coreference-p018",
+    "domain": "conflict-h3-nk3",
+    "kind": "benign-coreference",
+    "subjects": [
+      "http://ex/cb3/s1-p018",
+      "http://ex/cb3/s2-p018"
+    ],
+    "key": "p018@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office3"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p018|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p018|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p018|http://ex/cb3#email|p018@ex.com",
+      "http://ex/cb3/s2-p018|http://ex/cb3#email|p018@ex.com",
+      "http://ex/cb3/s1-p018|http://ex/cb3#office|http://ex/cb3/office3",
+      "http://ex/cb3/s2-p018|http://ex/cb3#office|http://ex/cb3/office3"
+    ],
+    "isConflict": false
+  },
+  {
+    "id": "conflict-h3-nk3#benign-coreference-p024",
+    "domain": "conflict-h3-nk3",
+    "kind": "benign-coreference",
+    "subjects": [
+      "http://ex/cb3/s1-p024",
+      "http://ex/cb3/s2-p024"
+    ],
+    "key": "p024@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office4"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p024|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p024|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p024|http://ex/cb3#email|p024@ex.com",
+      "http://ex/cb3/s2-p024|http://ex/cb3#email|p024@ex.com",
+      "http://ex/cb3/s1-p024|http://ex/cb3#office|http://ex/cb3/office4",
+      "http://ex/cb3/s2-p024|http://ex/cb3#office|http://ex/cb3/office4"
+    ],
+    "isConflict": false
+  },
+  {
+    "id": "conflict-h3-nk3#benign-coreference-p048",
+    "domain": "conflict-h3-nk3",
+    "kind": "benign-coreference",
+    "subjects": [
+      "http://ex/cb3/s1-p048",
+      "http://ex/cb3/s2-p048"
+    ],
+    "key": "p048@ex.com",
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office3"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p048|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s2-p048|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|http://ex/cb3#PersonRecord",
+      "http://ex/cb3/s1-p048|http://ex/cb3#email|p048@ex.com",
+      "http://ex/cb3/s2-p048|http://ex/cb3#email|p048@ex.com",
+      "http://ex/cb3/s1-p048|http://ex/cb3#office|http://ex/cb3/office3",
+      "http://ex/cb3/s2-p048|http://ex/cb3#office|http://ex/cb3/office3"
+    ],
+    "isConflict": false
+  },
+  {
+    "id": "conflict-h3-nk3#benign-shared-value-p005-p013",
+    "domain": "conflict-h3-nk3",
+    "kind": "benign-shared-value",
+    "subjects": [
+      "http://ex/cb3/s1-p005",
+      "http://ex/cb3/s1-p013"
+    ],
+    "key": null,
+    "predicate": "http://ex/cb3#office",
+    "goldValues": [
+      "http://ex/cb3/office0",
+      "http://ex/cb3/office3"
+    ],
+    "goldWitness": [
+      "http://ex/cb3/s1-p005|http://ex/cb3#office|http://ex/cb3/office0",
+      "http://ex/cb3/s1-p013|http://ex/cb3#office|http://ex/cb3/office3"
+    ],
+    "isConflict": false
+  }
+]

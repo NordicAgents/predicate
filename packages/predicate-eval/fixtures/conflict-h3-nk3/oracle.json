@@ -1,0 +1,3794 @@
+{
+  "facts": [
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#email",
+      "o": "p000@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#email",
+      "o": "p001@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#email",
+      "o": "p002@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#email",
+      "o": "p003@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#email",
+      "o": "p004@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#email",
+      "o": "p005@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#email",
+      "o": "p006@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#email",
+      "o": "p007@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#email",
+      "o": "p008@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#email",
+      "o": "p009@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#email",
+      "o": "p010@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#email",
+      "o": "p011@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#email",
+      "o": "p012@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#email",
+      "o": "p013@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#email",
+      "o": "p014@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#email",
+      "o": "p015@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#email",
+      "o": "p016@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#email",
+      "o": "p017@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#email",
+      "o": "p018@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#email",
+      "o": "p019@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#email",
+      "o": "p020@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#email",
+      "o": "p021@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#email",
+      "o": "p022@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#email",
+      "o": "p023@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#email",
+      "o": "p024@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#email",
+      "o": "p025@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#email",
+      "o": "p026@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#email",
+      "o": "p027@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#email",
+      "o": "p028@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#email",
+      "o": "p029@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#email",
+      "o": "p030@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#email",
+      "o": "p031@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#email",
+      "o": "p032@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#email",
+      "o": "p033@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#email",
+      "o": "p034@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#email",
+      "o": "p035@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#email",
+      "o": "p036@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#email",
+      "o": "p037@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#email",
+      "o": "p038@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#email",
+      "o": "p039@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p040",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p040",
+      "p": "http://ex/cb3#email",
+      "o": "p040@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p040",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p040",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p040",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p040",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p040",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p040",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p041",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p041",
+      "p": "http://ex/cb3#email",
+      "o": "p041@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p041",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p041",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p041",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p041",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p041",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p041",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p042",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p042",
+      "p": "http://ex/cb3#email",
+      "o": "p042@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p042",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p042",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p042",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p042",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p042",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p042",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p043",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p043",
+      "p": "http://ex/cb3#email",
+      "o": "p043@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p043",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p043",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p043",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p043",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p043",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p043",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p044",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p044",
+      "p": "http://ex/cb3#email",
+      "o": "p044@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p044",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p044",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p044",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p044",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p044",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p044",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p045",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p045",
+      "p": "http://ex/cb3#email",
+      "o": "p045@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p045",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p045",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p045",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p045",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p045",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p045",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p046",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p046",
+      "p": "http://ex/cb3#email",
+      "o": "p046@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p046",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p046",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p046",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p046",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p046",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p046",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p047",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p047",
+      "p": "http://ex/cb3#email",
+      "o": "p047@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p047",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p047",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p047",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p047",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p047",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p047",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p048",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p048",
+      "p": "http://ex/cb3#email",
+      "o": "p048@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p048",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p048",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p048",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p048",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p048",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p048",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p049",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p049",
+      "p": "http://ex/cb3#email",
+      "o": "p049@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p049",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p049",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p049",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p049",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p049",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p049",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p050",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p050",
+      "p": "http://ex/cb3#email",
+      "o": "p050@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p050",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p050",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p050",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p050",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p050",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p050",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p051",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p051",
+      "p": "http://ex/cb3#email",
+      "o": "p051@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p051",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p051",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p051",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p051",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p051",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p051",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p052",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p052",
+      "p": "http://ex/cb3#email",
+      "o": "p052@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p052",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p052",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p052",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p052",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p052",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p052",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p053",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p053",
+      "p": "http://ex/cb3#email",
+      "o": "p053@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p053",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p053",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p053",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p053",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p053",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p053",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p054",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p054",
+      "p": "http://ex/cb3#email",
+      "o": "p054@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p054",
+      "p": "http://ex/cb3#city",
+      "o": "City-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p054",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p054",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p054",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p054",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p054",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p055",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p055",
+      "p": "http://ex/cb3#email",
+      "o": "p055@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p055",
+      "p": "http://ex/cb3#city",
+      "o": "City-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p055",
+      "p": "http://ex/cb3#title",
+      "o": "Title-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p055",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p055",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p055",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p055",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p056",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p056",
+      "p": "http://ex/cb3#email",
+      "o": "p056@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p056",
+      "p": "http://ex/cb3#city",
+      "o": "City-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p056",
+      "p": "http://ex/cb3#title",
+      "o": "Title-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p056",
+      "p": "http://ex/cb3#building",
+      "o": "Building-0",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p056",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p056",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p056",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p057",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p057",
+      "p": "http://ex/cb3#email",
+      "o": "p057@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p057",
+      "p": "http://ex/cb3#city",
+      "o": "City-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p057",
+      "p": "http://ex/cb3#title",
+      "o": "Title-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p057",
+      "p": "http://ex/cb3#building",
+      "o": "Building-1",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p057",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p057",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p057",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p058",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p058",
+      "p": "http://ex/cb3#email",
+      "o": "p058@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p058",
+      "p": "http://ex/cb3#city",
+      "o": "City-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p058",
+      "p": "http://ex/cb3#title",
+      "o": "Title-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p058",
+      "p": "http://ex/cb3#building",
+      "o": "Building-2",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p058",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p058",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p058",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p059",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p059",
+      "p": "http://ex/cb3#email",
+      "o": "p059@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p059",
+      "p": "http://ex/cb3#city",
+      "o": "City-5",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p059",
+      "p": "http://ex/cb3#title",
+      "o": "Title-4",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p059",
+      "p": "http://ex/cb3#building",
+      "o": "Building-3",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p059",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p059",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p059",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p000",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p000",
+      "p": "http://ex/cb3#email",
+      "o": "p000@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p000",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p009",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p009",
+      "p": "http://ex/cb3#email",
+      "o": "p009@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p009",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p023",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p023",
+      "p": "http://ex/cb3#email",
+      "o": "p023@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p023",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p026",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p026",
+      "p": "http://ex/cb3#email",
+      "o": "p026@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p026",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p027",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p027",
+      "p": "http://ex/cb3#email",
+      "o": "p027@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p027",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p028",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p028",
+      "p": "http://ex/cb3#email",
+      "o": "p028@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p028",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p029",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p029",
+      "p": "http://ex/cb3#email",
+      "o": "p029@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p029",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p031",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p031",
+      "p": "http://ex/cb3#email",
+      "o": "p031@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p031",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p039",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p039",
+      "p": "http://ex/cb3#email",
+      "o": "p039@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p039",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p040",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p040",
+      "p": "http://ex/cb3#email",
+      "o": "p040@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p040",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p049",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p049",
+      "p": "http://ex/cb3#email",
+      "o": "p049@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p049",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p053",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p053",
+      "p": "http://ex/cb3#email",
+      "o": "p053@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p053",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p048",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p048",
+      "p": "http://ex/cb3#email",
+      "o": "p048@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p048",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p018",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p018",
+      "p": "http://ex/cb3#email",
+      "o": "p018@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p018",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p024",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p024",
+      "p": "http://ex/cb3#email",
+      "o": "p024@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p024",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 2
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "vc-s1-p000",
+      "about": "http://ex/cb3/s1-p000",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p000",
+      "about": "http://ex/cb3/s2-p000",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p009",
+      "about": "http://ex/cb3/s1-p009",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p009",
+      "about": "http://ex/cb3/s2-p009",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p023",
+      "about": "http://ex/cb3/s1-p023",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p023",
+      "about": "http://ex/cb3/s2-p023",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p026",
+      "about": "http://ex/cb3/s1-p026",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p026",
+      "about": "http://ex/cb3/s2-p026",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p027",
+      "about": "http://ex/cb3/s1-p027",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p027",
+      "about": "http://ex/cb3/s2-p027",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p028",
+      "about": "http://ex/cb3/s1-p028",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p028",
+      "about": "http://ex/cb3/s2-p028",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p029",
+      "about": "http://ex/cb3/s1-p029",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p029",
+      "about": "http://ex/cb3/s2-p029",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p031",
+      "about": "http://ex/cb3/s1-p031",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p031",
+      "about": "http://ex/cb3/s2-p031",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p039",
+      "about": "http://ex/cb3/s1-p039",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p039",
+      "about": "http://ex/cb3/s2-p039",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office3"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p040",
+      "about": "http://ex/cb3/s1-p040",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p040",
+      "about": "http://ex/cb3/s2-p040",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p049",
+      "about": "http://ex/cb3/s1-p049",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p049",
+      "about": "http://ex/cb3/s2-p049",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s1-p053",
+      "about": "http://ex/cb3/s1-p053",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 2
+    },
+    {
+      "id": "vc-s2-p053",
+      "about": "http://ex/cb3/s2-p053",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 2
+    }
+  ],
+  "disjoint": [],
+  "coreference": [
+    {
+      "records": [
+        "http://ex/cb3/s1-p000",
+        "http://ex/cb3/s2-p000"
+      ],
+      "email": "p000@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p009",
+        "http://ex/cb3/s2-p009"
+      ],
+      "email": "p009@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p023",
+        "http://ex/cb3/s2-p023"
+      ],
+      "email": "p023@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p026",
+        "http://ex/cb3/s2-p026"
+      ],
+      "email": "p026@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p027",
+        "http://ex/cb3/s2-p027"
+      ],
+      "email": "p027@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p028",
+        "http://ex/cb3/s2-p028"
+      ],
+      "email": "p028@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p029",
+        "http://ex/cb3/s2-p029"
+      ],
+      "email": "p029@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p031",
+        "http://ex/cb3/s2-p031"
+      ],
+      "email": "p031@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p039",
+        "http://ex/cb3/s2-p039"
+      ],
+      "email": "p039@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p040",
+        "http://ex/cb3/s2-p040"
+      ],
+      "email": "p040@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p049",
+        "http://ex/cb3/s2-p049"
+      ],
+      "email": "p049@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p053",
+        "http://ex/cb3/s2-p053"
+      ],
+      "email": "p053@ex.com",
+      "conflicted": true
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p048",
+        "http://ex/cb3/s2-p048"
+      ],
+      "email": "p048@ex.com",
+      "conflicted": false
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p018",
+        "http://ex/cb3/s2-p018"
+      ],
+      "email": "p018@ex.com",
+      "conflicted": false
+    },
+    {
+      "records": [
+        "http://ex/cb3/s1-p024",
+        "http://ex/cb3/s2-p024"
+      ],
+      "email": "p024@ex.com",
+      "conflicted": false
+    }
+  ],
+  "benign": {
+    "benignCoreferences": [
+      [
+        "http://ex/cb3/s1-p048",
+        "http://ex/cb3/s2-p048"
+      ],
+      [
+        "http://ex/cb3/s1-p018",
+        "http://ex/cb3/s2-p018"
+      ],
+      [
+        "http://ex/cb3/s1-p024",
+        "http://ex/cb3/s2-p024"
+      ]
+    ],
+    "sharedOfficeSubjects": [
+      "http://ex/cb3/s1-p005",
+      "http://ex/cb3/s1-p013"
+    ]
+  }
+}

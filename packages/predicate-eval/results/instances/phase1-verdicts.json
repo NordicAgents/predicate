@@ -1,0 +1,323 @@
+{
+  "registration": "pre-registration.md Amendment A2 (2026-07-13)",
+  "H3": {
+    "pass": true,
+    "domains": [
+      {
+        "domain": "conflict-h3-nk1",
+        "completeAt1": {
+          "literalAware": 1,
+          "keyAware": 1
+        },
+        "conflictMeanCtxTriples": {
+          "lit": 63,
+          "key": 9,
+          "triplePremium": 7
+        },
+        "conflictBytePremium": 2.46612365790448,
+        "sharedValuePremium": 10
+      },
+      {
+        "domain": "conflict-h3-nk3",
+        "completeAt1": {
+          "literalAware": 1,
+          "keyAware": 1
+        },
+        "conflictMeanCtxTriples": {
+          "lit": 227,
+          "key": 11,
+          "triplePremium": 20.636363636363637
+        },
+        "conflictBytePremium": 6.375132837407014,
+        "sharedValuePremium": 28
+      }
+    ],
+    "premiumExists": true,
+    "monotoneInNk": true,
+    "largestOnSharedValue": true,
+    "completenessCarriesOver": true
+  },
+  "H6": {
+    "pass": true,
+    "domains": [
+      {
+        "domain": "conflict-chain-m2",
+        "chainLength": 2,
+        "i-single-join-structurally-insufficient": {
+          "systems": [
+            {
+              "system": "exact-key-join",
+              "recall": 0,
+              "fp": 0,
+              "pass": true
+            },
+            {
+              "system": "sparql-groupby",
+              "recall": 0,
+              "fp": 0,
+              "pass": true
+            }
+          ],
+          "pass": true
+        },
+        "ii-full-fragment-perfect": {
+          "systems": [
+            {
+              "system": "exact-key-join-x",
+              "precision": 1,
+              "recall": 1,
+              "pass": true
+            },
+            {
+              "system": "reasoner-r14r23r22",
+              "precision": 1,
+              "recall": 1,
+              "pass": true
+            }
+          ],
+          "pass": true
+        },
+        "iii-key-aware-needs-k-ge-m": {
+          "cells": [
+            {
+              "k": 1,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 2,
+              "rate": 1,
+              "expected": 1
+            },
+            {
+              "k": 3,
+              "rate": 1,
+              "expected": 1
+            },
+            {
+              "k": 4,
+              "rate": 1,
+              "expected": 1
+            }
+          ],
+          "pass": true
+        },
+        "iv-iri-bfs-incomplete-at-every-k": {
+          "cells": [
+            {
+              "k": 1,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 2,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 3,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 4,
+              "rate": 0,
+              "expected": 0
+            }
+          ],
+          "pass": true
+        }
+      },
+      {
+        "domain": "conflict-chain-m3",
+        "chainLength": 3,
+        "i-single-join-structurally-insufficient": {
+          "systems": [
+            {
+              "system": "exact-key-join",
+              "recall": 0,
+              "fp": 0,
+              "pass": true
+            },
+            {
+              "system": "sparql-groupby",
+              "recall": 0,
+              "fp": 0,
+              "pass": true
+            }
+          ],
+          "pass": true
+        },
+        "ii-full-fragment-perfect": {
+          "systems": [
+            {
+              "system": "exact-key-join-x",
+              "precision": 1,
+              "recall": 1,
+              "pass": true
+            },
+            {
+              "system": "reasoner-r14r23r22",
+              "precision": 1,
+              "recall": 1,
+              "pass": true
+            }
+          ],
+          "pass": true
+        },
+        "iii-key-aware-needs-k-ge-m": {
+          "cells": [
+            {
+              "k": 1,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 2,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 3,
+              "rate": 1,
+              "expected": 1
+            },
+            {
+              "k": 4,
+              "rate": 1,
+              "expected": 1
+            }
+          ],
+          "pass": true
+        },
+        "iv-iri-bfs-incomplete-at-every-k": {
+          "cells": [
+            {
+              "k": 1,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 2,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 3,
+              "rate": 0,
+              "expected": 0
+            },
+            {
+              "k": 4,
+              "rate": 0,
+              "expected": 0
+            }
+          ],
+          "pass": true
+        }
+      }
+    ]
+  },
+  "H7": {
+    "pass": true,
+    "domain": "conflict-tausig",
+    "blindSystemsOverFlag": {
+      "systems": [
+        {
+          "system": "exact-key-join",
+          "recall": 1,
+          "precision": 0.3333333333333333,
+          "temporalFlagged": "12/12",
+          "scopedFlagged": "12/12",
+          "pass": true
+        },
+        {
+          "system": "sparql-groupby",
+          "recall": 1,
+          "precision": 0.3333333333333333,
+          "temporalFlagged": "12/12",
+          "scopedFlagged": "12/12",
+          "pass": true
+        },
+        {
+          "system": "reasoner-r14r23r22",
+          "recall": 1,
+          "precision": 0.3333333333333333,
+          "temporalFlagged": "12/12",
+          "scopedFlagged": "12/12",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "awareBaselinePerfect": {
+      "system": "exact-key-join-x",
+      "precision": 1,
+      "recall": 1,
+      "benignFlagged": 0,
+      "pass": true
+    }
+  },
+  "H8": {
+    "pass": true,
+    "note": "single-run wall-clock; ratios vary between rebuilds (decision values elsewhere are byte-stable)",
+    "domains": [
+      {
+        "domain": "conflict-chain-m2",
+        "xTotalMs": 1.851,
+        "reasonerMaterializeMs": 428.34,
+        "reasonerOverX": 231.41004862236628,
+        "bothPerfect": true,
+        "keyJoinTotalMs": null,
+        "xOverKeyJoin": null
+      },
+      {
+        "domain": "conflict-chain-m3",
+        "xTotalMs": 1.681,
+        "reasonerMaterializeMs": 346.25,
+        "reasonerOverX": 205.97858417608566,
+        "bothPerfect": true,
+        "keyJoinTotalMs": null,
+        "xOverKeyJoin": null
+      },
+      {
+        "domain": "conflict-tausig",
+        "xTotalMs": 2.986,
+        "reasonerMaterializeMs": 603.2,
+        "reasonerOverX": 202.00937709310114,
+        "bothPerfect": false,
+        "keyJoinTotalMs": null,
+        "xOverKeyJoin": null
+      },
+      {
+        "domain": "conflict-d20",
+        "xTotalMs": 1.018,
+        "reasonerMaterializeMs": 27.54,
+        "reasonerOverX": 27.05304518664047,
+        "bothPerfect": true,
+        "keyJoinTotalMs": 0.842,
+        "xOverKeyJoin": 1.2090261282660333
+      },
+      {
+        "domain": "conflict-xr-small",
+        "xTotalMs": 1.488,
+        "reasonerMaterializeMs": 176.93,
+        "reasonerOverX": 118.90456989247312,
+        "bothPerfect": true,
+        "keyJoinTotalMs": 1.269,
+        "xOverKeyJoin": 1.1725768321513004
+      },
+      {
+        "domain": "conflict-xr-scale",
+        "xTotalMs": 5.403,
+        "reasonerMaterializeMs": 3825.81,
+        "reasonerOverX": 708.0899500277624,
+        "bothPerfect": true,
+        "keyJoinTotalMs": 4.48,
+        "xOverKeyJoin": 1.2060267857142855
+      }
+    ],
+    "xTenXCheaperThanReasonerWhereBothPerfect": true,
+    "xWithinTenXOfPlainJoinOnMechV0": true
+  }
+}

@@ -1,0 +1,5726 @@
+{
+  "version": 3,
+  "chainLength": 2,
+  "facts": [
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#email",
+      "o": "p000@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p000",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p000",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p000",
+      "p": "http://ex/cb3#email",
+      "o": "p000@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p000",
+      "p": "http://ex/cb3#email",
+      "o": "p000.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p000",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p000",
+      "p": "http://ex/cb3#email",
+      "o": "p000.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p000",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#email",
+      "o": "p001@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p001",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p001",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p001",
+      "p": "http://ex/cb3#email",
+      "o": "p001@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p001",
+      "p": "http://ex/cb3#email",
+      "o": "p001.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p001",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p001",
+      "p": "http://ex/cb3#email",
+      "o": "p001.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p001",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#email",
+      "o": "p002@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p002",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p002",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p002",
+      "p": "http://ex/cb3#email",
+      "o": "p002@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p002",
+      "p": "http://ex/cb3#email",
+      "o": "p002.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p002",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p002",
+      "p": "http://ex/cb3#email",
+      "o": "p002.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p002",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#email",
+      "o": "p003@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p003",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p003",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p003",
+      "p": "http://ex/cb3#email",
+      "o": "p003@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p003",
+      "p": "http://ex/cb3#email",
+      "o": "p003.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p003",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p003",
+      "p": "http://ex/cb3#email",
+      "o": "p003.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p003",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#email",
+      "o": "p004@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p004",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p004",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p004",
+      "p": "http://ex/cb3#email",
+      "o": "p004@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p004",
+      "p": "http://ex/cb3#email",
+      "o": "p004.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p004",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p004",
+      "p": "http://ex/cb3#email",
+      "o": "p004.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p004",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#email",
+      "o": "p005@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p005",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p005",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p005",
+      "p": "http://ex/cb3#email",
+      "o": "p005@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p005",
+      "p": "http://ex/cb3#email",
+      "o": "p005.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p005",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p005",
+      "p": "http://ex/cb3#email",
+      "o": "p005.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p005",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#email",
+      "o": "p006@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p006",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p006",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p006",
+      "p": "http://ex/cb3#email",
+      "o": "p006@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p006",
+      "p": "http://ex/cb3#email",
+      "o": "p006.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p006",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p006",
+      "p": "http://ex/cb3#email",
+      "o": "p006.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p006",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#email",
+      "o": "p007@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p007",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p007",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p007",
+      "p": "http://ex/cb3#email",
+      "o": "p007@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p007",
+      "p": "http://ex/cb3#email",
+      "o": "p007.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p007",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p007",
+      "p": "http://ex/cb3#email",
+      "o": "p007.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p007",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#email",
+      "o": "p008@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p008",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p008",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p008",
+      "p": "http://ex/cb3#email",
+      "o": "p008@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p008",
+      "p": "http://ex/cb3#email",
+      "o": "p008.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p008",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p008",
+      "p": "http://ex/cb3#email",
+      "o": "p008.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p008",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#email",
+      "o": "p009@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p009",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p009",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p009",
+      "p": "http://ex/cb3#email",
+      "o": "p009@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p009",
+      "p": "http://ex/cb3#email",
+      "o": "p009.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p009",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p009",
+      "p": "http://ex/cb3#email",
+      "o": "p009.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p009",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#email",
+      "o": "p010@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p010",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p010",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p010",
+      "p": "http://ex/cb3#email",
+      "o": "p010@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p010",
+      "p": "http://ex/cb3#email",
+      "o": "p010.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p010",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p010",
+      "p": "http://ex/cb3#email",
+      "o": "p010.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p010",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#email",
+      "o": "p011@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p011",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p011",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p011",
+      "p": "http://ex/cb3#email",
+      "o": "p011@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p011",
+      "p": "http://ex/cb3#email",
+      "o": "p011.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p011",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p011",
+      "p": "http://ex/cb3#email",
+      "o": "p011.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p011",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#email",
+      "o": "p012@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p012",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p012",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p012",
+      "p": "http://ex/cb3#email",
+      "o": "p012@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p012",
+      "p": "http://ex/cb3#email",
+      "o": "p012.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p012",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p012",
+      "p": "http://ex/cb3#email",
+      "o": "p012.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p012",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#email",
+      "o": "p013@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p013",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p013",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p013",
+      "p": "http://ex/cb3#email",
+      "o": "p013@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p013",
+      "p": "http://ex/cb3#email",
+      "o": "p013.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p013",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p013",
+      "p": "http://ex/cb3#email",
+      "o": "p013.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p013",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#email",
+      "o": "p014@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p014",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p014",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p014",
+      "p": "http://ex/cb3#email",
+      "o": "p014@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p014",
+      "p": "http://ex/cb3#email",
+      "o": "p014.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p014",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p014",
+      "p": "http://ex/cb3#email",
+      "o": "p014.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p014",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#email",
+      "o": "p015@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p015",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p015",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p015",
+      "p": "http://ex/cb3#email",
+      "o": "p015@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p015",
+      "p": "http://ex/cb3#email",
+      "o": "p015.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p015",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p015",
+      "p": "http://ex/cb3#email",
+      "o": "p015.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p015",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#email",
+      "o": "p016@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p016",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p016",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p016",
+      "p": "http://ex/cb3#email",
+      "o": "p016@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p016",
+      "p": "http://ex/cb3#email",
+      "o": "p016.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p016",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p016",
+      "p": "http://ex/cb3#email",
+      "o": "p016.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p016",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#email",
+      "o": "p017@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p017",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p017",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p017",
+      "p": "http://ex/cb3#email",
+      "o": "p017@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p017",
+      "p": "http://ex/cb3#email",
+      "o": "p017.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p017",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p017",
+      "p": "http://ex/cb3#email",
+      "o": "p017.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p017",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#email",
+      "o": "p018@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p018",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p018",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p018",
+      "p": "http://ex/cb3#email",
+      "o": "p018@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p018",
+      "p": "http://ex/cb3#email",
+      "o": "p018.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p018",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p018",
+      "p": "http://ex/cb3#email",
+      "o": "p018.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p018",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#email",
+      "o": "p019@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p019",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p019",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p019",
+      "p": "http://ex/cb3#email",
+      "o": "p019@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p019",
+      "p": "http://ex/cb3#email",
+      "o": "p019.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p019",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p019",
+      "p": "http://ex/cb3#email",
+      "o": "p019.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p019",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#email",
+      "o": "p020@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p020",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p020",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p020",
+      "p": "http://ex/cb3#email",
+      "o": "p020@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p020",
+      "p": "http://ex/cb3#email",
+      "o": "p020.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p020",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p020",
+      "p": "http://ex/cb3#email",
+      "o": "p020.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p020",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#email",
+      "o": "p021@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p021",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p021",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p021",
+      "p": "http://ex/cb3#email",
+      "o": "p021@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p021",
+      "p": "http://ex/cb3#email",
+      "o": "p021.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p021",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p021",
+      "p": "http://ex/cb3#email",
+      "o": "p021.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p021",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#email",
+      "o": "p022@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p022",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p022",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p022",
+      "p": "http://ex/cb3#email",
+      "o": "p022@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p022",
+      "p": "http://ex/cb3#email",
+      "o": "p022.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p022",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p022",
+      "p": "http://ex/cb3#email",
+      "o": "p022.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p022",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#email",
+      "o": "p023@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p023",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p023",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p023",
+      "p": "http://ex/cb3#email",
+      "o": "p023@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p023",
+      "p": "http://ex/cb3#email",
+      "o": "p023.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p023",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p023",
+      "p": "http://ex/cb3#email",
+      "o": "p023.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p023",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#email",
+      "o": "p024@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p024",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p024",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p024",
+      "p": "http://ex/cb3#email",
+      "o": "p024@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p024",
+      "p": "http://ex/cb3#email",
+      "o": "p024.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p024",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p024",
+      "p": "http://ex/cb3#email",
+      "o": "p024.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p024",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#email",
+      "o": "p025@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p025",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p025",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p025",
+      "p": "http://ex/cb3#email",
+      "o": "p025@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p025",
+      "p": "http://ex/cb3#email",
+      "o": "p025.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p025",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p025",
+      "p": "http://ex/cb3#email",
+      "o": "p025.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p025",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#email",
+      "o": "p026@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p026",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p026",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p026",
+      "p": "http://ex/cb3#email",
+      "o": "p026@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p026",
+      "p": "http://ex/cb3#email",
+      "o": "p026.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p026",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p026",
+      "p": "http://ex/cb3#email",
+      "o": "p026.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p026",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#email",
+      "o": "p027@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p027",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p027",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p027",
+      "p": "http://ex/cb3#email",
+      "o": "p027@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p027",
+      "p": "http://ex/cb3#email",
+      "o": "p027.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p027",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p027",
+      "p": "http://ex/cb3#email",
+      "o": "p027.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p027",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#email",
+      "o": "p028@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p028",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p028",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p028",
+      "p": "http://ex/cb3#email",
+      "o": "p028@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p028",
+      "p": "http://ex/cb3#email",
+      "o": "p028.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p028",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p028",
+      "p": "http://ex/cb3#email",
+      "o": "p028.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p028",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#email",
+      "o": "p029@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p029",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p029",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p029",
+      "p": "http://ex/cb3#email",
+      "o": "p029@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p029",
+      "p": "http://ex/cb3#email",
+      "o": "p029.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p029",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p029",
+      "p": "http://ex/cb3#email",
+      "o": "p029.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p029",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#email",
+      "o": "p030@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p030",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p030",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p030",
+      "p": "http://ex/cb3#email",
+      "o": "p030@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p030",
+      "p": "http://ex/cb3#email",
+      "o": "p030.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p030",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p030",
+      "p": "http://ex/cb3#email",
+      "o": "p030.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p030",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#email",
+      "o": "p031@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p031",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p031",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p031",
+      "p": "http://ex/cb3#email",
+      "o": "p031@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p031",
+      "p": "http://ex/cb3#email",
+      "o": "p031.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p031",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p031",
+      "p": "http://ex/cb3#email",
+      "o": "p031.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p031",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#email",
+      "o": "p032@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p032",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p032",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p032",
+      "p": "http://ex/cb3#email",
+      "o": "p032@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p032",
+      "p": "http://ex/cb3#email",
+      "o": "p032.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p032",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p032",
+      "p": "http://ex/cb3#email",
+      "o": "p032.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p032",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#email",
+      "o": "p033@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p033",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p033",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p033",
+      "p": "http://ex/cb3#email",
+      "o": "p033@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p033",
+      "p": "http://ex/cb3#email",
+      "o": "p033.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p033",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p033",
+      "p": "http://ex/cb3#email",
+      "o": "p033.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p033",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#email",
+      "o": "p034@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p034",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p034",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p034",
+      "p": "http://ex/cb3#email",
+      "o": "p034@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p034",
+      "p": "http://ex/cb3#email",
+      "o": "p034.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p034",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p034",
+      "p": "http://ex/cb3#email",
+      "o": "p034.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p034",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#email",
+      "o": "p035@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p035",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team5",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p035",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p035",
+      "p": "http://ex/cb3#email",
+      "o": "p035@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p035",
+      "p": "http://ex/cb3#email",
+      "o": "p035.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p035",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p035",
+      "p": "http://ex/cb3#email",
+      "o": "p035.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p035",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office0",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#email",
+      "o": "p036@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p036",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team0",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p036",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p036",
+      "p": "http://ex/cb3#email",
+      "o": "p036@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p036",
+      "p": "http://ex/cb3#email",
+      "o": "p036.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p036",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p036",
+      "p": "http://ex/cb3#email",
+      "o": "p036.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p036",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office1",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#email",
+      "o": "p037@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p037",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team1",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p037",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p037",
+      "p": "http://ex/cb3#email",
+      "o": "p037@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p037",
+      "p": "http://ex/cb3#email",
+      "o": "p037.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p037",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p037",
+      "p": "http://ex/cb3#email",
+      "o": "p037.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p037",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office2",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#email",
+      "o": "p038@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p038",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team2",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p038",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p038",
+      "p": "http://ex/cb3#email",
+      "o": "p038@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p038",
+      "p": "http://ex/cb3#email",
+      "o": "p038.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p038",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p038",
+      "p": "http://ex/cb3#email",
+      "o": "p038.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p038",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office3",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#email",
+      "o": "p039@ex.com",
+      "lit": true,
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#reportsTo",
+      "o": "http://ex/cb3/m3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s1-p039",
+      "p": "http://ex/cb3#memberOf",
+      "o": "http://ex/cb3/team3",
+      "episode": 1
+    },
+    {
+      "s": "http://ex/cb3/s2-p039",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p039",
+      "p": "http://ex/cb3#email",
+      "o": "p039@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s2-p039",
+      "p": "http://ex/cb3#email",
+      "o": "p039.alt1@ex.com",
+      "lit": true,
+      "episode": 2
+    },
+    {
+      "s": "http://ex/cb3/s3-p039",
+      "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "o": "http://ex/cb3#PersonRecord",
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p039",
+      "p": "http://ex/cb3#email",
+      "o": "p039.alt1@ex.com",
+      "lit": true,
+      "episode": 3
+    },
+    {
+      "s": "http://ex/cb3/s3-p039",
+      "p": "http://ex/cb3#office",
+      "o": "http://ex/cb3/office4",
+      "episode": 3
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "vc-s1-p002",
+      "about": "http://ex/cb3/s1-p002",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p002",
+      "about": "http://ex/cb3/s2-p002",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p002",
+      "about": "http://ex/cb3/s3-p002",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p005",
+      "about": "http://ex/cb3/s1-p005",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p005",
+      "about": "http://ex/cb3/s2-p005",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p005",
+      "about": "http://ex/cb3/s3-p005",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p006",
+      "about": "http://ex/cb3/s1-p006",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p006",
+      "about": "http://ex/cb3/s2-p006",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p006",
+      "about": "http://ex/cb3/s3-p006",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p009",
+      "about": "http://ex/cb3/s1-p009",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p009",
+      "about": "http://ex/cb3/s2-p009",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p009",
+      "about": "http://ex/cb3/s3-p009",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p013",
+      "about": "http://ex/cb3/s1-p013",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p013",
+      "about": "http://ex/cb3/s2-p013",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p013",
+      "about": "http://ex/cb3/s3-p013",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p014",
+      "about": "http://ex/cb3/s1-p014",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p014",
+      "about": "http://ex/cb3/s2-p014",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p014",
+      "about": "http://ex/cb3/s3-p014",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p017",
+      "about": "http://ex/cb3/s1-p017",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p017",
+      "about": "http://ex/cb3/s2-p017",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p017",
+      "about": "http://ex/cb3/s3-p017",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office4"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p023",
+      "about": "http://ex/cb3/s1-p023",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p023",
+      "about": "http://ex/cb3/s2-p023",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p023",
+      "about": "http://ex/cb3/s3-p023",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office2"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p029",
+      "about": "http://ex/cb3/s1-p029",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p029",
+      "about": "http://ex/cb3/s2-p029",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p029",
+      "about": "http://ex/cb3/s3-p029",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s1-p031",
+      "about": "http://ex/cb3/s1-p031",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s2-p031",
+      "about": "http://ex/cb3/s2-p031",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    },
+    {
+      "id": "vc-s3-p031",
+      "about": "http://ex/cb3/s3-p031",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office0"
+      ],
+      "episode": 3
+    }
+  ],
+  "groups": [
+    {
+      "person": "p000",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p000",
+        "http://ex/cb3/s2-p000",
+        "http://ex/cb3/s3-p000"
+      ],
+      "keys": [
+        "p000@ex.com",
+        "p000.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p000",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p000",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p000",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p000",
+          "p": "http://ex/cb3#email",
+          "o": "p000@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p000",
+          "p": "http://ex/cb3#email",
+          "o": "p000@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p000",
+          "p": "http://ex/cb3#email",
+          "o": "p000.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p000",
+          "p": "http://ex/cb3#email",
+          "o": "p000.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p000",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        },
+        {
+          "s": "http://ex/cb3/s3-p000",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p001",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p001",
+        "http://ex/cb3/s2-p001",
+        "http://ex/cb3/s3-p001"
+      ],
+      "keys": [
+        "p001@ex.com",
+        "p001.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p001",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p001",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p001",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p001",
+          "p": "http://ex/cb3#email",
+          "o": "p001@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p001",
+          "p": "http://ex/cb3#email",
+          "o": "p001@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p001",
+          "p": "http://ex/cb3#email",
+          "o": "p001.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p001",
+          "p": "http://ex/cb3#email",
+          "o": "p001.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p001",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        },
+        {
+          "s": "http://ex/cb3/s3-p001",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        }
+      ]
+    },
+    {
+      "person": "p002",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p002",
+        "http://ex/cb3/s2-p002",
+        "http://ex/cb3/s3-p002"
+      ],
+      "keys": [
+        "p002@ex.com",
+        "p002.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p002",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p002",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p002",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p002",
+          "p": "http://ex/cb3#email",
+          "o": "p002@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p002",
+          "p": "http://ex/cb3#email",
+          "o": "p002@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p002",
+          "p": "http://ex/cb3#email",
+          "o": "p002.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p002",
+          "p": "http://ex/cb3#email",
+          "o": "p002.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p002",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        },
+        {
+          "s": "http://ex/cb3/s3-p002",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p003",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p003",
+        "http://ex/cb3/s2-p003",
+        "http://ex/cb3/s3-p003"
+      ],
+      "keys": [
+        "p003@ex.com",
+        "p003.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p003",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p003",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p003",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p003",
+          "p": "http://ex/cb3#email",
+          "o": "p003@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p003",
+          "p": "http://ex/cb3#email",
+          "o": "p003@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p003",
+          "p": "http://ex/cb3#email",
+          "o": "p003.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p003",
+          "p": "http://ex/cb3#email",
+          "o": "p003.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p003",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        },
+        {
+          "s": "http://ex/cb3/s3-p003",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        }
+      ]
+    },
+    {
+      "person": "p004",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p004",
+        "http://ex/cb3/s2-p004",
+        "http://ex/cb3/s3-p004"
+      ],
+      "keys": [
+        "p004@ex.com",
+        "p004.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p004",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p004",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p004",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p004",
+          "p": "http://ex/cb3#email",
+          "o": "p004@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p004",
+          "p": "http://ex/cb3#email",
+          "o": "p004@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p004",
+          "p": "http://ex/cb3#email",
+          "o": "p004.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p004",
+          "p": "http://ex/cb3#email",
+          "o": "p004.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p004",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        },
+        {
+          "s": "http://ex/cb3/s3-p004",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        }
+      ]
+    },
+    {
+      "person": "p005",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p005",
+        "http://ex/cb3/s2-p005",
+        "http://ex/cb3/s3-p005"
+      ],
+      "keys": [
+        "p005@ex.com",
+        "p005.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0",
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p005",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p005",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p005",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p005",
+          "p": "http://ex/cb3#email",
+          "o": "p005@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p005",
+          "p": "http://ex/cb3#email",
+          "o": "p005@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p005",
+          "p": "http://ex/cb3#email",
+          "o": "p005.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p005",
+          "p": "http://ex/cb3#email",
+          "o": "p005.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p005",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        },
+        {
+          "s": "http://ex/cb3/s3-p005",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p006",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p006",
+        "http://ex/cb3/s2-p006",
+        "http://ex/cb3/s3-p006"
+      ],
+      "keys": [
+        "p006@ex.com",
+        "p006.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office4"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p006",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p006",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p006",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p006",
+          "p": "http://ex/cb3#email",
+          "o": "p006@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p006",
+          "p": "http://ex/cb3#email",
+          "o": "p006@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p006",
+          "p": "http://ex/cb3#email",
+          "o": "p006.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p006",
+          "p": "http://ex/cb3#email",
+          "o": "p006.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p006",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        },
+        {
+          "s": "http://ex/cb3/s3-p006",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        }
+      ]
+    },
+    {
+      "person": "p007",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p007",
+        "http://ex/cb3/s2-p007",
+        "http://ex/cb3/s3-p007"
+      ],
+      "keys": [
+        "p007@ex.com",
+        "p007.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p007",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p007",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p007",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p007",
+          "p": "http://ex/cb3#email",
+          "o": "p007@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p007",
+          "p": "http://ex/cb3#email",
+          "o": "p007@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p007",
+          "p": "http://ex/cb3#email",
+          "o": "p007.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p007",
+          "p": "http://ex/cb3#email",
+          "o": "p007.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p007",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        },
+        {
+          "s": "http://ex/cb3/s3-p007",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p008",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p008",
+        "http://ex/cb3/s2-p008",
+        "http://ex/cb3/s3-p008"
+      ],
+      "keys": [
+        "p008@ex.com",
+        "p008.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p008",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p008",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p008",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p008",
+          "p": "http://ex/cb3#email",
+          "o": "p008@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p008",
+          "p": "http://ex/cb3#email",
+          "o": "p008@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p008",
+          "p": "http://ex/cb3#email",
+          "o": "p008.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p008",
+          "p": "http://ex/cb3#email",
+          "o": "p008.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p008",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        },
+        {
+          "s": "http://ex/cb3/s3-p008",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        }
+      ]
+    },
+    {
+      "person": "p009",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p009",
+        "http://ex/cb3/s2-p009",
+        "http://ex/cb3/s3-p009"
+      ],
+      "keys": [
+        "p009@ex.com",
+        "p009.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p009",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p009",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p009",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p009",
+          "p": "http://ex/cb3#email",
+          "o": "p009@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p009",
+          "p": "http://ex/cb3#email",
+          "o": "p009@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p009",
+          "p": "http://ex/cb3#email",
+          "o": "p009.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p009",
+          "p": "http://ex/cb3#email",
+          "o": "p009.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p009",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        },
+        {
+          "s": "http://ex/cb3/s3-p009",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        }
+      ]
+    },
+    {
+      "person": "p010",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p010",
+        "http://ex/cb3/s2-p010",
+        "http://ex/cb3/s3-p010"
+      ],
+      "keys": [
+        "p010@ex.com",
+        "p010.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p010",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p010",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p010",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p010",
+          "p": "http://ex/cb3#email",
+          "o": "p010@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p010",
+          "p": "http://ex/cb3#email",
+          "o": "p010@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p010",
+          "p": "http://ex/cb3#email",
+          "o": "p010.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p010",
+          "p": "http://ex/cb3#email",
+          "o": "p010.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p010",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        },
+        {
+          "s": "http://ex/cb3/s3-p010",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p011",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p011",
+        "http://ex/cb3/s2-p011",
+        "http://ex/cb3/s3-p011"
+      ],
+      "keys": [
+        "p011@ex.com",
+        "p011.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p011",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p011",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p011",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p011",
+          "p": "http://ex/cb3#email",
+          "o": "p011@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p011",
+          "p": "http://ex/cb3#email",
+          "o": "p011@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p011",
+          "p": "http://ex/cb3#email",
+          "o": "p011.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p011",
+          "p": "http://ex/cb3#email",
+          "o": "p011.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p011",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        },
+        {
+          "s": "http://ex/cb3/s3-p011",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        }
+      ]
+    },
+    {
+      "person": "p012",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p012",
+        "http://ex/cb3/s2-p012",
+        "http://ex/cb3/s3-p012"
+      ],
+      "keys": [
+        "p012@ex.com",
+        "p012.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p012",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p012",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p012",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p012",
+          "p": "http://ex/cb3#email",
+          "o": "p012@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p012",
+          "p": "http://ex/cb3#email",
+          "o": "p012@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p012",
+          "p": "http://ex/cb3#email",
+          "o": "p012.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p012",
+          "p": "http://ex/cb3#email",
+          "o": "p012.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p012",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        },
+        {
+          "s": "http://ex/cb3/s3-p012",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p013",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p013",
+        "http://ex/cb3/s2-p013",
+        "http://ex/cb3/s3-p013"
+      ],
+      "keys": [
+        "p013@ex.com",
+        "p013.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p013",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p013",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p013",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p013",
+          "p": "http://ex/cb3#email",
+          "o": "p013@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p013",
+          "p": "http://ex/cb3#email",
+          "o": "p013@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p013",
+          "p": "http://ex/cb3#email",
+          "o": "p013.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p013",
+          "p": "http://ex/cb3#email",
+          "o": "p013.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p013",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        },
+        {
+          "s": "http://ex/cb3/s3-p013",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p014",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p014",
+        "http://ex/cb3/s2-p014",
+        "http://ex/cb3/s3-p014"
+      ],
+      "keys": [
+        "p014@ex.com",
+        "p014.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p014",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p014",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p014",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p014",
+          "p": "http://ex/cb3#email",
+          "o": "p014@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p014",
+          "p": "http://ex/cb3#email",
+          "o": "p014@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p014",
+          "p": "http://ex/cb3#email",
+          "o": "p014.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p014",
+          "p": "http://ex/cb3#email",
+          "o": "p014.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p014",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        },
+        {
+          "s": "http://ex/cb3/s3-p014",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p015",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p015",
+        "http://ex/cb3/s2-p015",
+        "http://ex/cb3/s3-p015"
+      ],
+      "keys": [
+        "p015@ex.com",
+        "p015.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p015",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p015",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p015",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p015",
+          "p": "http://ex/cb3#email",
+          "o": "p015@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p015",
+          "p": "http://ex/cb3#email",
+          "o": "p015@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p015",
+          "p": "http://ex/cb3#email",
+          "o": "p015.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p015",
+          "p": "http://ex/cb3#email",
+          "o": "p015.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p015",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        },
+        {
+          "s": "http://ex/cb3/s3-p015",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p016",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p016",
+        "http://ex/cb3/s2-p016",
+        "http://ex/cb3/s3-p016"
+      ],
+      "keys": [
+        "p016@ex.com",
+        "p016.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p016",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p016",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p016",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p016",
+          "p": "http://ex/cb3#email",
+          "o": "p016@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p016",
+          "p": "http://ex/cb3#email",
+          "o": "p016@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p016",
+          "p": "http://ex/cb3#email",
+          "o": "p016.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p016",
+          "p": "http://ex/cb3#email",
+          "o": "p016.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p016",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        },
+        {
+          "s": "http://ex/cb3/s3-p016",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        }
+      ]
+    },
+    {
+      "person": "p017",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p017",
+        "http://ex/cb3/s2-p017",
+        "http://ex/cb3/s3-p017"
+      ],
+      "keys": [
+        "p017@ex.com",
+        "p017.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2",
+        "http://ex/cb3/office4"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p017",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p017",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p017",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p017",
+          "p": "http://ex/cb3#email",
+          "o": "p017@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p017",
+          "p": "http://ex/cb3#email",
+          "o": "p017@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p017",
+          "p": "http://ex/cb3#email",
+          "o": "p017.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p017",
+          "p": "http://ex/cb3#email",
+          "o": "p017.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p017",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        },
+        {
+          "s": "http://ex/cb3/s3-p017",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        }
+      ]
+    },
+    {
+      "person": "p018",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p018",
+        "http://ex/cb3/s2-p018",
+        "http://ex/cb3/s3-p018"
+      ],
+      "keys": [
+        "p018@ex.com",
+        "p018.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p018",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p018",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p018",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p018",
+          "p": "http://ex/cb3#email",
+          "o": "p018@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p018",
+          "p": "http://ex/cb3#email",
+          "o": "p018@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p018",
+          "p": "http://ex/cb3#email",
+          "o": "p018.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p018",
+          "p": "http://ex/cb3#email",
+          "o": "p018.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p018",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        },
+        {
+          "s": "http://ex/cb3/s3-p018",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        }
+      ]
+    },
+    {
+      "person": "p019",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p019",
+        "http://ex/cb3/s2-p019",
+        "http://ex/cb3/s3-p019"
+      ],
+      "keys": [
+        "p019@ex.com",
+        "p019.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p019",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p019",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p019",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p019",
+          "p": "http://ex/cb3#email",
+          "o": "p019@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p019",
+          "p": "http://ex/cb3#email",
+          "o": "p019@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p019",
+          "p": "http://ex/cb3#email",
+          "o": "p019.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p019",
+          "p": "http://ex/cb3#email",
+          "o": "p019.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p019",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        },
+        {
+          "s": "http://ex/cb3/s3-p019",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        }
+      ]
+    },
+    {
+      "person": "p020",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p020",
+        "http://ex/cb3/s2-p020",
+        "http://ex/cb3/s3-p020"
+      ],
+      "keys": [
+        "p020@ex.com",
+        "p020.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p020",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p020",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p020",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p020",
+          "p": "http://ex/cb3#email",
+          "o": "p020@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p020",
+          "p": "http://ex/cb3#email",
+          "o": "p020@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p020",
+          "p": "http://ex/cb3#email",
+          "o": "p020.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p020",
+          "p": "http://ex/cb3#email",
+          "o": "p020.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p020",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        },
+        {
+          "s": "http://ex/cb3/s3-p020",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p021",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p021",
+        "http://ex/cb3/s2-p021",
+        "http://ex/cb3/s3-p021"
+      ],
+      "keys": [
+        "p021@ex.com",
+        "p021.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p021",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p021",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p021",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p021",
+          "p": "http://ex/cb3#email",
+          "o": "p021@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p021",
+          "p": "http://ex/cb3#email",
+          "o": "p021@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p021",
+          "p": "http://ex/cb3#email",
+          "o": "p021.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p021",
+          "p": "http://ex/cb3#email",
+          "o": "p021.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p021",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        },
+        {
+          "s": "http://ex/cb3/s3-p021",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        }
+      ]
+    },
+    {
+      "person": "p022",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p022",
+        "http://ex/cb3/s2-p022",
+        "http://ex/cb3/s3-p022"
+      ],
+      "keys": [
+        "p022@ex.com",
+        "p022.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p022",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p022",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p022",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p022",
+          "p": "http://ex/cb3#email",
+          "o": "p022@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p022",
+          "p": "http://ex/cb3#email",
+          "o": "p022@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p022",
+          "p": "http://ex/cb3#email",
+          "o": "p022.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p022",
+          "p": "http://ex/cb3#email",
+          "o": "p022.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p022",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        },
+        {
+          "s": "http://ex/cb3/s3-p022",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p023",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p023",
+        "http://ex/cb3/s2-p023",
+        "http://ex/cb3/s3-p023"
+      ],
+      "keys": [
+        "p023@ex.com",
+        "p023.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3",
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p023",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p023",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p023",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p023",
+          "p": "http://ex/cb3#email",
+          "o": "p023@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p023",
+          "p": "http://ex/cb3#email",
+          "o": "p023@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p023",
+          "p": "http://ex/cb3#email",
+          "o": "p023.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p023",
+          "p": "http://ex/cb3#email",
+          "o": "p023.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p023",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        },
+        {
+          "s": "http://ex/cb3/s3-p023",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p024",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p024",
+        "http://ex/cb3/s2-p024",
+        "http://ex/cb3/s3-p024"
+      ],
+      "keys": [
+        "p024@ex.com",
+        "p024.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p024",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p024",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p024",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p024",
+          "p": "http://ex/cb3#email",
+          "o": "p024@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p024",
+          "p": "http://ex/cb3#email",
+          "o": "p024@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p024",
+          "p": "http://ex/cb3#email",
+          "o": "p024.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p024",
+          "p": "http://ex/cb3#email",
+          "o": "p024.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p024",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        },
+        {
+          "s": "http://ex/cb3/s3-p024",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        }
+      ]
+    },
+    {
+      "person": "p025",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p025",
+        "http://ex/cb3/s2-p025",
+        "http://ex/cb3/s3-p025"
+      ],
+      "keys": [
+        "p025@ex.com",
+        "p025.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p025",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p025",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p025",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p025",
+          "p": "http://ex/cb3#email",
+          "o": "p025@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p025",
+          "p": "http://ex/cb3#email",
+          "o": "p025@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p025",
+          "p": "http://ex/cb3#email",
+          "o": "p025.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p025",
+          "p": "http://ex/cb3#email",
+          "o": "p025.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p025",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        },
+        {
+          "s": "http://ex/cb3/s3-p025",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p026",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p026",
+        "http://ex/cb3/s2-p026",
+        "http://ex/cb3/s3-p026"
+      ],
+      "keys": [
+        "p026@ex.com",
+        "p026.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p026",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p026",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p026",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p026",
+          "p": "http://ex/cb3#email",
+          "o": "p026@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p026",
+          "p": "http://ex/cb3#email",
+          "o": "p026@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p026",
+          "p": "http://ex/cb3#email",
+          "o": "p026.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p026",
+          "p": "http://ex/cb3#email",
+          "o": "p026.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p026",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        },
+        {
+          "s": "http://ex/cb3/s3-p026",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        }
+      ]
+    },
+    {
+      "person": "p027",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p027",
+        "http://ex/cb3/s2-p027",
+        "http://ex/cb3/s3-p027"
+      ],
+      "keys": [
+        "p027@ex.com",
+        "p027.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p027",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p027",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p027",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p027",
+          "p": "http://ex/cb3#email",
+          "o": "p027@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p027",
+          "p": "http://ex/cb3#email",
+          "o": "p027@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p027",
+          "p": "http://ex/cb3#email",
+          "o": "p027.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p027",
+          "p": "http://ex/cb3#email",
+          "o": "p027.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p027",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        },
+        {
+          "s": "http://ex/cb3/s3-p027",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p028",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p028",
+        "http://ex/cb3/s2-p028",
+        "http://ex/cb3/s3-p028"
+      ],
+      "keys": [
+        "p028@ex.com",
+        "p028.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p028",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p028",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p028",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p028",
+          "p": "http://ex/cb3#email",
+          "o": "p028@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p028",
+          "p": "http://ex/cb3#email",
+          "o": "p028@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p028",
+          "p": "http://ex/cb3#email",
+          "o": "p028.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p028",
+          "p": "http://ex/cb3#email",
+          "o": "p028.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p028",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        },
+        {
+          "s": "http://ex/cb3/s3-p028",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        }
+      ]
+    },
+    {
+      "person": "p029",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p029",
+        "http://ex/cb3/s2-p029",
+        "http://ex/cb3/s3-p029"
+      ],
+      "keys": [
+        "p029@ex.com",
+        "p029.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4",
+        "http://ex/cb3/office1"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p029",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p029",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p029",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p029",
+          "p": "http://ex/cb3#email",
+          "o": "p029@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p029",
+          "p": "http://ex/cb3#email",
+          "o": "p029@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p029",
+          "p": "http://ex/cb3#email",
+          "o": "p029.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p029",
+          "p": "http://ex/cb3#email",
+          "o": "p029.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p029",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        },
+        {
+          "s": "http://ex/cb3/s3-p029",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        }
+      ]
+    },
+    {
+      "person": "p030",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p030",
+        "http://ex/cb3/s2-p030",
+        "http://ex/cb3/s3-p030"
+      ],
+      "keys": [
+        "p030@ex.com",
+        "p030.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p030",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p030",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p030",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p030",
+          "p": "http://ex/cb3#email",
+          "o": "p030@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p030",
+          "p": "http://ex/cb3#email",
+          "o": "p030@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p030",
+          "p": "http://ex/cb3#email",
+          "o": "p030.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p030",
+          "p": "http://ex/cb3#email",
+          "o": "p030.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p030",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        },
+        {
+          "s": "http://ex/cb3/s3-p030",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p031",
+      "kind": "conflict",
+      "records": [
+        "http://ex/cb3/s1-p031",
+        "http://ex/cb3/s2-p031",
+        "http://ex/cb3/s3-p031"
+      ],
+      "keys": [
+        "p031@ex.com",
+        "p031.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1",
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p031",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p031",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p031",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p031",
+          "p": "http://ex/cb3#email",
+          "o": "p031@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p031",
+          "p": "http://ex/cb3#email",
+          "o": "p031@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p031",
+          "p": "http://ex/cb3#email",
+          "o": "p031.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p031",
+          "p": "http://ex/cb3#email",
+          "o": "p031.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p031",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        },
+        {
+          "s": "http://ex/cb3/s3-p031",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p032",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p032",
+        "http://ex/cb3/s2-p032",
+        "http://ex/cb3/s3-p032"
+      ],
+      "keys": [
+        "p032@ex.com",
+        "p032.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p032",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p032",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p032",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p032",
+          "p": "http://ex/cb3#email",
+          "o": "p032@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p032",
+          "p": "http://ex/cb3#email",
+          "o": "p032@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p032",
+          "p": "http://ex/cb3#email",
+          "o": "p032.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p032",
+          "p": "http://ex/cb3#email",
+          "o": "p032.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p032",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        },
+        {
+          "s": "http://ex/cb3/s3-p032",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p033",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p033",
+        "http://ex/cb3/s2-p033",
+        "http://ex/cb3/s3-p033"
+      ],
+      "keys": [
+        "p033@ex.com",
+        "p033.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p033",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p033",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p033",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p033",
+          "p": "http://ex/cb3#email",
+          "o": "p033@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p033",
+          "p": "http://ex/cb3#email",
+          "o": "p033@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p033",
+          "p": "http://ex/cb3#email",
+          "o": "p033.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p033",
+          "p": "http://ex/cb3#email",
+          "o": "p033.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p033",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        },
+        {
+          "s": "http://ex/cb3/s3-p033",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        }
+      ]
+    },
+    {
+      "person": "p034",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p034",
+        "http://ex/cb3/s2-p034",
+        "http://ex/cb3/s3-p034"
+      ],
+      "keys": [
+        "p034@ex.com",
+        "p034.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p034",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p034",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p034",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p034",
+          "p": "http://ex/cb3#email",
+          "o": "p034@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p034",
+          "p": "http://ex/cb3#email",
+          "o": "p034@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p034",
+          "p": "http://ex/cb3#email",
+          "o": "p034.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p034",
+          "p": "http://ex/cb3#email",
+          "o": "p034.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p034",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        },
+        {
+          "s": "http://ex/cb3/s3-p034",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        }
+      ]
+    },
+    {
+      "person": "p035",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p035",
+        "http://ex/cb3/s2-p035",
+        "http://ex/cb3/s3-p035"
+      ],
+      "keys": [
+        "p035@ex.com",
+        "p035.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office0"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p035",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p035",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p035",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p035",
+          "p": "http://ex/cb3#email",
+          "o": "p035@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p035",
+          "p": "http://ex/cb3#email",
+          "o": "p035@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p035",
+          "p": "http://ex/cb3#email",
+          "o": "p035.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p035",
+          "p": "http://ex/cb3#email",
+          "o": "p035.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p035",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        },
+        {
+          "s": "http://ex/cb3/s3-p035",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office0"
+        }
+      ]
+    },
+    {
+      "person": "p036",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p036",
+        "http://ex/cb3/s2-p036",
+        "http://ex/cb3/s3-p036"
+      ],
+      "keys": [
+        "p036@ex.com",
+        "p036.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office1"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p036",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p036",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p036",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p036",
+          "p": "http://ex/cb3#email",
+          "o": "p036@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p036",
+          "p": "http://ex/cb3#email",
+          "o": "p036@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p036",
+          "p": "http://ex/cb3#email",
+          "o": "p036.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p036",
+          "p": "http://ex/cb3#email",
+          "o": "p036.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p036",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        },
+        {
+          "s": "http://ex/cb3/s3-p036",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office1"
+        }
+      ]
+    },
+    {
+      "person": "p037",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p037",
+        "http://ex/cb3/s2-p037",
+        "http://ex/cb3/s3-p037"
+      ],
+      "keys": [
+        "p037@ex.com",
+        "p037.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office2"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p037",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p037",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p037",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p037",
+          "p": "http://ex/cb3#email",
+          "o": "p037@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p037",
+          "p": "http://ex/cb3#email",
+          "o": "p037@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p037",
+          "p": "http://ex/cb3#email",
+          "o": "p037.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p037",
+          "p": "http://ex/cb3#email",
+          "o": "p037.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p037",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        },
+        {
+          "s": "http://ex/cb3/s3-p037",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office2"
+        }
+      ]
+    },
+    {
+      "person": "p038",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p038",
+        "http://ex/cb3/s2-p038",
+        "http://ex/cb3/s3-p038"
+      ],
+      "keys": [
+        "p038@ex.com",
+        "p038.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office3"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p038",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p038",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p038",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p038",
+          "p": "http://ex/cb3#email",
+          "o": "p038@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p038",
+          "p": "http://ex/cb3#email",
+          "o": "p038@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p038",
+          "p": "http://ex/cb3#email",
+          "o": "p038.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p038",
+          "p": "http://ex/cb3#email",
+          "o": "p038.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p038",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        },
+        {
+          "s": "http://ex/cb3/s3-p038",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office3"
+        }
+      ]
+    },
+    {
+      "person": "p039",
+      "kind": "benign-coreference",
+      "records": [
+        "http://ex/cb3/s1-p039",
+        "http://ex/cb3/s2-p039",
+        "http://ex/cb3/s3-p039"
+      ],
+      "keys": [
+        "p039@ex.com",
+        "p039.alt1@ex.com"
+      ],
+      "keyProp": "http://ex/cb3#email",
+      "predicate": "http://ex/cb3#office",
+      "values": [
+        "http://ex/cb3/office4"
+      ],
+      "witness": [
+        {
+          "s": "http://ex/cb3/s1-p039",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s2-p039",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s3-p039",
+          "p": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "o": "http://ex/cb3#PersonRecord"
+        },
+        {
+          "s": "http://ex/cb3/s1-p039",
+          "p": "http://ex/cb3#email",
+          "o": "p039@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p039",
+          "p": "http://ex/cb3#email",
+          "o": "p039@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s2-p039",
+          "p": "http://ex/cb3#email",
+          "o": "p039.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s3-p039",
+          "p": "http://ex/cb3#email",
+          "o": "p039.alt1@ex.com"
+        },
+        {
+          "s": "http://ex/cb3/s1-p039",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        },
+        {
+          "s": "http://ex/cb3/s3-p039",
+          "p": "http://ex/cb3#office",
+          "o": "http://ex/cb3/office4"
+        }
+      ]
+    }
+  ],
+  "benign": {
+    "sharedValueSubjects": [
+      "http://ex/cb3/s1-p000",
+      "http://ex/cb3/s1-p010"
+    ]
+  }
+}

@@ -22,7 +22,41 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 0.07779999999999994,
+      "meanCostMs": 0.06999999999999998,
+      "perKind": {
+        "conflict": {
+          "n": 60,
+          "flagged": 60,
+          "missing": 0
+        },
+        "benign-coreference": {
+          "n": 3,
+          "flagged": 0,
+          "missing": 0
+        },
+        "benign-shared-value": {
+          "n": 1,
+          "flagged": 0,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "system": "exact-key-join-x",
+      "rows": 64,
+      "missing": 0,
+      "conflict": {
+        "tp": 60,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "bothValueRecall": 1,
+      "witnessRecall": 1,
+      "meanCostMs": 0.0843999999999999,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -56,7 +90,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 6244.5,
+      "meanCostMs": 3825.809999999998,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -90,7 +124,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.5,
-      "meanCostMs": 0.7285937500000002,
+      "meanCostMs": 0.36203125000000014,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -124,7 +158,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.5,
-      "meanCostMs": 3.6626562500000004,
+      "meanCostMs": 2.802343749999999,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -158,7 +192,7 @@
       },
       "bothValueRecall": 0,
       "witnessRecall": 0.5,
-      "meanCostMs": 4.422031249999998,
+      "meanCostMs": 2.84359375,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -192,7 +226,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 58.1275,
+      "meanCostMs": 75.05812499999999,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -226,7 +260,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 0.4139062499999999,
+      "meanCostMs": 3.410468750000001,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -260,7 +294,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 108.28625000000001,
+      "meanCostMs": 172.71468749999997,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -294,7 +328,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 177.638125,
+      "meanCostMs": 331.7400000000001,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -328,7 +362,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 407.21484375,
+      "meanCostMs": 602.5584375000002,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -362,7 +396,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 0.41281249999999997,
+      "meanCostMs": 0.3321874999999999,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -396,7 +430,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 70.42374999999998,
+      "meanCostMs": 86.7334375,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -430,7 +464,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 98.64687499999997,
+      "meanCostMs": 146.66249999999997,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -464,7 +498,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 245.31484375000005,
+      "meanCostMs": 398.46203124999977,
       "perKind": {
         "conflict": {
           "n": 60,
@@ -498,7 +532,7 @@
       },
       "bothValueRecall": 1,
       "witnessRecall": 1,
-      "meanCostMs": 1.126600000000001,
+      "meanCostMs": 0.6199999999999998,
       "perKind": {
         "conflict": {
           "n": 60,
