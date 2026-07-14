@@ -21,6 +21,7 @@ systems on detection accuracy and cost.
 
 | File | What |
 |---|---|
+| [`paper.md`](paper.md) | **Working paper draft** (AAAI-28/KRR shape) — every §5–§6 number traced to artifacts at tag `phase1-hardening-2026-07-13` |
 | [`top-venue-publication-plan.md`](top-venue-publication-plan.md) | Independent 2026-07-12 audit and restart-to-submission roadmap for AAAI/NeurIPS/ICML/ICLR |
 | [`gate-a-analysis.md`](gate-a-analysis.md) | Gate A decision analysis — DECIDED 2026-07-13: Option 1, proceed reframed under conditions 5(a)–(c) |
 | [`probes/`](probes/) | Gate C preview probes: C1/OSV prevalence probe script + 2026-07-13 report |
