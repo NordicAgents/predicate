@@ -543,10 +543,21 @@ external validity.
 text into $(s,p,o,\tau,\sigma,\pi)$ assertions with correct keys and constraints is a separate, unsolved
 problem, and end-to-end conflict completeness is bounded by it. We name this rather than hide it.
 
-**No LLM-reader comparison yet.** A pinned frontier-model track (does an LLM reading each policy's returned
-context detect the conflict?) is built and dry-run-verified but unexecuted pending API access; the
-completeness property is about what the *policy* returns, and the reader arm measures the *interface*, not
-model intelligence, but it is not yet run.
+**No LLM-reader comparison yet.** We state this arm's status precisely, because it is the one place where
+what we have built is easy to overstate. The pinned-runner *infrastructure* — verbatim logging of every
+request and response attempt, retry/backoff, run manifests carrying fixture and prompt hashes, and a canned
+zero-network transport — is built and dry-run-verified, together with two *question-level* arms: whole-store
+context, and the IRI-BFS ball at $k$ hops. An exploratory pilot had local models read those two contexts on
+one family; the frontier tier scored 1.00 on the whole store and 0.58 on the $k{=}2$ ball, while weaker
+tiers failed the whole-store control outright and so measured their own limits rather than the interface.
+What does **not** exist is the arm this paper's framing actually calls for: a reader over *each* policy's
+returned context — `key-aware`, `literal-aware`, and the witness contract have no reader path at all — at
+instance granularity, across the phase1-v3 families. That arm is pre-registered (roster, repeat count,
+prompts, competence gate, and two directional hypotheses fixed before implementation) and not yet run. The
+consequence for the paper is stated plainly: the completeness property is a claim about what the *policy*
+returns, and the reader arm would measure the *interface* rather than model intelligence — but until it
+runs, §1's claim that an agent **silently selects** one side rests on the exploratory ingest study, not on a
+confirmatory result, and we do not present it as one.
 
 **Reproducibility and release.** Fixtures, generators, all prediction rows, scorers, the pre-registration
 with dated amendments, and a one-command evidence build are released; the build regenerates every decision
