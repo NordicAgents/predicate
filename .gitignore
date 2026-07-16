@@ -18,3 +18,4 @@ packages/predicate-server/fuseki-data/
 # reader-arm driver log (operational, not evidence)
 packages/predicate-eval/reader-arm.log
 packages/predicate-eval/reader-arm-A5roster.log
+packages/predicate-eval/reader-arm-A6roster.log

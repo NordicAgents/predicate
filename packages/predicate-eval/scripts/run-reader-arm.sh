@@ -29,16 +29,21 @@ set -a; . "$REPO_ROOT/.env"; set +a
 export PREDICATE_BACKEND=oxigraph-wasm
 export PREDICATE_STORE_PATH=:memory:
 
-# A6.1 frozen roster — FOUR lineages (DeepSeek, Qwen, Google, Meta).
-# z-ai/glm-5.2 was removed on throughput grounds ONLY (~10x slower: 6 cells vs
-# 60/63 in a 30-min window => ~16 days for its share). It was the most ACCURATE
-# model on the cells it completed; see A6 timing disclosure. Per A6.6, NVCF
-# per-model latency is volatile and any member here may become a long pole.
+# A7.1 frozen roster — FIVE lineages (DeepSeek, Qwen, Google, MiniMax, NVIDIA).
+# Removed on throughput ONLY: z-ai/glm-5.2 (A6.1, ~16d) and meta/llama-3.3-70b
+# (A7.2, ~4d). BOTH were performing perfectly when removed — see A7.2. The
+# roster is now CLOSED to further speed-motivated change (A7.2): a pattern of
+# swapping models until the arm runs fast would erode the registration.
+# minimax-m3 and nemotron-3-super were excluded in A5.2.6 on grounds RETRACTED
+# in A7.3 as probe artifacts (both emit clean minimal JSON under the real
+# prompts; nemotron's CoT goes to reasoning_content, not content).
+# Per A6.6/A7.4: spot probes do not predict throughput — do not re-tune on them.
 MODELS=(
   "openai:deepseek-ai/deepseek-v4-flash@b"
   "openai:qwen/qwen3.5-122b-a10b@c"
   "openai:google/gemma-4-31b-it@d"
-  "openai:meta/llama-3.3-70b-instruct@e"
+  "openai:minimaxai/minimax-m3@f"
+  "openai:nvidia/nemotron-3-super-120b-a12b@g"
 )
 # A5.2.3 registered domains. Ordered SMALLEST FIRST: if the arm never finishes,
 # whole domains are complete rather than every domain half-done.
@@ -71,10 +76,10 @@ for pass in $(seq 1 "$PASSES"); do
   done
   wait
 
-  # Progress ledger. expected = 188 instances x 8 sources x 3 runs x 4 models (A6.4).
+  # Progress ledger. expected = 188 instances x 8 sources x 3 runs x 5 models (A7.5).
   total=$(cat results/reader/*.jsonl 2>/dev/null | wc -l)
-  echo "--- pass ${pass} complete: ${total}/18048 cells written ($(date -u +%H:%M:%SZ))"
-  if [ "$total" -ge 18048 ]; then
+  echo "--- pass ${pass} complete: ${total}/22560 cells written ($(date -u +%H:%M:%SZ))"
+  if [ "$total" -ge 22560 ]; then
     echo "=== ARM COMPLETE at pass ${pass}, $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     exit 0
   fi
