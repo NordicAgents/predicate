@@ -25,6 +25,7 @@
  *   --max-instances N   smoke runs only; recorded in the manifest
  *   --dry-run           MockProvider, zero network
  *   --resume            skip cells already present in the rows file
+ *   --pace-ms N         min gap between completions (operational; for rate-limited models)
  *
  * Exit codes: 0 ok; 1 usage/error; 2 missing API key.
  */
@@ -59,7 +60,20 @@ export interface ReaderOptions {
   dryRun: boolean;
   resume: boolean;
   resultsDir?: string;
+  /**
+   * Minimum gap between completions, ms. Purely operational: some models on a
+   * shared gateway enforce a much lower request rate than others (minimax-m3
+   * produced 89% of this arm's 429s and 327 of 331 transport failures while
+   * every other model stayed clean). Pacing a shard to its model's rate is an
+   * OPERATIONS fix, not a roster change — A7.2 closed the roster to
+   * speed-motivated substitution, so a rate-limited model gets paced, not
+   * dropped. Affects no registered quantity: same prompts, same cells, same
+   * runs, only slower.
+   */
+  paceMs?: number;
 }
+
+const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
 /** Filesystem-safe slug for a model spec: "openai:z-ai/glm-5.2" -> "z-ai_glm-5.2". */
 const modelSlug = (spec: string): string =>
@@ -167,6 +181,8 @@ export async function runReader(client: StorageAdapter, opts: ReaderOptions): Pr
         const ctx: BuiltContext = c.get(src.name)!;
         const seed = ctx.seed ?? inst.subjects[0]!;
 
+        if (opts.paceMs && written > 0) await sleep(opts.paceMs);
+
         // --- Q1: detection (every instance) ---
         const t0 = performance.now();
         let q1text = '';
@@ -199,6 +215,7 @@ export async function runReader(client: StorageAdapter, opts: ReaderOptions): Pr
         let q2Values: string[] = [];
         let q2seq: number | null = null;
         if (inst.isConflict) {
+          if (opts.paceMs) await sleep(opts.paceMs);
           let q2text = '';
           try {
             q2text = await provider.complete({
@@ -279,6 +296,7 @@ function parseArgs(argv: string[]): ReaderOptions | { usageError: string } {
   let maxInstances: number | undefined;
   let dryRun = false;
   let resume = false;
+  let paceMs: number | undefined;
   for (let i = 1; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--model') model = argv[++i]!;
@@ -286,10 +304,11 @@ function parseArgs(argv: string[]): ReaderOptions | { usageError: string } {
     else if (a === '--max-instances') maxInstances = Number(argv[++i]);
     else if (a === '--dry-run') dryRun = true;
     else if (a === '--resume') resume = true;
+    else if (a === '--pace-ms') paceMs = Number(argv[++i]);
     else return { usageError: `unknown flag: ${a}` };
   }
   if (!Number.isFinite(runs) || runs < 1) return { usageError: '--runs must be a positive integer' };
-  return { domain, model, runs, maxInstances, dryRun, resume };
+  return { domain, model, runs, maxInstances, dryRun, resume, paceMs };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

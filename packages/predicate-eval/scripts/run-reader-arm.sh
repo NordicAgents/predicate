@@ -57,7 +57,12 @@ DOMAINS=(
   conflict-tausig     # 60
 )
 
-MAX_PARALLEL="${MAX_PARALLEL:-4}"
+# 4 shards saturated the gateway's per-model request rate. Diagnosis: with our
+# own load stopped, 4 concurrent bare calls all return 200 — so this is a
+# sustained REQUEST-RATE limit, not a concurrency ceiling, and it is
+# overwhelmingly per-model (minimax-m3: 2575 of 2894 429s, 327 of 331 transport
+# failures; every other model near-clean). Lower total rate + per-model pacing.
+MAX_PARALLEL="${MAX_PARALLEL:-2}"
 PASSES="${PASSES:-100}"
 
 echo "=== reader arm: $((${#DOMAINS[@]} * ${#MODELS[@]})) shards, max ${MAX_PARALLEL} parallel, up to ${PASSES} passes"
@@ -69,7 +74,15 @@ for pass in $(seq 1 "$PASSES"); do
   for domain in "${DOMAINS[@]}"; do
     for model in "${MODELS[@]}"; do
       while [ "$(jobs -rp | wc -l)" -ge "$MAX_PARALLEL" ]; do sleep 5; done
-      ( npx tsx src/reader/run-reader-cli.ts "$domain" --model "$model" --runs 3 --resume \
+      # Per-model pacing (operational only — same prompts, cells, runs; slower).
+      # A7.2 closed the roster to speed-motivated change, so a rate-limited
+      # model is PACED, not dropped.
+      pace=0
+      case "$model" in
+        *minimax*)  pace=3000 ;;   # 89% of all 429s; needs the widest gap
+        *nemotron*) pace=1000 ;;   # 318 of 2894 429s
+      esac
+      ( npx tsx src/reader/run-reader-cli.ts "$domain" --model "$model" --runs 3 --resume --pace-ms "$pace" \
           2>&1 | sed "s|^|[p${pass}] |" ) &
       sleep 2   # stagger starts so shards do not all hit the gateway together
     done
