@@ -86,7 +86,7 @@ function completedCells(file: string): Set<string> {
   return done;
 }
 
-export async function runReader(client: StorageAdapter, opts: ReaderOptions): Promise<{ rows: number; file: string }> {
+export async function runReader(client: StorageAdapter, opts: ReaderOptions): Promise<{ rows: number; file: string; complete: boolean; transportFailures: number }> {
   const dir = join(PKG_ROOT, 'fixtures', opts.domain);
   const resultsDir = opts.resultsDir ?? join(PKG_ROOT, 'results');
   const spec = parseModelSpec(opts.model);
@@ -157,6 +157,7 @@ export async function runReader(client: StorageAdapter, opts: ReaderOptions): Pr
   writer.writeManifest(manifest);
 
   let written = 0;
+  let transportFailures = 0;
   for (let run = 1; run <= opts.runs; run++) {
     for (const inst of instances) {
       const c = contexts.get(inst.id)!;
@@ -180,6 +181,19 @@ export async function runReader(client: StorageAdapter, opts: ReaderOptions): Pr
         const q1 = q1err === null ? parseQ1(q1text) : null;
         const costMs = performance.now() - t0;
 
+        // A TRANSPORT failure (429 / 503 / timeout / network, retries already
+        // exhausted inside the provider) is NOT a reader failure and NOT a
+        // parse failure. §6 makes PARSE failures misses; writing an unanswered
+        // call as `flagged: false` would fabricate a miss — and on a throttled
+        // endpoint it would fabricate precisely the negative H13a predicts.
+        // Leave the cell UNWRITTEN so --resume retries it against a live
+        // endpoint. Never zero-fill a question nobody was asked.
+        if (q1err !== null) {
+          transportFailures++;
+          process.stderr.write(`  [transport] ${inst.id} ${src.name} run ${run} — cell left unwritten: ${q1err.slice(0, 90)}\n`);
+          continue;
+        }
+
         // --- Q2: silent-selection probe (conflict instances only) ---
         let q2Outcome: Q2Outcome | null = null;
         let q2Values: string[] = [];
@@ -195,9 +209,12 @@ export async function runReader(client: StorageAdapter, opts: ReaderOptions): Pr
             const p = parseQ2(q2text);
             q2Outcome = p.outcome;
             q2Values = p.values;
-          } catch {
-            q2seq = writer.lastSeq;
-            q2Outcome = 'unparseable';
+          } catch (e) {
+            // Same rule: an unanswered Q2 is not an `unparseable` reader
+            // outcome. Drop the whole cell rather than record half of it.
+            transportFailures++;
+            process.stderr.write(`  [transport] ${inst.id} ${src.name} run ${run} q2 — cell left unwritten: ${String(e).slice(0, 90)}\n`);
+            continue;
           }
         }
 
@@ -238,8 +255,20 @@ export async function runReader(client: StorageAdapter, opts: ReaderOptions): Pr
       }
     }
   }
-  process.stderr.write(`[${opts.domain}/${spec.label}] done — ${written} rows -> ${outFile}\n`);
-  return { rows: written, file: outFile };
+  const expected = opts.runs * instances.length * CONTEXT_SOURCES.length;
+  const have = completedCells(outFile).size;
+  process.stderr.write(
+    `[${opts.domain}/${spec.label}] done — ${written} rows this pass, ${have}/${expected} cells complete`
+    + (transportFailures > 0 ? `, ${transportFailures} cells left unwritten (transport)\n` : '\n'),
+  );
+  if (have < expected) {
+    // Loud, because a silently short arm is how a throttled endpoint turns into
+    // a wrong result. Incompleteness must be reported, never zero-filled.
+    process.stderr.write(
+      `[${opts.domain}/${spec.label}] INCOMPLETE: ${expected - have} cells still unrun — re-invoke with --resume.\n`,
+    );
+  }
+  return { rows: written, file: outFile, complete: have === expected, transportFailures };
 }
 
 function parseArgs(argv: string[]): ReaderOptions | { usageError: string } {

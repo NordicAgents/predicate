@@ -14,3 +14,6 @@ packages/predicate-server/fuseki-data/
 
 # oxigraph in-memory test artifact
 :memory:/
+
+# reader-arm driver log (operational, not evidence)
+packages/predicate-eval/reader-arm.log
