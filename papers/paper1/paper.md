@@ -1,4 +1,4 @@
-# When Is Agent Memory Conflict-Complete? Minimal Proof-Witness Retrieval under Bounded Context
+# Conflict-Complete Retrieval for Agent Memory: Minimal Witnesses under Bounded Context
 
 **Working draft — anonymous submission version.** Target: AAAI-28 main track (KRR area);
 alternative NeurIPS Evaluations & Datasets. Every quantitative claim in §5–§6 is traced to a
@@ -11,31 +11,27 @@ Implementation names ("Predicate", "MCP", "OWL 2 RL") are confined to the reprod
 
 ## Abstract
 
-An LLM agent that stores facts across sessions can *silently select* one side of a contradiction:
-when two records disagree about a single-valued attribute of the same entity, a query-local
-retriever may surface only one, and the agent answers with unwarranted confidence. We argue this is
-not primarily a reasoning failure but a **retrieval-completeness** failure — the policy never
-returns both halves of the contradiction — and we make that precise. We define **conflict
-completeness** as a property of a *retrieval policy* under a bounded context budget: whenever a
-query-relevant conflict witness exists in the store, the policy returns enough of that witness, in
-budget, for a sound detector to establish the conflict. We prove a lower bound — bounded-hop
-retrieval over IRI adjacency alone is conflict-incomplete for any finite hop bound when the two
-records are connected only through a shared key *literal* — and we give an incremental **Conflict
-Witness Index (CWI)** that returns minimal, source-grounded witnesses at a context cost equal to the
-witness itself, independent of the graph distance between the records. On a pre-registered,
-mechanism-controlled benchmark spanning cross-record duplicates, multi-hop key chains, non-key
-shared literals, and record-level valid-time/scope annotations, CWI is conflict-complete on every
-family with returned context exactly the gold witness size (2–12 triples), where the strongest
-witness-complete neighborhood policy pays 8–95 triples and grows with hop depth; its update
-amplification is flat (~1.9 index writes per assertion) and its query latency stays in the
-microseconds as the store grows to 56k triples, where an OWL-style materializer is already 40× more
-expensive at 5.6k triples and does not scale. We are explicit about what this is *not*: **detection**
-in the exercised fragment is a textbook key join, and we claim no advantage there; the contribution
-is the completeness-under-budget framing, the lower bound, and the measured cost of returning whole,
-machine-checkable witnesses versus the weaker "flag + pointer" contracts we also measure. All results
-are on synthetic fixtures under an oracle schema; a prevalence probe on real vulnerability records
-(80.7% of CVE-keyed groups span ≥2 independently authored records; 48.4% disagree on affected
-ranges) motivates but does not establish external validity, which we defer to a released benchmark.
+An agent cannot reason about a contradiction if retrieval exposes only one side. We therefore treat
+silent conflict selection in long-term agent memory as a retrieval-completeness problem. We define
+**conflict completeness** for a policy under a bounded context budget: whenever a query-relevant
+conflict exists, retrieval must return a complete, source-grounded witness that a sound detector can
+verify. We prove that policies based only on IRI adjacency are conflict-incomplete for any finite hop
+bound when conflicting records connect only through a shared key literal. We then introduce the
+incremental **Conflict Witness Index (CWI)**, which indexes key-induced equivalence and retrieves
+minimal witnesses for a bounded rule fragment with valid-time and scope conditions. On a
+pre-registered synthetic benchmark covering same- and cross-record conflicts, key-equivalence chains,
+shared-literal distractors, and temporal and scoped near-misses, CWI returns every gold witness in
+exactly 2–12 triples. Neighborhood policies instead miss witnesses, return the entire store, or require
+8–95 triples in their smallest witness-complete configurations. Across stores of up to 56,009 triples,
+CWI averages approximately 1.89 index writes per assertion and 5–8 microsecond median query latency.
+Its complete witnesses cost at most 3.08 times a flag-plus-pointer representation while remaining
+independently checkable. Conflict detection in this fragment is a standard key join; our contribution
+is the bounded-retrieval guarantee, the lower bound, and the measured completeness–context trade-off.
+All confirmatory results use synthetic data and an oracle schema, establishing the mechanism rather
+than external validity.
+
+**TL;DR.** Conflict-complete retrieval lets agents verify contradictions: CWI returns minimal witnesses
+in 2–12 triples, while neighborhood retrieval misses conflicts or consumes much more context.
 
 ---
 

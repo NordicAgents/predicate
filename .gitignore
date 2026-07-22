@@ -21,3 +21,6 @@ packages/predicate-eval/reader-arm-A5roster.log
 packages/predicate-eval/reader-arm-A6roster.log
 packages/predicate-eval/reader-arm-p4.log
 packages/predicate-eval/reader-arm-preEOL.log
+
+# AAAI author kit — vendor artifact, not source (5.3MB binary)
+papers/paper1/AuthorKit27.zip

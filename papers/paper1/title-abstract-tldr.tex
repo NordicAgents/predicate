@@ -1,0 +1,68 @@
+% Revised 2026-07-22 against the frozen retrieval/CWI artifacts and the
+% IN-PROGRESS reader arm (6,868 conflict cells, ~69% of attainable; Amendment
+% A5.2). Reader numbers are PROVISIONAL and must be refreshed from
+% results/reader/ before submission; every other number is final at tag
+% phase1-hardening-2026-07-13.
+%
+% WHAT CHANGED AND WHY (do not silently revert):
+%  1. The previous TL;DR claimed neighborhood retrieval "misses conflicts or
+%     consumes much more context". On 5 of 7 families key-aware@1 does NEITHER:
+%     it is witness-complete at 4-12 triples against CWI's 2-10 (about 1.3x).
+%     The claim holds only on the two key-chain families. Quoting "8-95 triples"
+%     as a range also presented a TIE (8t vs 6t) as a defeat.
+%  2. A chain-depth probe over a dated OSV/PyPI slice (2026-07-17) found 99.5%
+%     of co-referent record pairs share a key DIRECTLY (m=1), and no pair at
+%     m>=3 exists at all -- so the regime where CWI beats key-aware is rare in
+%     that domain and the abstract must not imply otherwise. The same probe
+%     VALIDATES Prop. 3 at scale: those 99.5% are linked only by a literal.
+%  3. The reader arm supplies what actually carries the argument: completeness
+%     alone is not sufficient, because the SAME complete witness is detected far
+%     less often when it arrives inside a large context.
+
+\title{Conflict-Complete Retrieval for Agent Memory: Minimal Witnesses under Bounded Context}
+
+\begin{abstract}
+An agent cannot reason about a contradiction that retrieval never surfaces. We treat silent conflict
+selection in long-term agent memory as a retrieval-completeness problem and make it precise. We define
+\emph{conflict completeness} for a retrieval policy under a bounded context budget: whenever a
+query-relevant conflict exists in the store, retrieval must return a complete, source-grounded witness
+that a sound detector can verify from the returned context alone. We prove that policies determined
+only by IRI adjacency are conflict-incomplete for any finite hop bound when the conflicting records are
+connected solely through a shared key \emph{literal}. This regime is not hypothetical: in a dated
+export of a public vulnerability database, 99.5\% of co-referent record pairs are linked only by a
+shared identifier string, with no graph path between them. We then give the incremental \emph{Conflict
+Witness Index} (CWI), which maintains key-induced equivalence and returns minimal witnesses for a
+bounded rule fragment with valid-time and scope side conditions, at a context cost equal to the witness
+itself (2--12 triples) and independent of the graph distance between the records.
+
+We are explicit about where this wins and where it does not. On five of seven benchmark families a
+\emph{key-aware} neighborhood policy is already witness-complete at 4--12 triples, within roughly
+$1.3\times$ of CWI; the witness index earns its cost only when records are co-referent through a
+\emph{chain} of key hops, where a neighborhood policy either returns no witness at all below the chain
+depth or must buy the whole radius-$m$ ball. In the vulnerability slice above such chains are only
+0.5\% of co-referent pairs, so we do not claim the index is broadly necessary --- we claim the
+\emph{property} is, and CWI is one implementation that attains its lower bound.
+
+The stronger empirical result is that completeness alone is not sufficient. Feeding five hosted LLM
+readers exactly what each policy returned, detection of a conflict whose full witness is present falls
+from 0.94 when the returned context is under 10 triples to 0.59 at 250 triples or more, and the split
+across models is stark: two readers are essentially unaffected ($1.00 \to 0.99$ and $0.99 \to 0.95$
+from small to large contexts) while three degrade sharply (to 0.70, 0.54 and 0.22). Because a
+deployment cannot know in advance which kind of reader it has, returning a minimal witness rather than
+a merely sufficient neighborhood is a robustness property, not a byte-count optimization. When
+retrieval returns only one side of a conflict, readers named a single value in 96.7\% of cases and
+abstained once in 1{,}015 --- the silent-selection failure this paper is named for, measured rather than
+assumed. Across stores up to 56{,}009 triples CWI sustains approximately 1.89 index writes per
+assertion and 5--8\,\textmu s median query latency, and its complete witnesses cost at most
+$3.08\times$ a flag-plus-pointer encoding while remaining independently checkable. Conflict
+\emph{detection} in this fragment is a standard key join and we claim no advantage there. All
+confirmatory results use synthetic fixtures under an oracle schema and establish the mechanism, not
+external validity; the reader arm runs on hosted endpoints that are not version-pinned, and one model
+was withdrawn by its vendor mid-experiment.
+\end{abstract}
+
+\paragraph{TL;DR.}
+Retrieval, not reasoning, decides whether an agent can see a contradiction: IRI-adjacency retrieval
+provably cannot reach records joined only by a shared key literal, and even when the full witness
+\emph{is} returned, readers detect it 0.94 of the time in under 10 triples but only 0.59 at 250-plus ---
+so agent memory should return minimal witnesses, which CWI does in 2--12 triples.
