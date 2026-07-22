@@ -24,3 +24,7 @@ packages/predicate-eval/reader-arm-preEOL.log
 
 # AAAI author kit — vendor artifact, not source (5.3MB binary)
 papers/paper1/AuthorKit27.zip
+
+# reader-arm per-instance raw outputs (~211MB, ~45k files) — the aggregated
+# results/reader/*.jsonl summaries are the committed evidence; raw stays local
+packages/predicate-eval/results/raw/*-reader-*/
