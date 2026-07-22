@@ -29,18 +29,22 @@ set -a; . "$REPO_ROOT/.env"; set +a
 export PREDICATE_BACKEND=oxigraph-wasm
 export PREDICATE_STORE_PATH=:memory:
 
-# A7.1 frozen roster — FIVE lineages (DeepSeek, Qwen, Google, MiniMax, NVIDIA).
-# Removed on throughput ONLY: z-ai/glm-5.2 (A6.1, ~16d) and meta/llama-3.3-70b
-# (A7.2, ~4d). BOTH were performing perfectly when removed — see A7.2. The
-# roster is now CLOSED to further speed-motivated change (A7.2): a pattern of
-# swapping models until the arm runs fast would erode the registration.
-# minimax-m3 and nemotron-3-super were excluded in A5.2.6 on grounds RETRACTED
-# in A7.3 as probe artifacts (both emit clean minimal JSON under the real
-# prompts; nemotron's CoT goes to reasoning_content, not content).
-# Per A6.6/A7.4: spot probes do not predict throughput — do not re-tune on them.
+# A8.4 roster — FOUR collectable models.
+#
+# qwen/qwen3.5-122b-a10b is ABSENT because the vendor DECOMMISSIONED it
+# mid-run: HTTP 410 "has reached its end of life on 2026-07-20". This is NOT a
+# roster decision and NOT a precedent under A7.2 (which governs removal on
+# THROUGHPUT grounds and remains unbroken). No credential, pacing, or patience
+# retrieves a model that no longer exists.
+#
+# Qwen's 2,088 already-collected cells STAND and are analysed (5 of 7 domains
+# COMPLETE: d20, h3-nk1, h3-nk3, xr-small, chain-m3). chain-m2 and tausig will
+# never exist for it — a permanent 2,424-cell shortfall, reported as such per
+# A5.2.7/A8.3. Do NOT delete reader.*.qwen_*.jsonl: unlike a de-registered
+# model, Qwen was never de-registered, and its raw logs are now the ONLY
+# evidence for a model nobody can query again.
 MODELS=(
   "openai:deepseek-ai/deepseek-v4-flash@b"
-  "openai:qwen/qwen3.5-122b-a10b@c"
   "openai:google/gemma-4-31b-it@d"
   "openai:minimaxai/minimax-m3@f"
   "openai:nvidia/nemotron-3-super-120b-a12b@g"
@@ -89,10 +93,10 @@ for pass in $(seq 1 "$PASSES"); do
   done
   wait
 
-  # Progress ledger. expected = 188 instances x 8 sources x 3 runs x 5 models (A7.5).
+  # Progress ledger. expected = 188 instances x 8 sources x 3 runs x 4 collectable models + Qwen 2,088 banked (A8.4).
   total=$(cat results/reader/*.jsonl 2>/dev/null | wc -l)
-  echo "--- pass ${pass} complete: ${total}/22560 cells written ($(date -u +%H:%M:%SZ))"
-  if [ "$total" -ge 22560 ]; then
+  echo "--- pass ${pass} complete: ${total}/20136 attainable cells written (22560 registered; 2424 permanently lost to the Qwen EOL, A8.3) ($(date -u +%H:%M:%SZ))"
+  if [ "$total" -ge 20136 ]; then
     echo "=== ARM COMPLETE at pass ${pass}, $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     exit 0
   fi
