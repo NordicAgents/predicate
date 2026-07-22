@@ -1,0 +1,71 @@
+{
+  "probe": "C2 chain depth — ClinicalTrials.gov API v2 (union-find over NCT + org + secondary ids)",
+  "registration": "pre-registration.md Amendment A2.7 (EXPLORATORY; no confirmatory number, no instances mined)",
+  "question": "do co-referent trial records require a chain of >= 2 key hops — the regime where the witness index beats key-aware@1?",
+  "contrastWithC1": "C1/OSV (2026-07-17): 99.5% of co-referent pairs at m=1, no pair at m>=3, so CWI earned nothing there",
+  "sampling": "convenience sample: API default order, 40 pages x 1000; NOT random; no registry-wide rate claimed",
+  "normalization": {
+    "minKeyLength": 4,
+    "stopList": [
+      "NA",
+      "N/A",
+      "NONE",
+      "NULL",
+      "PENDING",
+      "TBD",
+      "NOT APPLICABLE",
+      "NOTAPPLICABLE",
+      "UNKNOWN",
+      "0",
+      "1",
+      "-",
+      "--",
+      "NOT AVAILABLE",
+      "NO",
+      "NIL"
+    ],
+    "namespacedByType": true
+  },
+  "fetchedAt": "2026-07-22T12:36:21.952Z",
+  "records": 40000,
+  "distinctKeys": 90499,
+  "keyTypes": {
+    "NCT": 40245,
+    "ORG": 39517,
+    "OTHER": 3337,
+    "NIH": 2452,
+    "SEC": 2199,
+    "REGISTRY": 1284,
+    "EUDRACT_NUMBER": 1214,
+    "OTHER_GRANT": 739,
+    "CTIS": 142,
+    "AHRQ": 16,
+    "FDA": 5
+  },
+  "components": 39452,
+  "multiRecordComponents": 190,
+  "componentsSkippedTooLarge": 1,
+  "recordsInSkippedComponents": 148,
+  "componentsContainingAChain": 9,
+  "chainDepthDistribution": [
+    {
+      "m": 1,
+      "coReferentPairs": 1380
+    },
+    {
+      "m": 2,
+      "coReferentPairs": 222
+    },
+    {
+      "m": 3,
+      "coReferentPairs": 3
+    }
+  ],
+  "headline": {
+    "totalCoReferentPairs": 1605,
+    "pairsAtM1": 1380,
+    "pairsAtMge2": 225,
+    "shareOfPairsRequiringAChain": 0.14018691588785046,
+    "maxDepthObserved": 3
+  }
+}
