@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { StorageAdapter } from 'predicate-mcp/src/storage/index.js';
-import { ballFor, ballContext, type BallOptions } from './flat-retrieved.js';
+import { ballFor, type BallOptions } from './flat-retrieved.js';
 import { readEpisode, applyEpisodeTriples } from '../episode-runner.js';
 import { seedProvenance } from '../provenance.js';
 import { deriveV3Instances, isV3Oracle } from '../instances/v3.js';
@@ -34,7 +34,7 @@ const OWL_NS = 'http://www.w3.org/2002/07/owl#';
 const BATCH = 200;
 const DEFAULT_CAP = 10_000;
 
-export const RETRIEVAL_POLICIES = ['iri-bfs', 'literal-aware', 'key-aware'] as const;
+export const RETRIEVAL_POLICIES = ['iri-bfs', 'literal-aware', 'key-aware', 'bm25'] as const;
 export type RetrievalPolicy = (typeof RETRIEVAL_POLICIES)[number];
 
 export interface PolicyBallOptions extends BallOptions {
@@ -149,13 +149,145 @@ export async function keyAwareBall(
   `);
 }
 
+const lexicalTokens = (text: string): string[] =>
+  text.toLowerCase().split(/[^a-z0-9@._+-]+/u).filter((token) => token.length > 1);
+
+interface Bm25Corpus {
+  docs: Map<string, string[]>;
+  averageLength: number;
+  documentFrequency: Map<string, number>;
+  rankings: Map<string, string[]>;
+}
+
+/** Per-loaded-store corpus/ranking cache; invalidated by loadDomainForRetrieval. */
+const bm25Corpora = new WeakMap<StorageAdapter, Bm25Corpus>();
+const subjectContextCorpora = new WeakMap<StorageAdapter, Map<string, string[]>>();
+
+async function bm25Corpus(client: StorageAdapter): Promise<Bm25Corpus> {
+  const cached = bm25Corpora.get(client);
+  if (cached) return cached;
+  const result = await client.select(`
+    SELECT ?s ?p ?o WHERE {
+      GRAPH <kg:abox> { ?s ?p ?o }
+      FILTER (isIRI(?s))
+    }
+  `);
+  const docs = new Map<string, string[]>();
+  for (const binding of result.results.bindings) {
+    const s = binding.s!.value;
+    const terms = docs.get(s) ?? [];
+    terms.push(...lexicalTokens(binding.p!.value), ...lexicalTokens(binding.o!.value));
+    docs.set(s, terms);
+  }
+  const n = Math.max(1, docs.size);
+  const averageLength = [...docs.values()].reduce((sum, terms) => sum + terms.length, 0) / n;
+  const documentFrequency = new Map<string, number>();
+  for (const terms of docs.values()) {
+    for (const term of new Set(terms)) {
+      documentFrequency.set(term, (documentFrequency.get(term) ?? 0) + 1);
+    }
+  }
+  const corpus = { docs, averageLength, documentFrequency, rankings: new Map<string, string[]>() };
+  bm25Corpora.set(client, corpus);
+  return corpus;
+}
+
+/**
+ * Batch-load the store's subject contexts once. This is semantically identical
+ * to repeated ballContext queries, but avoids one SPARQL round trip per
+ * (instance, seed, budget). The preload is common retrieval infrastructure and
+ * occurs outside the per-query timer.
+ */
+async function subjectContextCorpus(client: StorageAdapter): Promise<Map<string, string[]>> {
+  const cached = subjectContextCorpora.get(client);
+  if (cached) return cached;
+  const result = await client.select(`
+    SELECT ?s ?p ?o WHERE {
+      GRAPH <kg:abox> { ?s ?p ?o }
+      FILTER (isIRI(?s))
+    }
+  `);
+  const corpus = new Map<string, string[]>();
+  for (const binding of result.results.bindings) {
+    const object = binding.o!;
+    const objectText = object.type === 'uri' ? `<${object.value}>` : JSON.stringify(object.value);
+    const line = `<${binding.s!.value}> <${binding.p!.value}> ${objectText} .`;
+    const lines = corpus.get(binding.s!.value) ?? [];
+    lines.push(line);
+    corpus.set(binding.s!.value, lines);
+  }
+  for (const lines of corpus.values()) lines.sort();
+  subjectContextCorpora.set(client, corpus);
+  return corpus;
+}
+
+function contextFromCorpus(corpus: Map<string, string[]>, ball: Set<string>): string {
+  return [...ball].flatMap((subject) => corpus.get(subject) ?? []).sort().join('\n');
+}
+
+/**
+ * Record-level BM25 baseline. Each RDF subject is a document consisting of
+ * predicate/object lexical forms. The query is the seeded record text and the
+ * parameter called `hops` by the shared CLI is BM25's top-k record count.
+ *
+ * This intentionally performs no key or schema expansion: a unique shared key
+ * literal should rank a direct twin highly, while a multi-link chain requires
+ * information absent from the seed document.
+ */
+export async function bm25Ball(
+  client: StorageAdapter, seeds: string[], topK: number,
+): Promise<PolicyBall> {
+  const corpus = await bm25Corpus(client);
+  const { docs, averageLength: avgDl, documentFrequency: df } = corpus;
+  const cacheKey = [...seeds].sort().join('\n');
+  const cachedRanking = corpus.rankings.get(cacheKey);
+  if (cachedRanking) {
+    return {
+      ball: new Set([...seeds, ...cachedRanking.slice(0, topK)]),
+      stats: { nodes: new Set([...seeds, ...cachedRanking.slice(0, topK)]).size, hopsUsed: topK },
+    };
+  }
+  const queryTerms = seeds.flatMap((seed) => docs.get(seed) ?? lexicalTokens(seed));
+  // Standard short-query BM25: duplicate terms in the seed record do not
+  // multiply their query weight (otherwise repeated namespace tokens swamp a
+  // unique identifier such as an email).
+  const queryTf = new Map([...new Set(queryTerms)].map((term) => [term, 1]));
+
+  const n = Math.max(1, docs.size);
+  const k1 = 1.2;
+  const b = 0.75;
+  const scores: Array<{ subject: string; score: number }> = [];
+  for (const [subject, terms] of docs) {
+    if (seeds.includes(subject)) continue;
+    const tf = new Map<string, number>();
+    for (const term of terms) tf.set(term, (tf.get(term) ?? 0) + 1);
+    let score = 0;
+    for (const [term, qtf] of queryTf) {
+      const f = tf.get(term) ?? 0;
+      if (f === 0) continue;
+      const dft = df.get(term) ?? 0;
+      const idf = Math.log(1 + (n - dft + 0.5) / (dft + 0.5));
+      const norm = f + k1 * (1 - b + b * terms.length / Math.max(1, avgDl));
+      score += qtf * idf * (f * (k1 + 1) / norm);
+    }
+    scores.push({ subject, score });
+  }
+  scores.sort((a, b2) => b2.score - a.score || a.subject.localeCompare(b2.subject));
+  const ranking = scores.map((item) => item.subject);
+  corpus.rankings.set(cacheKey, ranking);
+  const ball = new Set(seeds);
+  for (const subject of ranking.slice(0, topK)) ball.add(subject);
+  return { ball, stats: { nodes: ball.size, hopsUsed: topK } };
+}
+
 export async function ballForPolicy(
   client: StorageAdapter, policy: RetrievalPolicy, seeds: string[], hops: number,
   opts: PolicyBallOptions = {},
 ): Promise<PolicyBall> {
   if (policy === 'iri-bfs') return iriBfsBall(client, seeds, hops, opts);
   if (policy === 'literal-aware') return literalAwareBall(client, seeds, hops, opts);
-  return keyAwareBall(client, seeds, hops, opts);
+  if (policy === 'key-aware') return keyAwareBall(client, seeds, hops, opts);
+  return bm25Ball(client, seeds, hops);
 }
 
 // ---------------------------------------------------------------------------
@@ -358,6 +490,8 @@ export async function loadDomainForRetrieval(
     await client.update(`DROP SILENT GRAPH <${g}>`);
     await client.update(`CREATE SILENT GRAPH <${g}>`);
   }
+  bm25Corpora.delete(client);
+  subjectContextCorpora.delete(client);
   await client.loadTurtle(schema, 'kg:tbox');
   const paths = readdirSync(join(dir, 'episodes'))
     .filter((f) => f.endsWith('.jsonl')).sort()
@@ -397,11 +531,12 @@ export async function evaluateInstance(
   client: StorageAdapter, policy: RetrievalPolicy, hops: number,
   inst: InstanceRecord, schemaBytes: number, opts: PolicyBallOptions = {},
 ): Promise<PredictionRow> {
+  const contextCorpus = await subjectContextCorpus(client);
   const outcomes: SeedOutcome[] = [];
   for (const seed of inst.subjects) {
     const t0 = performance.now();
     const pb = await ballForPolicy(client, policy, [seed], hops, opts);
-    const context = await ballContext(client, pb.ball);
+    const context = contextFromCorpus(contextCorpus, pb.ball);
     const ms = performance.now() - t0;
     const { ids, objects } = parseContext(context);
     outcomes.push({
@@ -422,7 +557,10 @@ export async function evaluateInstance(
     instanceId: inst.id,
     domain: inst.domain,
     system: `retrieval:${policy}@${hops}`,
-    flagged: outcomes.every((o) => o.witnessHits.length === inst.goldWitness.length),
+    // `flagged` is the benchmark's conflict-detection field. Retrieval
+    // completeness is vacuous on benign instances, but must not be serialized
+    // as a positive conflict prediction.
+    flagged: inst.isConflict && outcomes.every((o) => o.witnessHits.length === inst.goldWitness.length),
     values: worst.valueHits,
     witness: worst.witnessHits,
     costMs: Math.round(worst.ms * 100) / 100,

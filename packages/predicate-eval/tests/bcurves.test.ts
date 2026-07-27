@@ -134,8 +134,8 @@ describe('bcurves — real-fixture smoke on conflict-chain-m2 committed artifact
     return s;
   };
 
-  it('covers the retrieval sweep plus cwi-witness only', () => {
-    expect(result.systems).toHaveLength(13); // 3 policies x 4 k + cwi-witness
+  it('covers the neighborhood and BM25 retrieval sweeps plus cwi-witness only', () => {
+    expect(result.systems).toHaveLength(23); // 3 x 4 neighborhoods + 10 BM25 top-k + CWI
     expect(result.systems.some((s) => s.system === 'cwi-witness')).toBe(true);
     expect(result.systems.every((s) => s.system === 'cwi-witness' || s.system.startsWith('retrieval:'))).toBe(true);
     expect(result.grids.triples).toEqual([...TRIPLES_GRID]);

@@ -16,11 +16,11 @@ import { tauOverlaps, sigmaOverlaps, type TauSigma } from '../exact/tau-sigma.js
  *    joins a bucket only once it is BOTH typed with the keyed class and
  *    carries the key value (Def. 1.4 requires both).
  *  - Per-class, per-E-predicate entry lists; conflicts re-evaluated at
- *    EQUIVALENCE-CLASS granularity on every touching insert (new value, class
- *    merge, or late-arriving tau/sigma annotation) — per-insert work is
- *    bounded by the affected class, never the store. Late annotations only
- *    RETRACT (tau = bottom overlaps everything), and retraction is handled by
- *    full cell re-evaluation.
+ *    EQUIVALENCE-CLASS granularity on every touching update (new value, class
+ *    merge, or tau/sigma metadata update) — per-update work is bounded by the
+ *    affected class, never the store. Metadata uses record-snapshot
+ *    last-write-wins semantics, so an update can retract or restore a
+ *    conflict; full cell re-evaluation handles both.
  *  - Query(seed): the conflicts on the seed's class, each with a MINIMAL
  *    witness assembled by shortest record–bucket–record path (BFS inside the
  *    class): |W| = 3m+3 cross-record, 2 same-record, + the two supporting
@@ -135,7 +135,8 @@ export class ConflictWitnessIndex {
 
     if (this.schema.singleValued.has(t.p)) {
       const vs = st.eVals.get(t.p) ?? [];
-      if (!vs.includes(t.o)) vs.push(t.o);
+      if (vs.includes(t.o)) return;
+      vs.push(t.o);
       st.eVals.set(t.p, vs);
       this.writes++;
       const root = this.rootOf(t.s);
@@ -159,7 +160,7 @@ export class ConflictWitnessIndex {
     return false;
   }
 
-  /** Late tau/sigma annotation: re-evaluate every cell of the record's class (retraction path). */
+  /** Tau/sigma metadata update: re-evaluate every cell of the record's class. */
   private touchAnnotations(record: string): void {
     this.writes++;
     const cls = this.classes.get(this.rootOf(record));

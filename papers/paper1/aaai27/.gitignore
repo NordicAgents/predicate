@@ -1,0 +1,7 @@
+# LaTeX build intermediates (regenerable by the build command in README.md)
+*.aux
+*.blg
+*.out
+*.toc
+# figure PDFs are copied to the aaai27/ top level; figsrc keeps only sources
+figsrc/*.pdf

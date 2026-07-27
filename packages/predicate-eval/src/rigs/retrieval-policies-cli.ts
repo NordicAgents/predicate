@@ -11,7 +11,8 @@ import {
  *
  *   PREDICATE_BACKEND=oxigraph-wasm PREDICATE_STORE_PATH=:memory: \
  *     pnpm --filter predicate-eval exec tsx src/rigs/retrieval-policies-cli.ts \
- *       <domain> [--policies iri-bfs,literal-aware,key-aware] [--hops 1,2,3,4]
+ *       <domain> [--policies iri-bfs,literal-aware,key-aware,bm25]
+ *       [--hops 1,2,3,4] [--bm25-k 1,2,4,8,16,32,64,128,256,512]
  *
  * Loads world.ttl + ALL episodes into a fresh kg:tbox/kg:abox, derives the
  * contract's InstanceRecords from oracle.json, and for every (policy, hops,
@@ -23,7 +24,8 @@ import {
 function usage(): never {
   console.error(
     'usage: tsx src/rigs/retrieval-policies-cli.ts <domain> '
-    + '[--policies iri-bfs,literal-aware,key-aware] [--hops 1,2,3,4]',
+    + '[--policies iri-bfs,literal-aware,key-aware,bm25] '
+    + '[--hops 1,2,3,4] [--bm25-k 1,2,4,8,16,32,64,128,256,512]',
   );
   process.exit(1);
 }
@@ -50,7 +52,11 @@ async function main(): Promise<void> {
     }
   }
   const hopsList = parseList(args, '--hops', ['1', '2', '3', '4']).map(Number);
+  const bm25KList = parseList(
+    args, '--bm25-k', ['1', '2', '4', '8', '16', '32', '64', '128', '256', '512'],
+  ).map(Number);
   if (hopsList.some((h) => !Number.isInteger(h) || h < 1)) usage();
+  if (bm25KList.some((k) => !Number.isInteger(k) || k < 1)) usage();
 
   const dir = join(import.meta.dirname, '..', '..', 'fixtures', domain);
   if (!existsSync(join(dir, 'oracle.json'))) {
@@ -75,7 +81,8 @@ async function main(): Promise<void> {
   }> = [];
 
   for (const policy of policies) {
-    for (const hops of hopsList) {
+    const parameters = policy === 'bm25' ? bm25KList : hopsList;
+    for (const hops of parameters) {
       const cell = {
         policy, hops, flaggedConflicts: 0,
         ctxTriples: [] as number[], ctxBytes: [] as number[], ballNodes: [] as number[],

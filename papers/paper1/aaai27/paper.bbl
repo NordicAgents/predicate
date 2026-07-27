@@ -1,0 +1,85 @@
+\begin{thebibliography}{13}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Arenas, Bertossi, and Chomicki(1999)}]{arenas1999cqa}
+Arenas, M.; Bertossi, L.; and Chomicki, J. 1999.
+\newblock Consistent Query Answers in Inconsistent Databases.
+\newblock In \emph{Proceedings of the Eighteenth ACM SIGMOD-SIGACT-SIGART
+  Symposium on Principles of Database Systems}, 68--79. ACM.
+
+\bibitem[{Baader and Pe{\~n}aloza(2010)}]{baader2010pinpointing}
+Baader, F.; and Pe{\~n}aloza, R. 2010.
+\newblock Axiom Pinpointing in General Tableaux.
+\newblock \emph{Journal of Logic and Computation}, 20(1): 5--34.
+
+\bibitem[{Buneman, Khanna, and Tan(2001)}]{buneman2001whywhere}
+Buneman, P.; Khanna, S.; and Tan, W.-C. 2001.
+\newblock Why and Where: A Characterization of Data Provenance.
+\newblock In \emph{Database Theory---ICDT 2001}, 316--330. Springer.
+
+\bibitem[{Cormack, Clarke, and Buettcher(2009)}]{cormack2009rrf}
+Cormack, G.~V.; Clarke, C. L.~A.; and Buettcher, S. 2009.
+\newblock Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank
+  Learning Methods.
+\newblock In \emph{Proceedings of the 32nd International ACM SIGIR Conference
+  on Research and Development in Information Retrieval}, 758--759. ACM.
+
+\bibitem[{Green, Karvounarakis, and Tannen(2007)}]{green2007semirings}
+Green, T.~J.; Karvounarakis, G.; and Tannen, V. 2007.
+\newblock Provenance Semirings.
+\newblock In \emph{Proceedings of the Twenty-Sixth ACM SIGMOD-SIGACT-SIGART
+  Symposium on Principles of Database Systems}, 31--40. ACM.
+
+\bibitem[{Gupta, Mumick, and Subrahmanian(1993)}]{gupta1993ivm}
+Gupta, A.; Mumick, I.~S.; and Subrahmanian, V.~S. 1993.
+\newblock Maintaining Views Incrementally.
+\newblock In \emph{Proceedings of the 1993 ACM SIGMOD International Conference
+  on Management of Data}, 157--166. ACM.
+
+\bibitem[{Guti{\'e}rrez et~al.(2024)Guti{\'e}rrez, Shu, Gu, Yasunaga, and
+  Su}]{hipporag2024}
+Guti{\'e}rrez, B.~J.; Shu, Y.; Gu, Y.; Yasunaga, M.; and Su, Y. 2024.
+\newblock {HippoRAG}: Neurobiologically Inspired Long-Term Memory for Large
+  Language Models.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~37.
+
+\bibitem[{Kalyanpur et~al.(2007)Kalyanpur, Parsia, Horridge, and
+  Sirin}]{kalyanpur2007justifications}
+Kalyanpur, A.; Parsia, B.; Horridge, M.; and Sirin, E. 2007.
+\newblock Finding All Justifications of {OWL DL} Entailments.
+\newblock In \emph{The Semantic Web---ISWC/ASWC 2007}, volume 4825 of
+  \emph{Lecture Notes in Computer Science}, 267--280. Springer.
+
+\bibitem[{Packer et~al.(2023)Packer, Wooders, Lin, Fang, Patil, Stoica, and
+  Gonzalez}]{memgpt2023}
+Packer, C.; Wooders, S.; Lin, K.; Fang, V.; Patil, S.~G.; Stoica, I.; and
+  Gonzalez, J.~E. 2023.
+\newblock {MemGPT}: Towards {LLMs} as Operating Systems.
+\newblock \emph{arXiv preprint arXiv:2310.08560}.
+
+\bibitem[{Papadakis(2022)}]{papadakis2022datasets}
+Papadakis, G. 2022.
+\newblock Datasets for Supervised Matching in Clean-Clean Entity Resolution.
+\newblock CC BY 4.0.
+
+\bibitem[{Reimers and Gurevych(2019)}]{reimers2019sbert}
+Reimers, N.; and Gurevych, I. 2019.
+\newblock Sentence-{BERT}: Sentence Embeddings Using Siamese {BERT}-Networks.
+\newblock In \emph{Proceedings of the 2019 Conference on Empirical Methods in
+  Natural Language Processing and the 9th International Joint Conference on
+  Natural Language Processing}, 3982--3992. Association for Computational
+  Linguistics.
+
+\bibitem[{Reiter(1987)}]{reiter1987diagnosis}
+Reiter, R. 1987.
+\newblock A Theory of Diagnosis from First Principles.
+\newblock \emph{Artificial Intelligence}, 32(1): 57--95.
+
+\bibitem[{Robertson and Zaragoza(2009)}]{robertson2009bm25}
+Robertson, S.; and Zaragoza, H. 2009.
+\newblock The Probabilistic Relevance Framework: {BM25} and Beyond.
+\newblock \emph{Foundations and Trends in Information Retrieval}, 3(4):
+  333--389.
+
+\end{thebibliography}

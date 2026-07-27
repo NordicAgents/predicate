@@ -25,9 +25,9 @@
 #   verdicts       phase-1 hypothesis verdicts H3-H10 + clause-3 (Amendments
 #                  A2.4/A3.4/A3.5) over the full domain set
 #                  -> results/instances/phase1-verdicts.json.
-#   scale          load-scale maintenance ledger (Amendment A4.2/H11): cost-only
-#                  strata (persons 300/1k/3k/10k), regenerated not committed
-#                  -> results/scale/scale-ledger.json. Full-domain builds only.
+#   scale          load-scale maintenance ledger (Amendment A4.2/H11) plus the
+#                  11-run timing companion through 100k persons
+#                  -> results/scale/{scale-ledger,scale-repeated}.json.
 #   summary        papers/paper1/evidence/summary-<gitsha>[-dirty].json with
 #                  path + sha256 + row count for every produced file + a table.
 #
@@ -156,10 +156,16 @@ stage_deterministic() {
     run pnpm --filter predicate-eval run instances-manifest "$d"
     is_v3_domain "$d" || run pnpm --filter predicate-eval run eval "$d"
     run pnpm --filter predicate-eval run exact "$d" --system all
-    run pnpm --filter predicate-eval run retrieval-policies "$d" --hops 1,2,3,4
+    run pnpm --filter predicate-eval run retrieval-policies "$d" --hops 1,2,3,4 \
+      --bm25-k 1,2,4,8,16,32,64,128,256,512
+    run uv run --project packages/predicate-eval/dense --frozen python \
+      packages/predicate-eval/dense/run_dense_retrieval.py "$d" \
+      --top-k 1,2,4,8,16,32,64,128,256,512
     run pnpm --filter predicate-eval run instances-reasoner "$d"
     run pnpm --filter predicate-eval run instances-reasoner-tau "$d"
     run pnpm --filter predicate-eval run cwi "$d"
+    run pnpm --filter predicate-eval run ondemand-witness "$d"
+    run pnpm --filter predicate-eval run adaptive-key-witness "$d"
     run pnpm --filter predicate-eval run instances-score "$d" \
       "results/exact/exact-key-join.$d.jsonl" \
       "results/exact/sparql-groupby.$d.jsonl" \
@@ -167,7 +173,9 @@ stage_deterministic() {
       "results/instances/reasoner-r14r23r22.$d.jsonl" \
       "results/instances/reasoner-tau.$d.jsonl" \
       "results/retrieval/retrieval.$d.jsonl" \
-      "results/cwi/cwi.$d.jsonl"
+      "results/cwi/cwi.$d.jsonl" \
+      "results/ondemand/ondemand-witness.$d.jsonl" \
+      "results/ondemand/adaptive-key-witness.$d.jsonl"
     # A4.1 B-bounded completeness curves — reads the retrieval + cwi rows above.
     run pnpm --filter predicate-eval run bcurves "$d"
     echo
@@ -189,10 +197,9 @@ stage_verdicts() {
 }
 
 # -------------------------------------------------------------------- scale --
-# Load-scale maintenance ledger (Amendment A4.2, H11): cost-only strata
-# (persons 300/1k/3k/10k) generated at measurement time, never committed. The
-# reasoner is capped at <= 1000 persons with a 300 s timeout inside the runner.
-# Domain-filtered builds skip it (it does not depend on the benchmark domains).
+# Load-scale maintenance ledger (Amendment A4.2, H11) and its repeated timing
+# companion. The reasoner is capped at <= 1000 persons with a 300 s timeout
+# inside the registered runner. Domain-filtered builds skip this stage.
 stage_scale() {
   echo "== stage: scale (load-scale maintenance ledger, A4.2/H11) =="
   if [[ ${#DOMAINS[@]} -ne ${#ALL_DOMAINS[@]} ]]; then
@@ -200,7 +207,8 @@ stage_scale() {
     echo
     return 0
   fi
-  run pnpm --filter predicate-eval run scale-ledger
+  run pnpm --filter predicate-eval run scale-ledger --sizes 300,1000,3000,10000,100000
+  run pnpm --filter predicate-eval run scale-repeated --sizes 300,1000,3000,10000,100000 --repetitions 11
   echo
 }
 

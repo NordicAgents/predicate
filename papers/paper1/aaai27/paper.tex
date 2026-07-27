@@ -1,0 +1,526 @@
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage[submission]{aaai2027} % DO NOT CHANGE THIS
+\usepackage[hyphens]{url} % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm} % DO NOT CHANGE THIS
+\usepackage{natbib} % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\usepackage{caption} % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\frenchspacing % DO NOT CHANGE THIS
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\pdfinfo{/TemplateVersion (2027.1)}
+
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newcommand{\cwi}{\textsc{CWI}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\W}{\mathcal{W}}
+
+\title{Conflict-Complete Retrieval: Returning Checkable Contradictions from Bounded Agent Memory}
+\author{Anonymous Submission}
+\affiliations{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+An agent cannot act on a contradiction that memory retrieval does not expose.
+We define \emph{conflict completeness}: for every query-relevant conflict, a
+retrieval policy returns at least one complete, source-grounded witness that a
+sound checker can verify from the context alone.  We show that every fixed-hop
+policy based only on IRI adjacency fails this property on a simple
+literal-keyed construction.  We then implement a Conflict Witness Index
+(\cwi) that incrementally maintains key-induced record equivalence and returns
+one shortest witness per conflict.  Controlled evaluation covers 252
+instances, including 132 conflicts, with same-record, direct-key, key-chain,
+hierarchy, and time/scope cases.  Exact maintained, exact on-demand, and
+adaptive exact retrieval return 2--12 witness triples.  Direct key-aware
+retrieval is nearly as compact for non-chain cases, but requires 91--95
+triples on two- and three-link chains; BM25, dense, and hybrid retrieval
+require up to the whole 336--440-triple stores there.  On a deterministic
+100,000-record workload, \cwi{} uses 1.893 index writes per source triple and
+processes a 100-query batch in 0.67 ms median over 11 measured repetitions.
+Detection itself is a standard exact key join, not a contribution.  All claims
+are limited to synthetic data with an oracle schema; the result is a retrieval
+contract and cost study, not evidence of real-world conflict prevalence.
+\end{abstract}
+
+\section{Introduction}
+
+Long-lived agents increasingly move information between a large external
+memory and a bounded language-model context.  Systems such as MemGPT explicitly
+manage memory tiers \citep{memgpt2023}, while graph retrieval systems such as
+HippoRAG integrate information across stored passages \citep{hipporag2024}.
+These systems are normally evaluated on whether retrieval supports an answer.
+We ask a different question: if the store already contains incompatible
+answers, what must retrieval return so the conflict is not silently hidden?
+
+Consider two records that are declared to identify the same person through an
+email key, but give different values for a single-valued predicate.  A consumer
+shown only one record cannot distinguish ``no conflict exists'' from ``the
+other premise was not retrieved.''  Returning a Boolean flag is also
+insufficient for audit: the consumer cannot check the sources.  Returning the
+whole store is complete but defeats bounded retrieval.
+
+Our contribution is a contract between storage and a downstream reasoner:
+for each relevant conflict, return one whole minimal witness.  Minimal
+explanations themselves are classical justifications, conflict sets, and
+why-provenance \citep{reiter1987diagnosis,kalyanpur2007justifications,
+baader2010pinpointing,buneman2001whywhere,green2007semirings}.  We do not claim
+a new conflict detector.  The contribution is to make the existence of a
+checkable witness a completeness property of the \emph{retrieval policy}, prove
+a boundary for an important policy class, and measure the context and
+maintenance costs against exact and learned baselines.
+
+The experiments produce three findings.  First, a key-aware neighborhood is a
+strong baseline: for direct conflicts it is usually within a few triples of an
+exact witness.  Second, chained identity is the regime where record-level
+neighborhood and relevance retrieval become expensive.  Third, a maintained
+index and a fresh exact join return the same witness-sized output; maintenance
+buys repeated-query latency, not a smaller certificate.  These boundaries are
+central to the claim.
+
+\section{Conflict-Complete Retrieval}
+\label{sec:model}
+
+\paragraph{Store and schema.}
+An assertion is
+$a=(s,p,o,\tau,\sigma,\pi)$: an RDF-like triple, a valid-time interval,
+a scope, and provenance.  A confidence threshold $\theta$ defines the premise
+store $S_\theta$.  Missing confidence is excluded.  Literals use exact term
+identity; no normalization or entity linker is assumed.
+
+The oracle schema declares a single key predicate $k_C$ for a keyed class $C$
+and a set $E$ of predicates that are single-valued per entity, overlapping
+time, and scope.  Records $x$ and $y$ are directly co-keyed, written
+$x\approx_K y$, when both have type $C$ and the same $k_C$ value.  Let
+$\sim_K$ be its reflexive, symmetric, transitive closure.  Bottom time or scope
+overlaps everything; otherwise time intervals must intersect and scopes must
+be equal.
+
+A conflict $\gamma=(e,p,\{v_1,v_2\},\tau,\sigma)$ exists when $p\in E$,
+$v_1\ne v_2$, and two records in $[e]_{\sim_K}$ assert the values over
+overlapping time and scope.  This preserve-and-surface semantics differs from
+repair-based consistent query answering \citep{arenas1999cqa}: both assertions
+remain in the store and the violation becomes an explicit object.
+
+\paragraph{Rule fragment.}
+The executable semantics has three rules.  First, the two type and two matching
+key assertions derive $x\sim y$.  Second, equivalence propagates values only
+for predicates in $E$; it is not unrestricted \texttt{sameAs} replacement.
+Third, two unequal $E$-values derive a conflict exactly when their annotations
+overlap.  The least fixpoint is finite: key equivalence partitions finitely
+many records, propagation copies only finitely many stored $E$-values across a
+partition, and violation generation is pairwise within a partition.  The
+confidence gate filters leaves before any rule fires.
+
+\begin{definition}[Witness]
+A set $W\subseteq S_\theta$ is a witness for conflict $\gamma$ if the key,
+type, value, time, and scope premises in $W$ entail $\gamma$, and no proper
+subset does.  Let $\W_\gamma$ be all such witnesses.
+\end{definition}
+
+A same-record witness has two value assertions.  A direct cross-record witness
+has two types, two matching keys, and two conflicting values, hence six
+logical triples.  For a shortest chain of $m$ co-key links, intermediate types
+are shared across adjacent links, giving
+\begin{equation}
+  |W|=(m+1)+2m+2=3m+3. \label{eq:wsize}
+\end{equation}
+Serialized certificates additionally carry any record-level time/scope
+metadata required to reproduce the annotated assertions.
+
+\begin{proposition}[Detector soundness and completeness]
+For the rule fragment above, the least fixpoint derives a conflict if and only
+if the quotient store under $\sim_K$ contains two unequal values for a
+predicate in $E$ with overlapping time and scope.  Every minimal set of source
+leaves in such a derivation is a witness.
+\end{proposition}
+\begin{proof}
+For soundness, key-rule premises satisfy direct co-keying, so propagation moves
+an $E$-value only between representatives of the same quotient entity.  The
+violation rule then has exactly the two unequal, overlap-compatible facts
+required by the conflict semantics.  For completeness, take any semantic
+conflict.  Its endpoint records lie in one finite $\sim_K$ class and therefore
+have a path of direct co-key steps.  Repeated propagation carries both endpoint
+values to one representative, where the violation rule fires.  Removing
+redundant derivation leaves until inclusion-minimal gives a witness.
+\end{proof}
+
+A query $q$ has entity seeds $\mathrm{ent}(q)$ and predicates
+$\mathrm{pred}(q)$.  A conflict is relevant if its equivalence class
+intersects the seeds and its predicate is requested.  Write
+$\Gamma(S_\theta,q)$ for the relevant conflicts.
+
+\begin{definition}[Conflict completeness]
+A policy $\R$ is conflict-complete for $(S,q)$ iff
+\begin{equation}
+\forall\gamma\in\Gamma(S_\theta,q)\ \exists W\in\W_\gamma:
+W\subseteq\R(q,S). \label{eq:cc}
+\end{equation}
+It is $(B,\mu)$-conflict-complete when Eq.~\ref{eq:cc} holds and
+$\mu(\R(q,S))\le B$ for a context-cost measure $\mu$.
+\end{definition}
+
+Equation~\ref{eq:cc} requires one complete proof per conflict, not every
+alternative proof.  We call the latter, stronger property
+\emph{proof-exhaustive completeness}.  The distinction matters because a
+conflict may have exponentially many minimal proofs, while one is sufficient
+for checking.  The identity policy $\R(q,S)=S$ is trivially complete; the
+interesting regime is $B\ll\mu(S)$.
+
+\paragraph{What the contract does and does not guarantee.}
+Conflict completeness is a property of the returned assertions, independent
+of the checker or language model that consumes them.  It prevents retrieval
+from being the reason a finite, relevant conflict is unverifiable.  It does
+not guarantee that an unsound consumer notices the conflict, that the oracle
+schema is correct, or that every real inconsistency has a finite witness in
+this fragment.  Conversely, a policy can satisfy ordinary answer relevance
+while failing Eq.~\ref{eq:cc}; seeing one plausible value is insufficient.
+
+\subsection{A Boundary for IRI-Only Neighborhoods}
+
+Let $G_I(S)$ contain an undirected edge only when two IRIs co-occur as subject
+and object in a triple.  Literals are not graph nodes.  A $k$-hop IRI policy
+may return assertions incident to IRIs within distance $k$ of a query seed.
+
+\begin{proposition}[Fixed-hop incompleteness]
+For every finite $k$, there is a store and query with a relevant six-assertion
+cross-record witness for which any policy restricted to the $k$-hop component
+of $G_I(S)$ is not conflict-complete.
+\end{proposition}
+\begin{proof}
+Create typed records $x$ and $y$ with the same \emph{literal} key $u$, and
+assert different values of $p\in E$.  Seed the query at $x$.  Add no
+IRI-object path from $x$ to $y$.  Then $x\sim_K y$, so the six assertions form
+a relevant witness.  But $y$ is in a different component of $G_I(S)$ and its
+type, key, and value assertions cannot be returned at any finite $k$.
+\end{proof}
+
+This result is deliberately narrow.  It does not apply to literal-aware,
+key-aware, lexical, dense, or hybrid policies.  On connected benchmark stores,
+IRI breadth-first search can also become complete by expanding to most or all
+of the store.  The proposition establishes a counterexample class, not a claim
+about every graph-retrieval workload.
+
+\subsection{Conflict Witness Index}
+
+\cwi{} maintains: (i) buckets indexed by class, key predicate, and exact key
+value; (ii) union--find classes induced by bucket membership; (iii)
+single-valued assertions and time/scope annotations per class; and (iv) a
+record--bucket graph for certificate reconstruction.  A touching insertion or
+metadata update re-evaluates the affected equivalence class.  At query time,
+\cwi{} selects one shortest record--bucket path for each relevant conflict and
+returns the corresponding source assertions.
+
+\begin{proposition}[\cwi{} contract]
+Under the oracle schema and exact-literal semantics, after processing a store
+snapshot, \cwi{} is conflict-complete and each returned certificate is a
+minimal witness.  A conflict whose shortest supporting chain has length $m$
+uses $3m+3$ logical assertions, or two for a same-record conflict.
+\end{proposition}
+\begin{proof}[Proof sketch]
+Union--find contains exactly the transitive closure of direct co-key buckets.
+Re-evaluating every constrained predicate in a touched class enumerates
+exactly pairs with unequal values and overlapping time/scope.  A shortest
+record--bucket path supplies all and only the type and key premises connecting
+the endpoint value assertions.  Removing an endpoint value breaks the
+violation; removing a path premise breaks co-reference.  Thus the assembled
+set is minimal and satisfies Eq.~\ref{eq:cc}.
+\end{proof}
+
+The proposition is per conflict.  When witnesses share assertions, choosing
+one shortest witness independently need not minimize the size of their global
+union.  \cwi{} is an incremental materialized view
+\citep{gupta1993ivm}, specialized to retrieval of explanations.
+
+\paragraph{Update and query path.}
+On insertion, \cwi{} records a type, key, constrained value, or annotation.
+A record enters a key bucket only after both its class and key are known.
+Joining a non-singleton bucket unions its members and merges their constrained
+value lists.  Every affected predicate cell is then re-evaluated, allowing a
+later time/scope annotation to retract or restore a conflict in the current
+record snapshot.  Querying a seed locates its union--find root, filters
+conflicts by the query predicate footprint, and runs breadth-first search on
+the record--bucket graph only to reconstruct a shortest source path.  Output
+is sorted by stable triple identifier.
+
+\paragraph{Complexity.}
+Let $n_c$ be records in an affected equivalence class and $r_p$ its assertions
+for constrained predicate $p$.  Bucket insertion has inverse-Ackermann
+union--find overhead; merging and re-evaluating a touched class is
+$O(n_c+\sum_p r_p^2)$ in the current pair-enumerating implementation.
+This quadratic class-local term is a genuine worst case, hidden by the
+bounded-class generator used below.  Index storage is linear in source types,
+keys, constrained values, and the materialized conflicting pairs.  A query is
+linear in the conflicts returned plus the record--bucket edges visited for
+their shortest paths.  These bounds motivate reporting update amplification
+and class-controlled scaling rather than claiming store-size-independent
+maintenance.
+
+\section{Evaluation}
+\label{sec:eval}
+
+\paragraph{Questions.}
+We test: (Q1) which policies return a complete witness and at what context
+cost; (Q2) whether maintained \cwi{} improves certificate size over exact
+on-demand retrieval; and (Q3) how its maintenance and lookup costs scale.
+All fixtures and expected labels are deterministic and synthetic.  The schema
+is supplied as ground truth.  This isolates the retrieval mechanism but cannot
+measure schema induction, extraction errors, or real prevalence.
+
+\paragraph{Fixtures.}
+Eight families contain 252 query instances and 132 conflicts.  D20 exercises
+same-record and direct-key disagreement; XR-small and XR-scale add distracting
+records; Chain-$m$ requires $m\in\{2,3\}$ co-key links; H3 varies hierarchy and
+non-key predicates; and TauSig adds record-snapshot time/scope metadata.
+Benign controls include shared non-key values, distinct entities, disjoint
+time, and unequal scope.  Chain lengths $m=0,1,2,3$ are exercised.
+
+\paragraph{Systems.}
+\cwi{} is compared with a fresh full-store exact key/equivalence join per query
+(\emph{on-demand exact}) and an \emph{adaptive exact} baseline that expands
+key-aware layers and stops once it can verify a positive certificate.
+Adaptive search does not generally certify absence at its configured
+eight-layer cap.  Record-level policies retrieve all assertions of selected
+records: IRI BFS and key-aware neighborhoods at depths 1--4; BM25
+\citep{robertson2009bm25}; cosine retrieval with
+\texttt{all-MiniLM-L6-v2} at a pinned model revision
+\citep{reimers2019sbert}; and BM25--dense reciprocal-rank fusion with
+$k_{\mathrm{RRF}}=60$ \citep{cormack2009rrf}.  Relevance methods use
+top-$K\in\{1,2,4,\ldots,512\}$.
+
+\paragraph{Protocol and implementation.}
+TypeScript systems run under Node.js 22.17.1; the dense baseline uses
+Sentence Transformers 5.6.1.  The encoder weights, exact revision, and Python
+dependency lock are included in the artifact.  Scaling ran on one AMD Ryzen
+Threadripper PRO 5955WX host.  Each fixture, schema, output row, and scale store
+has a deterministic identifier or SHA-256 digest.  Retrieval configurations
+run over identical serialized stores; the exact checker then evaluates the
+context returned by each policy.  No hosted model call contributes to a
+confirmatory result.  Scale timings use one unrecorded warm-up followed by 11
+measured repetitions; we report medians and interquartile ranges (IQR).
+
+We score a conflict only when the retrieved context contains a complete
+minimal witness.  Context cost is serialized triple count; Table~\ref{tab:ret}
+reports the smallest configuration that reaches 100\% conflict completeness
+within a family.  Values are mean/maximum over conflict queries.  Since
+fixtures and outputs are deterministic, we report exact counts rather than
+significance tests.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.7pt}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Family & Instances/conflicts & Store & Exact witness & Key-aware & BM25 & Dense & Hybrid \\
+\midrule
+D20       & 14/8  & 133   & 2.0/2   & 4.0/4   & 7.5/8       & 7.8/8       & 7.4/8 \\
+XR-small  & 16/12 & 345   & 6.0/6   & 8.0/8   & 83.0/83     & 345.0/345   & 163.0/163 \\
+XR-scale  & 64/60 & 1,689 & 6.0/6   & 8.0/8   & 8.0/8       & 1689.0/1689 & 323.0/323 \\
+Chain-2   & 41/10 & 440   & 9.0/9   & 94.6/98 & 440.0/440   & 440.0/440   & 440.0/440 \\
+Chain-3   & 25/6  & 336   & 12.0/12 & 91.3/112& 336.0/336   & 336.0/336   & 336.0/336 \\
+H3-NK1    & 16/12 & 405   & 6.0/6   & 9.0/9   & 99.0/99     & 405.0/405   & 195.0/195 \\
+H3-NK3    & 16/12 & 525   & 6.0/6   & 11.0/11 & 244.8/254   & 525.0/525   & 493.3/495 \\
+TauSig    & 60/12 & 648   & 10.0/10 & 12.0/12 & 220.2/226   & 648.0/648   & 430.8/433 \\
+\bottomrule
+\end{tabular}
+\caption{Triples returned at the smallest fully conflict-complete setting
+(mean/maximum). ``Exact witness'' is identical for maintained \cwi{},
+on-demand exact, and positive adaptive exact output.}
+\label{tab:ret}
+\end{table*}
+
+\subsection{Retrieval Results}
+
+\paragraph{Exactness check.}
+Maintained \cwi{} and the full exact equivalence join both produced
+132 true positives, 120 true negatives, zero false positives, and zero false
+negatives.  Every emitted witness was rechecked from its returned triples
+without dereferencing the store.  In TauSig, the twelve positive cases include
+the required metadata premises; 48 controls remain benign because their time
+or scope cells do not overlap.  This is a conformance check for the
+implementation and fixtures, not evidence that the supplied schema reflects a
+real domain.
+
+\paragraph{The strongest simple baseline is strong.}
+Key-aware depth one returns every direct conflict in 4--12 triples.  Thus,
+when identity is direct, a maintained witness index saves little context.
+XR-scale also shows that BM25 can be ideal when the exact key string is present
+in the query: its eight triples match key-aware retrieval despite a
+1,689-triple store.  Dense retrieval is not uniformly competitive on exact
+identifier matching.
+
+\paragraph{Chains expose record-level expansion.}
+For Chain-2 and Chain-3, exact witnesses contain 9 and 12 triples as predicted
+by Eq.~\ref{eq:wsize}.  Key-aware retrieval must include the radius ball and
+averages 94.6 and 91.3 triples.  All three relevance methods reach full
+completeness only at their respective whole-store contexts (440 and 336
+triples).  This does not show that learned retrieval cannot be trained for the
+task; it shows that standard relevance ranking provides no completeness
+contract on these controlled chains.
+
+\paragraph{Maintenance does not shrink the certificate.}
+\cwi{}, on-demand exact, and adaptive exact return the same shortest witness
+on every conflict.  Therefore \cwi{} has no output-size advantage over fresh
+exact computation.  Adaptive expansion also finds witness-sized positive
+answers without maintained state, though it scans increasing layers and its
+finite cap does not prove benign absence.  The operational choice is between
+write-time maintenance, query-time exact work, and absence guarantees.
+
+\paragraph{Query-time tradeoff.}
+Table~\ref{tab:qtime} separates output equality from computation.  It reports
+median positive-query wall time from the same uncontrolled run.  \cwi{} has
+already paid ingestion; on-demand exact repeats a full join; adaptive exact
+expands until it finds a proof.  The numbers explain the purpose of
+maintenance, but are not a fair end-to-end throughput comparison because the
+systems pay setup at different phases.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.2pt}
+\begin{tabular}{lrrr}
+\toprule
+Family & CWI & On-demand & Adaptive \\
+\midrule
+D20      & .019 & .559 & .547 \\
+XR-small & .012 & 1.005 & .646 \\
+XR-scale & .012 & 2.452 & .491 \\
+Chain-2  & .018 & 1.302 & 1.758 \\
+Chain-3  & .018 & 1.070 & 3.408 \\
+H3-NK1   & .014 & 1.114 & .602 \\
+H3-NK3   & .015 & 1.504 & .655 \\
+TauSig   & .026 & 1.379 & .552 \\
+\bottomrule
+\end{tabular}
+\caption{Median positive-query time in ms, single run. \cwi{} excludes ingest;
+other methods maintain no state. All return the same witness triples.}
+\label{tab:qtime}
+\end{table}
+
+\subsection{External Topology Audit}
+
+To test whether key chains are solely a generator artifact, we separately
+audit the CC-BY release of the established DBLP--Google Scholar
+entity-resolution benchmark \citep{papadakis2022datasets}.  Its 5,347 gold
+match edges connect 7,626 records into 2,351 components (maximum size 37).
+Closing those gold edges transitively, 138 components contain 350 record pairs
+whose two nonempty publication-year strings are unequal.  Shortest gold-path
+depths are 1 for 157 pairs, 2 for 155, 3 for 23, and 4 for 15.  Thus 193
+disagreement pairs are connected only through a chain, corresponding to
+6-, 9-, 12-, and 15-triple logical witnesses under our encoding.
+
+This is an exploratory topology check, outside the 252 confirmatory instances.
+An unequal year is not an independently adjudicated semantic conflict:
+publication versions, linkage mistakes, or source metadata errors may explain
+it.  The audit supports only the narrow statement that transitive
+co-reference and cross-source disagreement co-occur in an established
+record-linkage benchmark.  It does not estimate conflict prevalence in agent
+memory.  The artifact records source hashes and a built-in-only reproduction
+script.
+
+\subsection{Scaling Ledger}
+
+We generate stores up to 100,000 persons (560,009 triples) and issue 100
+queries sampled from 50 persons at each size.  Table~\ref{tab:scale} reports a
+repeated-run companion to the registered deterministic ledger.  The exact join
+includes its file-read/setup path, whereas \cwi{} ingest starts from parsed
+triples; their columns are intentionally not presented as an end-to-end speedup.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{rrrrrr}
+\toprule
+Persons & Triples & Writes/triple & CWI ingest ms & 100 queries ms & Exact join-X ms \\
+\midrule
+300     & 1,689   & 1.895 & 1.20 [0.89, 1.39]   & 0.75 [0.53, 1.14] & 3.08 [2.71, 3.92] \\
+1,000   & 5,609   & 1.894 & 4.02 [3.36, 4.57]   & 0.49 [0.46, 0.64] & 6.28 [6.16, 6.44] \\
+3,000   & 16,809  & 1.893 & 7.92 [7.69, 8.66]   & 0.39 [0.37, 0.42] & 26.40 [25.56, 27.89] \\
+10,000  & 56,009  & 1.893 & 40.59 [39.23, 44.97]& 0.55 [0.52, 0.61] & 104.15 [101.19, 115.74] \\
+100,000 & 560,009 & 1.893 & 672.20 [644.72, 838.01] & 0.67 [0.66, 0.69] & 1590.24 [1576.23, 1618.28] \\
+\bottomrule
+\end{tabular}
+\caption{Scale results: median [IQR] over 11 measured runs after one warm-up.
+The query cell is a batch of 100 maintained-index lookups. Exact join-X is a
+fresh transitive key-equivalence join. No run had a missing or spurious
+conflict.}
+\label{tab:scale}
+\end{table*}
+
+Index writes remain 1.893--1.895 per source triple; at 100,000 persons the
+index contains 440,006 entries.  The 100-query batch remains below 0.75 ms
+median at every size.  These results support bounded update amplification and
+fast lookup on this generator.  They do not establish production latency,
+concurrency behavior, memory residency, or a break-even query rate.
+
+\section{Related Work}
+
+Justifications and axiom pinpointing identify minimal premises for an
+entailment \citep{kalyanpur2007justifications,baader2010pinpointing}; diagnosis
+uses minimal conflict sets \citep{reiter1987diagnosis}; and database provenance
+tracks which source tuples support an output
+\citep{buneman2001whywhere,green2007semirings}.  \cwi{} reuses these ideas and
+incremental view maintenance \citep{gupta1993ivm}.  Its novelty is not the
+witness object or exact join, but Eq.~\ref{eq:cc} as a bounded retrieval
+contract and the comparative cost analysis.
+
+Long-term LLM memory work studies tiered context management and multi-hop
+retrieval \citep{memgpt2023,hipporag2024}.  Sparse and dense retrieval optimize
+relevance rather than worst-case witness inclusion
+\citep{robertson2009bm25,reimers2019sbert}.  Reciprocal rank fusion combines
+rankings without creating a logical completeness guarantee
+\citep{cormack2009rrf}.  These objectives are complementary: relevance can
+select candidate entities, after which conflict-complete retrieval can attach
+checkable exception evidence.
+
+\section{Limitations and Validity}
+\label{sec:limits}
+
+The strongest limitation is external validity.  Every confirmatory result uses
+synthetic fixtures and an oracle schema.  A post-audit of exploratory public
+data found that an earlier vulnerability analysis had incorrectly treated a
+non-transitive ``related'' field as identity, while a clinical-trial probe had
+treated shared grant identifiers as study identity.  We removed both
+prevalence claims rather than substitute a weaker number.  The corrected
+vulnerability alias graph contained no key chains and lacked semantic conflict
+labels.  The DBLP--Scholar audit establishes chained gold-match topology but
+does not validate its year disagreements as semantic conflicts.  We therefore
+make no claim that the chain-conflict regime is common.
+
+The formal fragment has one exact key per class, exact literal comparison,
+single-valued constraints, interval overlap, and equal-or-unspecified scope.
+It excludes learned entity resolution, composite keys, uncertainty
+propagation, n-ary constraints, and open-world conflicts without finite
+witnesses.  Confidence and schema are trusted inputs.  Record-snapshot
+time/scope metadata is implemented, but arbitrary event histories are not.
+
+The index is insertion-oriented; deletion, persistence, concurrent updates,
+and crash recovery remain engineering work.  Per-conflict shortest witnesses
+need not minimize their union.  The learned baselines use one frozen encoder
+without task-specific training.  Finally, a complete witness guarantees that
+a sound checker \emph{can} verify a conflict, not that a language model will
+notice it.  Our exploratory reader runs confounded witness size with
+distractors and used an outcome-defined competence subgroup, so we exclude
+them from confirmatory evidence.
+
+\section{Conclusion}
+
+Conflict completeness makes a missing contradiction a falsifiable retrieval
+failure: every relevant conflict must arrive with one checkable witness.
+Fixed-hop IRI neighborhoods cannot guarantee it, while exact maintained and
+on-demand methods can return witness-sized contexts.  Simple key-aware
+retrieval is already competitive for direct conflicts; maintenance is most
+useful for repeated queries over chained identity or when absence must be
+certified.  Establishing whether those regimes occur in real agent memories,
+under independently validated schemas and conflict labels, is the necessary
+next step.
+
+\bibliography{paper}
+\end{document}

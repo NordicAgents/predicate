@@ -1,0 +1,33 @@
+{
+  "probe": "C1 chain depth — OSV bulk export, PyPI ecosystem (union-find over schema-defined aliases)",
+  "status": "corrected exploratory result; supersedes the 2026-07-17 chain interpretation",
+  "question": "do alias-equivalent OSV records require a chain of >= 2 alias hops?",
+  "equivalenceSemantics": "id + aliases only; OSV related/upstream fields excluded",
+  "snapshot": {
+    "source": "https://osv-vulnerabilities.storage.googleapis.com/PyPI/all.zip",
+    "lastModified": "Fri, 17 Jul 2026 11:53:29 GMT",
+    "bytes": 31848518
+  },
+  "records": 24331,
+  "distinctKeys": 31754,
+  "components": 17916,
+  "multiRecordComponents": 5263,
+  "componentsSkippedTooLarge": 0,
+  "componentsContainingAChain": 0,
+  "chainDepthDistribution": [
+    {
+      "m": 1,
+      "aliasEquivalentPairs": 8099,
+      "syntacticallyComparablePairs": 7081,
+      "syntacticallyDisagreeingPairs": 3394,
+      "syntacticDisagreementRate": 0.4793108318034176
+    }
+  ],
+  "headline": {
+    "totalAliasEquivalentPairs": 8099,
+    "pairsAtM1": 8099,
+    "pairsAtMge2": 0,
+    "shareOfPairsRequiringAChain": 0
+  },
+  "caveat": "Identifier aliases establish vulnerability identity under the OSV schema, but the probe builds no RDF graph and syntactic payload disagreement is not a semantic conflict label."
+}

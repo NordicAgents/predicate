@@ -15,8 +15,8 @@ import type { EpisodeTriple } from '../src/episode-runner.js';
  *  - cross-engine equality with exact-key-join-x on every fixture (A3.4 H9);
  *  - witnesses returned are EXACTLY the gold minimal witnesses (|W| = 3m+3
  *    cross-record, 2 same-record, + tau/sigma premises);
- *  - incrementality: late-arriving tau/sigma annotations RETRACT previously
- *    emitted conflicts (A3.1.iii);
+ *  - incrementality: tau/sigma metadata updates retract and restore conflicts
+ *    under record-snapshot semantics (A3.1.iii);
  *  - insertion-order robustness: values before keys before types reach the
  *    same fixpoint as file order.
  */
@@ -110,6 +110,17 @@ describe('incrementality (A3.1.iii)', () => {
     // NOTE: record-level tau is single-valued per record in the fixtures; the
     // index keeps the LATEST annotation (last write wins) — overlap again.
     expect(index.query(rec('a')).conflicts).toHaveLength(1);
+  });
+
+  it('duplicate value assertions are idempotent', () => {
+    const index = new ConflictWitnessIndex(parseTBoxSchema(schemaTtl));
+    const triples = [...base('a', 'office1'), ...base('b', 'office2')];
+    for (const t of triples) index.insert(t);
+    index.insert(base('a', 'office1')[2]!);
+    index.insert(base('a', 'office1')[2]!);
+    const result = index.query(rec('a'));
+    expect(result.conflicts).toHaveLength(1);
+    expect(result.conflicts[0]!.witnessIds).toHaveLength(6);
   });
 
   it('insertion order does not matter: values -> keys -> types reaches the same fixpoint', () => {

@@ -46,9 +46,16 @@ statement about $S_\theta$, never about sub-threshold content of $S$.
 
 Overlap of time and scope annotations is written $\tau_1 \between \tau_2$
 (interval intersection, with $\bot$ overlapping everything) and
-$\sigma_1 \between \sigma_2$ (equality, or either side $\bot$). In the current fixtures
-every assertion carries $\tau = \sigma = \bot$, so all overlap side conditions hold
-vacuously; §6 records precisely which results are exercised beyond that fragment.
+$\sigma_1 \between \sigma_2$ (equality, or either side $\bot$). Most fixtures use
+$\tau=\sigma=\bot$; `conflict-tausig` additionally exercises overlapping and disjoint
+intervals and equal and unequal scopes under record-snapshot metadata semantics.
+
+The RDF implementation serializes record-level `validFrom`, `validTo`, and `scope`
+metadata as dedicated triples. Deserialization attaches the resulting effective
+$(\tau,\sigma)$ to each constrained value assertion on that record. Formal statements
+refer to that snapshot, not to transient states while metadata triples arrive. A
+self-contained serialized certificate consequently includes the supporting metadata
+triples in addition to the logical witness.
 
 ### 1.2 Schema: keys and exclusivity constraints
 
@@ -84,8 +91,8 @@ answering around it.
 
 ### 1.3 The bounded rule fragment $F$
 
-$F$ consists of three inference rules over premises drawn from $\mathrm{tr}(S_\theta)$
-(annotations carried along) plus previously derived facts. Schema declarations
+$F$ consists of three inference rules over premises drawn from $S_\theta$ (shown below
+as triples while carrying their annotations) plus previously derived facts. Schema declarations
 ($K$, $E$) are fixed background, not premises.
 
 **(F1) key-equivalence** — for keyed class $C$ with $K(C)=k_C$, $x \neq y$:
@@ -185,32 +192,36 @@ query names or resolves to) and touched predicates
 $\mathrm{pred}(q) \subseteq \mathcal{P}$, with $\mathrm{pred}(q) = \mathcal{P}$ when
 unrestricted.
 
-**Definition 3.2 (Relevance).** A witness
-$W \in \mathcal{W}(S_\theta)$ for $\mathsf{conflict}(e,p,\cdot,\cdot,\cdot)$ is
-*relevant to* $q$ iff
+**Definition 3.2 (Relevance).** A conflict
+$\gamma=\mathsf{conflict}(e,p,\cdot,\cdot,\cdot)$ is *relevant to* $q$ iff
 
 $$[e]_{\sim_K} \cap \mathrm{ent}(q) \neq \emptyset \quad\text{and}\quad p \in \mathrm{pred}(q).$$
 
 That is: the conflict sits on (a record co-referent with) an entity the query touches,
-on a predicate the query touches. $\mathcal{W}(S_\theta, q)$ denotes the set of
-$q$-relevant witnesses.
+on a predicate the query touches. $\Gamma(S_\theta,q)$ denotes the relevant conflicts
+and $\mathcal W_\gamma$ the minimal witnesses for $\gamma$.
 
 **Definition 3.3 (Conflict completeness; the central definition).** A retrieval policy
 $R$ is *conflict-complete* for $(S, q)$ iff
 
-$$\forall\, W \in \mathcal{W}(S_\theta, q): \quad W \subseteq R(q, S).$$
+$$\forall\gamma\in\Gamma(S_\theta,q)\ \exists W\in\mathcal W_\gamma:
+\quad W\subseteq R(q,S).$$
 
 $R$ is conflict-complete for a query class $Q$ over $S$ iff it is conflict-complete for
 every $q \in Q$. Let $\mu$ be a cost measure on assertion sets (tokens, bytes; §5) and
 $B > 0$ a *context budget*. $R$ is *$B$-bounded* iff $\mu(R(q,S)) \leq B$ for all
 $q \in Q$, and *$(B,\mu)$-conflict-complete* iff it is both $B$-bounded and
-conflict-complete.
+conflict-complete. The stronger condition
+$\forall\gamma\,\forall W\in\mathcal W_\gamma:W\subseteq R(q,S)$ is
+*proof-exhaustive completeness*. It is not the operational contract: a checker needs
+one complete proof of each conflict, while the number of alternative minimal proofs
+can be exponential.
 
 **Remarks.**
-1. *Why whole witnesses.* Requiring $W \subseteq R(q,S)$ (not "some of $W$") is the
-   strictest member of a family: it guarantees that *any* sound detector downstream —
-   symbolic or LLM — has the complete premise set in context, and that the claimed
-   conflict is machine-checkable from the returned context alone. Weaker variants
+1. *Why one whole witness per conflict.* Requiring a complete
+   $W \subseteq R(q,S)$ (not fragments from several proofs) guarantees that a sound
+   checker has a complete premise set for every relevant conflict and that each claim
+   is machine-checkable from the returned context alone. Weaker variants
    (return the derived flag plus a pointer, return $W$ up to type assertions) are
    possible; we adopt the strict form and measure the others empirically.
 2. *The definition is only interesting jointly with $B$.* The identity policy
@@ -227,10 +238,10 @@ conflict-complete.
 ## 4. Propositions
 
 Throughout: single-predicate keys (Def. 1.3), term-identity value comparison,
-$\theta$-gated store. Propositions 1–2 concern the fragment with
-$\tau = \sigma = \bot$ everywhere (the implemented and benchmarked case); the
-statements generalize verbatim to annotated assertions provided F3's overlap side
-conditions implement $\between$, but only the $\bot$ case is exercised (§6).
+$\theta$-gated store. Propositions 1–2 cover annotated assertions provided F3's
+time/scope side conditions implement $\between$. The fixtures exercise both the
+$\tau=\sigma=\bot$ case and concrete overlapping/disjoint time intervals and
+equal/unequal scopes (§6).
 
 **Proposition 1 (Soundness of $F$).** If
 $\mathsf{conflict}(x, p, \{v_1,v_2\}, \tau, \sigma) \in \mathrm{Cl}_F(S_\theta)$, then
@@ -360,15 +371,17 @@ the property Prop. 3 shows standard neighbourhood retrieval lacks. The paper's c
 lives in that gap, and dies if the gap closes.
 
 **Proposition 5 (CWI: witness-sized conflict-complete retrieval at bounded maintenance
-cost).** Maintain, under insertion of assertions: (i) buckets keyed by
+cost).** Maintain, under source updates: (i) buckets keyed by
 $(C, k_C, v)$ over typed, keyed records with a union–find closure of $\approx_K$
 (union-by-size); (ii) per-class, per-$p\in E$ support lists carrying each record's
 $(\tau,\sigma)$; (iii) per-(class, $p$) conflict cells re-evaluated on any touching
-insertion (value, merge, or late $\tau/\sigma$ annotation — the last only *retracts*,
-since $\bot$ overlaps everything). Define the retrieval policy
-$R^{\mathrm{cwi}}(q,S) = \bigcup \{ W_\gamma : \gamma \in \mathcal{W}(S_\theta, q) \}$,
-where each $W_\gamma$ is assembled at query time from a shortest record–bucket–record
-path between the two supporting records. Then, in the fragment of §1.3 with
+update (value, merge, or $\tau/\sigma$ metadata update). Metadata uses
+record-snapshot last-write-wins semantics, so such an update may retract or restore
+a conflict; the cell is recomputed rather than patched. Define the retrieval policy
+$R^{\mathrm{cwi}}(q,S)=
+\bigcup_{\gamma\in\Gamma(S_\theta,q)}\widehat W_\gamma$,
+where each $\widehat W_\gamma\in\mathcal W_\gamma$ is assembled at query time from a
+shortest record–bucket–record path between the two supporting records. Then, in the fragment of §1.3 with
 single-predicate keys:
 
 1. *(Soundness/completeness)* the emitted conflict set equals that of the exact
@@ -376,19 +389,22 @@ single-predicate keys:
    Props. 1–2), and each assembled $W_\gamma$ is a Def. 2.1 witness — minimal, with
    $|W| = 3m+3$ for chain length $m$ (path minimality gives premise minimality, since
    each link contributes exactly its four F1 premises and endpoints their value
-   assertions, plus the endpoints' $\tau/\sigma$ premises when annotated);
+   assertions; serialized certificates additionally carry the record metadata needed
+   to reconstruct the annotated endpoint assertions);
 2. *(Retrieval)* $R^{\mathrm{cwi}}$ is conflict-complete (Def. 3.3) with
-   $\mu(R^{\mathrm{cwi}}(q,S)) = \sum_{\gamma} \mu(W_\gamma)$ — the context budget is
-   the witnesses themselves, independent of the hop radius $k \geq m$ that a key-aware
-   neighbourhood policy needs (whose ball, empirically, grows with $k$);
+   $\mu(R^{\mathrm{cwi}}(q,S))=
+   \mu(\bigcup_\gamma\widehat W_\gamma)\leq
+   \sum_\gamma\mu(\widehat W_\gamma)$ — the context budget is the selected witnesses
+   themselves, independent of the hop radius $k \geq m$ that a key-aware neighbourhood
+   policy needs (whose ball, empirically, grows with $k$);
 3. *(Maintenance)* total insertion work is $O(|S_\theta| \cdot \alpha(|S_\theta|) +
    \sum_{\text{touches}} |\text{cell}|)$ — per-insert work is bounded by the affected
    class, never the store — and a query costs $O(|\text{class}| + \sum_\gamma |W_\gamma|)$.
 
 *Honest reading.* Statement 1 concedes again what Prop. 4 concedes: as a *detector*,
 CWI computes nothing the union–find join does not; no novelty attaches to the data
-structure (A3.6). The claim is statement 2 — the *retrieval contract*: whole witnesses
-in context at $\mu = \sum|W_\gamma|$, machine-checkable without dereference, where
+structure (A3.6). The claim is statement 2 — the *retrieval contract*: one whole
+witness per conflict, machine-checkable without dereference, where
 neighbourhood policies pay ball-sized budgets growing in $m$ (H6.iii) or in shared
 literals (H3). Statement 3's constants are measured, not assumed: the maintenance
 ledger (update amplification, index size, query latency) is a reported artifact
@@ -413,29 +429,33 @@ constraint text; every policy is measured under the same serialization).
   assertion $a$, reported as update amplification (index writes per source assertion)
   together with index size.
 
-**Definition 5.2 (Witness-completeness rate).** For a query set $Q$ over store $S$:
+**Definition 5.2 (Conflict-completeness rate).** For a query set $Q$ over store $S$:
 
-$$\mathrm{WCR}(R, S, Q) \;=\; \frac{\sum_{q \in Q} \bigl|\{\, W \in \mathcal{W}(S_\theta, q) : W \subseteq R(q,S) \,\}\bigr|}{\sum_{q \in Q} \bigl|\mathcal{W}(S_\theta, q)\bigr|}.$$
+$$\mathrm{CCR}(R,S,Q)=
+\frac{\sum_{q\in Q}\bigl|\{\gamma\in\Gamma(S_\theta,q):
+\exists W\in\mathcal W_\gamma,\ W\subseteq R(q,S)\}\bigr|}
+{\sum_{q\in Q}|\Gamma(S_\theta,q)|}.$$
 
-Scoring is all-or-nothing at witness granularity: a partial witness scores $0$, because
-a proper subset of $W$ is, by minimality (Def. 2.1), insufficient for any sound
-detector to establish the conflict, and is not machine-checkable from context.
-$\mathrm{WCR} = 1$ on $Q$ iff $R$ is conflict-complete for every $q \in Q$
-(Def. 3.3 restricted to $Q$).
+Scoring is all-or-nothing at conflict granularity: a conflict scores $1$ iff at least
+one complete minimal witness is present. A proper subset of every witness scores $0$.
+$\mathrm{CCR}=1$ on $Q$ iff $R$ is conflict-complete for every $q\in Q$. The frozen
+fixtures have one canonical witness per conflict, so their existing scorer computes
+this quantity exactly; future multi-proof fixtures must accept any certified
+$W\in\mathcal W_\gamma$ rather than one hand-selected proof.
 
 **Definition 5.3 ($B$-bounded completeness curve).** For a policy family
 $\{R_B\}_{B > 0}$ (each $R_B$ B-bounded, e.g., by truncation under a fixed priority
 order),
 
-$$\mathrm{WCR}_R(B) \;=\; \mathrm{WCR}(R_B, S, Q),$$
+$$\mathrm{CCR}_R(B) \;=\; \mathrm{CCR}(R_B, S, Q),$$
 
 the *completeness curve* of $R$. **These are the primary empirical quantities of the
-benchmark:** for each policy, (i) the curve $\mathrm{WCR}_R(B)$, (ii) the cost frontier
-$(\mu_{\mathrm{tok}}(R(q,S)),\ \mathrm{WCR})$ across policies at matched budgets, and
+benchmark:** for each policy, (i) the curve $\mathrm{CCR}_R(B)$, (ii) the cost frontier
+$(\mu_{\mathrm{tok}}(R(q,S)),\ \mathrm{CCR})$ across policies at matched budgets, and
 (iii) the maintenance ledger $(U, \text{index size}, L)$ against the exact baselines of
 Prop. 4 (query-time join with no index vs. incrementally maintained index vs. full
 materialization). Downstream detection accuracy given the retrieved context is measured
-separately and is deliberately *not* part of $\mathrm{WCR}$ (Remark 3, §3).
+separately and is deliberately *not* part of $\mathrm{CCR}$ (Remark 3, §3).
 
 ---
 
@@ -446,21 +466,21 @@ separately and is deliberately *not* part of $\mathrm{WCR}$ (Remark 3, §3).
 | Key arity | tuples $K(C) = (k_1,\ldots,k_n)$ (Def. 1.3 general form) | single predicate only; multi-property declarations inert (F1 pattern) |
 | Key matching | term identity (stated restriction) | exact literal (email string); no noisy/composite keys anywhere |
 | Equivalence source | declared keys only ($\sim_K$) | same; no entity linker, no inverse-functional chains in $F$ |
-| Valid time $\tau$ | interval overlap $\between$ in F3 and Def. 1.6 | all $\tau = \bot$; overlap vacuous; temporal supersession untested |
-| Scope $\sigma$ | scope overlap in F3 and Def. 1.6 | all $\sigma = \bot$; scoped-fact non-conflicts untested |
+| Valid time $\tau$ | interval overlap $\between$ in F3 and Def. 1.6 | $\bot$ and disjoint/overlapping intervals exercised in `conflict-tausig`; record-snapshot metadata only |
+| Scope $\sigma$ | scope overlap in F3 and Def. 1.6 | $\bot$, equal, and unequal scopes exercised in `conflict-tausig`; record-snapshot metadata only |
 | Confidence gate | arbitrary $\theta$ as premise filter (Def. 1.2) | fixed $\theta = 0.5$; ungated assertions excluded, not down-weighted |
-| Witness chain length | any $m \geq 0$ ($|W| = 4m+2$); Prop. 2 covers all $m$ | fixtures contain only $m \leq 1$ (single-join, Prop. 4 regime) |
-| Prop. 1 (soundness) | annotated fragment, given $\between$-correct F3 | proved and exercised at $\tau=\sigma=\bot$ |
-| Prop. 2 (completeness) | $\tau=\sigma=\bot$ proved; annotated case stated, conditional on F3 implementing $\between$ | exercised at $\tau=\sigma=\bot$, types asserted, oracle schema |
+| Witness chain length | any $m \geq 0$ ($|W| = 3m+3$); Prop. 2 covers all $m$ | fixtures exercise $m\in\{0,1,2,3\}$ |
+| Prop. 1 (soundness) | annotated fragment, given $\between$-correct F3 | proved and exercised at $\bot$ and concrete time/scope annotations |
+| Prop. 2 (completeness) | annotated case, conditional on F3 implementing $\between$ | exercised at $\bot$ and concrete time/scope annotations, types asserted, oracle schema |
 | Prop. 3 (impossibility) | the IRI-only neighbourhood policy class | implemented $k$-hop undirected IRI-BFS (type edges excluded, literals non-traversable); other retrieval classes are empirical, not covered by the theorem |
 | Prop. 4 (exact baseline) | single-join subfragment $O(n)$; full fragment $O(n\,\alpha(n))$ | hash-join baseline on all fixtures; union–find extension (`exact-key-join-x`) exercised on chain and τ/σ fixtures |
-| Prop. 5 (CWI retrieval) | full fragment of §1.3, single-predicate keys, record-level τ/σ | exercised on all eight fixtures (phase1-v3 incl. m ∈ {2,3}, τ/σ); ledger measured, single-run wall-clock |
+| Prop. 5 (CWI retrieval) | full fragment of §1.3, single-predicate keys, record-level τ/σ | exercised on all eight fixtures (phase1-v3 incl. m ∈ {2,3}, τ/σ); registered single-run ledger plus an 11-run timing companion |
 | Constraint origin | $K, E$ given (oracle schema) | oracle schema throughout; schema induction/extraction out of scope for every result above |
 
-Non-conflicts the fragment deliberately does not flag — temporal updates
+Non-conflicts the fragment deliberately does not flag — temporally disjoint records
 ($\neg(\tau_1 \between \tau_2)$), scoped facts ($\neg(\sigma_1 \between \sigma_2)$),
 legitimately multi-valued predicates ($p \notin E$) — are defined by the annotated
-side conditions but are exercised only once fixtures populate $\tau, \sigma$;
+side conditions and are exercised by the `conflict-tausig` fixture;
 conflicts requiring world knowledge rather than two stored assertions
 (commonsense/intention constraints) are outside Def. 1.6 by construction, and the
 guarantee is scoped to witness-groundable conflicts only.

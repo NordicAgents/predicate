@@ -71,10 +71,14 @@ const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
 const records = files.map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')));
 
 /** EVERY identifier a record carries — its own id and all aliases. The A2.7
- *  probe used CVE ids only, which forces m = 1 by construction. */
+ *  probe used CVE ids only, which forces m = 1 by construction.
+ *
+ * OSV's schema makes `aliases` symmetric and transitive. It explicitly makes
+ * `related` non-transitive and allows it to denote a different vulnerability,
+ * so `related` MUST NOT induce entity equivalence here. */
 const keysOf = (r) => {
   const ks = new Set();
-  for (const x of [r.id, ...(r.aliases ?? []), ...(r.related ?? [])]) {
+  for (const x of [r.id, ...(r.aliases ?? [])]) {
     if (typeof x === 'string' && x.length > 0) ks.add(x);
   }
   return [...ks];
@@ -231,9 +235,10 @@ const chainPairs = allM.filter((m) => m >= 2).reduce((a, m) => a + pairsByM.get(
 const chainDisagree = allM.filter((m) => m >= 2).reduce((a, m) => a + (disagreeByM.get(m) ?? 0), 0);
 
 const report = {
-  probe: 'C1 chain depth — OSV bulk export, PyPI ecosystem (union-find over ALL aliases)',
+  probe: 'C1 chain depth — OSV bulk export, PyPI ecosystem (union-find over schema-defined aliases)',
   registration: 'pre-registration.md Amendment A2.7 (EXPLORATORY; no confirmatory number, no instances mined)',
-  question: 'do co-referent records in the wild require a chain of >= 2 key hops (the only regime where the witness index beats key-aware@1)?',
+  question: 'do alias-equivalent OSV records require a chain of >= 2 alias hops?',
+  equivalenceSemantics: 'id + aliases only; OSV related/upstream fields excluded',
   contrastWithA27: 'A2.7 grouped by a SINGLE CVE alias, which forces m = 1 by construction and cannot see chains',
   snapshot: { source: 'https://osv-vulnerabilities.storage.googleapis.com/PyPI/all.zip', note: 'record the Last-Modified header alongside this report' },
   records: records.length,

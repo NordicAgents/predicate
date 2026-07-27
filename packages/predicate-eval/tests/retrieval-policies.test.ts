@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { join } from 'node:path';
 import { getAdapter } from 'predicate-mcp/src/storage/index.js';
 import {
-  deriveInstances, evaluateInstance, iriBfsBall, keyAwareBall, keyProperties,
+  bm25Ball, deriveInstances, evaluateInstance, iriBfsBall, keyAwareBall, keyProperties,
   literalAwareBall, loadDomainForRetrieval, type InstanceRecord,
 } from '../src/rigs/retrieval-policies.js';
 
@@ -77,6 +77,17 @@ describe('retrieval policies — conflict-xr-small mechanism lock', () => {
   it('key-aware@1 and literal-aware@1 are witness-complete on 12/12 conflicts', async () => {
     expect(await witnessCompleteCount('key-aware', 1)).toBe(12);
     expect(await witnessCompleteCount('literal-aware', 1)).toBe(12);
+  }, 120_000);
+
+  it('BM25 retrieves direct co-key twins without schema knowledge at a finite top-k', async () => {
+    for (const inst of conflicts) {
+      for (const seed of inst.subjects) {
+        const result = await bm25Ball(client, [seed], 16);
+        expect(result.ball.has(inst.subjects.find((s) => s !== seed)!)).toBe(true);
+      }
+      const row = await evaluateInstance(client, 'bm25', 16, inst, schemaBytes, { keyProps });
+      expect(row.flagged, inst.id).toBe(true);
+    }
   }, 120_000);
 
   it('literal-aware and key-aware balls are IDENTICAL here (email is the only shared literal) — the ball-size cost of schema-free literal joins is exactly 0 in this fixture', async () => {

@@ -55,9 +55,12 @@ export interface BCurvesResult {
   systems: SystemBCurves[];
 }
 
-/** Systems in scope for A4.1: the retrieval sweep + the cwi-witness arm only. */
+/** Systems in scope: neighbourhood policies plus maintained and on-demand witnesses. */
 function inScope(system: string): boolean {
-  return system.startsWith('retrieval:') || system === 'cwi-witness';
+  return system.startsWith('retrieval:')
+    || system === 'cwi-witness'
+    || system === 'on-demand-witness'
+    || system === 'adaptive-key-witness';
 }
 
 interface ConflictObs { flagged: boolean; contextTriples: number; contextBytes: number }
@@ -206,7 +209,10 @@ function main(argv: string[]): void {
   const rows: PredictionRow[] = [];
   for (const rel of [
     join('results', 'retrieval', `retrieval.${domain}.jsonl`),
+    join('results', 'dense', `dense.${domain}.jsonl`),
     join('results', 'cwi', `cwi.${domain}.jsonl`),
+    join('results', 'ondemand', `ondemand-witness.${domain}.jsonl`),
+    join('results', 'ondemand', `adaptive-key-witness.${domain}.jsonl`),
   ]) {
     const file = join(root, rel);
     try {

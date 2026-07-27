@@ -156,7 +156,7 @@ export async function runReader(client: StorageAdapter, opts: ReaderOptions): Pr
       backend: process.env.PREDICATE_BACKEND ?? null,
       storePath: process.env.PREDICATE_STORE_PATH ?? null,
       baseUrlHost: {
-        openai: (() => {
+        openai: ((): string => {
           try { return new URL(process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1').host; }
           catch { return 'invalid-OPENAI_BASE_URL'; }
         })(),

@@ -1,0 +1,10 @@
+[project]
+name = "predicate-dense-retrieval"
+version = "0.1.0"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "sentence-transformers==5.6.1",
+]
+
+[tool.uv]
+package = false

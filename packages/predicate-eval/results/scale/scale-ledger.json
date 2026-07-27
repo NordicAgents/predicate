@@ -7,22 +7,22 @@
       "triples": 1689,
       "sha256": "ff8c7a1fbb5b7a44d40fe3c0d83f96cbcb3a15d2ddb0f95e20499ee2128abaf5",
       "systems": {
-        "exactKeyJoinMs": 5.38,
-        "exactKeyJoinXMs": 4.69,
-        "sparqlGroupbyMs": 39.49,
+        "exactKeyJoinMs": 5.54,
+        "exactKeyJoinXMs": 4.8,
+        "sparqlGroupbyMs": 9640.2,
         "reasoner": {
-          "materializeMs": 3713.08,
+          "materializeMs": 3858.7,
           "iterations": 2,
           "inferredCount": 486
         }
       },
       "cwi": {
-        "ingestMs": 2.373,
+        "ingestMs": 4.41,
         "updateAmplification": 1.895,
         "indexEntries": 1326,
-        "queryMsP50": 0.0052,
-        "queryMsP95": 0.0226,
-        "queryMsTotal": 0.9702,
+        "queryMsP50": 0.0068,
+        "queryMsP95": 0.0388,
+        "queryMsTotal": 2.4711,
         "sampledPersons": 50,
         "sampledQueries": 100,
         "sampledMissing": 0,
@@ -34,22 +34,22 @@
       "triples": 5609,
       "sha256": "778d6332c86fcaa591d6f380446cc90f4bee121986be756002cef86f9f3566cb",
       "systems": {
-        "exactKeyJoinMs": 8.65,
-        "exactKeyJoinXMs": 10.57,
-        "sparqlGroupbyMs": 32.29,
+        "exactKeyJoinMs": 11.14,
+        "exactKeyJoinXMs": 12.76,
+        "sparqlGroupbyMs": 300.3,
         "reasoner": {
-          "materializeMs": 40451.64,
+          "materializeMs": 43176.32,
           "iterations": 2,
           "inferredCount": 1606
         }
       },
       "cwi": {
-        "ingestMs": 11.047,
+        "ingestMs": 8.719,
         "updateAmplification": 1.894,
         "indexEntries": 4406,
-        "queryMsP50": 0.0054,
-        "queryMsP95": 0.0089,
-        "queryMsTotal": 0.6887,
+        "queryMsP50": 0.0076,
+        "queryMsP95": 0.0104,
+        "queryMsTotal": 0.7433,
         "sampledPersons": 50,
         "sampledQueries": 100,
         "sampledMissing": 0,
@@ -61,20 +61,20 @@
       "triples": 16809,
       "sha256": "5401e8105082f7ea5a3e38050b2a7c96765de2bd238cdbfb64dbbe9c57aeaaf7",
       "systems": {
-        "exactKeyJoinMs": 32.56,
-        "exactKeyJoinXMs": 38.58,
-        "sparqlGroupbyMs": 85.81,
+        "exactKeyJoinMs": 29.77,
+        "exactKeyJoinXMs": 47.16,
+        "sparqlGroupbyMs": 639.38,
         "reasoner": {
           "materializeMs": "skipped-per-A4.2"
         }
       },
       "cwi": {
-        "ingestMs": 13.643,
+        "ingestMs": 19.315,
         "updateAmplification": 1.893,
         "indexEntries": 13206,
-        "queryMsP50": 0.0056,
-        "queryMsP95": 0.0072,
-        "queryMsTotal": 0.6024,
+        "queryMsP50": 0.0071,
+        "queryMsP95": 0.0093,
+        "queryMsTotal": 0.726,
         "sampledPersons": 50,
         "sampledQueries": 100,
         "sampledMissing": 0,
@@ -86,20 +86,45 @@
       "triples": 56009,
       "sha256": "f84e1bcbbe632c752db878a317364e1fbf13a3bb7b1cd20c0dccd060e614de9f",
       "systems": {
-        "exactKeyJoinMs": 98.96,
-        "exactKeyJoinXMs": 117.19,
-        "sparqlGroupbyMs": 298.9,
+        "exactKeyJoinMs": 117.4,
+        "exactKeyJoinXMs": 132.72,
+        "sparqlGroupbyMs": 1767.37,
         "reasoner": {
           "materializeMs": "skipped-per-A4.2"
         }
       },
       "cwi": {
-        "ingestMs": 59.275,
+        "ingestMs": 59.173,
         "updateAmplification": 1.893,
         "indexEntries": 44006,
-        "queryMsP50": 0.0085,
-        "queryMsP95": 0.0113,
-        "queryMsTotal": 0.8437,
+        "queryMsP50": 0.0083,
+        "queryMsP95": 0.0136,
+        "queryMsTotal": 0.8424,
+        "sampledPersons": 50,
+        "sampledQueries": 100,
+        "sampledMissing": 0,
+        "sampledSpurious": 0
+      }
+    },
+    {
+      "persons": 100000,
+      "triples": 560009,
+      "sha256": "e5998683f547452cd187add9d5cc12b03a86ac8496ed9cc65afce9b48390e285",
+      "systems": {
+        "exactKeyJoinMs": 1421.74,
+        "exactKeyJoinXMs": 1565.38,
+        "sparqlGroupbyMs": 15515.68,
+        "reasoner": {
+          "materializeMs": "skipped-per-A4.2"
+        }
+      },
+      "cwi": {
+        "ingestMs": 661.267,
+        "updateAmplification": 1.893,
+        "indexEntries": 440006,
+        "queryMsP50": 0.0096,
+        "queryMsP95": 0.0146,
+        "queryMsTotal": 0.9831,
         "sampledPersons": 50,
         "sampledQueries": 100,
         "sampledMissing": 0,

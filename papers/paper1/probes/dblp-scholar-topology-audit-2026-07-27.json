@@ -1,0 +1,66 @@
+{
+  "status": "exploratory-topology-only",
+  "source": {
+    "dataset": "DBLP--Google Scholar raw entity-resolution benchmark",
+    "deepMatcherDocumentation": "https://github.com/anhaidgroup/deepmatcher/blob/master/Datasets.md",
+    "rawDistribution": "https://pages.cs.wisc.edu/~anhai/data1/deepmatcher_data/Structured/DBLP-GoogleScholar/dblp_scholar_raw_data.zip",
+    "ccByRelease": "https://doi.org/10.5281/zenodo.8164151",
+    "licenseOfCcByRelease": "CC-BY-4.0",
+    "inputSha256": {
+      "tableA.csv": "dde4acc939ad3f8f1597dcce64b2a030b425e1f6e08ace2e0e213c2093fba28d",
+      "tableB.csv": "ce45427687aac57db592c5b046dcc777e04dd46ba73002a760dbab62b08c5c38",
+      "matches.csv": "757ca3c5daa0ec77ade3300df6ee8ab9fe2a989b3d09da30be72ecf3ef8eba10"
+    }
+  },
+  "counts": {
+    "tableARecords": 2616,
+    "tableBRecords": 64263,
+    "goldEdges": 5347,
+    "matchedNodes": 7626,
+    "goldComponents": 2351,
+    "maximumComponentSize": 37,
+    "componentSizeCounts": {
+      "2": 1136,
+      "3": 577,
+      "4": 289,
+      "5": 125,
+      "6": 80,
+      "7": 52,
+      "8": 24,
+      "9": 22,
+      "10": 12,
+      "11": 6,
+      "12": 8,
+      "13": 3,
+      "14": 8,
+      "15": 1,
+      "16": 2,
+      "17": 1,
+      "18": 3,
+      "20": 1,
+      "37": 1
+    },
+    "componentsWithNonemptyUnequalYears": 138,
+    "nonemptyUnequalYearPairs": 350,
+    "pairShortestPathDepthCounts": {
+      "1": 157,
+      "2": 155,
+      "3": 23,
+      "4": 15
+    },
+    "directPairs": 157,
+    "chainOnlyPairs": 193
+  },
+  "witnessLogicalTriplesByPathDepth": {
+    "1": 6,
+    "2": 9,
+    "3": 12,
+    "4": 15
+  },
+  "interpretation": [
+    "Gold match edges are treated as symmetric co-reference edges and closed transitively for this topology audit.",
+    "An unequal nonempty year is a cross-source record disagreement, not an independently adjudicated semantic contradiction.",
+    "Version relations, benchmark linkage errors, or metadata errors can explain individual disagreements.",
+    "No prevalence claim about conflicts in deployed agent memory follows from this audit."
+  ]
+}

@@ -44,6 +44,9 @@ function filesForDomain(d) {
     { path: `${EVAL}/results/exact/sparql-groupby.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/exact/exact-key-join-x.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/retrieval/retrieval.${d}.jsonl`, kind: 'prediction-rows' },
+    { path: `${EVAL}/results/dense/dense.${d}.jsonl`, kind: 'prediction-rows' },
+    { path: `${EVAL}/results/ondemand/ondemand-witness.${d}.jsonl`, kind: 'prediction-rows' },
+    { path: `${EVAL}/results/ondemand/adaptive-key-witness.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/instances/reasoner-r14r23r22.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/instances/reasoner-tau.${d}.jsonl`, kind: 'prediction-rows' },
     { path: `${EVAL}/results/cwi/cwi.${d}.jsonl`, kind: 'prediction-rows' },
@@ -91,6 +94,7 @@ function main() {
     // Wall-clock fields vary between rebuilds (sha256 changes); the sha256 of
     // each generated stratum and all counts inside the artifact are stable.
     wanted.push({ path: `${EVAL}/results/scale/scale-ledger.json`, kind: 'load-scale-ledger' });
+    wanted.push({ path: `${EVAL}/results/scale/scale-repeated.json`, kind: 'repeated-scale-ledger' });
   }
   const missing = wanted.filter((f) => !existsSync(join(repoRoot, f.path)));
   if (missing.length > 0) {
