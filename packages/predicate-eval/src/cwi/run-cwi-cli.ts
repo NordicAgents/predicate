@@ -117,6 +117,7 @@ async function main(domain: string | undefined): Promise<void> {
           ingestMs: Number(ingestMs.toFixed(3)),
           insertWrites: stats.insertWrites,
           indexEntries: stats.indexEntries,
+          materializedConflicts: stats.materializedConflicts,
           sourceTriples: stats.sourceTriples,
         },
       });
@@ -135,6 +136,7 @@ async function main(domain: string | undefined): Promise<void> {
     insertWrites: stats.insertWrites,
     updateAmplification: Number((stats.insertWrites / stats.sourceTriples).toFixed(3)),
     indexEntries: stats.indexEntries,
+    materializedConflicts: stats.materializedConflicts,
     queries: queryMsAll.length,
     queryMsTotal: Number(queryMsAll.reduce((a, b) => a + b, 0).toFixed(4)),
     queryMsP50: Number(percentile(queryMsAll, 0.5).toFixed(4)),

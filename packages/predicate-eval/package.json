@@ -27,6 +27,8 @@
     "bcurves": "tsx src/instances/bcurves-cli.ts",
     "phase1-verdicts": "tsx src/instances/phase1-verdicts-cli.ts",
     "cwi": "tsx src/cwi/run-cwi-cli.ts",
+    "cwi-budget-study": "tsx src/cwi/run-budget-study-cli.ts",
+    "cwi-class-stress": "tsx src/cwi/run-class-stress-cli.ts",
     "ondemand-witness": "tsx src/ondemand/run-ondemand-witness-cli.ts",
     "adaptive-key-witness": "tsx src/ondemand/run-adaptive-key-witness-cli.ts",
     "scale-ledger": "tsx src/scale-ledger/scale-ledger-cli.ts",

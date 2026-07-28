@@ -16,7 +16,7 @@
 \newcommand{\W}{\mathcal{W}}
 
 \title{Supplementary Material for ``Conflict-Complete Retrieval:
-Returning Checkable Contradictions from Bounded Agent Memory''}
+Checkable Contradictions under a Context Budget''}
 \author{Anonymous Submission}
 \affiliations{}
 
@@ -45,7 +45,8 @@ The guarantees use the following assumptions.
   annotation is explicitly unspecified.
   \item Query relevance is determined by supplied entity seeds and requested
   predicates.  Conflict completeness requires one complete minimal witness for
-  every relevant conflict, not every alternative derivation.
+  every relevant conflict, not every alternative derivation.  Context cost is
+  monotone under set inclusion.
   \item The maintained index is evaluated on the current insertion-oriented
   snapshot.  Deletion, persistence, concurrent mutation, and crash recovery are
   outside the implementation contract.
@@ -69,6 +70,42 @@ common representative, where the unequal-value rule fires.  The finite source
 leaf set of that derivation contains a minimal subset: repeatedly delete a
 leaf whenever entailment remains.  Termination is immediate because the leaf
 set is finite.  The remaining subset is a witness by definition.
+
+\subsection{Joint Budget Feasibility}
+
+For a finite relevant conflict set $\Gamma$, choose one witness
+$W_\gamma\in\W_\gamma$ for each conflict and take their union.  Finiteness of
+the premise store makes the collection of possible unions finite, so a
+minimum-cost union $U^\star$ exists.  If $\mu(U^\star)\le B$, returning
+$U^\star$ is conflict-complete and respects the budget.  Conversely, any
+conflict-complete context $R$ contains some witness $W_\gamma$ for every
+$\gamma$.  Their union is a subset of $R$; monotonicity gives
+$b^\star\le\mu(R)\le B$.  This proves the if-and-only-if boundary.
+
+Let $\widehat W_\gamma$ be the shortest witness independently selected by
+\cwi{} and $\widehat U=\bigcup_\gamma\widehat W_\gamma$.  Under triple count,
+each $\widehat W_\gamma$ is no larger than the witness for $\gamma$ contained
+in $U^\star$, and every such witness is no larger than $U^\star$.  Hence
+\[
+|\widehat U|\le\sum_{\gamma\in\Gamma}|\widehat W_\gamma|
+\le |\Gamma|\,|U^\star|=|\Gamma|\,b^\star.
+\]
+The implementation deduplicates $\widehat U$ before testing the budget.  It
+returns the entire union if it fits; otherwise it returns
+\textsc{selection-overflow} and an empty context.  The qualifier ``selection''
+is essential because a different combination of non-shortest witnesses could
+have a smaller union.
+
+For completeness, the joint-selection decision problem is in NP when witness
+families are explicit: a certificate chooses one witness per conflict, and its
+union and size are polynomially checkable.  For NP-hardness, reduce Set Cover
+with universe $E$ and candidate sets $A_1,\ldots,A_m$.  Create conflict
+$\gamma_e$ and private token $d_e$ for every $e\in E$, shared token $a_j$ for
+every candidate set, and witness family
+$\W_{\gamma_e}=\{\{d_e,a_j\}:e\in A_j\}$.  Every joint union contains the
+$|E|$ private tokens.  Its remaining tokens name candidate sets, and choosing
+one available witness per element is exactly choosing sets that cover $E$.
+Thus $b^\star\le |E|+k$ if and only if a cover of size at most $k$ exists.
 
 \subsection{Fixed-Hop IRI Incompleteness}
 
@@ -115,6 +152,12 @@ triggered.  Later constrained values and annotations re-evaluate their touched
 class.  The tests exercise permutations in which types, keys, values, and
 annotations arrive before and after one another.
 
+For a multi-seed query, the budget wrapper canonicalizes conflicts reached
+from more than one seed, filters the requested predicate footprint, and
+deduplicates source assertions by stable triple identifier.  Focused tests
+verify shared-premise deduplication, exact-budget success, one-below-budget
+overflow with no partial context, and predicate filtering.
+
 \section{Evaluation Matrix}
 
 \begin{table}[t]
@@ -155,16 +198,68 @@ and 11 measured repetitions and reports medians and interquartile ranges.
 These are descriptive system measurements, not statistical-significance
 claims.
 
+\subsection{Multi-Conflict Budget Matrix}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{rrrr}
+\toprule
+$g$ & Shared sum & Shared $b^\star$ & Disjoint $b^\star$ \\
+\midrule
+1 & 6 & 6 & 6 \\
+2 & 12 & 8 & 12 \\
+4 & 24 & 12 & 24 \\
+8 & 48 & 20 & 48 \\
+16 & 96 & 36 & 96 \\
+32 & 192 & 68 & 192 \\
+\bottomrule
+\end{tabular}
+\caption{Exact triple costs in the unique-path joint-budget fixtures.}
+\end{table}
+
+The shared family places $g$ conflicting predicates on the same two directly
+co-keyed records.  Its four type/key premises are shared and each conflict
+adds two values, giving $b^\star=4+2g$.  The disjoint family uses $g$ separate
+record pairs and multiple query seeds, giving $b^\star=6g$.  For every row,
+the shipped runner checks both $B=b^\star$ and $B=b^\star-1$.
+
+\subsection{Large-Class Stress Matrix}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.3pt}
+\begin{tabular}{rrrr}
+\toprule
+$n$ & Triples & Pairs & Ingest ms, median [IQR] \\
+\midrule
+8 & 24 & 28 & 0.095 [0.059, 0.107] \\
+16 & 48 & 120 & 0.336 [0.289, 0.555] \\
+32 & 96 & 496 & 0.505 [0.382, 0.587] \\
+64 & 192 & 2,016 & 3.014 [2.751, 3.370] \\
+128 & 384 & 8,128 & 19.266 [18.584, 20.006] \\
+256 & 768 & 32,640 & 253.058 [245.788, 264.722] \\
+\bottomrule
+\end{tabular}
+\caption{Median [IQR] over 11 runs after one warm-up when all records share one
+key and have distinct constrained values.}
+\end{table}
+
+This adversarial leg measures the disclosed worst regime rather than store-size
+scaling: the maintained pair set is exactly $n(n-1)/2$.  Timings are
+descriptive and machine-dependent; pair and triple counts are deterministic.
+
 \section{Artifact Contract}
 
 The anonymous code/data archive contains:
 \begin{itemize}
   \item TypeScript source and focused tests for the maintained index, exact
-  comparators, adaptive and on-demand witnesses, retrieval policies, instance
-  scoring, and scale ledger;
+  comparators, budget-aware multi-conflict queries, adaptive and on-demand
+  witnesses, retrieval policies, instance scoring, and scale ledger;
   \item all eight synthetic fixture families and their instance manifests;
   \item frozen paper-facing outputs for exact, maintained, on-demand, sparse,
-  dense, curve, and scale analyses;
+  dense, curve, joint-budget, class-stress, and scale analyses;
   \item the pinned Python environment and runner for the dense baseline; and
   \item the external topology-audit script and its frozen report.
 \end{itemize}
@@ -184,9 +279,10 @@ structure, label, measurement, or scientific value.
 \section{Additional Limitations}
 
 Shortest-witness selection is per conflict and need not minimize the union of
-certificates for a multi-conflict query.  Materialized unequal-value pairs can
-be quadratic within a large equivalence class.  The scale generator keeps
-class size bounded and therefore does not expose that worst case.  The
+certificates for a multi-conflict query.  Therefore
+\textsc{selection-overflow} is not an infeasibility proof.  Materialized
+unequal-value pairs can be quadratic within a large equivalence class; the
+dedicated stress leg exposes that regime.  The
 exploratory public-data audit closes supplied gold match edges transitively,
 but unequal publication-year strings may represent versions, linkage errors,
 or metadata errors rather than semantic contradictions.  None of these

@@ -53,6 +53,7 @@ export interface CwiStats {
   sourceTriples: number;
   insertWrites: number;
   indexEntries: number;
+  materializedConflicts: number;
 }
 
 interface SubjectState {
@@ -351,13 +352,18 @@ export class ConflictWitnessIndex {
 
   stats(): CwiStats {
     let entryCount = 0;
+    let materializedConflicts = 0;
     for (const cls of this.classes.values()) {
       for (const es of cls.entries.values()) entryCount += es.length;
+      for (const conflicts of cls.conflicts.values()) {
+        materializedConflicts += conflicts.length;
+      }
     }
     return {
       sourceTriples: this.triples,
       insertWrites: this.writes,
       indexEntries: this.buckets.size + this.parent.size + entryCount,
+      materializedConflicts,
     };
   }
 }

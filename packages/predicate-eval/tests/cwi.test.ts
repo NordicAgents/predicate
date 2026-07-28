@@ -148,6 +148,7 @@ describe('ledger sanity', () => {
     expect(stats.sourceTriples).toBeGreaterThan(1000);
     expect(stats.insertWrites / stats.sourceTriples).toBeLessThan(10);
     expect(stats.indexEntries).toBeGreaterThan(0);
+    expect(stats.materializedConflicts).toBeGreaterThan(0);
   });
 
   it('witness ids match tripleId convention', () => {

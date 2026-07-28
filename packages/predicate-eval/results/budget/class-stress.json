@@ -1,0 +1,67 @@
+{
+  "repetitions": 11,
+  "warmups": 1,
+  "rows": [
+    {
+      "records": 8,
+      "sourceTriples": 24,
+      "materializedConflicts": 28,
+      "ingestMsMedian": 0.095,
+      "ingestMsIqr": [
+        0.059,
+        0.107
+      ]
+    },
+    {
+      "records": 16,
+      "sourceTriples": 48,
+      "materializedConflicts": 120,
+      "ingestMsMedian": 0.336,
+      "ingestMsIqr": [
+        0.289,
+        0.555
+      ]
+    },
+    {
+      "records": 32,
+      "sourceTriples": 96,
+      "materializedConflicts": 496,
+      "ingestMsMedian": 0.505,
+      "ingestMsIqr": [
+        0.382,
+        0.587
+      ]
+    },
+    {
+      "records": 64,
+      "sourceTriples": 192,
+      "materializedConflicts": 2016,
+      "ingestMsMedian": 3.014,
+      "ingestMsIqr": [
+        2.751,
+        3.37
+      ]
+    },
+    {
+      "records": 128,
+      "sourceTriples": 384,
+      "materializedConflicts": 8128,
+      "ingestMsMedian": 19.266,
+      "ingestMsIqr": [
+        18.584,
+        20.006
+      ]
+    },
+    {
+      "records": 256,
+      "sourceTriples": 768,
+      "materializedConflicts": 32640,
+      "ingestMsMedian": 253.058,
+      "ingestMsIqr": [
+        245.788,
+        264.722
+      ]
+    }
+  ],
+  "note": "All records share one exact key and have distinct constrained values; timings are descriptive."
+}

@@ -1,14 +1,15 @@
 {
   "domain": "conflict-d20",
   "sourceTriples": 135,
-  "ingestMs": 0.573,
-  "insertWrites": 234,
-  "updateAmplification": 1.733,
-  "indexEntries": 92,
+  "ingestMs": 0.508,
+  "insertWrites": 230,
+  "updateAmplification": 1.704,
+  "indexEntries": 90,
+  "materializedConflicts": 8,
   "queries": 14,
-  "queryMsTotal": 0.343,
-  "queryMsP50": 0.0141,
-  "queryMsP95": 0.1492,
+  "queryMsTotal": 0.3851,
+  "queryMsP50": 0.0111,
+  "queryMsP95": 0.1489,
   "spuriousConflicts": 0,
   "note": "wall-clock fields are single-run and vary between rebuilds; counts are deterministic"
 }

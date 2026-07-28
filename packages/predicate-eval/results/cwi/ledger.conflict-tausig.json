@@ -1,14 +1,15 @@
 {
   "domain": "conflict-tausig",
   "sourceTriples": 648,
-  "ingestMs": 2.118,
+  "ingestMs": 3.69,
   "insertWrites": 1224,
   "updateAmplification": 1.889,
   "indexEntries": 360,
+  "materializedConflicts": 12,
   "queries": 120,
-  "queryMsTotal": 1.0368,
-  "queryMsP50": 0.0011,
-  "queryMsP95": 0.0359,
+  "queryMsTotal": 0.9689,
+  "queryMsP50": 0.001,
+  "queryMsP95": 0.0358,
   "spuriousConflicts": 0,
   "note": "wall-clock fields are single-run and vary between rebuilds; counts are deterministic"
 }

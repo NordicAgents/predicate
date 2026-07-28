@@ -1,0 +1,126 @@
+{
+  "measure": "serialized logical triple count",
+  "rows": [
+    {
+      "family": "shared",
+      "conflicts": 1,
+      "sourceTriples": 6,
+      "independentWitnessSum": 6,
+      "jointWitnessTriples": 6,
+      "sharingSavedTriples": 0,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "disjoint",
+      "conflicts": 1,
+      "sourceTriples": 6,
+      "independentWitnessSum": 6,
+      "jointWitnessTriples": 6,
+      "sharingSavedTriples": 0,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "shared",
+      "conflicts": 2,
+      "sourceTriples": 8,
+      "independentWitnessSum": 12,
+      "jointWitnessTriples": 8,
+      "sharingSavedTriples": 4,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "disjoint",
+      "conflicts": 2,
+      "sourceTriples": 12,
+      "independentWitnessSum": 12,
+      "jointWitnessTriples": 12,
+      "sharingSavedTriples": 0,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "shared",
+      "conflicts": 4,
+      "sourceTriples": 12,
+      "independentWitnessSum": 24,
+      "jointWitnessTriples": 12,
+      "sharingSavedTriples": 12,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "disjoint",
+      "conflicts": 4,
+      "sourceTriples": 24,
+      "independentWitnessSum": 24,
+      "jointWitnessTriples": 24,
+      "sharingSavedTriples": 0,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "shared",
+      "conflicts": 8,
+      "sourceTriples": 20,
+      "independentWitnessSum": 48,
+      "jointWitnessTriples": 20,
+      "sharingSavedTriples": 28,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "disjoint",
+      "conflicts": 8,
+      "sourceTriples": 48,
+      "independentWitnessSum": 48,
+      "jointWitnessTriples": 48,
+      "sharingSavedTriples": 0,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "shared",
+      "conflicts": 16,
+      "sourceTriples": 36,
+      "independentWitnessSum": 96,
+      "jointWitnessTriples": 36,
+      "sharingSavedTriples": 60,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "disjoint",
+      "conflicts": 16,
+      "sourceTriples": 96,
+      "independentWitnessSum": 96,
+      "jointWitnessTriples": 96,
+      "sharingSavedTriples": 0,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "shared",
+      "conflicts": 32,
+      "sourceTriples": 68,
+      "independentWitnessSum": 192,
+      "jointWitnessTriples": 68,
+      "sharingSavedTriples": 124,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    },
+    {
+      "family": "disjoint",
+      "conflicts": 32,
+      "sourceTriples": 192,
+      "independentWitnessSum": 192,
+      "jointWitnessTriples": 192,
+      "sharingSavedTriples": 0,
+      "belowBudgetStatus": "selection-overflow",
+      "exactBudgetStatus": "complete"
+    }
+  ],
+  "note": "Deterministic unique-path constructions; joint witness cost is exact for both families."
+}

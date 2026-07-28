@@ -122,13 +122,15 @@ yes
 	
 		\question{All assumptions and restrictions are stated clearly and formally}{(yes/partial/no)}
 		yes. The store, schema, exact-literal, confidence, time/scope, query
-		relevance, bounded-context, and rule-fragment assumptions are stated in
-		the model section and collected again in the supplement.
+		relevance, monotone context-cost, bounded-context, and rule-fragment
+		assumptions are stated in the model section and collected again in the
+		supplement.
 
 		\question{All novel claims are stated formally (e.g., in theorem statements)}{(yes/partial/no)}
 		yes. Conflict completeness is defined formally, and detector
-		correctness, fixed-hop incompleteness, and the maintained-index contract
-		are proposition statements.
+		correctness, joint-budget feasibility and complexity, fixed-hop
+		incompleteness, and the maintained-index contract are proposition
+		statements.
 
 		\question{Proofs of all novel claims are included}{(yes/partial/no)}
 		yes. Core proofs are in the main paper and expanded proofs, including
@@ -204,8 +206,9 @@ yes
 
 		\question{This paper states the number and range of values tried per (hyper-) parameter during development of the paper, along with the criterion used for selecting the final parameter setting}{(yes/partial/no/NA)}
 		partial. The final retrieval depths, top-$K$ grid, rank-fusion constant,
-		confidence semantics, fixture families, scale sizes, and repetition
-		counts are reported. The manuscript does not reconstruct every
+		confidence semantics, fixture families, joint-conflict counts, scale and
+		class-stress sizes, and repetition counts are reported. The manuscript
+		does not reconstruct every
 		development-time trial.
 
 		\question{Any code required for pre-processing data is included in the appendix}{(yes/partial/no)}
@@ -214,7 +217,8 @@ yes
 
 		\question{All source code required for conducting and analyzing the experiments is included in a code appendix}{(yes/partial/no)}
 		partial. The complete synthetic-fixture, exact, maintained-index,
-		on-demand, sparse-retrieval, scoring, and scaling paths are included.
+		joint-budget, class-stress, on-demand, sparse-retrieval, scoring, and
+		scaling paths are included.
 		The frozen dense outputs and pinned Python environment are included, but
 		reproducing dense embeddings also requires obtaining the cited
 		third-party model weights. For double-blind review, the project-owned
@@ -237,19 +241,21 @@ yes
 		instructions distinguish exact regeneration from measured timing.
 
 		\question{This paper specifies the computing infrastructure used for running experiments (hardware and software), including GPU/CPU models; amount of memory; operating system; names and versions of relevant software libraries and frameworks}{(yes/partial/no)}
-		partial. The paper reports Node.js 22.17.1, Sentence Transformers 5.6.1,
+		yes. The paper reports Node.js 22.17.1, Sentence Transformers 5.6.1,
 		the pinned encoder revision, dependency locks, and the AMD Ryzen
-		Threadripper PRO 5955WX timing host. It does not report the host memory
-		size and operating-system version.
+		Threadripper PRO 5955WX timing host with 256 GiB RAM and AlmaLinux 9.7;
+		no GPU was used.
 
 		\question{This paper formally describes evaluation metrics used and explains the motivation for choosing these metrics}{(yes/partial/no)}
 		yes. Conflict completeness and context cost are defined formally; the
 		evaluation explains why complete minimal-witness inclusion, serialized
-		triple count, update amplification, and repeated timing are reported.
+		triple count, joint witness-union cost, update amplification,
+		materialized conflict pairs, and repeated timing are reported.
 
 		\question{This paper states the number of algorithm runs used to compute each reported result}{(yes/no)}
-		yes. Deterministic fixture results are exact single executions; scale
-		timings use one unrecorded warm-up and 11 measured repetitions.
+		yes. Deterministic fixture and joint-budget results are exact single
+		executions; scale and class-stress timings use one unrecorded warm-up and
+		11 measured repetitions.
 
 		\question{Analysis of experiments goes beyond single-dimensional summaries of performance (e.g., average; median) to include measures of variation, confidence, or other distributional information}{(yes/no)}
 		yes. The paper reports per-family means and maxima, exact confusion
@@ -262,8 +268,9 @@ yes
 
 		\question{This paper lists all final (hyper-)parameters used for each model/algorithm in the paper’s experiments}{(yes/partial/no/NA)}
 		yes. The final retrieval depths, top-$K$ grid, rank-fusion constant,
-		encoder revision, rule settings, scale sizes, query counts, and
-		repetition protocol are in the paper and artifact.
+		encoder revision, rule settings, joint-conflict counts, scale and stress
+		sizes, query counts, and repetition protocol are in the paper and
+		artifact.
 
 
 \end{itemize}

@@ -1,12 +1,12 @@
 # AAAI-format manuscript
 
-**Conflict-Complete Retrieval: Returning Checkable Contradictions from Bounded Agent Memory**
+**Conflict-Complete Retrieval: Checkable Contradictions under a Context Budget**
 
 ## Current status
 
 - `paper.pdf`: 6 pages total in the AAAI 2027 submission style.
-- 5 pages contain the paper and the beginning of references; page 6 contains references only.
-- `supplement.pdf`: 2 anonymous pages of expanded proofs, protocol, and artifact scope.
+- Content ends at the top of page 6; references begin immediately afterward.
+- `supplement.pdf`: 3 anonymous pages of expanded proofs, protocol, and artifact scope.
 - `ReproducibilityChecklist.pdf`: 3 pages with every answer slot completed.
 - Clean build: no LaTeX errors, undefined citations/references, or overfull boxes.
 - 13 cited bibliography entries, all resolved to primary publication metadata or a DOI-backed dataset record.
@@ -51,11 +51,14 @@ python3 papers/paper1/aaai27/submission/make_anonymous_archive.py
 - Exact on-demand and adaptive exact witness baselines.
 - BM25, pinned MiniLM dense retrieval, and reciprocal-rank-fusion baselines.
 - Eight controlled families: 252 instances and 132 conflicts.
+- Twelve multi-conflict queries with exact shared/disjoint joint-budget costs.
+- Large-equivalence-class stress through 32,640 materialized conflict pairs.
 - Repeated scaling companion: 11 measured repetitions after one warm-up through 100,000 persons / 560,009 triples.
 - Exploratory DBLP--Google Scholar topology audit with source hashes and explicit non-claims.
+- Exact fixed-budget feasibility boundary and explicit non-partial overflow behavior.
 - Corrected formal contract: one complete witness per relevant conflict, distinct from proof-exhaustive completeness.
 
-The main evidence files are under `packages/predicate-eval/results/{curves,cwi,dense,ondemand,retrieval,scale}`. The external audit is `../probes/dblp-scholar-topology-audit-2026-07-27.json`.
+The main evidence files are under `packages/predicate-eval/results/{budget,curves,cwi,dense,ondemand,retrieval,scale}`. The external audit is `../probes/dblp-scholar-topology-audit-2026-07-27.json`.
 
 ## Venue timing
 

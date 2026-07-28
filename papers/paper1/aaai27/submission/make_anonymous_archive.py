@@ -31,6 +31,7 @@ PACKAGE_ROOTS = (
 )
 
 RESULT_DIRS = {
+    "budget",
     "curves",
     "cwi",
     "dense",
@@ -59,6 +60,7 @@ FOCUSED_TESTS = {
     "conflict-bench.test.ts",
     "conflict-xr.test.ts",
     "cwi.test.ts",
+    "cwi-budget.test.ts",
     "exact-baselines.test.ts",
     "instances.test.ts",
     "ondemand-witness.test.ts",

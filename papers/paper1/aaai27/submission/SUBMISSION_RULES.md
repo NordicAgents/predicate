@@ -60,7 +60,10 @@ Current source: `papers/paper1/aaai27/paper.tex`.
   an oracle schema.
 - [x] The DBLP--Google Scholar result is labeled an exploratory topology audit,
   not semantic-conflict evidence or a prevalence estimate.
-- [x] Timing claims identify the measured resource and setup asymmetry.
+- [x] The phase-mismatched cross-system latency table was removed; remaining
+  timing claims identify the measured resource and repetition protocol.
+- [x] Joint-budget feasibility, overflow behavior, and witness-sharing limits
+  are stated and tested explicitly.
 - [x] Negative results, exclusions, and limitations are retained.
 
 ## 5. References and attribution
@@ -198,6 +201,7 @@ Minimum focused gate:
 ```bash
 pnpm --filter predicate-eval test -- --run \
   tests/cwi.test.ts \
+  tests/cwi-budget.test.ts \
   tests/exact-baselines.test.ts \
   tests/ondemand-witness.test.ts \
   tests/adaptive-key-witness.test.ts \

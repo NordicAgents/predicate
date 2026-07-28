@@ -1,13 +1,14 @@
 # Anonymous AAAI-27 code and data artifact
 
 This reviewer artifact supports the paper **“Conflict-Complete Retrieval:
-Returning Checkable Contradictions from Bounded Agent Memory.”**
+Checkable Contradictions under a Context Budget.”**
 
 It contains the implementation, deterministic synthetic fixtures, focused
 tests, and frozen paper-facing results for the Conflict Witness Index (CWI),
-exact and on-demand comparators, sparse/dense retrieval comparisons, and the
-scale ledger. It also contains the built-in-only external topology-audit
-script and its frozen report.
+budget-aware multi-conflict retrieval, equivalence-class stress tests, exact
+and on-demand comparators, sparse/dense retrieval comparisons, and the scale
+ledger. It also contains the built-in-only external topology-audit script and
+its frozen report.
 
 ## Scope and exclusions
 
@@ -51,13 +52,14 @@ archive. Dependency installation still completes successfully.
 
 ## Focused verification
 
-Run the 57 focused tests covering the paper-facing maintained index, exact and
+Run the 61 focused tests covering the paper-facing maintained index, exact and
 on-demand witnesses, retrieval policies, instance scoring, scaling, and
 controlled conflict fixtures:
 
 ```bash
 corepack pnpm --filter predicate-eval test -- --run \
   tests/cwi.test.ts \
+  tests/cwi-budget.test.ts \
   tests/exact-baselines.test.ts \
   tests/ondemand-witness.test.ts \
   tests/adaptive-key-witness.test.ts \
@@ -88,6 +90,8 @@ to retain the frozen outputs unchanged.
 
 ```bash
 corepack pnpm --filter predicate-eval cwi conflict-d20
+corepack pnpm --filter predicate-eval cwi-budget-study
+corepack pnpm --filter predicate-eval cwi-class-stress
 corepack pnpm --filter predicate-eval exact conflict-d20 --system key-join-x
 corepack pnpm --filter predicate-eval ondemand-witness conflict-d20
 corepack pnpm --filter predicate-eval adaptive-key-witness conflict-chain-m3
@@ -102,6 +106,7 @@ and integrity hashes should agree.
 ## Layout
 
 - `packages/predicate-eval/src/cwi/`: maintained Conflict Witness Index
+- `packages/predicate-eval/results/budget/`: joint-budget and class-stress ledgers
 - `packages/predicate-eval/src/exact/`: exact key/equivalence comparators
 - `packages/predicate-eval/src/ondemand/`: on-demand and adaptive witnesses
 - `packages/predicate-eval/src/rigs/`: retrieval-policy evaluation
