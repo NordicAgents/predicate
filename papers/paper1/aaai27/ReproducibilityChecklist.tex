@@ -97,44 +97,60 @@ You can \texttt{\string\input} this .tex file right before \texttt{\string\end\{
 \begin{itemize}
 
 \question{Includes a conceptual outline and/or pseudocode description of AI methods introduced}{(yes/partial/no/NA)}
-Type your response here
+yes. The Conflict Witness Index subsection gives a conceptual description of
+the maintained buckets, equivalence classes, constrained-value cells, update
+path, query path, and shortest-certificate reconstruction.
 
 \question{Clearly delineates statements that are opinions, hypothesis, and speculation from objective facts and results}{(yes/no)}
-Type your response here
+yes. Confirmatory synthetic results, the exploratory public-data topology
+audit, formal guarantees, limitations, and future work are labeled separately.
 
 \question{Provides well-marked pedagogical references for less-familiar readers to gain background necessary to replicate the paper}{(yes/no)}
-Type your response here
+partial. The paper cites the relevant primary literature on justifications,
+diagnosis, provenance, incremental view maintenance, sparse and dense
+retrieval, and rank fusion, but it is not a tutorial survey.
 
 \end{itemize}
 \checksubsection{Theoretical Contributions}
 \begin{itemize}
 
 \question{Does this paper make theoretical contributions?}{(yes/no)}
-Type your response here
+yes
 
 	\ifyespoints{\vspace{1.2em}If yes, please address the following points:}
         \begin{itemize}
 	
-	\question{All assumptions and restrictions are stated clearly and formally}{(yes/partial/no)}
-	Type your response here
+		\question{All assumptions and restrictions are stated clearly and formally}{(yes/partial/no)}
+		yes. The store, schema, exact-literal, confidence, time/scope, query
+		relevance, bounded-context, and rule-fragment assumptions are stated in
+		the model section and collected again in the supplement.
 
-	\question{All novel claims are stated formally (e.g., in theorem statements)}{(yes/partial/no)}
-	Type your response here
+		\question{All novel claims are stated formally (e.g., in theorem statements)}{(yes/partial/no)}
+		yes. Conflict completeness is defined formally, and detector
+		correctness, fixed-hop incompleteness, and the maintained-index contract
+		are proposition statements.
 
-	\question{Proofs of all novel claims are included}{(yes/partial/no)}
-	Type your response here
+		\question{Proofs of all novel claims are included}{(yes/partial/no)}
+		yes. Core proofs are in the main paper and expanded proofs, including
+		minimality and update-order details, are in the supplementary document.
 
-	\question{Proof sketches or intuitions are given for complex and/or novel results}{(yes/partial/no)}
-	Type your response here
+		\question{Proof sketches or intuitions are given for complex and/or novel results}{(yes/partial/no)}
+		yes. Each proposition is followed by a proof or proof sketch in the main
+		paper, and the supplement provides the expanded argument.
 
-	\question{Appropriate citations to theoretical tools used are given}{(yes/partial/no)}
-	Type your response here
+		\question{Appropriate citations to theoretical tools used are given}{(yes/partial/no)}
+		yes. Classical justification, diagnosis, provenance, and incremental
+		view-maintenance results are cited where their concepts are used.
 
-	\question{All theoretical claims are demonstrated empirically to hold}{(yes/partial/no/NA)}
-	Type your response here
+		\question{All theoretical claims are demonstrated empirically to hold}{(yes/partial/no/NA)}
+		partial. The propositions are established by proof. Deterministic
+		fixtures and implementation tests exercise their finite executable
+		instances, but experiments do not establish the general theorems.
 
-	\question{All experimental code used to eliminate or disprove claims is included}{(yes/no/NA)}
-	Type your response here
+		\question{All experimental code used to eliminate or disprove claims is included}{(yes/no/NA)}
+		yes. The anonymous code/data archive includes the negative controls,
+		exact comparators, focused tests, and the corrected external-audit
+		script and report.
 	
 	\end{itemize}
 \end{itemize}
@@ -143,28 +159,36 @@ Type your response here
 \begin{itemize}
 
 \question{Does this paper rely on one or more datasets?}{(yes/no)}
-Type your response here
+yes
 
 \ifyespoints{If yes, please address the following points:}
 \begin{itemize}
 
-	\question{A motivation is given for why the experiments are conducted on the selected datasets}{(yes/partial/no/NA)}
-	Type your response here
+		\question{A motivation is given for why the experiments are conducted on the selected datasets}{(yes/partial/no/NA)}
+		yes. The synthetic fixtures isolate the retrieval contract under an
+		oracle schema, while the separately labeled DBLP--Google Scholar audit
+		tests only whether chained gold-match topology occurs outside the
+		generator.
 
-	\question{All novel datasets introduced in this paper are included in a data appendix}{(yes/partial/no/NA)}
-	Type your response here
+		\question{All novel datasets introduced in this paper are included in a data appendix}{(yes/partial/no/NA)}
+		yes. All synthetic fixtures, instance manifests, expected labels, and
+		frozen paper-facing results are included in the code/data archive.
 
-	\question{All novel datasets introduced in this paper will be made publicly available upon publication of the paper with a license that allows free usage for research purposes}{(yes/partial/no/NA)}
-	Type your response here
+		\question{All novel datasets introduced in this paper will be made publicly available upon publication of the paper with a license that allows free usage for research purposes}{(yes/partial/no/NA)}
+		partial. The complete reviewer artifact is included with the submission;
+		the public-release license remains an author approval item and is not
+		presumed by the anonymous review package.
 
-	\question{All datasets drawn from the existing literature (potentially including authors' own previously published work) are accompanied by appropriate citations}{(yes/no/NA)}
-	Type your response here
+		\question{All datasets drawn from the existing literature (potentially including authors' own previously published work) are accompanied by appropriate citations}{(yes/no/NA)}
+		yes. The DBLP--Google Scholar entity-resolution benchmark is cited in
+		the paper.
 
-	\question{All datasets drawn from the existing literature (potentially including authors' own previously published work) are publicly available}{(yes/partial/no/NA)}
-	Type your response here
+		\question{All datasets drawn from the existing literature (potentially including authors' own previously published work) are publicly available}{(yes/partial/no/NA)}
+		yes. The external audit uses the public CC-BY release identified by its
+		citation and records the input hashes in the shipped report.
 
-	\question{All datasets that are not publicly available are described in detail, with explanation why publicly available alternatives are not scientifically satisficing}{(yes/partial/no/NA)}
-	Type your response here
+		\question{All datasets that are not publicly available are described in detail, with explanation why publicly available alternatives are not scientifically satisficing}{(yes/partial/no/NA)}
+		NA. No non-public dataset supports a reported result.
 
 \end{itemize}
 \end{itemize}
@@ -173,50 +197,80 @@ Type your response here
 \begin{itemize}
 
 \question{Does this paper include computational experiments?}{(yes/no)}
-Type your response here
+yes
 
 \ifyespoints{If yes, please address the following points:}
 \begin{itemize}
 
-	\question{This paper states the number and range of values tried per (hyper-) parameter during development of the paper, along with the criterion used for selecting the final parameter setting}{(yes/partial/no/NA)}
-	Type your response here
+		\question{This paper states the number and range of values tried per (hyper-) parameter during development of the paper, along with the criterion used for selecting the final parameter setting}{(yes/partial/no/NA)}
+		partial. The final retrieval depths, top-$K$ grid, rank-fusion constant,
+		confidence semantics, fixture families, scale sizes, and repetition
+		counts are reported. The manuscript does not reconstruct every
+		development-time trial.
 
-	\question{Any code required for pre-processing data is included in the appendix}{(yes/partial/no)}
-	Type your response here
+		\question{Any code required for pre-processing data is included in the appendix}{(yes/partial/no)}
+		yes. Synthetic data generation and the built-in-only external topology
+		audit script are included in the code/data archive.
 
-	\question{All source code required for conducting and analyzing the experiments is included in a code appendix}{(yes/partial/no)}
-	Type your response here
+		\question{All source code required for conducting and analyzing the experiments is included in a code appendix}{(yes/partial/no)}
+		partial. The complete synthetic-fixture, exact, maintained-index,
+		on-demand, sparse-retrieval, scoring, and scaling paths are included.
+		The frozen dense outputs and pinned Python environment are included, but
+		reproducing dense embeddings also requires obtaining the cited
+		third-party model weights. For double-blind review, the project-owned
+		RDF namespace is consistently replaced by a reserved
+		\texttt{example.org} namespace without changing graph structure or
+		scientific values.
 
-	\question{All source code required for conducting and analyzing the experiments will be made publicly available upon publication of the paper with a license that allows free usage for research purposes}{(yes/partial/no)}
-	Type your response here
-        
-	\question{All source code implementing new methods have comments detailing the implementation, with references to the paper where each step comes from}{(yes/partial/no)}
-	Type your response here
+		\question{All source code required for conducting and analyzing the experiments will be made publicly available upon publication of the paper with a license that allows free usage for research purposes}{(yes/partial/no)}
+		partial. Source is available to reviewers now; the public-release license
+		requires author approval before publication.
 
-	\question{If an algorithm depends on randomness, then the method used for setting seeds is described in a way sufficient to allow replication of results}{(yes/partial/no/NA)}
-	Type your response here
+		\question{All source code implementing new methods have comments detailing the implementation, with references to the paper where each step comes from}{(yes/partial/no)}
+		partial. The implementation is typed and tested and documents its
+		invariants and certificate construction, but not every source step has
+		an explicit paper-section cross-reference.
 
-	\question{This paper specifies the computing infrastructure used for running experiments (hardware and software), including GPU/CPU models; amount of memory; operating system; names and versions of relevant software libraries and frameworks}{(yes/partial/no)}
-	Type your response here
+		\question{If an algorithm depends on randomness, then the method used for setting seeds is described in a way sufficient to allow replication of results}{(yes/partial/no/NA)}
+		yes. Fixtures and outputs have deterministic identifiers or SHA-256
+		digests, scale-query sampling is deterministic, and the artifact
+		instructions distinguish exact regeneration from measured timing.
 
-	\question{This paper formally describes evaluation metrics used and explains the motivation for choosing these metrics}{(yes/partial/no)}
-	Type your response here
+		\question{This paper specifies the computing infrastructure used for running experiments (hardware and software), including GPU/CPU models; amount of memory; operating system; names and versions of relevant software libraries and frameworks}{(yes/partial/no)}
+		partial. The paper reports Node.js 22.17.1, Sentence Transformers 5.6.1,
+		the pinned encoder revision, dependency locks, and the AMD Ryzen
+		Threadripper PRO 5955WX timing host. It does not report the host memory
+		size and operating-system version.
 
-	\question{This paper states the number of algorithm runs used to compute each reported result}{(yes/no)}
-	Type your response here
+		\question{This paper formally describes evaluation metrics used and explains the motivation for choosing these metrics}{(yes/partial/no)}
+		yes. Conflict completeness and context cost are defined formally; the
+		evaluation explains why complete minimal-witness inclusion, serialized
+		triple count, update amplification, and repeated timing are reported.
 
-	\question{Analysis of experiments goes beyond single-dimensional summaries of performance (e.g., average; median) to include measures of variation, confidence, or other distributional information}{(yes/no)}
-	Type your response here
+		\question{This paper states the number of algorithm runs used to compute each reported result}{(yes/no)}
+		yes. Deterministic fixture results are exact single executions; scale
+		timings use one unrecorded warm-up and 11 measured repetitions.
 
-	\question{The significance of any improvement or decrease in performance is judged using appropriate statistical tests (e.g., Wilcoxon signed-rank)}{(yes/partial/no)}
-	Type your response here
+		\question{Analysis of experiments goes beyond single-dimensional summaries of performance (e.g., average; median) to include measures of variation, confidence, or other distributional information}{(yes/no)}
+		yes. The paper reports per-family means and maxima, exact confusion
+		counts, full family breakdowns, and timing medians with IQRs.
 
-	\question{This paper lists all final (hyper-)parameters used for each model/algorithm in the paper’s experiments}{(yes/partial/no/NA)}
-	Type your response here
+		\question{The significance of any improvement or decrease in performance is judged using appropriate statistical tests (e.g., Wilcoxon signed-rank)}{(yes/partial/no)}
+		no. Deterministic completeness and context results are exact counts, and
+		timing comparisons are descriptive medians and IQRs; the paper makes no
+		statistical-significance claim.
+
+		\question{This paper lists all final (hyper-)parameters used for each model/algorithm in the paper’s experiments}{(yes/partial/no/NA)}
+		yes. The final retrieval depths, top-$K$ grid, rank-fusion constant,
+		encoder revision, rule settings, scale sizes, query counts, and
+		repetition protocol are in the paper and artifact.
 
 
 \end{itemize}
 \end{itemize}
 \ifreproStandalone
-\end{document}
+\let\reproEndDocument\enddocument
+\else
+\let\reproEndDocument\relax
 \fi
+\reproEndDocument

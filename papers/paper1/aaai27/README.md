@@ -6,9 +6,13 @@
 
 - `paper.pdf`: 6 pages total in the AAAI 2027 submission style.
 - 5 pages contain the paper and the beginning of references; page 6 contains references only.
-- Clean build: no LaTeX warnings, undefined citations/references, or overfull boxes.
+- `supplement.pdf`: 2 anonymous pages of expanded proofs, protocol, and artifact scope.
+- `ReproducibilityChecklist.pdf`: 3 pages with every answer slot completed.
+- Clean build: no LaTeX errors, undefined citations/references, or overfull boxes.
 - 13 cited bibliography entries, all resolved to primary publication metadata or a DOI-backed dataset record.
 - The confirmatory paper contains no hosted-reader result and no unaudited real-data prevalence claim.
+- `submission/upload_ready/` contains the four mapped OpenReview artifacts,
+  operator notes, and verified SHA-256 checksums.
 
 The manuscript fits the usual AAAI main-track limit of seven content pages plus references. The call for papers, not the Author Kit, is authoritative for the intended submission cycle.
 
@@ -19,18 +23,27 @@ The manuscript fits the usual AAAI main-track limit of seven content pages plus 
 | `paper.tex` | Submission manuscript |
 | `paper.bib` | Verified bibliography |
 | `paper.pdf` | Compiled manuscript |
+| `supplement.tex`, `supplement.pdf` | Anonymous supplementary document |
 | `aaai2027.sty`, `aaai2027.bst` | Unmodified Author Kit style files |
-| `ReproducibilityChecklist.tex` | Author Kit checklist; not currently included by the style |
+| `ReproducibilityChecklist.tex`, `ReproducibilityChecklist.pdf` | Completed standalone Author Kit checklist |
+| `submission/SUBMISSION_RULES.md` | AAAI-27 compliance and author-attestation checklist |
+| `submission/upload_ready/` | Final upload mapping and deliverables |
 
 The old reader figures remain in the directory for provenance but are not referenced by the corrected paper. Reader results are explicitly quarantined in `packages/predicate-eval/results/reader/README.md`.
 
 ## Build
 
 ```bash
-podman run --rm -v "$PWD":/w:Z -w /w localhost/texlive-aaai:latest \
-  sh -c 'pdflatex -interaction=nonstopmode paper.tex && bibtex paper && \
-         pdflatex -interaction=nonstopmode paper.tex && \
-         pdflatex -interaction=nonstopmode paper.tex'
+podman run --rm -v "$PWD":/work:Z -w /work localhost/texlive-aaai:latest \
+  sh -lc 'latexmk -pdf -interaction=nonstopmode -halt-on-error paper.tex &&
+          latexmk -pdf -interaction=nonstopmode -halt-on-error supplement.tex &&
+          latexmk -pdf -interaction=nonstopmode -halt-on-error ReproducibilityChecklist.tex'
+```
+
+Rebuild the anonymous code/data archive from the repository root:
+
+```bash
+python3 papers/paper1/aaai27/submission/make_anonymous_archive.py
 ```
 
 ## Evidence added in the publication audit
