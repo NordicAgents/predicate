@@ -102,8 +102,9 @@ the maintained buckets, equivalence classes, constrained-value cells, update
 path, query path, and shortest-certificate reconstruction.
 
 \question{Clearly delineates statements that are opinions, hypothesis, and speculation from objective facts and results}{(yes/no)}
-yes. Confirmatory synthetic results, the exploratory public-data topology
-audit, formal guarantees, limitations, and future work are labeled separately.
+yes. Core synthetic results, controlled semi-natural results, formal
+guarantees, limitations, and natural-prevalence non-claims are labeled
+separately.
 
 \question{Provides well-marked pedagogical references for less-familiar readers to gain background necessary to replicate the paper}{(yes/no)}
 partial. The paper cites the relevant primary literature on justifications,
@@ -129,12 +130,13 @@ yes
 		\question{All novel claims are stated formally (e.g., in theorem statements)}{(yes/partial/no)}
 		yes. Conflict completeness is defined formally, and detector
 		correctness, joint-budget feasibility and complexity, fixed-hop
-		incompleteness, and the maintained-index contract are proposition
-		statements.
+		incompleteness, the maintained-index contract, and bounded exact joint
+		selection are proposition statements.
 
 		\question{Proofs of all novel claims are included}{(yes/partial/no)}
 		yes. Core proofs are in the main paper and expanded proofs, including
-		minimality and update-order details, are in the supplementary document.
+		minimality, exact joint selection, and update-order details, are in the
+		supplementary document.
 
 		\question{Proof sketches or intuitions are given for complex and/or novel results}{(yes/partial/no)}
 		yes. Each proposition is followed by a proof or proof sketch in the main
@@ -151,8 +153,8 @@ yes
 
 		\question{All experimental code used to eliminate or disprove claims is included}{(yes/no/NA)}
 		yes. The anonymous code/data archive includes the negative controls,
-		exact comparators, focused tests, and the corrected external-audit
-		script and report.
+		exact comparators, joint-selector boundary tests, workload comparison,
+		and external runners with frozen reports.
 	
 	\end{itemize}
 \end{itemize}
@@ -168,13 +170,14 @@ yes
 
 		\question{A motivation is given for why the experiments are conducted on the selected datasets}{(yes/partial/no/NA)}
 		yes. The synthetic fixtures isolate the retrieval contract under an
-		oracle schema, while the separately labeled DBLP--Google Scholar audit
-		tests only whether chained gold-match topology occurs outside the
-		generator.
+		oracle schema, while the DBLP--Google Scholar leg tests controlled
+		positive/negative conflicts over independently supplied gold linkage
+		topology and natural attributes.
 
 		\question{All novel datasets introduced in this paper are included in a data appendix}{(yes/partial/no/NA)}
 		yes. All synthetic fixtures, instance manifests, expected labels, and
-		frozen paper-facing results are included in the code/data archive.
+		frozen synthetic and semi-natural paper-facing results are included in
+		the code/data archive.
 
 		\question{All novel datasets introduced in this paper will be made publicly available upon publication of the paper with a license that allows free usage for research purposes}{(yes/partial/no/NA)}
 		partial. The complete reviewer artifact is included with the submission;
@@ -186,8 +189,9 @@ yes
 		the paper.
 
 		\question{All datasets drawn from the existing literature (potentially including authors' own previously published work) are publicly available}{(yes/partial/no/NA)}
-		yes. The external audit uses the public CC-BY release identified by its
-		citation and records the input hashes in the shipped report.
+		yes. The external topology and semi-natural studies use the public CC-BY
+		release identified by its citation and record input hashes in the
+		shipped reports.
 
 		\question{All datasets that are not publicly available are described in detail, with explanation why publicly available alternatives are not scientifically satisficing}{(yes/partial/no/NA)}
 		NA. No non-public dataset supports a reported result.
@@ -207,18 +211,20 @@ yes
 		\question{This paper states the number and range of values tried per (hyper-) parameter during development of the paper, along with the criterion used for selecting the final parameter setting}{(yes/partial/no/NA)}
 		partial. The final retrieval depths, top-$K$ grid, rank-fusion constant,
 		confidence semantics, fixture families, joint-conflict counts, scale and
-		class-stress sizes, and repetition counts are reported. The manuscript
+		class-stress sizes, joint search caps, workload query counts, and
+		repetition counts are reported. The manuscript
 		does not reconstruct every
 		development-time trial.
 
 		\question{Any code required for pre-processing data is included in the appendix}{(yes/partial/no)}
-		yes. Synthetic data generation and the built-in-only external topology
-		audit script are included in the code/data archive.
+		yes. Synthetic data generation, external topology processing, and
+		semi-natural controlled-label construction are included in the
+		code/data archive.
 
 		\question{All source code required for conducting and analyzing the experiments is included in a code appendix}{(yes/partial/no)}
 		partial. The complete synthetic-fixture, exact, maintained-index,
-		joint-budget, class-stress, on-demand, sparse-retrieval, scoring, and
-		scaling paths are included.
+		joint-budget, semi-natural, workload, class-stress, on-demand,
+		sparse-retrieval, scoring, and scaling paths are included.
 		The frozen dense outputs and pinned Python environment are included, but
 		reproducing dense embeddings also requires obtaining the cited
 		third-party model weights. For double-blind review, the project-owned
@@ -250,12 +256,13 @@ yes
 		yes. Conflict completeness and context cost are defined formally; the
 		evaluation explains why complete minimal-witness inclusion, serialized
 		triple count, joint witness-union cost, update amplification,
-		materialized conflict pairs, and repeated timing are reported.
+		retained derived entries, materialized conflict pairs, and repeated
+		workload timing are reported.
 
 		\question{This paper states the number of algorithm runs used to compute each reported result}{(yes/no)}
 		yes. Deterministic fixture and joint-budget results are exact single
-		executions; scale and class-stress timings use one unrecorded warm-up and
-		11 measured repetitions.
+		executions; workload, scale, and class-stress timings use one unrecorded
+		warm-up and 11 measured repetitions.
 
 		\question{Analysis of experiments goes beyond single-dimensional summaries of performance (e.g., average; median) to include measures of variation, confidence, or other distributional information}{(yes/no)}
 		yes. The paper reports per-family means and maxima, exact confusion
@@ -268,9 +275,9 @@ yes
 
 		\question{This paper lists all final (hyper-)parameters used for each model/algorithm in the paper’s experiments}{(yes/partial/no/NA)}
 		yes. The final retrieval depths, top-$K$ grid, rank-fusion constant,
-		encoder revision, rule settings, joint-conflict counts, scale and stress
-		sizes, query counts, and repetition protocol are in the paper and
-		artifact.
+		encoder revision, rule settings, joint-conflict counts and search caps,
+		external selection rule, scale and stress sizes, query counts, and
+		repetition protocol are in the paper and artifact.
 
 
 \end{itemize}

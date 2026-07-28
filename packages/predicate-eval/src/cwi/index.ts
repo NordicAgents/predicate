@@ -49,6 +49,29 @@ export interface CwiQueryResult {
   conflicts: CwiWitnessedConflict[];
 }
 
+export interface CwiWitnessFamily {
+  conflict: CwiConflict;
+  /** Alternative inclusion-minimal witnesses, sorted by size then identifier. */
+  witnesses: CwiWitnessedConflict[];
+  /** False when maxPathsPerConflict stopped simple-path enumeration early. */
+  exhaustive: boolean;
+}
+
+export interface CwiWitnessFamilyQueryResult {
+  seed: string;
+  classMembers: string[];
+  families: CwiWitnessFamily[];
+}
+
+export interface CwiWitnessEnumerationOptions {
+  /**
+   * Safety cap for the exponentially large family of simple identity paths.
+   * Reaching the cap marks the family non-exhaustive; callers may still use
+   * any returned witness but must not claim global infeasibility.
+   */
+  maxPathsPerConflict?: number;
+}
+
 export interface CwiStats {
   sourceTriples: number;
   insertWrites: number;
@@ -278,11 +301,58 @@ export class ConflictWitnessIndex {
   }
 
   /**
+   * Enumerate alternative minimal certificates for exact joint selection.
+   *
+   * Every simple path in the bipartite record--key-bucket graph yields an
+   * inclusion-minimal identity proof: removing a path premise disconnects the
+   * endpoints inside that certificate. The family can be exponential, so the
+   * caller supplies an explicit per-conflict cap and receives an exhaustivity
+   * flag rather than a false optimality claim.
+   */
+  queryWitnessFamilies(
+    seed: string,
+    options: CwiWitnessEnumerationOptions = {},
+  ): CwiWitnessFamilyQueryResult {
+    const maxPaths = options.maxPathsPerConflict ?? 10_000;
+    if (!Number.isInteger(maxPaths) || maxPaths <= 0) {
+      throw new Error(`maxPathsPerConflict must be a positive integer, got ${maxPaths}`);
+    }
+    const root = this.rootOf(seed);
+    const cls = this.classes.get(root);
+    if (!cls) return { seed, classMembers: [seed], families: [] };
+
+    const families: CwiWitnessFamily[] = [];
+    for (const pairs of cls.conflicts.values()) {
+      for (const conflict of pairs) {
+        const enumerated = conflict.records[0] === conflict.records[1]
+          ? { paths: [{ links: [] as KeyPathLink[] }], exhaustive: true }
+          : this.enumerateKeyPaths(conflict.records[0], conflict.records[1], maxPaths);
+        const byWitness = new Map<string, CwiWitnessedConflict>();
+        for (const path of enumerated.paths) {
+          const witness = this.assembleWitness(conflict, path);
+          const witnessIds = witness.map((triple) => tripleId(triple.s, triple.p, triple.o));
+          const id = [...witnessIds].sort().join('\u0000');
+          byWitness.set(id, { ...conflict, witness, witnessIds });
+        }
+        const witnesses = [...byWitness.values()].sort((a, b) =>
+          a.witness.length - b.witness.length
+          || [...a.witnessIds].sort().join('\u0000')
+            .localeCompare([...b.witnessIds].sort().join('\u0000')));
+        families.push({ conflict, witnesses, exhaustive: enumerated.exhaustive });
+      }
+    }
+    return { seed, classMembers: [...cls.members], families };
+  }
+
+  /**
    * Minimal witness (Def. 2.1): shortest record–bucket–record path between
    * the two supporting records, + their value assertions, + their tau/sigma
    * annotation triples (F3 premises). Same-record: the two value assertions.
    */
-  private assembleWitness(c: CwiConflict): EpisodeTriple[] {
+  private assembleWitness(
+    c: CwiConflict,
+    selectedPath?: { links: KeyPathLink[] },
+  ): EpisodeTriple[] {
     const [a, b] = c.records;
     const witness: EpisodeTriple[] = [];
     const pushed = new Set<string>();
@@ -294,7 +364,7 @@ export class ConflictWitnessIndex {
     };
 
     if (a !== b) {
-      const path = this.shortestKeyPath(a, b);
+      const path = selectedPath ?? this.shortestKeyPath(a, b);
       if (path === null) throw new Error(`CWI invariant violated: no key path between co-class records ${a} and ${b}`);
       for (const step of path.links) {
         const [cls2, kp, v] = step.bucket.split('|') as [string, string, string];
@@ -316,7 +386,7 @@ export class ConflictWitnessIndex {
     return witness;
   }
 
-  private shortestKeyPath(a: string, b: string): { links: Array<{ from: string; to: string; bucket: string }> } | null {
+  private shortestKeyPath(a: string, b: string): { links: KeyPathLink[] } | null {
     if (a === b) return { links: [] };
     const prev = new Map<string, { from: string; bucket: string }>();
     const seen = new Set([a]);
@@ -330,7 +400,7 @@ export class ConflictWitnessIndex {
             seen.add(n);
             prev.set(n, { from: r, bucket });
             if (n === b) {
-              const links: Array<{ from: string; to: string; bucket: string }> = [];
+              const links: KeyPathLink[] = [];
               let cur = b;
               while (cur !== a) {
                 const e = prev.get(cur)!;
@@ -346,6 +416,48 @@ export class ConflictWitnessIndex {
       frontier = next;
     }
     return null;
+  }
+
+  private enumerateKeyPaths(
+    a: string,
+    b: string,
+    maxPaths: number,
+  ): { paths: Array<{ links: KeyPathLink[] }>; exhaustive: boolean } {
+    const paths: Array<{ links: KeyPathLink[] }> = [];
+    let truncated = false;
+    const visitedRecords = new Set([a]);
+    const visitedBuckets = new Set<string>();
+    const links: KeyPathLink[] = [];
+
+    const visit = (record: string): void => {
+      if (truncated) return;
+      for (const bucket of [...(this.recordBuckets.get(record) ?? [])].sort()) {
+        if (visitedBuckets.has(bucket)) continue;
+        visitedBuckets.add(bucket);
+        for (const neighbor of [...(this.buckets.get(bucket) ?? [])].sort()) {
+          if (neighbor === record || visitedRecords.has(neighbor)) continue;
+          links.push({ from: record, to: neighbor, bucket });
+          if (neighbor === b) {
+            if (paths.length >= maxPaths) {
+              truncated = true;
+              links.pop();
+              break;
+            }
+            paths.push({ links: links.map((link) => ({ ...link })) });
+          } else {
+            visitedRecords.add(neighbor);
+            visit(neighbor);
+            visitedRecords.delete(neighbor);
+          }
+          links.pop();
+          if (truncated) break;
+        }
+        visitedBuckets.delete(bucket);
+        if (truncated) break;
+      }
+    };
+    visit(a);
+    return { paths, exhaustive: !truncated };
   }
 
   // ----------------------------------------------------------------- stats --
@@ -366,4 +478,10 @@ export class ConflictWitnessIndex {
       materializedConflicts,
     };
   }
+}
+
+interface KeyPathLink {
+  from: string;
+  to: string;
+  bucket: string;
 }

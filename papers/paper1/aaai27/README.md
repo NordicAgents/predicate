@@ -5,8 +5,9 @@
 ## Current status
 
 - `paper.pdf`: 6 pages total in the AAAI 2027 submission style.
-- Content ends at the top of page 6; references begin immediately afterward.
-- `supplement.pdf`: 3 anonymous pages of expanded proofs, protocol, and artifact scope.
+- Content and references share page 6; the paper remains below the 7-page
+  content and 9-page total limits.
+- `supplement.pdf`: 4 anonymous pages of expanded proofs, protocol, and artifact scope.
 - `ReproducibilityChecklist.pdf`: 3 pages with every answer slot completed.
 - Clean build: no LaTeX errors, undefined citations/references, or overfull boxes.
 - 13 cited bibliography entries, all resolved to primary publication metadata or a DOI-backed dataset record.
@@ -52,13 +53,24 @@ python3 papers/paper1/aaai27/submission/make_anonymous_archive.py
 - BM25, pinned MiniLM dense retrieval, and reciprocal-rank-fusion baselines.
 - Eight controlled families: 252 instances and 132 conflicts.
 - Twelve multi-conflict queries with exact shared/disjoint joint-budget costs.
+- An alternative-path case where exhaustive joint selection reduces 33
+  triples to the proven optimum 27 and proves 26 infeasible.
+- A fair retained-versus-fresh workload over 1,689--56,009 triples with equal
+  pre-parsed inputs and 11 measured repetitions.
+- A 136-instance semi-natural evaluation preserving DBLP--Scholar gold
+  linkage topology and natural attributes with controlled positive/negative
+  labels.
 - Large-equivalence-class stress through 32,640 materialized conflict pairs.
 - Repeated scaling companion: 11 measured repetitions after one warm-up through 100,000 persons / 560,009 triples.
-- Exploratory DBLP--Google Scholar topology audit with source hashes and explicit non-claims.
+- External DBLP--Google Scholar runners with source hashes and explicit
+  natural-prevalence non-claims.
 - Exact fixed-budget feasibility boundary and explicit non-partial overflow behavior.
 - Corrected formal contract: one complete witness per relevant conflict, distinct from proof-exhaustive completeness.
 
-The main evidence files are under `packages/predicate-eval/results/{budget,curves,cwi,dense,ondemand,retrieval,scale}`. The external audit is `../probes/dblp-scholar-topology-audit-2026-07-27.json`.
+The main evidence files are under
+`packages/predicate-eval/results/{budget,curves,cwi,dense,external,ondemand,retrieval,scale,workload}`.
+The original topology audit is
+`../probes/dblp-scholar-topology-audit-2026-07-27.json`.
 
 ## Venue timing
 

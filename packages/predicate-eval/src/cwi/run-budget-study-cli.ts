@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import type { EpisodeTriple } from '../episode-runner.js';
 import { RDF_TYPE } from '../exact/contract.js';
 import type { TBoxSchema } from '../exact/tbox.js';
-import { queryCwiWithBudget } from './budget.js';
+import { queryCwiWithBudget, queryCwiWithJointBudget } from './budget.js';
 import { ConflictWitnessIndex } from './index.js';
 
 const PKG_ROOT = join(import.meta.dirname, '..', '..');
@@ -20,6 +20,22 @@ interface StudyRow {
   sharingSavedTriples: number;
   belowBudgetStatus: string;
   exactBudgetStatus: string;
+  exactSelectorBelowBudgetStatus: string;
+  exactSelectorOptimalityProven: boolean;
+}
+
+interface AlternativeStudy {
+  conflicts: number;
+  sourceTriples: number;
+  candidateWitnesses: number;
+  independentShortestUnion: number;
+  optimalSharedUnion: number;
+  savedByJointSelection: number;
+  heuristicAtOptimalBudget: string;
+  exactAtOptimalBudget: string;
+  exactBelowOptimalBudget: string;
+  searchNodes: number;
+  optimalityProven: boolean;
 }
 
 function schema(conflicts: number): TBoxSchema {
@@ -71,6 +87,38 @@ function disjointCase(conflicts: number): { triples: EpisodeTriple[]; seeds: str
   return { triples, seeds };
 }
 
+function alternativeCase(conflicts: number): { triples: EpisodeTriple[]; seeds: string[] } {
+  const a = `${EX}alternative-a`;
+  const u = `${EX}alternative-u`;
+  const v = `${EX}alternative-v`;
+  const privateNodes = Array.from(
+    { length: conflicts },
+    (_, i) => `${EX}alternative-private-${i + 1}`,
+  );
+  const endpoints = Array.from(
+    { length: conflicts },
+    (_, i) => `${EX}alternative-endpoint-${i + 1}`,
+  );
+  const triples: EpisodeTriple[] = [a, u, v, ...privateNodes, ...endpoints].map(type);
+  const edge = (left: string, right: string, value: string): void => {
+    triples.push(key(left, value), key(right, value));
+  };
+  for (let i = 0; i < conflicts; i++) {
+    edge(a, privateNodes[i]!, `private-left-${i + 1}`);
+    edge(privateNodes[i]!, endpoints[i]!, `private-right-${i + 1}`);
+  }
+  edge(a, u, 'shared-left');
+  edge(u, v, 'shared-right');
+  for (let i = 0; i < conflicts; i++) {
+    edge(v, endpoints[i]!, `shared-tail-${i + 1}`);
+    triples.push(
+      assertion(a, `${EX}value-${i + 1}`, `left-${i + 1}`),
+      assertion(endpoints[i]!, `${EX}value-${i + 1}`, `right-${i + 1}`),
+    );
+  }
+  return { triples, seeds: [a] };
+}
+
 function runFamily(family: StudyRow['family'], conflicts: number): StudyRow {
   const generated = family === 'shared' ? sharedCase(conflicts) : disjointCase(conflicts);
   const index = new ConflictWitnessIndex(schema(conflicts));
@@ -82,6 +130,11 @@ function runFamily(family: StudyRow['family'], conflicts: number): StudyRow {
   }
   const exact = queryCwiWithBudget(index, generated.seeds, unlimited.requiredTriples);
   const below = queryCwiWithBudget(index, generated.seeds, Math.max(0, unlimited.requiredTriples - 1));
+  const exactSelectorBelow = queryCwiWithJointBudget(
+    index,
+    generated.seeds,
+    Math.max(0, unlimited.requiredTriples - 1),
+  );
   const independentWitnessSum = unlimited.conflicts
     .reduce((sum, conflict) => sum + conflict.witness.length, 0);
 
@@ -94,6 +147,51 @@ function runFamily(family: StudyRow['family'], conflicts: number): StudyRow {
     sharingSavedTriples: independentWitnessSum - unlimited.requiredTriples,
     belowBudgetStatus: below.status,
     exactBudgetStatus: exact.status,
+    exactSelectorBelowBudgetStatus: exactSelectorBelow.status,
+    exactSelectorOptimalityProven: exactSelectorBelow.optimalityProven,
+  };
+}
+
+function runAlternativeStudy(conflicts: number): AlternativeStudy {
+  const generated = alternativeCase(conflicts);
+  const index = new ConflictWitnessIndex(schema(conflicts));
+  for (const triple of generated.triples) index.insert(triple);
+  const heuristic = queryCwiWithBudget(index, generated.seeds, Number.MAX_SAFE_INTEGER);
+  const optimum = queryCwiWithJointBudget(
+    index,
+    generated.seeds,
+    Number.MAX_SAFE_INTEGER,
+  );
+  if (!optimum.optimalityProven) {
+    throw new Error('alternative-path study did not prove its optimum');
+  }
+  const heuristicAtOptimal = queryCwiWithBudget(
+    index,
+    generated.seeds,
+    optimum.requiredTriples,
+  );
+  const exactAtOptimal = queryCwiWithJointBudget(
+    index,
+    generated.seeds,
+    optimum.requiredTriples,
+  );
+  const exactBelow = queryCwiWithJointBudget(
+    index,
+    generated.seeds,
+    Math.max(0, optimum.requiredTriples - 1),
+  );
+  return {
+    conflicts,
+    sourceTriples: generated.triples.length,
+    candidateWitnesses: optimum.candidateWitnessCount,
+    independentShortestUnion: heuristic.requiredTriples,
+    optimalSharedUnion: optimum.requiredTriples,
+    savedByJointSelection: heuristic.requiredTriples - optimum.requiredTriples,
+    heuristicAtOptimalBudget: heuristicAtOptimal.status,
+    exactAtOptimalBudget: exactAtOptimal.status,
+    exactBelowOptimalBudget: exactBelow.status,
+    searchNodes: optimum.searchNodes,
+    optimalityProven: optimum.optimalityProven,
   };
 }
 
@@ -108,6 +206,7 @@ const out = join(outDir, 'multi-conflict.json');
 writeFileSync(out, `${JSON.stringify({
   measure: 'serialized logical triple count',
   rows,
-  note: 'Deterministic unique-path constructions; joint witness cost is exact for both families.',
+  alternativePath: runAlternativeStudy(4),
+  note: 'Shared/disjoint rows have unique paths. The alternative-path case proves the exact joint optimum over multiple minimal witnesses per conflict.',
 }, null, 2)}\n`);
 console.log(`wrote ${out}`);

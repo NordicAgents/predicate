@@ -5,17 +5,18 @@ Checkable Contradictions under a Context Budget.”**
 
 It contains the implementation, deterministic synthetic fixtures, focused
 tests, and frozen paper-facing results for the Conflict Witness Index (CWI),
-budget-aware multi-conflict retrieval, equivalence-class stress tests, exact
-and on-demand comparators, sparse/dense retrieval comparisons, and the scale
-ledger. It also contains the built-in-only external topology-audit script and
-its frozen report.
+heuristic and exact joint-budget retrieval, equivalence-class stress tests,
+exact and on-demand comparators, sparse/dense retrieval comparisons, the
+maintenance workload, and the scale ledger. It also contains the external
+topology and semi-natural runners with frozen reports.
 
 ## Scope and exclusions
 
-The confirmatory results use synthetic fixtures and an oracle schema. The
-external DBLP--Google Scholar analysis is exploratory and audits topology only;
-unequal year strings are not treated as independently adjudicated semantic
-conflicts.
+The core results use synthetic fixtures and a supplied schema. The
+semi-natural DBLP--Google Scholar leg preserves public gold linkage topology
+and natural attributes but injects a controlled single-valued predicate for
+unambiguous positive/negative labels. It does not estimate naturally occurring
+semantic-conflict prevalence; unequal year strings are not treated as labels.
 
 The archive excludes repository history, internal planning documents,
 installed dependencies, compiled output, caches, credentials, service launch
@@ -52,9 +53,9 @@ archive. Dependency installation still completes successfully.
 
 ## Focused verification
 
-Run the 61 focused tests covering the paper-facing maintained index, exact and
-on-demand witnesses, retrieval policies, instance scoring, scaling, and
-controlled conflict fixtures:
+Run the 64 focused tests covering the paper-facing maintained index, exact and
+on-demand witnesses, joint selection, workload comparison, retrieval policies,
+instance scoring, scaling, and controlled conflict fixtures:
 
 ```bash
 corepack pnpm --filter predicate-eval test -- --run \
@@ -65,6 +66,7 @@ corepack pnpm --filter predicate-eval test -- --run \
   tests/adaptive-key-witness.test.ts \
   tests/retrieval-policies.test.ts \
   tests/instances.test.ts \
+  tests/maintenance-workload.test.ts \
   tests/scale-ledger.test.ts \
   tests/conflict-bench.test.ts \
   tests/conflict-xr.test.ts
@@ -97,6 +99,15 @@ corepack pnpm --filter predicate-eval ondemand-witness conflict-d20
 corepack pnpm --filter predicate-eval adaptive-key-witness conflict-chain-m3
 corepack pnpm --filter predicate-eval retrieval-policies conflict-d20
 corepack pnpm --filter predicate-eval scale-ledger --sizes 300
+corepack pnpm --filter predicate-eval maintenance-workload \
+  --sizes 300 --query-counts 1,10,100 --repetitions 11
+```
+
+The semi-natural result additionally requires the three raw CSV files from the
+cited DBLP--Google Scholar release:
+
+```bash
+corepack pnpm --filter predicate-eval external-seminatural /path/to/raw-csv-dir
 ```
 
 Timing values are machine-dependent and are not expected to reproduce byte for
@@ -111,6 +122,7 @@ and integrity hashes should agree.
 - `packages/predicate-eval/src/ondemand/`: on-demand and adaptive witnesses
 - `packages/predicate-eval/src/rigs/`: retrieval-policy evaluation
 - `packages/predicate-eval/src/scale-ledger/`: scaling protocol
+- `packages/predicate-eval/src/external/`: semi-natural external protocol
 - `packages/predicate-eval/fixtures/`: deterministic synthetic data
 - `packages/predicate-eval/results/`: frozen paper-facing outputs
 - `packages/predicate-eval/tests/`: implementation and claim-boundary tests

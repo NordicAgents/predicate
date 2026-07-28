@@ -561,6 +561,29 @@ OUTSIDE the repo (only aggregate κ/rates are ever committable, via a future ame
 This is the tooling for the human annotation pass that converts the A2.7 syntactic
 disagreement rate (48.4%) into the semantic contradiction rate Gate C needs.
 
+## 2026-07-28 — Reviewer-driven joint selection, fair workload, and semi-natural transfer
+
+The revision added an exhaustive, capped joint selector over alternative
+minimal record--bucket paths. On the deterministic four-conflict
+alternative-path case, 20 candidate witnesses yield a 33-triple independent
+union and a proven 27-triple joint optimum; budget 26 is proven infeasible.
+Capped enumeration reports `search-limit`, never false infeasibility.
+
+A phase-matched workload now gives maintained CWI and fresh exact computation
+the same pre-parsed source snapshots. Over 11 repetitions at 1,689, 16,809,
+and 56,009 triples, CWI pays one insertion batch plus q lookups and fresh exact
+rebuilds its index/closure per query. CWI has lower median total time from the
+first tested query; deterministic retained state is 0.820--0.821 structural
+entries plus conflict pairs per source triple. No run has a missing or
+spurious conflict.
+
+The semi-natural DBLP--Scholar runner preserves supplied gold linkage
+components and natural title/author/venue/year attributes, then injects one
+controlled single-valued predicate. Sixty-eight component-disjoint pairs
+(depths 1--4) each produce a conflict positive and agreement negative:
+136/136 are correct. This tests transfer of retrieval mechanics while making
+no natural semantic-conflict prevalence claim.
+
 **Where this leaves Gate B.** Conditions 5(a)/5(b) fixtures exist and separate as
 registered (A2); the CWI method delivers witness-sized conflict-complete retrieval at
 flat amplification and µs queries that hold to 56k triples (A3 + H11); the strict witness

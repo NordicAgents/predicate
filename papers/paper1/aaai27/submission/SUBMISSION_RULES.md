@@ -56,14 +56,17 @@ Current source: `papers/paper1/aaai27/paper.tex`.
 
 - [x] The exact detector is explicitly not claimed as a contribution.
 - [x] Fixed-hop incompleteness is limited to the IRI-only policy class.
-- [x] Confirmatory claims are limited to deterministic synthetic fixtures and
-  an oracle schema.
-- [x] The DBLP--Google Scholar result is labeled an exploratory topology audit,
-  not semantic-conflict evidence or a prevalence estimate.
-- [x] The phase-mismatched cross-system latency table was removed; remaining
-  timing claims identify the measured resource and repetition protocol.
+- [x] Core claims use deterministic synthetic fixtures; the semi-natural leg
+  preserves gold linkage topology and natural attributes but injects
+  controlled labels and makes no natural-prevalence claim.
+- [x] DBLP--Google Scholar lexical disagreements are not treated as semantic
+  conflict labels; the controlled predicate and supplied schema are explicit.
+- [x] The cross-system workload gives both arms the same parsed source
+  snapshot and reports retained state, measurement boundaries, and repetitions.
 - [x] Joint-budget feasibility, overflow behavior, and witness-sharing limits
   are stated and tested explicitly.
+- [x] Exact joint selection distinguishes proven infeasibility from capped
+  search and returns no partial context on abstention.
 - [x] Negative results, exclusions, and limitations are retained.
 
 ## 5. References and attribution
@@ -207,6 +210,7 @@ pnpm --filter predicate-eval test -- --run \
   tests/adaptive-key-witness.test.ts \
   tests/retrieval-policies.test.ts \
   tests/instances.test.ts \
+  tests/maintenance-workload.test.ts \
   tests/scale-ledger.test.ts \
   tests/conflict-bench.test.ts \
   tests/conflict-xr.test.ts

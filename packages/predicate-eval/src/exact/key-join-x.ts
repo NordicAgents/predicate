@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { parseTBoxSchema } from './tbox.js';
+import type { EpisodeTriple } from '../episode-runner.js';
+import { parseTBoxSchema, type TBoxSchema } from './tbox.js';
 import { TripleIndex, readAllEpisodes } from './triple-index.js';
 import { RDF_TYPE, tripleId, type Detection } from './contract.js';
 import { tauOverlaps, sigmaOverlaps, type TauSigma } from './tau-sigma.js';
@@ -49,8 +50,33 @@ export function runKeyJoinX(dir: string): ExactRunResult {
   const t0 = performance.now();
   const schema = parseTBoxSchema(readFileSync(join(dir, 'world.ttl'), 'utf8'));
   const index = new TripleIndex(readAllEpisodes(dir));
-  const t1 = performance.now();
+  const setupMs = performance.now() - t0;
+  return detectKeyJoinX(schema, index, setupMs);
+}
 
+/**
+ * Fresh exact closure over an already parsed source snapshot.
+ *
+ * This removes file I/O and schema parsing from both sides of maintenance
+ * workload comparisons while retaining all per-query indexing, equivalence
+ * closure, and conflict detection work.
+ */
+export function runKeyJoinXFromTriples(
+  schema: TBoxSchema,
+  triples: EpisodeTriple[],
+): ExactRunResult {
+  const t0 = performance.now();
+  const index = new TripleIndex(triples);
+  const setupMs = performance.now() - t0;
+  return detectKeyJoinX(schema, index, setupMs);
+}
+
+function detectKeyJoinX(
+  schema: TBoxSchema,
+  index: TripleIndex,
+  setupMs: number,
+): ExactRunResult {
+  const t1 = performance.now();
   // Pass 1 — per-(class, key prop, key value) buckets over ALL key values of
   // typed subjects, then union-find closure of ~K. Untyped / unkeyed subjects
   // stay identity singletons (the v1 case).
@@ -150,7 +176,7 @@ export function runKeyJoinX(dir: string): ExactRunResult {
 
   return {
     detections, index,
-    timings: { setupMs: t1 - t0, detectMs: t2 - t1, totalMs: t2 - t0 },
+    timings: { setupMs, detectMs: t2 - t1, totalMs: setupMs + t2 - t1 },
     stats: {
       triples: index.triples, subjects: index.subjects().length,
       classes: classes.size, singleValuedProps: svProps.length,

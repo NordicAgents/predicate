@@ -38,8 +38,10 @@ RESULT_DIRS = {
     "exact",
     "instances",
     "ondemand",
+    "external",
     "retrieval",
     "scale",
+    "workload",
 }
 
 FIXTURE_DIRS = {
@@ -63,6 +65,7 @@ FOCUSED_TESTS = {
     "cwi-budget.test.ts",
     "exact-baselines.test.ts",
     "instances.test.ts",
+    "maintenance-workload.test.ts",
     "ondemand-witness.test.ts",
     "retrieval-policies.test.ts",
     "scale-ledger.test.ts",

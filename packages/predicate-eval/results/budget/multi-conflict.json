@@ -9,7 +9,9 @@
       "jointWitnessTriples": 6,
       "sharingSavedTriples": 0,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "disjoint",
@@ -19,7 +21,9 @@
       "jointWitnessTriples": 6,
       "sharingSavedTriples": 0,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "shared",
@@ -29,7 +33,9 @@
       "jointWitnessTriples": 8,
       "sharingSavedTriples": 4,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "disjoint",
@@ -39,7 +45,9 @@
       "jointWitnessTriples": 12,
       "sharingSavedTriples": 0,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "shared",
@@ -49,7 +57,9 @@
       "jointWitnessTriples": 12,
       "sharingSavedTriples": 12,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "disjoint",
@@ -59,7 +69,9 @@
       "jointWitnessTriples": 24,
       "sharingSavedTriples": 0,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "shared",
@@ -69,7 +81,9 @@
       "jointWitnessTriples": 20,
       "sharingSavedTriples": 28,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "disjoint",
@@ -79,7 +93,9 @@
       "jointWitnessTriples": 48,
       "sharingSavedTriples": 0,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "shared",
@@ -89,7 +105,9 @@
       "jointWitnessTriples": 36,
       "sharingSavedTriples": 60,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "disjoint",
@@ -99,7 +117,9 @@
       "jointWitnessTriples": 96,
       "sharingSavedTriples": 0,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "shared",
@@ -109,7 +129,9 @@
       "jointWitnessTriples": 68,
       "sharingSavedTriples": 124,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     },
     {
       "family": "disjoint",
@@ -119,8 +141,23 @@
       "jointWitnessTriples": 192,
       "sharingSavedTriples": 0,
       "belowBudgetStatus": "selection-overflow",
-      "exactBudgetStatus": "complete"
+      "exactBudgetStatus": "complete",
+      "exactSelectorBelowBudgetStatus": "infeasible",
+      "exactSelectorOptimalityProven": true
     }
   ],
-  "note": "Deterministic unique-path constructions; joint witness cost is exact for both families."
+  "alternativePath": {
+    "conflicts": 4,
+    "sourceTriples": 47,
+    "candidateWitnesses": 20,
+    "independentShortestUnion": 33,
+    "optimalSharedUnion": 27,
+    "savedByJointSelection": 6,
+    "heuristicAtOptimalBudget": "selection-overflow",
+    "exactAtOptimalBudget": "complete",
+    "exactBelowOptimalBudget": "infeasible",
+    "searchNodes": 226,
+    "optimalityProven": true
+  },
+  "note": "Shared/disjoint rows have unique paths. The alternative-path case proves the exact joint optimum over multiple minimal witnesses per conflict."
 }

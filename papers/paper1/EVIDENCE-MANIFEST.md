@@ -123,6 +123,9 @@ All paths relative to `packages/predicate-eval/` unless noted.
 | `results/instances/reasoner-tau.<d>.jsonl` | `PredictionRow` per line (τ/σ-aware chain r14→r23t→r22t; Amendment A4.3, H12) | `src/instances/reasoner-tau-cli.ts` |
 | `results/curves/bcurves.<d>.json` | B-bounded completeness curves — §4.3 primary metric, Def-5.3 primary + §4.3-literal conditional readings (Amendment A4.1) | `src/instances/bcurves-cli.ts` |
 | `results/scale/scale-ledger.json` | load-scale maintenance ledger, persons 300/1k/3k/10k + H11 verdict (Amendment A4.2; wall-clock run-variable, per-stratum sha256 + counts deterministic; strata NOT committed) | `src/scale-ledger/scale-ledger-cli.ts` |
+| `results/budget/multi-conflict.json` | shared/disjoint exact budgets plus alternative-path exact joint optimum, infeasibility, and search diagnostics | `src/cwi/run-budget-study-cli.ts` |
+| `results/workload/maintenance-vs-ondemand.json` | 11-run phase-matched insertion-plus-query workloads and retained-state counts | `src/scale-ledger/maintenance-workload-cli.ts` |
+| `results/external/dblp-scholar-seminatural.json` | 136 controlled positive/negative instances over gold DBLP--Scholar linkage topology and natural distractor attributes | `src/external/dblp-scholar-seminatural-cli.ts` |
 | `results/instances/phase1-verdicts.json` | H3/H6/H7/H8/H9/H10 verdicts + clause-3 adjudication (A2.4/A3.4/A3.5; cost ratios are run-variable wall-clock). H11 lives in scale-ledger.json; H12 in the reasoner-tau scoreboards | `src/instances/phase1-verdicts-cli.ts` |
 | `results/retrieval/retrieval.<d>.jsonl` | `PredictionRow` per line (one per policy × hops × instance) | `src/rigs/retrieval-policies-cli.ts` |
 | `results/instances/reasoner-r14r23r22.<d>.jsonl` | `PredictionRow` per line | `src/instances/reasoner-arm-cli.ts` |

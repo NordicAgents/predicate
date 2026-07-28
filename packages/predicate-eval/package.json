@@ -33,6 +33,8 @@
     "adaptive-key-witness": "tsx src/ondemand/run-adaptive-key-witness-cli.ts",
     "scale-ledger": "tsx src/scale-ledger/scale-ledger-cli.ts",
     "scale-repeated": "tsx src/scale-ledger/repeated-scale-cli.ts",
+    "maintenance-workload": "tsx src/scale-ledger/maintenance-workload-cli.ts",
+    "external-seminatural": "tsx src/external/dblp-scholar-seminatural-cli.ts",
     "flat-pinned": "tsx src/pinned/flat-pinned-cli.ts",
     "xr-stats": "PREDICATE_BACKEND=oxigraph-wasm PREDICATE_STORE_PATH=:memory: tsx src/conflict/xr-stats.ts",
     "scale": "tsx src/scale.ts",

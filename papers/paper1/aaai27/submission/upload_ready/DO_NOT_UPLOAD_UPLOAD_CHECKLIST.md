@@ -14,9 +14,8 @@ Do **not** upload them to OpenReview.
 
 ## Automatically verified on 2026-07-28
 
-- Main paper: 6 US-Letter pages; content ends at the top of page 6 and
-  references follow.
-- Supplement: 3 US-Letter pages.
+- Main paper: 6 US-Letter pages; content and references share page 6.
+- Supplement: 4 US-Letter pages.
 - Reproducibility checklist: 3 US-Letter pages with every real answer slot
   completed. The unchanged instructions still display the phrase
   `Type your response here` as an example.
@@ -29,14 +28,14 @@ Do **not** upload them to OpenReview.
 - Text scans: no author names, home paths, institution/account identifiers,
   acknowledgments, or web links.
 - Main paper and supplement display `Anonymous submission` on page 1.
-- Code/data ZIP: 371 regular-file members, deterministic timestamps, no hidden
+- Code/data ZIP: 376 regular-file members, deterministic timestamps, no hidden
   member, no symlink, no repository history, no installed dependency, no
   compiled output, and no identity-pattern hit.
 - The author-owned repository link is excluded and the project-owned RDF
   namespace is consistently replaced by the reserved
   `https://example.org/anonymous-predicate/` namespace; third-party dependency
   and dataset links remain intact.
-- Clean extracted archive: offline dependency installation completed; all 61
+- Clean extracted archive: offline dependency installation completed; all 64
   focused tests passed; the evaluation package type-check passed; every
   `MANIFEST.sha256` entry verified.
 - The manuscript contains a generative-AI-use disclosure.
