@@ -7,7 +7,8 @@ It contains the implementation, deterministic synthetic fixtures, focused
 tests, and frozen paper-facing results for the Conflict Witness Index (CWI),
 heuristic and exact joint-budget retrieval, equivalence-class stress tests,
 exact and on-demand comparators, sparse/dense retrieval comparisons, the
-maintenance workload, and the scale ledger. It also contains the external
+three-way incremental/cached/fresh exact workload, deterministic logical-
+triple and UTF-8 context-cost summaries, and the scale ledger. It also contains the external
 topology and semi-natural runners with frozen reports.
 
 ## Scope and exclusions
@@ -53,7 +54,7 @@ archive. Dependency installation still completes successfully.
 
 ## Focused verification
 
-Run the 64 focused tests covering the paper-facing maintained index, exact and
+Run the 65 focused tests covering the paper-facing maintained index, exact and
 on-demand witnesses, joint selection, workload comparison, retrieval policies,
 instance scoring, scaling, and controlled conflict fixtures:
 
@@ -65,6 +66,7 @@ corepack pnpm --filter predicate-eval test -- --run \
   tests/ondemand-witness.test.ts \
   tests/adaptive-key-witness.test.ts \
   tests/retrieval-policies.test.ts \
+  tests/context-cost-summary.test.ts \
   tests/instances.test.ts \
   tests/maintenance-workload.test.ts \
   tests/scale-ledger.test.ts \
@@ -98,6 +100,7 @@ corepack pnpm --filter predicate-eval exact conflict-d20 --system key-join-x
 corepack pnpm --filter predicate-eval ondemand-witness conflict-d20
 corepack pnpm --filter predicate-eval adaptive-key-witness conflict-chain-m3
 corepack pnpm --filter predicate-eval retrieval-policies conflict-d20
+corepack pnpm --filter predicate-eval context-cost-summary
 corepack pnpm --filter predicate-eval scale-ledger --sizes 300
 corepack pnpm --filter predicate-eval maintenance-workload \
   --sizes 300 --query-counts 1,10,100 --repetitions 11

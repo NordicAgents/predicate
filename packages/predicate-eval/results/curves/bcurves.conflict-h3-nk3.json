@@ -437,8 +437,8 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 4096,
@@ -782,8 +782,8 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 4096,
@@ -1133,8 +1133,8 @@
         {
           "budget": 4096,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 8192,
@@ -1587,8 +1587,8 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 4096,
@@ -1926,14 +1926,14 @@
         {
           "budget": 1024,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 4
         },
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 4096,
@@ -2277,14 +2277,14 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 5
         },
         {
           "budget": 4096,
           "primaryRate": 0,
           "conditionalRate": 0,
-          "n": 5
+          "n": 12
         },
         {
           "budget": 8192,
@@ -2628,8 +2628,8 @@
         {
           "budget": 4096,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 3
         },
         {
           "budget": 8192,
@@ -2737,8 +2737,8 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 4096,
@@ -3076,14 +3076,14 @@
         {
           "budget": 1024,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 3
         },
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 4096,
@@ -3427,14 +3427,14 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 6
         },
         {
           "budget": 4096,
           "primaryRate": 0,
           "conditionalRate": 0,
-          "n": 6
+          "n": 12
         },
         {
           "budget": 8192,
@@ -3778,8 +3778,8 @@
         {
           "budget": 4096,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 4
         },
         {
           "budget": 8192,
@@ -3881,14 +3881,14 @@
         {
           "budget": 1024,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 4096,
@@ -4014,8 +4014,8 @@
         {
           "budget": 8192,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 16384,
@@ -4129,8 +4129,8 @@
         {
           "budget": 8192,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 12
         },
         {
           "budget": 16384,
@@ -4340,15 +4340,15 @@
       "bytes": [
         {
           "budget": 1024,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 12
         },
         {
           "budget": 2048,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 12
         },
         {
           "budget": 4096,
@@ -4824,9 +4824,9 @@
         },
         {
           "budget": 16384,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 12
         },
         {
           "budget": 32768,

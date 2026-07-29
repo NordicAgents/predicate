@@ -1,0 +1,1009 @@
+{
+  "kind": "maintenance-versus-exact",
+  "seed": "0x5ca1eab1e",
+  "repetitions": 11,
+  "warmupRuns": 1,
+  "measurementBoundary": {
+    "common": "schema and source triples materialized in memory before timed regions",
+    "cwi": "one full insertion batch plus q maintained-index lookups",
+    "cachedExact": "one exact TripleIndex + key-closure + conflict-detection batch and subject lookup plus q lookups",
+    "freshExact": "q fresh exact TripleIndex + key-closure + conflict-detection passes over the same in-memory triples",
+    "memory": "deterministic retained item/reference counts reported separately by representation; not process heap bytes"
+  },
+  "rows": [
+    {
+      "persons": 300,
+      "triples": 1689,
+      "sha256": "ff8c7a1fbb5b7a44d40fe3c0d83f96cbcb3a15d2ddb0f95e20499ee2128abaf5",
+      "sampledQueries": 100,
+      "cwiRetained": {
+        "indexEntries": 1326,
+        "materializedConflicts": 60,
+        "totalRetainedItems": 1386,
+        "retainedItemsPerSourceTriple": 0.8206
+      },
+      "cwiIngestMs": {
+        "median": 1.155,
+        "p25": 0.646,
+        "p75": 1.252,
+        "min": 0.614,
+        "max": 3.892,
+        "runs": [
+          3.892,
+          1.217,
+          1.286,
+          1.206,
+          1.604,
+          1.155,
+          0.746,
+          0.671,
+          0.621,
+          0.614,
+          0.617
+        ]
+      },
+      "cwiQueryBatchMs": {
+        "median": 0.501,
+        "p25": 0.456,
+        "p75": 0.537,
+        "min": 0.435,
+        "max": 1.25,
+        "runs": [
+          0.639,
+          0.52,
+          1.25,
+          0.501,
+          0.555,
+          0.465,
+          0.498,
+          0.509,
+          0.447,
+          0.436,
+          0.435
+        ]
+      },
+      "cachedExactRetained": {
+        "sourceTripleRefs": 1689,
+        "detections": 60,
+        "subjectLookupEntries": 120,
+        "totalRetainedRefs": 1869
+      },
+      "cachedExactBuildMs": {
+        "median": 0.979,
+        "p25": 0.953,
+        "p75": 1.27,
+        "min": 0.925,
+        "max": 2.068,
+        "runs": [
+          1.841,
+          0.935,
+          2.068,
+          1.441,
+          0.978,
+          1.005,
+          0.971,
+          0.979,
+          0.925,
+          1.098,
+          0.933
+        ]
+      },
+      "cachedExactQueryBatchMs": {
+        "median": 0.007,
+        "p25": 0.007,
+        "p75": 0.012,
+        "min": 0.007,
+        "max": 0.015,
+        "runs": [
+          0.013,
+          0.012,
+          0.013,
+          0.015,
+          0.007,
+          0.007,
+          0.007,
+          0.007,
+          0.007,
+          0.011,
+          0.007
+        ]
+      },
+      "freshExactQueryMs": {
+        "median": 1.029,
+        "p25": 1.015,
+        "p75": 1.067,
+        "min": 0.999,
+        "max": 1.299,
+        "runs": [
+          1.299,
+          0.999,
+          1.056,
+          1.019,
+          1.029,
+          1.032,
+          1.012,
+          1.018,
+          1.006,
+          1.077,
+          1.087
+        ]
+      },
+      "cwiLowerThanCachedAt": [],
+      "cwiLowerThanFreshAt": [
+        10,
+        100
+      ],
+      "workloads": [
+        {
+          "queries": 1,
+          "cwiTotalMs": {
+            "median": 1.18,
+            "p25": 0.674,
+            "p75": 1.274,
+            "min": 0.638,
+            "max": 3.93,
+            "runs": [
+              3.93,
+              1.238,
+              1.31,
+              1.23,
+              1.633,
+              1.18,
+              0.81,
+              0.702,
+              0.647,
+              0.638,
+              0.642
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 0.979,
+            "p25": 0.953,
+            "p75": 1.27,
+            "min": 0.925,
+            "max": 2.069,
+            "runs": [
+              1.841,
+              0.936,
+              2.069,
+              1.442,
+              0.978,
+              1.005,
+              0.971,
+              0.979,
+              0.925,
+              1.098,
+              0.933
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 0.946,
+            "p25": 0.911,
+            "p75": 1.116,
+            "min": 0.907,
+            "max": 1.906,
+            "runs": [
+              1.906,
+              1.48,
+              0.982,
+              1.111,
+              0.911,
+              1.122,
+              0.911,
+              0.907,
+              0.918,
+              0.946,
+              0.91
+            ]
+          },
+          "cwiVsCachedMedianRatio": 1.21,
+          "cwiVsFreshMedianSpeedup": 0.8,
+          "cwiLowerMedianThanCached": false,
+          "cwiLowerMedianThanFresh": false
+        },
+        {
+          "queries": 10,
+          "cwiTotalMs": {
+            "median": 1.222,
+            "p25": 0.72,
+            "p75": 1.397,
+            "min": 0.678,
+            "max": 3.984,
+            "runs": [
+              3.984,
+              1.286,
+              1.507,
+              1.277,
+              1.704,
+              1.222,
+              0.857,
+              0.752,
+              0.688,
+              0.678,
+              0.683
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 0.98,
+            "p25": 0.954,
+            "p75": 1.271,
+            "min": 0.926,
+            "max": 2.07,
+            "runs": [
+              1.843,
+              0.937,
+              2.07,
+              1.443,
+              0.978,
+              1.006,
+              0.972,
+              0.98,
+              0.926,
+              1.099,
+              0.934
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 10.126,
+            "p25": 9.929,
+            "p75": 10.53,
+            "min": 9.711,
+            "max": 20.203,
+            "runs": [
+              20.203,
+              10.291,
+              11.127,
+              10.126,
+              9.873,
+              10.571,
+              9.798,
+              9.711,
+              10.009,
+              9.985,
+              10.489
+            ]
+          },
+          "cwiVsCachedMedianRatio": 1.25,
+          "cwiVsFreshMedianSpeedup": 8.29,
+          "cwiLowerMedianThanCached": false,
+          "cwiLowerMedianThanFresh": true
+        },
+        {
+          "queries": 100,
+          "cwiTotalMs": {
+            "median": 1.621,
+            "p25": 1.124,
+            "p75": 1.948,
+            "min": 1.05,
+            "max": 4.531,
+            "runs": [
+              4.531,
+              1.737,
+              2.536,
+              1.707,
+              2.158,
+              1.621,
+              1.243,
+              1.18,
+              1.068,
+              1.05,
+              1.052
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 0.986,
+            "p25": 0.962,
+            "p75": 1.283,
+            "min": 0.932,
+            "max": 2.081,
+            "runs": [
+              1.854,
+              0.947,
+              2.081,
+              1.457,
+              0.985,
+              1.012,
+              0.978,
+              0.986,
+              0.932,
+              1.109,
+              0.94
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 102.938,
+            "p25": 101.48,
+            "p75": 106.671,
+            "min": 99.871,
+            "max": 129.863,
+            "runs": [
+              129.863,
+              99.871,
+              105.611,
+              101.889,
+              102.938,
+              103.185,
+              101.185,
+              101.775,
+              100.602,
+              107.73,
+              108.685
+            ]
+          },
+          "cwiVsCachedMedianRatio": 1.64,
+          "cwiVsFreshMedianSpeedup": 63.5,
+          "cwiLowerMedianThanCached": false,
+          "cwiLowerMedianThanFresh": true
+        }
+      ],
+      "missing": 0,
+      "spurious": 0
+    },
+    {
+      "persons": 3000,
+      "triples": 16809,
+      "sha256": "5401e8105082f7ea5a3e38050b2a7c96765de2bd238cdbfb64dbbe9c57aeaaf7",
+      "sampledQueries": 100,
+      "cwiRetained": {
+        "indexEntries": 13206,
+        "materializedConflicts": 600,
+        "totalRetainedItems": 13806,
+        "retainedItemsPerSourceTriple": 0.8213
+      },
+      "cwiIngestMs": {
+        "median": 8.849,
+        "p25": 7.359,
+        "p75": 9.565,
+        "min": 6.043,
+        "max": 29.768,
+        "runs": [
+          11.16,
+          7.381,
+          8.849,
+          10.108,
+          7.337,
+          8.858,
+          7.956,
+          29.768,
+          6.043,
+          9.022,
+          6.257
+        ]
+      },
+      "cwiQueryBatchMs": {
+        "median": 0.453,
+        "p25": 0.397,
+        "p75": 0.588,
+        "min": 0.383,
+        "max": 0.948,
+        "runs": [
+          0.948,
+          0.787,
+          0.557,
+          0.618,
+          0.547,
+          0.394,
+          0.433,
+          0.399,
+          0.395,
+          0.453,
+          0.383
+        ]
+      },
+      "cachedExactRetained": {
+        "sourceTripleRefs": 16809,
+        "detections": 600,
+        "subjectLookupEntries": 1200,
+        "totalRetainedRefs": 18609
+      },
+      "cachedExactBuildMs": {
+        "median": 19.204,
+        "p25": 17.704,
+        "p75": 22.639,
+        "min": 17.02,
+        "max": 43.499,
+        "runs": [
+          26.505,
+          19.934,
+          17.774,
+          17.02,
+          19.204,
+          43.499,
+          21.437,
+          17.634,
+          17.594,
+          17.937,
+          23.842
+        ]
+      },
+      "cachedExactQueryBatchMs": {
+        "median": 0.009,
+        "p25": 0.009,
+        "p75": 0.009,
+        "min": 0.008,
+        "max": 0.011,
+        "runs": [
+          0.011,
+          0.008,
+          0.009,
+          0.008,
+          0.009,
+          0.009,
+          0.009,
+          0.009,
+          0.009,
+          0.009,
+          0.009
+        ]
+      },
+      "freshExactQueryMs": {
+        "median": 17.655,
+        "p25": 17.434,
+        "p75": 17.881,
+        "min": 17.079,
+        "max": 18.656,
+        "runs": [
+          18.656,
+          17.298,
+          17.542,
+          17.942,
+          17.079,
+          17.83,
+          17.73,
+          17.327,
+          17.655,
+          17.932,
+          17.541
+        ]
+      },
+      "cwiLowerThanCachedAt": [
+        1,
+        10,
+        100
+      ],
+      "cwiLowerThanFreshAt": [
+        1,
+        10,
+        100
+      ],
+      "workloads": [
+        {
+          "queries": 1,
+          "cwiTotalMs": {
+            "median": 8.887,
+            "p25": 7.4,
+            "p75": 9.603,
+            "min": 6.072,
+            "max": 29.799,
+            "runs": [
+              11.213,
+              7.427,
+              8.887,
+              10.15,
+              7.372,
+              8.889,
+              7.989,
+              29.799,
+              6.072,
+              9.055,
+              6.295
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 19.205,
+            "p25": 17.705,
+            "p75": 22.64,
+            "min": 17.02,
+            "max": 43.5,
+            "runs": [
+              26.505,
+              19.934,
+              17.775,
+              17.02,
+              19.205,
+              43.5,
+              21.438,
+              17.635,
+              17.594,
+              17.938,
+              23.842
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 17.001,
+            "p25": 15.406,
+            "p75": 19.575,
+            "min": 13.674,
+            "max": 21.687,
+            "runs": [
+              21.687,
+              18.169,
+              14.767,
+              14.069,
+              13.674,
+              20.72,
+              18.43,
+              16.045,
+              16.632,
+              17.001,
+              21.285
+            ]
+          },
+          "cwiVsCachedMedianRatio": 0.46,
+          "cwiVsFreshMedianSpeedup": 1.91,
+          "cwiLowerMedianThanCached": true,
+          "cwiLowerMedianThanFresh": true
+        },
+        {
+          "queries": 10,
+          "cwiTotalMs": {
+            "median": 8.923,
+            "p25": 7.452,
+            "p75": 9.667,
+            "min": 6.108,
+            "max": 29.836,
+            "runs": [
+              11.281,
+              7.486,
+              8.94,
+              10.242,
+              7.419,
+              8.923,
+              8.027,
+              29.836,
+              6.108,
+              9.092,
+              6.33
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 19.206,
+            "p25": 17.706,
+            "p75": 22.641,
+            "min": 17.021,
+            "max": 43.501,
+            "runs": [
+              26.507,
+              19.935,
+              17.776,
+              17.021,
+              19.206,
+              43.501,
+              21.439,
+              17.636,
+              17.595,
+              17.939,
+              23.844
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 180.539,
+            "p25": 168.894,
+            "p75": 194.199,
+            "min": 149.806,
+            "max": 204.783,
+            "runs": [
+              199.469,
+              193.748,
+              155.003,
+              204.783,
+              169.412,
+              169.886,
+              180.539,
+              168.376,
+              149.806,
+              182.506,
+              194.651
+            ]
+          },
+          "cwiVsCachedMedianRatio": 0.46,
+          "cwiVsFreshMedianSpeedup": 20.23,
+          "cwiLowerMedianThanCached": true,
+          "cwiLowerMedianThanFresh": true
+        },
+        {
+          "queries": 100,
+          "cwiTotalMs": {
+            "median": 9.252,
+            "p25": 8.026,
+            "p75": 10.101,
+            "min": 6.439,
+            "max": 30.167,
+            "runs": [
+              12.108,
+              8.168,
+              9.406,
+              10.726,
+              7.885,
+              9.252,
+              8.389,
+              30.167,
+              6.439,
+              9.475,
+              6.64
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 19.214,
+            "p25": 17.713,
+            "p75": 22.649,
+            "min": 17.028,
+            "max": 43.508,
+            "runs": [
+              26.516,
+              19.942,
+              17.783,
+              17.028,
+              19.214,
+              43.508,
+              21.446,
+              17.643,
+              17.602,
+              17.946,
+              23.851
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 1765.49,
+            "p25": 1743.446,
+            "p75": 1788.14,
+            "min": 1707.895,
+            "max": 1865.564,
+            "runs": [
+              1865.564,
+              1729.768,
+              1754.215,
+              1794.219,
+              1707.895,
+              1783.048,
+              1773.048,
+              1732.75,
+              1765.49,
+              1793.232,
+              1754.142
+            ]
+          },
+          "cwiVsCachedMedianRatio": 0.48,
+          "cwiVsFreshMedianSpeedup": 190.82,
+          "cwiLowerMedianThanCached": true,
+          "cwiLowerMedianThanFresh": true
+        }
+      ],
+      "missing": 0,
+      "spurious": 0
+    },
+    {
+      "persons": 10000,
+      "triples": 56009,
+      "sha256": "f84e1bcbbe632c752db878a317364e1fbf13a3bb7b1cd20c0dccd060e614de9f",
+      "sampledQueries": 100,
+      "cwiRetained": {
+        "indexEntries": 44006,
+        "materializedConflicts": 2000,
+        "totalRetainedItems": 46006,
+        "retainedItemsPerSourceTriple": 0.8214
+      },
+      "cwiIngestMs": {
+        "median": 40.928,
+        "p25": 38.671,
+        "p75": 43.412,
+        "min": 36.092,
+        "max": 46.487,
+        "runs": [
+          37.895,
+          44.342,
+          42.584,
+          46.487,
+          38.787,
+          40.928,
+          36.092,
+          38.554,
+          43.095,
+          39.91,
+          43.728
+        ]
+      },
+      "cwiQueryBatchMs": {
+        "median": 0.531,
+        "p25": 0.5,
+        "p75": 0.596,
+        "min": 0.452,
+        "max": 0.659,
+        "runs": [
+          0.518,
+          0.459,
+          0.623,
+          0.588,
+          0.659,
+          0.604,
+          0.452,
+          0.489,
+          0.531,
+          0.511,
+          0.546
+        ]
+      },
+      "cachedExactRetained": {
+        "sourceTripleRefs": 56009,
+        "detections": 2000,
+        "subjectLookupEntries": 4000,
+        "totalRetainedRefs": 62009
+      },
+      "cachedExactBuildMs": {
+        "median": 84.344,
+        "p25": 81.114,
+        "p75": 94.043,
+        "min": 75.669,
+        "max": 170.319,
+        "runs": [
+          164.409,
+          84.344,
+          80.757,
+          87.293,
+          96.839,
+          81.472,
+          83.486,
+          170.319,
+          75.669,
+          76.946,
+          91.246
+        ]
+      },
+      "cachedExactQueryBatchMs": {
+        "median": 0.014,
+        "p25": 0.011,
+        "p75": 0.018,
+        "min": 0.011,
+        "max": 0.028,
+        "runs": [
+          0.018,
+          0.017,
+          0.013,
+          0.018,
+          0.011,
+          0.011,
+          0.011,
+          0.014,
+          0.011,
+          0.021,
+          0.028
+        ]
+      },
+      "freshExactQueryMs": {
+        "median": 79.091,
+        "p25": 78.528,
+        "p75": 79.897,
+        "min": 77.445,
+        "max": 81.519,
+        "runs": [
+          77.445,
+          79.091,
+          77.985,
+          79.888,
+          78.671,
+          79.907,
+          79.818,
+          78.541,
+          81.519,
+          78.515,
+          80.119
+        ]
+      },
+      "cwiLowerThanCachedAt": [
+        1,
+        10,
+        100
+      ],
+      "cwiLowerThanFreshAt": [
+        1,
+        10,
+        100
+      ],
+      "workloads": [
+        {
+          "queries": 1,
+          "cwiTotalMs": {
+            "median": 40.967,
+            "p25": 38.714,
+            "p75": 43.454,
+            "min": 36.123,
+            "max": 46.517,
+            "runs": [
+              37.927,
+              44.373,
+              42.62,
+              46.517,
+              38.84,
+              40.967,
+              36.123,
+              38.588,
+              43.128,
+              39.945,
+              43.779
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 84.345,
+            "p25": 81.116,
+            "p75": 94.043,
+            "min": 75.67,
+            "max": 170.32,
+            "runs": [
+              164.411,
+              84.345,
+              80.758,
+              87.294,
+              96.84,
+              81.473,
+              83.486,
+              170.32,
+              75.67,
+              76.947,
+              91.247
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 79.02,
+            "p25": 75.075,
+            "p75": 82.272,
+            "min": 65.914,
+            "max": 139.841,
+            "runs": [
+              65.914,
+              79.02,
+              66.905,
+              139.841,
+              77.325,
+              74.832,
+              75.317,
+              85.598,
+              79.438,
+              83.194,
+              81.35
+            ]
+          },
+          "cwiVsCachedMedianRatio": 0.49,
+          "cwiVsFreshMedianSpeedup": 1.93,
+          "cwiLowerMedianThanCached": true,
+          "cwiLowerMedianThanFresh": true
+        },
+        {
+          "queries": 10,
+          "cwiTotalMs": {
+            "median": 41.021,
+            "p25": 38.766,
+            "p75": 43.502,
+            "min": 36.161,
+            "max": 46.559,
+            "runs": [
+              37.97,
+              44.412,
+              42.684,
+              46.559,
+              38.904,
+              41.021,
+              36.161,
+              38.629,
+              43.175,
+              39.991,
+              43.83
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 84.346,
+            "p25": 81.117,
+            "p75": 94.045,
+            "min": 75.671,
+            "max": 170.321,
+            "runs": [
+              164.412,
+              84.346,
+              80.759,
+              87.295,
+              96.841,
+              81.474,
+              83.488,
+              170.321,
+              75.671,
+              76.949,
+              91.249
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 813.602,
+            "p25": 763.726,
+            "p75": 835.361,
+            "min": 737.593,
+            "max": 895.613,
+            "runs": [
+              737.593,
+              761.677,
+              813.602,
+              798.811,
+              765.776,
+              868.415,
+              823.957,
+              750.439,
+              821.923,
+              846.766,
+              895.613
+            ]
+          },
+          "cwiVsCachedMedianRatio": 0.49,
+          "cwiVsFreshMedianSpeedup": 19.83,
+          "cwiLowerMedianThanCached": true,
+          "cwiLowerMedianThanFresh": true
+        },
+        {
+          "queries": 100,
+          "cwiTotalMs": {
+            "median": 41.532,
+            "p25": 39.245,
+            "p75": 43.95,
+            "min": 36.544,
+            "max": 47.075,
+            "runs": [
+              38.414,
+              44.801,
+              43.208,
+              47.075,
+              39.446,
+              41.532,
+              36.544,
+              39.043,
+              43.626,
+              40.421,
+              44.274
+            ]
+          },
+          "cachedExactTotalMs": {
+            "median": 84.361,
+            "p25": 81.126,
+            "p75": 94.062,
+            "min": 75.68,
+            "max": 170.333,
+            "runs": [
+              164.427,
+              84.361,
+              80.77,
+              87.311,
+              96.85,
+              81.483,
+              83.497,
+              170.333,
+              75.68,
+              76.967,
+              91.274
+            ]
+          },
+          "freshExactTotalMs": {
+            "median": 7909.101,
+            "p25": 7852.777,
+            "p75": 7989.74,
+            "min": 7744.547,
+            "max": 8151.912,
+            "runs": [
+              7744.547,
+              7909.101,
+              7798.475,
+              7988.763,
+              7867.144,
+              7990.717,
+              7981.797,
+              7854.102,
+              8151.912,
+              7851.452,
+              8011.941
+            ]
+          },
+          "cwiVsCachedMedianRatio": 0.49,
+          "cwiVsFreshMedianSpeedup": 190.43,
+          "cwiLowerMedianThanCached": true,
+          "cwiLowerMedianThanFresh": true
+        }
+      ],
+      "missing": 0,
+      "spurious": 0
+    }
+  ]
+}

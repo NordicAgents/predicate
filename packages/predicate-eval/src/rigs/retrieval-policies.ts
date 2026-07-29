@@ -9,7 +9,7 @@ import { deriveV3Instances, isV3Oracle } from '../instances/v3.js';
 /**
  * Retrieval-policy ball builders (publication plan §8 "Retrieval baselines").
  *
- * The benchmark's structural claim is that the IRI-only BFS baseline
+ * The benchmark's structural claim is that the non-type IRI BFS baseline
  * (rigs/flat-retrieved.ts) cannot cross a shared key LITERAL to the
  * co-referent record. Fatal objection 2 says the benchmark engineers that
  * failure. These policies answer it by STRENGTHENING the baseline:
@@ -60,7 +60,7 @@ export async function keyProperties(client: StorageAdapter): Promise<string[]> {
   return r.results.bindings.map((b) => b.prop!.value).sort();
 }
 
-/** The control: thin wrapper over the existing IRI-only BFS (flat-retrieved.ts). */
+/** The control: thin wrapper over the existing non-type IRI BFS. */
 export async function iriBfsBall(
   client: StorageAdapter, seeds: string[], hops: number, opts: PolicyBallOptions = {},
 ): Promise<PolicyBall> {
@@ -529,7 +529,7 @@ interface SeedOutcome {
  */
 export async function evaluateInstance(
   client: StorageAdapter, policy: RetrievalPolicy, hops: number,
-  inst: InstanceRecord, schemaBytes: number, opts: PolicyBallOptions = {},
+  inst: InstanceRecord, opts: PolicyBallOptions = {},
 ): Promise<PredictionRow> {
   const contextCorpus = await subjectContextCorpus(client);
   const outcomes: SeedOutcome[] = [];
@@ -543,7 +543,9 @@ export async function evaluateInstance(
       seed,
       ballNodes: pb.ball.size,
       contextTriples: ids.size,
-      contextBytes: schemaBytes + Buffer.byteLength(context, 'utf8'),
+      // The schema is a shared contract input, not query-returned evidence.
+      // Measure only the serialized assertions selected for this query.
+      contextBytes: Buffer.byteLength(context, 'utf8'),
       ms,
       witnessHits: inst.goldWitness.filter((w) => ids.has(w)),
       valueHits: inst.goldValues.filter((v) => objects.has(v)),

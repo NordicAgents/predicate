@@ -430,9 +430,9 @@
       "bytes": [
         {
           "budget": 1024,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": 2048,
@@ -775,15 +775,15 @@
       "bytes": [
         {
           "budget": 1024,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": 2048,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": 4096,
@@ -1126,9 +1126,9 @@
         },
         {
           "budget": 2048,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": 4096,
@@ -1277,9 +1277,9 @@
         },
         {
           "budget": 131072,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": "whole-store",
@@ -1477,9 +1477,9 @@
         },
         {
           "budget": 4096,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": 8192,
@@ -1581,14 +1581,14 @@
         {
           "budget": 1024,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 60
         },
         {
           "budget": 2048,
           "primaryRate": 0,
           "conditionalRate": 0,
-          "n": 4
+          "n": 60
         },
         {
           "budget": 4096,
@@ -1823,8 +1823,8 @@
         {
           "budget": 4096,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 2
         },
         {
           "budget": 8192,
@@ -1926,14 +1926,14 @@
         {
           "budget": 1024,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 8
         },
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 60
         },
         {
           "budget": 4096,
@@ -2277,8 +2277,8 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 60
         },
         {
           "budget": 4096,
@@ -2427,9 +2427,9 @@
         },
         {
           "budget": 131072,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": "whole-store",
@@ -2629,7 +2629,7 @@
           "budget": 4096,
           "primaryRate": 0,
           "conditionalRate": 0,
-          "n": 5
+          "n": 60
         },
         {
           "budget": 8192,
@@ -2731,14 +2731,14 @@
         {
           "budget": 1024,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 60
         },
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 60
         },
         {
           "budget": 4096,
@@ -2973,8 +2973,8 @@
         {
           "budget": 4096,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 1
         },
         {
           "budget": 8192,
@@ -3082,8 +3082,8 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 60
         },
         {
           "budget": 4096,
@@ -3427,8 +3427,8 @@
         {
           "budget": 2048,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 60
         },
         {
           "budget": 4096,
@@ -3577,9 +3577,9 @@
         },
         {
           "budget": 131072,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": "whole-store",
@@ -3779,7 +3779,7 @@
           "budget": 4096,
           "primaryRate": 0,
           "conditionalRate": 0,
-          "n": 19
+          "n": 60
         },
         {
           "budget": 8192,
@@ -3881,8 +3881,8 @@
         {
           "budget": 1024,
           "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "conditionalRate": 0,
+          "n": 60
         },
         {
           "budget": 2048,
@@ -4267,9 +4267,9 @@
         },
         {
           "budget": 131072,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": "whole-store",
@@ -4340,9 +4340,9 @@
       "bytes": [
         {
           "budget": 1024,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": 2048,
@@ -4727,9 +4727,9 @@
         },
         {
           "budget": 131072,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": "whole-store",
@@ -4800,9 +4800,9 @@
       "bytes": [
         {
           "budget": 1024,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": 2048,
@@ -5187,9 +5187,9 @@
         },
         {
           "budget": 131072,
-          "primaryRate": 0,
-          "conditionalRate": null,
-          "n": 0
+          "primaryRate": 1,
+          "conditionalRate": 1,
+          "n": 60
         },
         {
           "budget": "whole-store",

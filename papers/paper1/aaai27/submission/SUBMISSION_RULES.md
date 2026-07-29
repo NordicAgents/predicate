@@ -55,14 +55,16 @@ Current source: `papers/paper1/aaai27/paper.tex`.
 ## 4. Claims and scientific wording
 
 - [x] The exact detector is explicitly not claimed as a contribution.
-- [x] Fixed-hop incompleteness is limited to the IRI-only policy class.
+- [x] Fixed-hop incompleteness is limited to non-type IRI adjacency;
+  `rdf:type`-traversing policies are explicitly excluded.
 - [x] Core claims use deterministic synthetic fixtures; the semi-natural leg
   preserves gold linkage topology and natural attributes but injects
   controlled labels and makes no natural-prevalence claim.
 - [x] DBLP--Google Scholar lexical disagreements are not treated as semantic
   conflict labels; the controlled predicate and supplied schema are explicit.
-- [x] The cross-system workload gives both arms the same parsed source
-  snapshot and reports retained state, measurement boundaries, and repetitions.
+- [x] The cross-system workload gives incremental, cached-snapshot, and fresh
+  exact arms the same parsed source snapshot and reports retained state,
+  measurement boundaries, and repetitions.
 - [x] Joint-budget feasibility, overflow behavior, and witness-sharing limits
   are stated and tested explicitly.
 - [x] Exact joint selection distinguishes proven infeasibility from capped
@@ -209,6 +211,7 @@ pnpm --filter predicate-eval test -- --run \
   tests/ondemand-witness.test.ts \
   tests/adaptive-key-witness.test.ts \
   tests/retrieval-policies.test.ts \
+  tests/context-cost-summary.test.ts \
   tests/instances.test.ts \
   tests/maintenance-workload.test.ts \
   tests/scale-ledger.test.ts \

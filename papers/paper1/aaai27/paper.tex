@@ -35,11 +35,11 @@ budget-feasibility boundary by the minimum joint union of one witness per
 conflict.  A capped exact selector realizes this boundary on tractable
 classes and otherwise abstains rather than silently returning incomplete
 evidence.  We also show
-that every fixed-hop policy based only on IRI adjacency fails conflict
+that every fixed-hop policy based only on non-type IRI adjacency fails conflict
 completeness on a literal-keyed construction.  A Conflict Witness Index
 (\cwi) incrementally maintains key-induced record equivalence and returns one
 shortest witness per conflict.  Evaluation covers 252 synthetic instances
-with 132 conflicts, 12 multi-conflict queries, and 136 semi-natural controls
+with 132 conflicts, 12 multi-conflict queries, and 136 semi-natural instances
 on gold record-linkage topology.  Shared premises reduce a
 32-conflict joint certificate from 192 to 68 triples, whereas 32 disjoint
 conflicts require all 192; on an alternative-path case, exact joint selection
@@ -76,7 +76,8 @@ baader2010pinpointing,buneman2001whywhere,green2007semirings}.  We do not claim
 a new conflict detector or witness formalism.  What is new is to quantify
 checkable-witness inclusion over the \emph{returned context}, characterize
 when all relevant conflicts can fit a fixed budget, and require explicit
-overflow otherwise.  Second, we prove a boundary for IRI-only neighborhoods.
+overflow otherwise.  Second, we prove a boundary for non-type IRI
+neighborhoods.
 Third, we implement both fast independent selection and bounded exact joint
 selection, and measure maintained retrieval against exact, key-aware, and
 learned baselines.
@@ -85,8 +86,9 @@ The experiments produce five findings.  First, a key-aware neighborhood is a
 strong baseline: for direct conflicts it is usually within a few triples of an
 exact witness.  Second, chained identity is the regime where record-level
 neighborhood and relevance retrieval become expensive.  Third, a maintained
-index and a fresh exact join return the same witness-sized output, but a fair
-ingest-plus-query workload identifies the maintenance break-even.  Fourth,
+index and a fresh exact join return the same witness-sized output, while an
+ingest-plus-query workload brackets incremental, cached-snapshot, and
+stateless exact computation.  Fourth,
 joint context cost depends on premise sharing, and exact joint selection can
 avoid false overflow by choosing longer but more shareable witnesses.  Fifth,
 the mechanism transfers to controlled conflicts over independently supplied
@@ -227,30 +229,36 @@ schema is correct, or that every real inconsistency has a finite witness in
 this fragment.  Conversely, a policy can satisfy ordinary answer relevance
 while failing Eq.~\ref{eq:cc}; seeing one plausible value is insufficient.
 
-\subsection{A Boundary for IRI-Only Neighborhoods}
+\subsection{A Boundary for Non-Type IRI Neighborhoods}
 
-Let $G_I(S)$ contain an undirected edge only when two IRIs co-occur as subject
-and object in a triple.  Literals are not graph nodes.  A $k$-hop IRI policy
-may return assertions incident to IRIs within distance $k$ of a query seed.
+Let $G_I^{-{\rm type}}(S)$ contain an undirected edge when two IRIs co-occur as
+subject and object in a non-\texttt{rdf:type} assertion.  Literals are not
+graph nodes, and class-membership edges are not traversed.  A $k$-hop
+non-type IRI policy may return assertions incident to IRIs within distance
+$k$ of a query seed.
 
-\begin{proposition}[Fixed-hop incompleteness]
+\begin{proposition}[Fixed-hop non-type IRI incompleteness]
 For every finite $k$, there is a store and query with a relevant six-assertion
 cross-record witness for which any policy restricted to the $k$-hop component
-of $G_I(S)$ is not conflict-complete.
+of $G_I^{-{\rm type}}(S)$ is not conflict-complete.
 \end{proposition}
 \begin{proof}
 Create typed records $x$ and $y$ with the same \emph{literal} key $u$, and
 assert different values of $p\in E$.  Seed the query at $x$.  Add no
-IRI-object path from $x$ to $y$.  Then $x\sim_K y$, so the six assertions form
-a relevant witness.  But $y$ is in a different component of $G_I(S)$ and its
-type, key, and value assertions cannot be returned at any finite $k$.
+non-type IRI-object path from $x$ to $y$.  Then $x\sim_K y$, so the six
+assertions form a relevant witness.  The common class does not create a
+traversable edge in $G_I^{-{\rm type}}(S)$, while the common key is a literal.
+Thus $y$ is in a different component and its type, key, and value assertions
+cannot be returned at any finite $k$.
 \end{proof}
 
 This result is deliberately narrow.  It does not apply to literal-aware,
-key-aware, lexical, dense, or hybrid policies.  On connected benchmark stores,
-IRI breadth-first search can also become complete by expanding to most or all
-of the store.  The proposition establishes a counterexample class, not a claim
-about every graph-retrieval workload.
+key-aware, lexical, dense, hybrid, or type-traversing policies.  If
+\texttt{rdf:type} edges are traversed, two records of class $C$ are linked
+through $C$ in two hops, so the proposition does not cover that graph.  On
+connected benchmark stores, non-type IRI breadth-first search can also become
+complete by expanding to most or all of the store.  The proposition establishes
+a counterexample class, not a claim about every graph-retrieval workload.
 
 \subsection{Conflict Witness Index}
 
@@ -341,8 +349,9 @@ safe abstention.
 \paragraph{Questions.}
 We test: (Q1) which policies return a complete witness and at what context
 cost; (Q2) whether maintained \cwi{} improves certificate size over exact
-on-demand retrieval; (Q3) where retained maintenance breaks even against fresh
-exact queries; (Q4) how joint selection behaves with shared, disjoint, and
+on-demand retrieval; (Q3) how incremental maintenance compares with both a
+batch-built cached exact snapshot and fresh exact queries; (Q4) how joint
+selection behaves with shared, disjoint, and
 alternative witnesses; (Q5) how the disclosed class-local quadratic term
 manifests; and (Q6) whether the mechanism transfers to natural linkage
 topology.  Labels are deterministic and the schema is supplied as ground
@@ -369,7 +378,7 @@ uses component-disjoint pairs from a public entity-resolution benchmark.
 key-aware layers and stops once it can verify a positive certificate.
 Adaptive search does not generally certify absence at its configured
 eight-layer cap.  Record-level policies retrieve all assertions of selected
-records: IRI BFS and key-aware neighborhoods at depths 1--4; BM25
+records: non-type IRI BFS and key-aware neighborhoods at depths 1--4; BM25
 \citep{robertson2009bm25}; cosine retrieval with
 \texttt{all-MiniLM-L6-v2} at a pinned model revision
 \citep{reimers2019sbert}; and BM25--dense reciprocal-rank fusion with
@@ -378,8 +387,9 @@ top-$K\in\{1,2,4,\ldots,512\}$.
 
 \paragraph{Protocol and implementation.}
 TypeScript systems run under Node.js 22.17.1; the dense baseline uses
-Sentence Transformers 5.6.1.  The encoder weights, exact revision, and Python
-dependency lock are included in the artifact.  Scaling ran on one AMD Ryzen
+Sentence Transformers 5.6.1.  The encoder identifier and exact revision,
+frozen outputs, and Python dependency lock are included; re-execution requires
+obtaining the third-party weights.  Scaling ran on one AMD Ryzen
 Threadripper PRO 5955WX host with 256 GiB RAM and AlmaLinux 9.7; no GPU was
 used.  Each fixture, schema, output row, and scale store has a deterministic
 identifier or SHA-256 digest.  Retrieval configurations
@@ -389,11 +399,14 @@ confirmatory result.  Scale timings use one unrecorded warm-up followed by 11
 measured repetitions; we report medians and interquartile ranges (IQR).
 The large-class stress leg uses the same repetition protocol.
 The maintenance workload materializes the same source triples in memory
-before both arms: \cwi{} pays one insertion batch plus $q$ lookups, while the
-stateless arm rebuilds its exact index and closure for each query.
+before all arms: \cwi{} pays one insertion batch plus $q$ lookups; cached exact
+batch-builds its index, closure, conflict cells, and seed lookup once; fresh
+exact rebuilds them for every query.
 
 We score a conflict only when the retrieved context contains a complete
-minimal witness.  Context cost is serialized triple count; Table~\ref{tab:ret}
+minimal witness.  Context cost is logical triple count and UTF-8 bytes of the
+returned source assertions; the shared schema is excluded from both.
+Table~\ref{tab:ret}
 reports the smallest configuration that reaches 100\% conflict completeness
 within a family.  Values are mean/maximum over conflict queries.  Since
 fixtures and outputs are deterministic, we report exact counts rather than
@@ -419,7 +432,8 @@ TauSig    & 60/12 & 648   & 10.0/10 & 12.0/12 & 220.2/226   & 648.0/648   & 430.
 \end{tabular}
 \caption{Triples returned at the smallest fully conflict-complete setting
 (mean/maximum). ``Exact witness'' is identical for maintained \cwi{},
-on-demand exact, and positive adaptive exact output.}
+on-demand exact, and positive adaptive exact output.  UTF-8 costs are reported
+in text and the supplement.}
 \label{tab:ret}
 \end{table*}
 
@@ -451,6 +465,12 @@ completeness only at their respective whole-store contexts (440 and 336
 triples).  This does not show that learned retrieval cannot be trained for the
 task; it shows that standard relevance ranking provides no completeness
 contract on these controlled chains.
+
+The byte metric preserves the same ordering without assuming a tokenizer.
+Across families, exact witnesses average 129--957 UTF-8 bytes and the smallest
+complete key-aware contexts average 260--7,395 bytes; the largest smallest-
+complete learned context is 130,319 bytes.  The artifact reports mean and
+maximum byte costs for every table cell.
 
 \paragraph{Maintenance does not shrink the certificate.}
 \cwi{}, on-demand exact, and adaptive exact return the same shortest witness
@@ -516,37 +536,43 @@ and schema remain controlled.
 \subsection{Maintenance Workload and Scaling}
 
 Table~\ref{tab:scale} compares one in-memory insertion batch followed by
-$q\in\{1,10,100\}$ queries.  Parsing is outside both timed regions.  The
-stateless arm rebuilds the full exact index and equivalence closure per query;
-\cwi{} retains derived state.
+$q\in\{1,10,100\}$ queries.  Parsing is outside all timed regions.  Cached
+exact batch-builds the full exact index and equivalence closure once per
+snapshot; fresh exact rebuilds them per query; \cwi{} incrementally ingests
+once and retains derived state.
 
 \begin{table*}[t]
 \centering
 \small
 \setlength{\tabcolsep}{4.2pt}
-\begin{tabular}{rrrrrrr}
+\begin{tabular}{rrrrrrrr}
 \toprule
-Persons & Triples & Entries & \multicolumn{2}{c}{$q=1$ total ms} &
-\multicolumn{2}{c}{$q=100$ total ms} \\
-\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-& & & \cwi{} & Fresh & \cwi{} & Fresh \\
+Persons & Triples & \multicolumn{3}{c}{$q=1$ total ms} &
+\multicolumn{3}{c}{$q=100$ total ms} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+& & \cwi{} & Cached & Fresh & \cwi{} & Cached & Fresh \\
 \midrule
-300    & 1,689  & 1,386  & 0.69 & 1.07 & 1.19 & 111.26 \\
-3,000  & 16,809 & 13,806 & 9.77 & 20.02 & 10.39 & 1,732.23 \\
-10,000 & 56,009 & 46,006 & 39.79 & 75.19 & 40.31 & 7,505.44 \\
+300    & 1,689  & 1.18 & 0.98 & 0.95 & 1.62 & 0.99 & 102.94 \\
+3,000  & 16,809 & 8.89 & 19.21 & 17.00 & 9.25 & 19.21 & 1,765.49 \\
+10,000 & 56,009 & 40.97 & 84.35 & 79.02 & 41.53 & 84.36 & 7,909.10 \\
 \bottomrule
 \end{tabular}
-\caption{Median total workload time over 11 runs after one warm-up.  Both arms
-receive the same parsed source snapshot.  ``Entries'' includes structural
-index entries and materialized conflict pairs; the fresh arm retains none.
-No run had a missing or spurious conflict.}
+\caption{Median total workload time over 11 runs after one warm-up.  All arms
+receive the same parsed source snapshot.  Cached exact retains a batch-built
+snapshot; fresh exact retains no derived state.  No run had a missing or
+spurious conflict.}
 \label{tab:scale}
 \end{table*}
 
-\cwi{} has lower median total time from the first tested query, by
-1.56--2.05$\times$, and by 93--186$\times$ at 100 queries.  It retains
-0.820--0.821 retained items per source triple; the fresh arm trades this
-space for repeated computation.  A separate ledger scales \cwi{} through
+\cwi{} is 2.03--2.16$\times$ faster than cached exact across the tested query
+counts for the two larger snapshots.  On the smallest snapshot, cached exact
+is 1.21--1.64$\times$ faster than \cwi{}, exposing scale and per-query
+overheads; fresh exact is also slightly faster there at $q=1$.  Fresh exact
+is the no-retained-state endpoint and is about 190$\times$ slower than \cwi{}
+at 100 queries on the two larger snapshots.
+\cwi{} retains 0.820--0.821 structural/conflict items per source triple;
+cached exact retains its source index, detections, and seed lookup, while
+fresh exact trades this space for repeated computation.  A separate ledger scales \cwi{} through
 100,000 persons (560,009 triples): 100 lookups take 0.67 ms median after
 672.2 ms ingestion.  Conversely, when 256 records share one key and distinct
 values, \cwi{} materializes all 32,640 conflict pairs and ingestion reaches
@@ -604,8 +630,9 @@ The index is insertion-oriented; deletion, persistence, concurrent updates,
 and crash recovery remain engineering work.  Independent selection may still
 return \textsc{selection-overflow}; exact joint selection closes that gap only
 when its exponential path and search caps are not reached.  The workload is a
-single-process insertion batch followed by reads; it does not establish
-concurrent latency, heap residency, or behavior under deletions.
+single-process insertion batch followed by reads; cached exact is an immutable
+snapshot comparator, and the experiment does not establish concurrent
+latency, heap residency, interleaved-update behavior, or deletions.
 The learned baselines use one frozen encoder
 without task-specific training.  Finally, a complete witness guarantees that
 a sound checker \emph{can} verify a conflict, not that a language model will
@@ -624,12 +651,12 @@ for the complete submission, and list no AI system as an author or source.
 Conflict completeness makes a missing contradiction a falsifiable retrieval
 failure: every relevant conflict must arrive with one checkable witness, and
 the minimum joint witness union states exactly when that demand can fit.
-Fixed-hop IRI neighborhoods cannot guarantee it, while exact maintained and
-on-demand methods can return witness-sized contexts; bounded exact joint
+Fixed-hop non-type IRI neighborhoods cannot guarantee it, while exact
+maintained and on-demand methods can return witness-sized contexts; bounded exact joint
 selection can additionally prove feasibility or infeasibility on tractable
 classes.  Simple key-aware retrieval is already competitive for direct
-conflicts, while maintained retrieval wins the tested read workloads at the
-cost of retained state and quadratic worst-case classes.  Independently
+conflicts, while maintained retrieval wins at the two larger tested snapshots
+at the cost of retained state and quadratic worst-case classes.  Independently
 validated natural schemas and conflict labels remain necessary to establish
 prevalence in deployed agent memories.
 

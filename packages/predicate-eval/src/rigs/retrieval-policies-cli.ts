@@ -64,8 +64,7 @@ async function main(): Promise<void> {
   }
 
   const client = getAdapter();
-  const { schema, episodesLoaded } = await loadDomainForRetrieval(client, dir);
-  const schemaBytes = Buffer.byteLength(schema, 'utf8');
+  const { episodesLoaded } = await loadDomainForRetrieval(client, dir);
   const keyProps = await keyProperties(client);
   const instances = deriveInstances(domain, dir);
   const nConflict = instances.filter((i) => i.isConflict).length;
@@ -88,7 +87,7 @@ async function main(): Promise<void> {
         ctxTriples: [] as number[], ctxBytes: [] as number[], ballNodes: [] as number[],
       };
       for (const inst of instances) {
-        const row = await evaluateInstance(client, policy, hops, inst, schemaBytes, { keyProps });
+        const row = await evaluateInstance(client, policy, hops, inst, { keyProps });
         rows.push(row);
         if (inst.isConflict && row.flagged) cell.flaggedConflicts++;
         // Cost columns share the rate's denominator: conflict instances only.

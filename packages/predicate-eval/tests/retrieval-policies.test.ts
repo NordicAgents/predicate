@@ -8,25 +8,22 @@ import {
 
 /**
  * Regression-lock for the retrieval-policy mechanism claim (publication plan
- * §8, fatal objection 2): the cross-record conflict is invisible to IRI-only
+ * §8, fatal objection 2): the conflict is invisible to non-type IRI
  * BFS at practitioner hop counts, becomes visible the moment retrieval can
  * cross the shared key literal (key-aware OR schema-free literal-aware), and
- * IRI-only BFS only "recovers" at hops=4 by degenerating into the whole store.
+ * This BFS only "recovers" at hops=4 by degenerating into the whole store.
  */
 
 const client = getAdapter();
 const DOMAIN = 'conflict-xr-small';
 const DIR = join(import.meta.dirname, '..', 'fixtures', DOMAIN);
 
-let schema = '';
-let schemaBytes = 0;
 let keyProps: string[] = [];
 let instances: InstanceRecord[] = [];
 let conflicts: InstanceRecord[] = [];
 
 beforeAll(async () => {
-  ({ schema } = await loadDomainForRetrieval(client, DIR));
-  schemaBytes = Buffer.byteLength(schema, 'utf8');
+  await loadDomainForRetrieval(client, DIR);
   keyProps = await keyProperties(client);
   instances = deriveInstances(DOMAIN, DIR);
   conflicts = instances.filter((i) => i.isConflict);
@@ -37,7 +34,7 @@ async function witnessCompleteCount(
 ): Promise<number> {
   let flagged = 0;
   for (const inst of conflicts) {
-    const row = await evaluateInstance(client, policy, hops, inst, schemaBytes, { keyProps });
+    const row = await evaluateInstance(client, policy, hops, inst, { keyProps });
     if (row.flagged) flagged++;
   }
   return flagged;
@@ -85,7 +82,7 @@ describe('retrieval policies — conflict-xr-small mechanism lock', () => {
         const result = await bm25Ball(client, [seed], 16);
         expect(result.ball.has(inst.subjects.find((s) => s !== seed)!)).toBe(true);
       }
-      const row = await evaluateInstance(client, 'bm25', 16, inst, schemaBytes, { keyProps });
+      const row = await evaluateInstance(client, 'bm25', 16, inst, { keyProps });
       expect(row.flagged, inst.id).toBe(true);
     }
   }, 120_000);
@@ -159,7 +156,7 @@ describe('retrieval policies — conflict-xr-small mechanism lock', () => {
 
     const row = await evaluateInstance(
       client, 'iri-bfs', 4,
-      conflicts.find((i) => i.id === `${DOMAIN}#pair-p002`)!, schemaBytes, { keyProps },
+      conflicts.find((i) => i.id === `${DOMAIN}#pair-p002`)!, { keyProps },
     );
     expect(row.flagged).toBe(true);
     expect(row.extra.contextTriples).toBe(345);

@@ -26,8 +26,8 @@ Checkable Contradictions under a Context Budget''}
 \section{Scope}
 
 This supplement expands proofs and records the reviewer-facing reproduction
-contract.  It does not introduce an additional headline claim or repair an
-argument missing from the main paper.  The main paper remains self-contained.
+contract.  It does not introduce an additional headline claim; the main paper
+remains self-contained.
 Core results concern deterministic synthetic fixtures; the semi-natural leg
 preserves public gold linkage topology and natural attributes but injects the
 single-valued conflict predicate.  Neither supplies a natural-prevalence
@@ -135,22 +135,25 @@ if a cap is reached; a non-fitting incumbent justifies \textsc{infeasible}
 only after exhaustive search.  Otherwise the implementation returns
 \textsc{search-limit} and an empty context.
 
-\subsection{Fixed-Hop IRI Incompleteness}
+\subsection{Fixed-Hop Non-Type IRI Incompleteness}
 
 Fix any finite hop limit $k$.  Construct typed records $x$ and $y$ whose key
 objects are the same literal, whose constrained values disagree, and for which
-no triple has an IRI-object path between $x$ and $y$.  A query seeded at $x$
-has a relevant direct-key conflict because exact literal-key equality places
-the records in one $\sim_K$ class.  Its logical witness contains the two type,
-two key, and two value assertions.
+no non-\texttt{rdf:type} triple has an IRI-object path between $x$ and $y$.
+A query seeded at $x$ has a relevant direct-key conflict because exact
+literal-key equality places the records in one $\sim_K$ class.  Its logical
+witness contains the two type, two key, and two value assertions.
 
-The IRI-only graph omits literals as vertices.  Consequently $x$ and $y$ are
-in different connected components, not merely more than $k$ hops apart.  Any
-policy restricted to the $k$-hop component of $x$ omits the type, key, and
-value premises incident to $y$ and cannot contain the witness.  Since the
-construction works for every finite $k$, no fixed finite radius gives the
-claimed guarantee for this policy class.  Literal-aware and key-aware policies
-are outside the proposition.
+The non-type IRI graph omits literals as vertices and does not traverse
+class-membership edges.  Consequently $x$ and $y$ are in different connected
+components, not merely more than $k$ hops apart.  Any policy restricted to the
+$k$-hop component of $x$ omits the type, key, and value premises incident to
+$y$ and cannot contain the witness.  Since the construction works for every
+finite $k$, no fixed finite radius gives the claimed guarantee for this policy
+class.  Literal-aware, key-aware, and type-traversing policies are outside the
+proposition.  This final exclusion is substantive: if \texttt{rdf:type} edges
+are traversed, records of the common class $C$ are connected through $C$ in
+two hops.
 
 \subsection{\cwi{} Contract and Witness Minimality}
 
@@ -228,6 +231,31 @@ and 11 measured repetitions and reports medians and interquartile ranges.
 These are descriptive system measurements, not statistical-significance
 claims.
 
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1.4pt}
+\begin{tabular}{lrrrrr}
+\toprule
+Family & Exact witness & Key-aware & BM25 & Dense & Hybrid \\
+\midrule
+D20       & 129 & 260 & 489 & 505 & 480 \\
+XR-small  & 479 & 623 & 6,383 & 26,639 & 12,527 \\
+XR-scale  & 479 & 623 & 623 & 130,319 & 24,815 \\
+Chain-2   & 718 & 7,395 & 34,519 & 34,519 & 34,519 \\
+Chain-3   & 957 & 7,157 & 26,447 & 26,447 & 26,447 \\
+H3-NK1    & 479 & 679 & 7,279 & 29,999 & 14,319 \\
+H3-NK3    & 479 & 801 & 17,311 & 37,319 & 34,812 \\
+TauSig    & 735 & 879 & 16,152 & 48,311 & 31,637 \\
+\bottomrule
+\end{tabular}
+\caption{Mean UTF-8 bytes of query-returned assertions at the same smallest
+fully conflict-complete settings as the main retrieval table.  The shared
+oracle schema is excluded.  The artifact also reports maxima and the selected
+parameter for every cell.}
+\label{tab:bytes}
+\end{table}
+
 \subsection{Multi-Conflict Budget Matrix}
 
 \begin{table}[t]
@@ -288,33 +316,39 @@ mechanism on natural topology, not the prevalence of semantic conflicts.
 For each of 300, 3,000, and 10,000 persons, the generator and schema parser run
 before timing.  One unrecorded warm-up precedes 11 measured repetitions.  In a
 repetition, \cwi{} ingests the in-memory snapshot once and answers the first
-$q\in\{1,10,100\}$ deterministic conflict queries.  The stateless arm receives
-the same in-memory triples but reconstructs its triple index, exact key
-closure, and conflict cells for every query.  Thus neither arm receives a
-file-I/O advantage.
+$q\in\{1,10,100\}$ deterministic conflict queries.  Cached exact batch-builds
+its triple index, exact key closure, conflict cells, and subject lookup once
+per repetition, then reuses them.  Fresh exact reconstructs the same exact
+structures for every query.  All arms receive the same in-memory triples, so
+none receives a file-I/O advantage.
 
 \begin{table}[t]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\begin{tabular}{rrrrrr}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{rrrrr}
 \toprule
-Triples & Entries & \cwi{} $q{=}1$ & Fresh $q{=}1$ &
-\cwi{} $q{=}100$ & Fresh $q{=}100$ \\
+Persons & $q$ & \cwi{} & Cached & Fresh \\
 \midrule
-1,689  & 1,386  & 0.69 & 1.07 & 1.19 & 111.26 \\
-16,809 & 13,806 & 9.77 & 20.02 & 10.39 & 1,732.23 \\
-56,009 & 46,006 & 39.79 & 75.19 & 40.31 & 7,505.44 \\
+300    & 1   & 1.18 & 0.98 & 0.95 \\
+300    & 100 & 1.62 & 0.99 & 102.94 \\
+3,000  & 1   & 8.89 & 19.21 & 17.00 \\
+3,000  & 100 & 9.25 & 19.21 & 1,765.49 \\
+10,000 & 1   & 40.97 & 84.35 & 79.02 \\
+10,000 & 100 & 41.53 & 84.36 & 7,909.10 \\
 \bottomrule
 \end{tabular}
-\caption{Median total milliseconds. ``Entries'' counts structural index items
-plus materialized conflict pairs; it is not a heap-byte estimate.}
+\caption{Median total milliseconds over 11 repetitions after one warm-up.
+Cached exact is a fair immutable-snapshot comparator; fresh exact is the
+no-retained-state endpoint.}
 \end{table}
 
 Every query has exactly one expected conflict and no run is missing or
-spurious.  Full per-run timings and IQRs are shipped.  The retained-item ratio
-is 0.820--0.821 per source triple on this generator; the fresh arm retains no
-derived state between queries.
+spurious.  Full per-run timings and IQRs are shipped.  \cwi{} retains
+1,386--46,006 structural/conflict items (0.820--0.821 per source triple).
+Cached exact retains 1,869--62,009 source-index, detection, and lookup
+references; these representation-specific counts are not heap-byte estimates.
+Fresh exact retains no derived state between queries.
 
 \subsection{Large-Class Stress Matrix}
 
@@ -379,7 +413,8 @@ be quadratic within a large equivalence class; the dedicated stress leg
 exposes that regime.  The semi-natural conflict predicate is injected, and
 unequal natural publication-year strings remain unlabeled because versions,
 linkage errors, or metadata errors could explain them.  The workload uses a
-single process and an insertion-batch/read-many schedule, not concurrent
-updates, deletion, or heap-residency measurement.
+single process and an insertion-batch/read-many schedule.  Cached exact is an
+immutable-snapshot comparator; the study does not cover concurrent or
+interleaved updates, deletion, or heap-residency measurement.
 
 \end{document}

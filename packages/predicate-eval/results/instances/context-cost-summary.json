@@ -1,0 +1,542 @@
+{
+  "costScope": "UTF-8 bytes and logical triples of query-returned source assertions; the shared oracle schema is excluded",
+  "selectionRule": "smallest tested parameter whose returned context contains a complete witness for every conflict in the family",
+  "families": [
+    {
+      "family": "D20",
+      "domain": "conflict-d20",
+      "instances": 14,
+      "conflicts": 8,
+      "storeTriples": 133,
+      "exactWitness": {
+        "system": "cwi-witness",
+        "parameter": null,
+        "triples": {
+          "mean": 2,
+          "max": 2
+        },
+        "bytes": {
+          "mean": 129,
+          "max": 131
+        }
+      },
+      "keyAware": {
+        "system": "retrieval:key-aware@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 4,
+          "max": 4
+        },
+        "bytes": {
+          "mean": 260,
+          "max": 261
+        }
+      },
+      "bm25": {
+        "system": "retrieval:bm25@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 7.5,
+          "max": 8
+        },
+        "bytes": {
+          "mean": 489,
+          "max": 523
+        }
+      },
+      "dense": {
+        "system": "retrieval:dense-minilm@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 7.8,
+          "max": 8
+        },
+        "bytes": {
+          "mean": 505,
+          "max": 523
+        }
+      },
+      "hybrid": {
+        "system": "retrieval:hybrid-rrf@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 7.4,
+          "max": 8
+        },
+        "bytes": {
+          "mean": 480,
+          "max": 519
+        }
+      }
+    },
+    {
+      "family": "XR-small",
+      "domain": "conflict-xr-small",
+      "instances": 16,
+      "conflicts": 12,
+      "storeTriples": 345,
+      "exactWitness": {
+        "system": "cwi-witness",
+        "parameter": null,
+        "triples": {
+          "mean": 6,
+          "max": 6
+        },
+        "bytes": {
+          "mean": 479,
+          "max": 479
+        }
+      },
+      "keyAware": {
+        "system": "retrieval:key-aware@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 8,
+          "max": 8
+        },
+        "bytes": {
+          "mean": 623,
+          "max": 623
+        }
+      },
+      "bm25": {
+        "system": "retrieval:bm25@16",
+        "parameter": 16,
+        "triples": {
+          "mean": 83,
+          "max": 83
+        },
+        "bytes": {
+          "mean": 6383,
+          "max": 6383
+        }
+      },
+      "dense": {
+        "system": "retrieval:dense-minilm@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 345,
+          "max": 345
+        },
+        "bytes": {
+          "mean": 26639,
+          "max": 26639
+        }
+      },
+      "hybrid": {
+        "system": "retrieval:hybrid-rrf@32",
+        "parameter": 32,
+        "triples": {
+          "mean": 163,
+          "max": 163
+        },
+        "bytes": {
+          "mean": 12527,
+          "max": 12527
+        }
+      }
+    },
+    {
+      "family": "XR-scale",
+      "domain": "conflict-xr-scale",
+      "instances": 64,
+      "conflicts": 60,
+      "storeTriples": 1689,
+      "exactWitness": {
+        "system": "cwi-witness",
+        "parameter": null,
+        "triples": {
+          "mean": 6,
+          "max": 6
+        },
+        "bytes": {
+          "mean": 479,
+          "max": 479
+        }
+      },
+      "keyAware": {
+        "system": "retrieval:key-aware@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 8,
+          "max": 8
+        },
+        "bytes": {
+          "mean": 623,
+          "max": 623
+        }
+      },
+      "bm25": {
+        "system": "retrieval:bm25@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 8,
+          "max": 8
+        },
+        "bytes": {
+          "mean": 623,
+          "max": 623
+        }
+      },
+      "dense": {
+        "system": "retrieval:dense-minilm@512",
+        "parameter": 512,
+        "triples": {
+          "mean": 1689,
+          "max": 1689
+        },
+        "bytes": {
+          "mean": 130319,
+          "max": 130319
+        }
+      },
+      "hybrid": {
+        "system": "retrieval:hybrid-rrf@64",
+        "parameter": 64,
+        "triples": {
+          "mean": 323,
+          "max": 323
+        },
+        "bytes": {
+          "mean": 24815,
+          "max": 24815
+        }
+      }
+    },
+    {
+      "family": "Chain-2",
+      "domain": "conflict-chain-m2",
+      "instances": 41,
+      "conflicts": 10,
+      "storeTriples": 440,
+      "exactWitness": {
+        "system": "cwi-witness",
+        "parameter": null,
+        "triples": {
+          "mean": 9,
+          "max": 9
+        },
+        "bytes": {
+          "mean": 718,
+          "max": 718
+        }
+      },
+      "keyAware": {
+        "system": "retrieval:key-aware@2",
+        "parameter": 2,
+        "triples": {
+          "mean": 94.6,
+          "max": 98
+        },
+        "bytes": {
+          "mean": 7395,
+          "max": 7675
+        }
+      },
+      "bm25": {
+        "system": "retrieval:bm25@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 440,
+          "max": 440
+        },
+        "bytes": {
+          "mean": 34519,
+          "max": 34519
+        }
+      },
+      "dense": {
+        "system": "retrieval:dense-minilm@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 440,
+          "max": 440
+        },
+        "bytes": {
+          "mean": 34519,
+          "max": 34519
+        }
+      },
+      "hybrid": {
+        "system": "retrieval:hybrid-rrf@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 440,
+          "max": 440
+        },
+        "bytes": {
+          "mean": 34519,
+          "max": 34519
+        }
+      }
+    },
+    {
+      "family": "Chain-3",
+      "domain": "conflict-chain-m3",
+      "instances": 25,
+      "conflicts": 6,
+      "storeTriples": 336,
+      "exactWitness": {
+        "system": "cwi-witness",
+        "parameter": null,
+        "triples": {
+          "mean": 12,
+          "max": 12
+        },
+        "bytes": {
+          "mean": 957,
+          "max": 957
+        }
+      },
+      "keyAware": {
+        "system": "retrieval:key-aware@3",
+        "parameter": 3,
+        "triples": {
+          "mean": 91.3,
+          "max": 112
+        },
+        "bytes": {
+          "mean": 7157,
+          "max": 8815
+        }
+      },
+      "bm25": {
+        "system": "retrieval:bm25@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 336,
+          "max": 336
+        },
+        "bytes": {
+          "mean": 26447,
+          "max": 26447
+        }
+      },
+      "dense": {
+        "system": "retrieval:dense-minilm@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 336,
+          "max": 336
+        },
+        "bytes": {
+          "mean": 26447,
+          "max": 26447
+        }
+      },
+      "hybrid": {
+        "system": "retrieval:hybrid-rrf@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 336,
+          "max": 336
+        },
+        "bytes": {
+          "mean": 26447,
+          "max": 26447
+        }
+      }
+    },
+    {
+      "family": "H3-NK1",
+      "domain": "conflict-h3-nk1",
+      "instances": 16,
+      "conflicts": 12,
+      "storeTriples": 405,
+      "exactWitness": {
+        "system": "cwi-witness",
+        "parameter": null,
+        "triples": {
+          "mean": 6,
+          "max": 6
+        },
+        "bytes": {
+          "mean": 479,
+          "max": 479
+        }
+      },
+      "keyAware": {
+        "system": "retrieval:key-aware@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 9,
+          "max": 9
+        },
+        "bytes": {
+          "mean": 679,
+          "max": 679
+        }
+      },
+      "bm25": {
+        "system": "retrieval:bm25@16",
+        "parameter": 16,
+        "triples": {
+          "mean": 99,
+          "max": 99
+        },
+        "bytes": {
+          "mean": 7279,
+          "max": 7279
+        }
+      },
+      "dense": {
+        "system": "retrieval:dense-minilm@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 405,
+          "max": 405
+        },
+        "bytes": {
+          "mean": 29999,
+          "max": 29999
+        }
+      },
+      "hybrid": {
+        "system": "retrieval:hybrid-rrf@32",
+        "parameter": 32,
+        "triples": {
+          "mean": 195,
+          "max": 195
+        },
+        "bytes": {
+          "mean": 14319,
+          "max": 14319
+        }
+      }
+    },
+    {
+      "family": "H3-NK3",
+      "domain": "conflict-h3-nk3",
+      "instances": 16,
+      "conflicts": 12,
+      "storeTriples": 525,
+      "exactWitness": {
+        "system": "cwi-witness",
+        "parameter": null,
+        "triples": {
+          "mean": 6,
+          "max": 6
+        },
+        "bytes": {
+          "mean": 479,
+          "max": 479
+        }
+      },
+      "keyAware": {
+        "system": "retrieval:key-aware@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 11,
+          "max": 11
+        },
+        "bytes": {
+          "mean": 801,
+          "max": 801
+        }
+      },
+      "bm25": {
+        "system": "retrieval:bm25@32",
+        "parameter": 32,
+        "triples": {
+          "mean": 244.8,
+          "max": 254
+        },
+        "bytes": {
+          "mean": 17311,
+          "max": 17901
+        }
+      },
+      "dense": {
+        "system": "retrieval:dense-minilm@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 525,
+          "max": 525
+        },
+        "bytes": {
+          "mean": 37319,
+          "max": 37319
+        }
+      },
+      "hybrid": {
+        "system": "retrieval:hybrid-rrf@64",
+        "parameter": 64,
+        "triples": {
+          "mean": 493.3,
+          "max": 495
+        },
+        "bytes": {
+          "mean": 34812,
+          "max": 34919
+        }
+      }
+    },
+    {
+      "family": "TauSig",
+      "domain": "conflict-tausig",
+      "instances": 60,
+      "conflicts": 12,
+      "storeTriples": 648,
+      "exactWitness": {
+        "system": "cwi-witness",
+        "parameter": null,
+        "triples": {
+          "mean": 10,
+          "max": 10
+        },
+        "bytes": {
+          "mean": 735,
+          "max": 735
+        }
+      },
+      "keyAware": {
+        "system": "retrieval:key-aware@1",
+        "parameter": 1,
+        "triples": {
+          "mean": 12,
+          "max": 12
+        },
+        "bytes": {
+          "mean": 879,
+          "max": 879
+        }
+      },
+      "bm25": {
+        "system": "retrieval:bm25@32",
+        "parameter": 32,
+        "triples": {
+          "mean": 220.2,
+          "max": 226
+        },
+        "bytes": {
+          "mean": 16152,
+          "max": 16565
+        }
+      },
+      "dense": {
+        "system": "retrieval:dense-minilm@128",
+        "parameter": 128,
+        "triples": {
+          "mean": 648,
+          "max": 648
+        },
+        "bytes": {
+          "mean": 48311,
+          "max": 48311
+        }
+      },
+      "hybrid": {
+        "system": "retrieval:hybrid-rrf@64",
+        "parameter": 64,
+        "triples": {
+          "mean": 430.8,
+          "max": 433
+        },
+        "bytes": {
+          "mean": 31637,
+          "max": 31815
+        }
+      }
+    }
+  ]
+}

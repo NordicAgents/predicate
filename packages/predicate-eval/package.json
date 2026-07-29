@@ -25,6 +25,7 @@
     "instances-reasoner-tau": "tsx src/instances/reasoner-tau-cli.ts",
     "instances-score": "tsx src/instances/score-cli.ts",
     "bcurves": "tsx src/instances/bcurves-cli.ts",
+    "context-cost-summary": "tsx src/instances/context-cost-summary-cli.ts",
     "phase1-verdicts": "tsx src/instances/phase1-verdicts-cli.ts",
     "cwi": "tsx src/cwi/run-cwi-cli.ts",
     "cwi-budget-study": "tsx src/cwi/run-budget-study-cli.ts",

@@ -20,11 +20,11 @@ budget-feasibility boundary by the minimum joint union of one witness per
 conflict. A capped exact selector realizes this boundary on tractable classes
 and otherwise abstains rather than silently returning incomplete evidence. We
 also show
-that every fixed-hop policy based only on IRI adjacency fails conflict
+that every fixed-hop policy based only on non-type IRI adjacency fails conflict
 completeness on a literal-keyed construction. A Conflict Witness Index (CWI)
 incrementally maintains key-induced record equivalence and returns one
 shortest witness per conflict. Evaluation covers 252 synthetic instances with
-132 conflicts, 12 multi-conflict queries, and 136 semi-natural controls on
+132 conflicts, 12 multi-conflict queries, and 136 semi-natural instances on
 gold record-linkage topology. Shared premises reduce a
 32-conflict joint certificate from 192 to 68 triples, whereas 32 disjoint
 conflicts require all 192; on an alternative-path case, exact joint selection
@@ -38,7 +38,8 @@ retrieval contract and cost study, not evidence of natural conflict prevalence.
 
 We define conflict completeness, realize its exact joint-budget boundary on
 tractable classes, and test maintained retrieval on synthetic and
-semi-natural controlled conflicts with a fair stateless workload comparison.
+semi-natural controlled conflicts with cached-snapshot and stateless exact
+workload comparisons.
 
 ## Human-entered fields
 

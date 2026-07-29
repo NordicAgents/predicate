@@ -61,6 +61,7 @@ FOCUSED_TESTS = {
     "adaptive-key-witness.test.ts",
     "conflict-bench.test.ts",
     "conflict-xr.test.ts",
+    "context-cost-summary.test.ts",
     "cwi.test.ts",
     "cwi-budget.test.ts",
     "exact-baselines.test.ts",

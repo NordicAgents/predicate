@@ -150,7 +150,6 @@ def evaluate(
     rankings: list[list[int]],
     top_k: int,
     system: str,
-    schema_bytes: int,
     index_build_ms: float,
 ) -> list[dict[str, Any]]:
     subject_index = {subject: index for index, subject in enumerate(subjects)}
@@ -176,7 +175,9 @@ def evaluate(
                 value for value in instance["goldValues"] if value in objects
             ]
             context_lines = sorted(ntriple_bytes(triple) for triple in context)
-            context_bytes = schema_bytes + sum(map(len, context_lines))
+            # The supplied schema is shared contract state, not evidence
+            # returned for an individual query. Count selected facts only.
+            context_bytes = sum(map(len, context_lines))
             if context_lines:
                 context_bytes += len(context_lines) - 1
             outcomes.append(
@@ -275,7 +276,6 @@ def main() -> None:
     hybrid = rrf_rankings(dense, bm25)
     hybrid_build_ms = dense_build_ms + (time.perf_counter() - start) * 1000
 
-    schema_bytes = len((domain_dir / "world.ttl").read_bytes())
     rows: list[dict[str, Any]] = []
     for top_k in top_k_values:
         rows.extend(
@@ -287,7 +287,6 @@ def main() -> None:
                 rankings=dense,
                 top_k=top_k,
                 system="dense-minilm",
-                schema_bytes=schema_bytes,
                 index_build_ms=dense_build_ms,
             )
         )
@@ -300,7 +299,6 @@ def main() -> None:
                 rankings=hybrid,
                 top_k=top_k,
                 system="hybrid-rrf",
-                schema_bytes=schema_bytes,
                 index_build_ms=hybrid_build_ms,
             )
         )
