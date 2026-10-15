@@ -60,18 +60,48 @@ The fastest path is the `predicate-skill` npm package, which bundles the MCP
 server, the `predicate` CLI, and per-client integration adapters.
 
 <details open>
-<summary><strong>Claude Code</strong> — one-command marketplace install</summary>
+<summary><strong>Claude Code</strong> — marketplace install</summary>
 
 ```
 /plugin marketplace add NordicAgents/predicate
 /plugin install predicate@predicate
 ```
 
-Restart Claude Code (or `/reload-plugins`), then:
+Choose **project** or **local** scope in the plugin installation panel to keep
+Predicate enabled only in this repository. For explicit project-scoped
+installation, run these commands in your terminal:
 
 ```bash
-predicate up        # creates the local store + the 8 named graphs
-predicate doctor    # all checks green
+cd /path/to/your/project
+claude plugin marketplace add NordicAgents/predicate --scope project
+claude plugin install predicate@predicate --scope project
+```
+
+`--scope project` records the setup in `.claude/settings.json` for the
+repository's collaborators. Use `--scope local` on both commands to enable it
+only for yourself in this repository, via `.claude/settings.local.json`.
+Terminal plugin installation defaults to **user** scope when no scope is
+specified, making the plugin available across projects. See
+[Claude Code's installation scopes](https://code.claude.com/docs/en/discover-plugins#choose-an-install-scope).
+
+To pin Predicate's memory to this project's `.predicate/store/`, launch Claude
+Code from the same project root with:
+
+```bash
+PREDICATE_STORE_PATH="$PWD/.predicate/store" claude
+```
+
+Use this launch command for subsequent sessions to keep the store path
+explicit. Claude Code may cache the plugin's executable files centrally; its
+activation settings and knowledge graph can still be project-specific. The
+plugin bundles its CLI, so this installation path requires no global npm
+installation.
+
+In Claude Code, run:
+
+```text
+/predicate:up        # creates the local store + the 8 named graphs
+/predicate:status    # checks health and graph counts
 ```
 
 Hooks, slash commands, and the `kg_*` tools are wired automatically. Slash
